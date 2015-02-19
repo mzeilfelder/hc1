@@ -6,6 +6,5 @@
 ./make-freetype-linux.sh
 ./make-sdl-linux.sh
 ./make-oggvorbis-linux.sh
-./make-crypto-linux.sh
 ./make-openal-linux.sh
 ./make-shared-linux-libs.sh
