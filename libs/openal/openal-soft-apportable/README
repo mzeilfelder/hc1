@@ -1,0 +1,45 @@
+This is an OpenAL-soft shared library for Android.
+
+Features:
+ * builds for Froyo or later
+ * builds as a shared library
+ * back-end for AudioTrack or OpenSLES
+ * Fixed-point (default) or floating-point math for mixing
+
+Created with:
+android create project --target android-8 --name openal_soft --path openal-soft --activity openal_soft --package com.apportable.openal_soft 
+
+Fork of OpenAL-soft in jni/OpenAL
+
+Build with:
+cd jni
+ndk-build
+
+
+
+Additional Build Notes:
+The build process supports multiple options.
+This is an example incantation to build for ALmixer.
+ndk-build V=1 POST_FROYO=yes MAX_SOURCES_LOW=32 MAX_SOURCES_START=32 MAX_SOURCES_HIGH=32 TARGET_PLATFORM=android-19
+
+By default, armeabi armeabi-v7a x86, are built. You can override this by passing a specific arch via:
+TARGET_ARCH_ABI=armeabi-v7a
+e.g.
+ndk-build V=1 POST_FROYO=yes MAX_SOURCES_LOW=32 MAX_SOURCES_START=32 MAX_SOURCES_HIGH=32 TARGET_PLATFORM=android-19 TARGET_ARCH_ABI=armeabi-v7a
+You may also modify the APP_ABI in the Application.mk directly.
+
+
+V=1 is verbose mode. This is recommended so you can visually verify the correct flags are set.
+
+POST_FROYO=yes is needed to build the OpenSL ES backend (2.3+). 
+
+MAX_SOURCES_LOW, MAX_SOURCES_START, MAX_SOURCES_HIGH are features introduced by Apportable to dynamically scale the number of sources based on CPU load. 
+Many libraries that preallocate sources and recycle them will have problems with this, so for these cases, you should set all the numbers the same so the number stays constant.
+
+TARGET_PLATFORM=android-9 or greater is needed for OpenSL ES.
+
+armeabi and armeabi-v7a builds use Apportable's fixed point modifications to OpenAL-Soft (but x86 does not).
+Fixed point is a clear performance winner for armeabi. But no benchmarks have been done to determine if fixed point or floating point is better on armeabi-v7a.
+Benchmarks are welcome.
+
+

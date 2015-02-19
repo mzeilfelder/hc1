@@ -1,0 +1,8 @@
+I got this openal-soft version from: 
+hg clone https://bitbucket.org/ewing/openal-soft-apportable
+
+Don't know if it's better than the other apportable version found on the web - but this one looked like it 
+has more active development and even comes with Android.mk already.
+
+Also it should probably rather be a hg subrepository. But before I do that I have to re-think the way
+H-Craft is handling library dependencies right now. 

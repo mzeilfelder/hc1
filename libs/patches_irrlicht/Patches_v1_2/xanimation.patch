@@ -1,0 +1,257 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IAnimatedMesh.h hcraft_libs/irrlicht/include/IAnimatedMesh.h
+--- svn_hcraft_1.2/irrlicht/include/IAnimatedMesh.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/IAnimatedMesh.h	2006-12-04 20:15:12.000000000 +0100
+@@ -71,4 +71,8 @@ namespace scene
+ 		virtual ~IAnimatedMesh() {};
+ 
++        //! HACK: i added this because .X files do not always start at 0
++        //! return -1 if the first frame is unknown or otherwise the first frame
++		virtual s32 getFirstFrame() { return -1; }
++
+ 		//! Gets the frame count of the animated mesh.
+ 		/** \return Returns the amount of frames. If the amount is 1, it is a
+@@ -88,5 +92,5 @@ namespace scene
+ 		\param endFrameLoop: see startFrameLoop.
+ 		\return Returns the animated mesh based on a detail level.  */
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1) = 0;
++		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f) = 0;
+ 
+ 		//! Returns an axis aligned bounding box of the mesh.
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IAnimatedMeshSceneNode.h hcraft_libs/irrlicht/include/IAnimatedMeshSceneNode.h
+--- svn_hcraft_1.2/irrlicht/include/IAnimatedMeshSceneNode.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/IAnimatedMeshSceneNode.h	2006-12-05 10:54:25.000000000 +0100
+@@ -191,4 +191,6 @@ namespace scene
+ 		virtual IAnimatedMesh* getMesh(void) = 0;
+ 
++		virtual const s32& getStartFrame() const = 0;
++		virtual const s32& getEndFrame() const = 0;
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SAnimatedMesh.h hcraft_libs/irrlicht/include/SAnimatedMesh.h
+--- svn_hcraft_1.2/irrlicht/include/SAnimatedMesh.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/SAnimatedMesh.h	2006-08-29 02:50:00.000000000 +0100
+@@ -56,5 +56,5 @@ namespace scene
+ 		//! \param endFrameLoop: end frame
+ 		//! \return Returns the animated mesh based on a detail level. 
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop=-1, s32 endFrameLoop=-1)
++		virtual IMesh* getMesh(s32 frame, s32 ARG_UNUSED(detailLevel), s32 ARG_UNUSED(startFrameLoop)=-1, s32 ARG_UNUSED(endFrameLoop)=-1, f32 ARG_UNUSED(frameFraction)=0.f)
+ 		{
+ 			if (Meshes.empty())
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.cpp hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.cpp	2006-12-06 11:57:19.000000000 +0100
+@@ -1041,5 +1041,5 @@ s32 CAnimatedMeshB3d::getFrameCount()
+ 
+ //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-IMesh* CAnimatedMeshB3d::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
++IMesh* CAnimatedMeshB3d::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop, f32 frameFraction)
+ {
+ 	animate(frame,startFrameLoop, endFrameLoop);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h
+@@ -51,5 +51,5 @@ namespace scene
+ 
+ 		//! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
++		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f);
+ 
+ 		//! returns amount of mesh buffers.
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.cpp hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.cpp	2006-12-06 11:59:27.000000000 +0100
+@@ -322,5 +322,5 @@ s32 CAnimatedMeshMD2::getFrameCount()
+ 
+ //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-IMesh* CAnimatedMeshMD2::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
++IMesh* CAnimatedMeshMD2::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop, f32 frameFraction)
+ {
+ 	if ((u32)frame > (FrameCount<<MD2_FRAME_SHIFT))
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h
+@@ -34,5 +34,5 @@ namespace scene
+ 
+ 		//! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
++		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f);
+ 
+ 		//! returns amount of mesh buffers.
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.cpp hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.cpp	2006-12-06 12:01:18.000000000 +0100
+@@ -520,5 +520,5 @@ s32 CAnimatedMeshMS3D::getFrameCount()
+ 
+ //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-IMesh* CAnimatedMeshMS3D::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
++IMesh* CAnimatedMeshMS3D::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop, f32 frameFraction)
+ {
+ 	animate(frame);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
+@@ -39,5 +39,5 @@ namespace scene
+ 
+ 		//! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
++		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f);
+ 
+ 		//! returns amount of mesh buffers.
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.cpp hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.cpp	2006-12-06 12:17:48.000000000 +0100
+@@ -30,5 +31,5 @@ CAnimatedMeshSceneNode::CAnimatedMeshSce
+ : IAnimatedMeshSceneNode(parent, mgr, id, position, rotation, scale), Mesh(0),
+ 	BeginFrameTime(0), StartFrame(0), EndFrame(0), FramesPerSecond(100),
+-	Shadow(0), Looping(true), LoopCallBack(0), ReadOnlyMaterials(false)
++	Looping(true), LoopCallBack(0), Shadow(0), FrameFraction(0.f), ReadOnlyMaterials(false)
+ {
+ 	#ifdef _DEBUG
+@@ -139,4 +140,6 @@ inline s32 CAnimatedMeshSceneNode::getFr
+ 		frame = StartFrame + ((s32)((os::Timer::getTime() - BeginFrameTime)
+ 			* (FramesPerSecond/1000.0f)) % len);
++        FrameFraction = (StartFrame + fmod(((os::Timer::getTime() - BeginFrameTime)
++			* (FramesPerSecond/1000.0f)), len)) - frame;
+ 	}
+ 	else
+@@ -145,8 +148,12 @@ inline s32 CAnimatedMeshSceneNode::getFr
+ 		frame = StartFrame + ((s32)((os::Timer::getTime() - BeginFrameTime)
+ 			* (FramesPerSecond/1000.0f)));
++		FrameFraction = (StartFrame + ((os::Timer::getTime() - BeginFrameTime)
++			* (FramesPerSecond/1000.0f))) - frame;
++
+ 
+ 		if (frame > EndFrame)
+ 		{
+ 			frame = EndFrame;
++			FrameFraction = 0.f;
+ 			StartFrame = EndFrame;
+ 			if (LoopCallBack)
+@@ -200,5 +207,5 @@ void CAnimatedMeshSceneNode::render()
+ 	s32 frame = getFrameNr();
+ 
+-	scene::IMesh* m = Mesh->getMesh(frame, 255, StartFrame, EndFrame);
++	scene::IMesh* m = Mesh->getMesh(frame, 255, StartFrame, EndFrame, FrameFraction);
+ 
+ 	if (m)
+@@ -662,4 +671,7 @@ void CAnimatedMeshSceneNode::setMesh(IAn
+ 	// get start and begin time
+ 
++    if ( Mesh->getFirstFrame() >= 0 )
++        StartFrame = Mesh->getFirstFrame();
++    else
+ 	StartFrame = 0;
+ 	EndFrame = Mesh->getFrameCount();
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshSceneNode.h	2006-12-05 10:59:09.000000000 +0100
+@@ -122,4 +122,6 @@ namespace scene
+ 		virtual ESCENE_NODE_TYPE getType() { return ESNT_ANIMATED_MESH; }
+ 
++		virtual const s32& getStartFrame() const { return StartFrame; }
++		virtual const s32& getEndFrame() const { return EndFrame; }
+ 
+ 	private:
+@@ -143,5 +145,5 @@ namespace scene
+ 
+ 		core::array<IDummyTransformationSceneNode* > JointChildSceneNodes;
+-
++		f32 FrameFraction;  // HACK: calculate this each time when getFrameNr is called
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CQ3LevelMesh.cpp hcraft_libs/irrlicht/source/Irrlicht/CQ3LevelMesh.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CQ3LevelMesh.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CQ3LevelMesh.cpp	2006-12-06 12:04:52.000000000 +0100
+@@ -156,5 +156,5 @@ s32 CQ3LevelMesh::getFrameCount()
+ 
+ //! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-IMesh* CQ3LevelMesh::getMesh(s32 frameInMs, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
++IMesh* CQ3LevelMesh::getMesh(s32 frameInMs, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop, f32 frameFraction)
+ {
+ 	// Dirty Hack
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CQ3LevelMesh.h hcraft_libs/irrlicht/source/Irrlicht/CQ3LevelMesh.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CQ3LevelMesh.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CQ3LevelMesh.h	2006-12-06 12:04:45.000000000 +0100
+@@ -37,5 +37,5 @@ namespace scene
+ 
+ 		//! returns the animated mesh based on a detail level. 0 is the lowest, 255 the highest detail. Note, that some Meshes will ignore the detail level.
+-		virtual IMesh* getMesh(s32 frameInMs, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
++		virtual IMesh* getMesh(s32 frameInMs, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f);
+ 
+ 		//! Returns an axis aligned bounding box of the mesh.
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.h hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.h	2006-08-28 04:40:34.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.h	2006-08-29 21:21:34.000000000 +0100
+@@ -34,9 +34,12 @@ namespace scene
+ 		virtual ~CXAnimationPlayer();
+ 
++        //! HACK: i added this because .X files do not always start at 0
++        virtual s32 getFirstFrame();
++
+ 		//! Gets the frame count of the animated mesh.
+ 		virtual s32 getFrameCount();
+ 
+ 		//! Returns the IMesh interface for a frame.
+-		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1);
++		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1, f32 frameFraction = 0.f);
+ 
+ 		//! Returns an axis aligned bounding box of the mesh.
+@@ -174,4 +177,5 @@ namespace scene
+ 		core::array<SJoint> Joints;
+ 
++        f32 FirstAnimationTime; // HACK: i added this because .X files do not always start at 0
+ 		f32 CurrentAnimationTime;
+ 		f32 LastAnimationTime;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+@@ -26,4 +27,5 @@ Manipulator(manip), CurrentAnimationTime
+ 	CurrentAnimationSet(0), IsAnimatedSkinnedMesh(false), DebugSkeletonCrossSize(1.0f)
+ {
++    FirstAnimationTime = -1;
+ 	FileName = filename;
+ 
+@@ -60,5 +62,8 @@ CXAnimationPlayer::~CXAnimationPlayer()
+ }
+ 
+-
++s32 CXAnimationPlayer::getFirstFrame()
++{
++    return FirstAnimationTime;
++}
+ 
+ //! Gets the frame count of the animated mesh.
+@@ -71,10 +76,10 @@ s32 CXAnimationPlayer::getFrameCount()
+ 
+ //! Returns the IMesh interface for a frame.
+-IMesh* CXAnimationPlayer::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop)
++IMesh* CXAnimationPlayer::getMesh(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop, f32 frameFraction)
+ {
+ 	if (!IsAnimatedSkinnedMesh)
+ 		return &OriginalMesh;
+ 
+-	CurrentAnimationTime = (f32)frame;
++	CurrentAnimationTime = (f32)frame + frameFraction;
+ 	animateSkeleton();
+ 	modifySkin();
+@@ -199,4 +204,5 @@ video::SMaterial CXAnimationPlayer::getM
+ {
+ 	video::SMaterial mat;
++	mat.MaterialTypeParam = 0.02f;
+ 	mat.EmissiveColor = xmat.Emissive.toSColor();
+ 	mat.DiffuseColor = xmat.FaceColor.toSColor();
+@@ -530,5 +546,5 @@ void CXAnimationPlayer::animateSkeleton(
+ 			}
+ 
+-			if (idx1 == -1)
++			if (idx1 == -1 || idx2 == -1)
+ 				continue;
+ 
+@@ -776,4 +794,7 @@ void CXAnimationPlayer::prepareAnimation
+ 				if (myTrack.Times.getLast() > LastAnimationTime)
+ 					LastAnimationTime = myTrack.Times.getLast();
++
++                if ( myTrack.Times.size() > 0 )
++                    FirstAnimationTime = myTrack.Times[0];
+ 			}
+ 		}

@@ -1,0 +1,9 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp	
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+@@ -957,5 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 	}
+ 
+-	glFlush();
+ 
+ 	glDisableClientState(GL_COLOR_ARRAY);

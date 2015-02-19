@@ -1,0 +1,17 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/ISceneNode.h hcraft_libs/irrlicht/include/ISceneNode.h
+--- svn_hcraft_1.2/irrlicht/include/ISceneNode.h
++++ hcraft_libs/irrlicht/include/ISceneNode.h
+@@ -377,4 +383,13 @@ namespace scene
+ 		}
+ 
++		//! Translate the node
++		//! \param vector: The vector to translate along
++		//! \param local: Translate locally or use parents coord system (global if no parent)
++		virtual void translate(core::vector3df& vector, bool local=true) {
++			core::matrix4 mat;
++			mat.setRotationDegrees(getRotation());
++			if (local) mat.transformVect(vector);
++			setPosition(getPosition() + vector);
++		}
+ 
+ 		//! Gets the rotation of the node.

@@ -1,0 +1,489 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SIrrCreationParameters.h hcraft_libs/irrlicht/include/SIrrCreationParameters.h
+--- svn_hcraft_1.2/irrlicht/include/SIrrCreationParameters.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/SIrrCreationParameters.h	2007-02-25 00:07:34.000000000 +0100
+@@ -20,7 +20,8 @@ namespace irr
+ 			Fullscreen = false;
+ 			Stencilbuffer = false;
+-			Vsync = false;
++			Vsync = 0;
+ 			AntiAlias = false;
+ 			HighPrecisionFPU = false;
++			Frequency = 0;
+ 			EventReceiver = 0;
+ 			WindowId = 0;
+@@ -52,7 +53,6 @@ namespace irr
+ 
+ 		//! Specifies vertical syncronisation.
+-		/** If set to true, the driver will wait for the vertical retrace period, otherwise not.
+-		Default: false */
+-		bool Vsync;
++		// MICHA: i made an int for it. Don't know why it was restricted to bool
++		s32 Vsync;
+ 
+ 		//! Specifies if the device should use fullscreen anti aliasing
+@@ -75,4 +75,8 @@ namespace irr
+ 		bool HighPrecisionFPU;
+ 
++		// MICHA:
++		// When > 0 it will set the frequency in fullscreen
++		s32 Frequency;
++
+ 		//! A user created event receiver.
+ 		IEventReceiver* EventReceiver;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/irrlicht.h hcraft_libs/irrlicht/include/irrlicht.h
+--- svn_hcraft_1.2/irrlicht/include/irrlicht.h
++++ hcraft_libs/irrlicht/include/irrlicht.h
+@@ -277,4 +281,5 @@ namespace irr
+ 		bool stencilbuffer=false,
+ 		bool vsync=false,
++		s32 frequency = 0,
+ 		IEventReceiver* receiver = 0,
+ 		const c8* sdk_version_do_not_use = IRRLICHT_SDK_VERSION);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+@@ -31,5 +31,5 @@ namespace video
+ CD3D8Driver::CD3D8Driver(const core::dimension2d<s32>& screenSize, HWND window,
+ 								bool fullscreen, bool stencilbuffer,
+-								io::IFileSystem* io, bool pureSoftware, bool vsync)
++								io::IFileSystem* io, bool pureSoftware, s32 vsync)
+ : CNullDriver(io, screenSize), D3DLibrary(0), CurrentRenderMode(ERM_NONE), pID3DDevice(0),
+  LastVertexType((video::E_VERTEX_TYPE)-1), ResetRenderStates(true), pID3D(0),
+@@ -150,5 +150,5 @@ void CD3D8Driver::createMaterialRenderer
+ bool CD3D8Driver::initDriver(const core::dimension2d<s32>& screenSize, HWND hwnd,
+ 				u32 bits, bool fullScreen, bool pureSoftware,
+-				bool highPrecisionFPU, bool vsync, bool antiAlias)
++				bool highPrecisionFPU, s32 vsync, bool antiAlias)
+ {
+ 	HRESULT hr;
+@@ -220,5 +220,25 @@ bool CD3D8Driver::initDriver(const core:
+ 		present.BackBufferHeight = screenSize.Height;
+ 		present.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+-		present.FullScreen_PresentationInterval = vsync ? D3DPRESENT_INTERVAL_ONE : D3DPRESENT_INTERVAL_IMMEDIATE;
++		switch ( vsync )
++		{
++		    case 0:
++                present.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
++                break;
++            case 1:
++                present.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_ONE;
++                break;
++            case 2:
++                present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_TWO;
++                break;
++            case 3:
++                present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_THREE;
++                break;
++            case 4:
++                present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_FOUR;
++                break;
++            default:
++                present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_DEFAULT;
++                break;
++		}
+ 
+ 		if (bits == 32)
+@@ -2005,5 +2025,5 @@ IVideoDriver* createDirectX8Driver(const
+ 				   u32 bits, bool fullscreen, bool stencilbuffer,
+ 				   io::IFileSystem* io, bool pureSoftware, bool highPrecisionFPU,
+-				   bool vsync, bool antiAlias)
++				   s32 vsync, bool antiAlias)
+ {
+ 	#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.h hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.h
+@@ -35,5 +35,5 @@ namespace video
+ 		//! constructor
+ 		CD3D8Driver(const core::dimension2d<s32>& screenSize, HWND window, bool fullscreen,
+-			bool stencibuffer, io::IFileSystem* io, bool pureSoftware=false, bool vsync=false);
++			bool stencibuffer, io::IFileSystem* io, bool pureSoftware=false, s32 vsync=false);
+ 
+ 		//! destructor
+@@ -96,5 +96,5 @@ namespace video
+ 		bool initDriver(const core::dimension2d<s32>& screenSize, HWND hwnd,
+ 				u32 bits, bool fullScreen, bool pureSoftware,
+-				bool highPrecisionFPU, bool vsync, bool antiAlias);
++				bool highPrecisionFPU, s32 vsync, bool antiAlias);
+ 
+ 		//! \return Returns the name of the video driver. Example: In case of the DIRECT3D8
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+@@ -157,5 +157,5 @@ void CD3D9Driver::createMaterialRenderer
+ bool CD3D9Driver::initDriver(const core::dimension2d<s32>& screenSize, HWND hwnd,
+ 				u32 bits, bool fullScreen, bool pureSoftware,
+-				bool highPrecisionFPU, bool vsync, bool antiAlias)
++				bool highPrecisionFPU, s32 vsync, bool antiAlias)
+ {
+ 	HRESULT hr;
+@@ -219,8 +219,30 @@ bool CD3D9Driver::initDriver(const core:
+ 	present.BackBufferCount		= 1;
+ 	present.EnableAutoDepthStencil	= TRUE;
+-	if (vsync)
+-		present.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+-	else
+-		present.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
++	switch ( vsync )
++    {
++        case 0:
++            present.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
++            break;
++        case 1:
++            present.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_ONE;
++            break;
++        case 2:
++            present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_TWO;
++            break;
++        case 3:
++            present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_THREE;
++            break;
++        case 4:
++            present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_FOUR;
++            break;
++        default:
++            present.FullScreen_PresentationInterval = D3DMPRESENT_INTERVAL_DEFAULT;
++            break;
++    }
++
++//	if (vsync)
++//		present.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
++//	else
++//		present.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+ 
+ 	if (fullScreen)
+@@ -2100,5 +2122,5 @@ IVideoDriver* createDirectX9Driver(const
+ 				u32 bits, bool fullscreen, bool stencilbuffer,
+ 				io::IFileSystem* io, bool pureSoftware, bool highPrecisionFPU,
+-				bool vsync, bool antiAlias)
++				s32 vsync, bool antiAlias)
+ {
+ 	#ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.h hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.h
+@@ -88,5 +88,5 @@ namespace video
+ 		bool initDriver(const core::dimension2d<s32>& screenSize, HWND hwnd,
+ 				u32 bits, bool fullScreen, bool pureSoftware,
+-				bool highPrecisionFPU, bool vsync, bool antiAlias);
++				bool highPrecisionFPU, s32 vsync, bool antiAlias);
+ 
+ 		//! \return Returns the name of the video driver. Example: In case of the DIRECT3D8
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+@@ -25,5 +26,5 @@ namespace irr
+ 	{
+ 		IVideoDriver* createOpenGLDriver(const core::dimension2d<s32>& screenSize,
+-			bool fullscreen, bool stencilBuffer, io::IFileSystem* io, bool vsync, bool antiAlias);
++			bool fullscreen, bool stencilBuffer, io::IFileSystem* io, s32 vsync, bool antiAlias);
+ 	}
+ 
+@@ CIrrDeviceLinux::CIrrDeviceLinux(video::
+ 	const core::dimension2d<s32>& windowSize,
+ 	u32 bits, bool fullscreen,
+-	bool sbuffer, bool vsync, bool antiAlias,
++	bool sbuffer, s32 vsync, bool antiAlias,
+ 	IEventReceiver* receiver,
+ 	const char* version)
+@@ bool CIrrDeviceLinux::createWindow(const
+ 
+ //! create the driver
+ void CIrrDeviceLinux::createDriver(const core::dimension2d<s32>& windowSize,
+-				   u32 bits, bool vsync)
++				   u32 bits, s32 vsync)
+ {
+ 	switch(DriverType)
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2007-03-14 23:16:50.000000000 +0100
+@@ -51,5 +51,5 @@ namespace irr
+ 		CIrrDeviceLinux(video::E_DRIVER_TYPE deviceType, 
+ 			const core::dimension2d<s32>& windowSize, u32 bits,
+-			bool fullscreen, bool stencilbuffer, bool vsync, bool antiAlias, IEventReceiver* receiver,
++			bool fullscreen, bool stencilbuffer, s32 vsync, bool antiAlias, IEventReceiver* receiver,
+ 			const char* version);
+@@ namespace irr 
+ 		//! create the driver
+ 		void createDriver(const core::dimension2d<s32>& windowSize,
+-					u32 bits, bool vsync);
++					u32 bits, s32 vsync);
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2007-06-09 11:31:27.000000000 +0100
+@@ namespace irr
+ 		IVideoDriver* createDirectX8Driver(const core::dimension2d<s32>& screenSize, HWND window,
+ 			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
+-			bool pureSoftware, bool highPrecisionFPU, bool vsync, bool antiAlias);
++			bool pureSoftware, bool highPrecisionFPU, s32 vsync, bool antiAlias);
+ 
+ 		IVideoDriver* createDirectX9Driver(const core::dimension2d<s32>& screenSize, HWND window,
+ 			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
+-			bool pureSoftware, bool highPrecisionFPU, bool vsync, bool antiAlias);
++			bool pureSoftware, bool highPrecisionFPU, s32 vsync, bool antiAlias);
+ 
+ 		IVideoDriver* createOpenGLDriver(const core::dimension2d<s32>& screenSize, HWND window,
+ 			u32 bits, bool fullscreen, bool stencilBuffer, io::IFileSystem* io,
+-			bool vsync, bool antiAlias);
++			s32 vsync, bool antiAlias);
+ 	}
+@@ -265,7 +448,8 @@ CIrrDeviceWin32::CIrrDeviceWin32(video::
+ 				 core::dimension2d<s32> windowSize,
+ 				 u32 bits, bool fullscreen,
+-				 bool stencilbuffer, bool vsync,
++				 bool stencilbuffer, s32 vsync,
+ 				 bool antiAlias,
+ 				 bool highPrecisionFPU,
++				 s32 frequency,
+ 				 IEventReceiver* receiver,
+ 				 HWND externalWindow,
+@@ -373,5 +557,5 @@ CIrrDeviceWin32::CIrrDeviceWin32(video::
+ 	// create driver
+ 
+-	createDriver(driverType, windowSize, bits, fullscreen, stencilbuffer, vsync, antiAlias, highPrecisionFPU);
++	createDriver(driverType, windowSize, bits, fullscreen, stencilbuffer, vsync, antiAlias, highPrecisionFPU, frequency);
+ 
+ 	createGUIAndScene();
+@@ -416,7 +604,8 @@ void CIrrDeviceWin32::createDriver(video
+ 				   bool fullscreen,
+ 				   bool stencilbuffer,
+-				   bool vsync,
++				   s32 vsync,
+ 				   bool antiAlias,
+-				   bool highPrecisionFPU)
++				   bool highPrecisionFPU,
++				   s32 frequency)
+ {
+ 	switch(driverType)
+@@ -453,5 +642,5 @@ void CIrrDeviceWin32::createDriver(video
+ 
+ 		#ifdef _IRR_COMPILE_WITH_OPENGL_
+-		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits);
++		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits, frequency);
+ 		VideoDriver = video::createOpenGLDriver(windowSize, HWnd, bits, fullscreen, stencilbuffer, FileSystem,
+ 			vsync, antiAlias);
+@@ -466,10 +655,10 @@ void CIrrDeviceWin32::createDriver(video
+ 
+ 	case video::EDT_SOFTWARE:
+-		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits);
++		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits, frequency);
+ 		VideoDriver = video::createSoftwareDriver(windowSize, fullscreen, FileSystem, this);
+ 		break;
+ 
+ 	case video::EDT_SOFTWARE2:
+-		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits);
++		if (fullscreen)	switchToFullScreen(windowSize.Width, windowSize.Height, bits, frequency);
+ 		VideoDriver = video::createSoftwareDriver2(windowSize, fullscreen, FileSystem, this);
+ 		break;
+@@ -628,8 +826,50 @@ bool CIrrDeviceWin32::isWindowActive()
+ }
+ 
++// MICHA: Find the best DisplayFrequency for the given mode
++// The best being defined as:
++// - The desktop frequency for the desktop resolution
++// - The highest frequency otherwise
++// A better solution would probably be to enhance the videomodelist by a frequency parameter
++// But his would force me to change too many places in the engine
++static DWORD GetBestDisplayFrequency(const DEVMODE &mode)
++{
++    DEVMODE dm;
++
++    // check desktop frequency for the desktop resolution
++    memset(&dm, 0, sizeof(dm));
++	dm.dmSize = sizeof(dm);
++    if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm))
++    {
++        if (    dm.dmBitsPerPel == mode.dmBitsPerPel
++            &&  dm.dmPelsWidth == mode.dmPelsWidth
++            &&  dm.dmPelsHeight == mode.dmPelsHeight )
++        {
++            return dm.dmDisplayFrequency;
++        }
++    }
++
++    // check all modes
++    memset(&dm, 0, sizeof(dm));
++	dm.dmSize = sizeof(dm);
++    DWORD highestFreq = 0;
++    DWORD i=0;
++    while (EnumDisplaySettings(NULL, i, &dm))
++    {
++        if (    dm.dmBitsPerPel == mode.dmBitsPerPel
++            &&  dm.dmPelsWidth == mode.dmPelsWidth
++            &&  dm.dmPelsHeight == mode.dmPelsHeight
++            &&  dm.dmDisplayFrequency > highestFreq
++            )
++        {
++            highestFreq = dm.dmDisplayFrequency;
++        }
++        ++i;
++    }
+ 
++    return highestFreq;
++}
+ 
+ //! switchs to fullscreen
+-bool CIrrDeviceWin32::switchToFullScreen(s32 width, s32 height, s32 bits)
++bool CIrrDeviceWin32::switchToFullScreen(s32 width, s32 height, s32 bits, s32 frequency)
+ {
+ 	DEVMODE dm;
+@@ -641,4 +881,18 @@ bool CIrrDeviceWin32::switchToFullScreen
+ 	dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+ 
++    if ( frequency > 0 )
++    {
++        dm.dmDisplayFrequency = frequency;
++    }
++    else if ( frequency < 0 )
++    {
++        dm.dmDisplayFrequency = GetBestDisplayFrequency(dm);
++    }
++//    printf("dm.dmDisplayFrequency: %d\n", dm.dmDisplayFrequency );
++    if ( dm.dmDisplayFrequency > 0 )
++    {
++        dm.dmFields |= DM_DISPLAYFREQUENCY;
++    }
++
+ 	LONG ret = ChangeDisplaySettings(&dm, CDS_FULLSCREEN);
+ 
+@@ -875,4 +1131,5 @@ IRRLICHT_API IrrlichtDevice* IRRCALLCONV
+ 		parameters.AntiAlias,
+ 		parameters.HighPrecisionFPU,
++		parameters.Frequency,
+ 		parameters.EventReceiver,
+ 		reinterpret_cast<HWND>(parameters.WindowId),
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
+@@ -27,6 +27,6 @@ namespace irr
+ 		CIrrDeviceWin32(video::E_DRIVER_TYPE deviceType, 
+ 			const core::dimension2d<s32> windowSize, u32 bits,
+-			bool fullscreen, bool stencilbuffer, bool vsync, 
+-			bool antiAlias, bool highPrecisionFPU,
++			bool fullscreen, bool stencilbuffer, s32 vsync,
++			bool antiAlias, bool highPrecisionFPU, s32 frequency,
+ 			IEventReceiver* receiver,
+ 			HWND window,
+@@ -173,8 +176,8 @@ namespace irr
+ 		void createDriver(video::E_DRIVER_TYPE driverType,
+ 			const core::dimension2d<s32>& windowSize, u32 bits, bool fullscreen,
+-			bool stencilbuffer, bool vsync, bool antiAlias, bool highPrecisionFPU);
++			bool stencilbuffer, s32 vsync, bool antiAlias, bool highPrecisionFPU, s32 frequency);
+ 
+ 		//! switchs to fullscreen
+-		bool switchToFullScreen(s32 width, s32 height, s32 bits);
++		bool switchToFullScreen(s32 width, s32 height, s32 bits, s32 frequency);
+ 
+ 		void getWindowsVersion(core::stringc& version);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp	
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+@@ -69,5 +83,5 @@ COpenGLDriver::COpenGLDriver(const core:
+ //! inits the open gl driver
+ bool COpenGLDriver::initDriver(const core::dimension2d<s32>& screenSize,
+-				HWND window, u32 bits, bool fullscreen, bool vsync)
++				HWND window, u32 bits, bool fullscreen, s32 vsync)
+ {
+ 	static	PIXELFORMATDESCRIPTOR pfd =	{
+@@ -157,5 +178,5 @@ bool COpenGLDriver::initDriver(const cor
+ 	// set vsync
+ 	if (wglSwapIntervalEXT)
+-		wglSwapIntervalEXT(vsync ? 1 : 0);
++		wglSwapIntervalEXT(vsync);
+ 
+ 	// set exposed data
+@@ -202,5 +223,5 @@ COpenGLDriver::~COpenGLDriver()
+ #ifdef MACOSX
+ //! Windows constructor and init code
+-COpenGLDriver::COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen, bool stencilBuffer, CIrrDeviceMacOSX *device, io::IFileSystem* io, bool vsync, bool antiAlias)
++COpenGLDriver::COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen, bool stencilBuffer, CIrrDeviceMacOSX *device, io::IFileSystem* io, s32 vsync, bool antiAlias)
+ : CNullDriver(io, screenSize),
+ 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
+@@ -233,5 +255,5 @@ COpenGLDriver::~COpenGLDriver()
+ #ifdef LINUX
+ //! Linux constructor and init code
+-COpenGLDriver::COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen, bool stencilBuffer, io::IFileSystem* io, bool antiAlias, bool vsync)
++COpenGLDriver::COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen, bool stencilBuffer, io::IFileSystem* io, s32 vsync, bool antiAlias )
+ : CNullDriver(io, screenSize),
+ 	CurrentRenderMode(ERM_NONE), ResetRenderStates(true), Transformation3DChanged(true),
+@@ -271,9 +303,9 @@ COpenGLDriver::COpenGLDriver(const core:
+ #ifdef GLX_SGI_swap_control
+ #ifdef _IRR_OPENGL_USE_EXTPOINTER_
+-	if (vsync && glxSwapIntervalSGI)
+-		glxSwapIntervalSGI(1);
++	if (vsync > 0 && glxSwapIntervalSGI)
++		glxSwapIntervalSGI(vsync);
+ #else
+-	if (vsync)
+-		glXSwapIntervalSGI(1);
++	if (vsync > 0)
++		glXSwapIntervalSGI(vsync);
+ #endif
+ #endif
+@@ -2917,5 +3653,5 @@ namespace video
+ #ifdef _IRR_WINDOWS_
+ IVideoDriver* createOpenGLDriver(const core::dimension2d<s32>& screenSize,
+-	HWND window, u32 bits, bool fullscreen, bool stencilBuffer, io::IFileSystem* io, bool vsync, bool antiAlias)
++	HWND window, u32 bits, bool fullscreen, bool stencilBuffer, io::IFileSystem* io, s32 vsync, bool antiAlias)
+ {
+ #ifdef _IRR_COMPILE_WITH_OPENGL_
+@@ -2939,5 +3675,5 @@ IVideoDriver* createOpenGLDriver(const c
+ IVideoDriver* createOpenGLDriver(const core::dimension2d<s32>& screenSize,
+ 	CIrrDeviceMacOSX *device, bool fullscreen, bool stencilBuffer,
+-	io::IFileSystem* io, bool vsync, bool antiAlias)
++	io::IFileSystem* io, s32 vsync, bool antiAlias)
+ {
+ #ifdef _IRR_COMPILE_WITH_OPENGL_
+@@ -2955,9 +3691,9 @@ IVideoDriver* createOpenGLDriver(const c
+ #ifdef LINUX
+ IVideoDriver* createOpenGLDriver(const core::dimension2d<s32>& screenSize,
+-		bool fullscreen, bool stencilBuffer, io::IFileSystem* io, bool vsync, bool antiAlias)
++		bool fullscreen, bool stencilBuffer, io::IFileSystem* io, s32 vsync, bool antiAlias)
+ {
+ #ifdef _IRR_COMPILE_WITH_OPENGL_
+ 	return new COpenGLDriver(screenSize, fullscreen, stencilBuffer,
+-		io, antiAlias, vsync);
++		io, vsync, antiAlias );
+ #else
+ 	return 0;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.h hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.h
+@@ -61,15 +61,15 @@ namespace video
+ 		//! inits the windows specific parts of the open gl driver
+ 		bool initDriver(const core::dimension2d<s32>& screenSize, HWND window,
+-			u32 bits, bool fullscreen, bool vsync);
++			u32 bits, bool fullscreen, s32 vsync);
+ 		#endif
+ 
+ 		#ifdef LINUX
+ 		COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen,
+-			bool stencilBuffer, io::IFileSystem* io, bool vsync, bool antiAlias);
++			bool stencilBuffer, io::IFileSystem* io, s32 vsync, bool antiAlias);
+ 		#endif
+ 
+ 		#ifdef MACOSX
+ 		COpenGLDriver(const core::dimension2d<s32>& screenSize, bool fullscreen,
+-			bool stencilBuffer, CIrrDeviceMacOSX *device,io::IFileSystem* io, bool vsync, bool antiAlias);
++			bool stencilBuffer, CIrrDeviceMacOSX *device,io::IFileSystem* io, s32 vsync, bool antiAlias);
+ 		#endif
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/Irrlicht.cpp hcraft_libs/irrlicht/source/Irrlicht/Irrlicht.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/Irrlicht.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/Irrlicht.cpp	2007-02-25 00:09:08.000000000 +0100
+@@ -30,5 +30,7 @@ namespace irr
+ 											const core::dimension2d<s32>& windowSize,
+ 											u32 bits, bool fullscreen, 
+-											bool stencilbuffer, bool vsync, IEventReceiver* res,
++											bool stencilbuffer, bool vsync,
++											s32 frequency,
++											IEventReceiver* res,
+ 											const char* version)
+ 	{
+@@ -40,4 +42,5 @@ namespace irr
+ 		p.Stencilbuffer = stencilbuffer;
+ 		p.Vsync = vsync;
++		p.Frequency = frequency;
+ 		p.EventReceiver = res;	
+ 		p.SDK_version_do_not_use = version;

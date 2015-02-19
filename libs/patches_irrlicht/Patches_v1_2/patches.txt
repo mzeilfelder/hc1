@@ -1,0 +1,142 @@
+Patches for Irrlicht which were used in H-Craft 1.2
+None of them are used in H-Craft 1.3. As I'm in the Irrlicht team by now I try to add everything necessary directly to Irrlicht (and other patches were not needed anyway).
+This list is basially my way to keep track of which patches still had to be added to Irrlicht.
+Also note that some patches are horrible - I had way less experience back when I wrote those ;-)
+----------------
+
+----------------
+Still open
+----------------
+hack_dropimagedataimmediatly.patch
+- Irrlicht ogl-es2 has a better solution now. In OpenGL we're currenlty wasting lot's of memory in H-Craft. But PC have more memory these days, so won't work on it before release.
+devicelinux_mode.patch  
+-   check for randr before x11 vidmode (that stuff is still discussed - basically both solutions are bad! 
+    A third proposed solution worked even worse on my system... fullscreen resolution changes on X11 are hell! Probably best solution is to rewrite the game
+    so it always uses the destkop resolution and RTT's otherwise.
+-   do not switch to alternative resolutions if the one chosen is not available.
+    Those are now allowed again, but now Irrlicht no longer accidentally uses larger resolutions than the one requested.
+vsync_frequency.patch (both changes not really important, so I don't care)
+- 	allow setting the frequency which should be used (windows only, and only use creation params this time, other devices must not be changed)
+-	make vsync an integer instead of a bool as it supports more states than just on/off 
+gl_speed_nocolor.patch
+- 	We sometimes send no color values to the card as we didn't need them. Not sure if that really saved much, but can't be applied again easy as those parts have changed. 
+    This could maybe be implemented as a material flag.
+  
+----------------
+no longer needed
+----------------
+sceneman_sortbycamdist.patch
+- Irrlicht uses a better sorting now.
+logmessages.patch
+-   Avoid a bunch of "could not load texture" logs. Slightly annoying, but reduced from error to warning now in Irrlicht and the message is actually correct and belongs there (the problem here is some textures mentioned in h-craft models which are no longer used)
+xmaterial.patch
+-	Some special hack for h-craft. set AmbientColor to 255 when all EmissiveColor are 0. I think I did this for the lights (the lights hovering above the tracks), but doesn't really make sense as Ambient should be 255 anyway. Also works.
+sceneman_noambient.patch
+-   Disables setting of ambient light in SceneManager. Not sure why anymore - probably interfered with setting the ambient somewhere else, but works currently - so no need to change.
+gltex_16bit.patch
+- 	this made sure ETCF_ALWAYS_16_BIT wasn't ignored. Seems to be handled by Irrlicht by now, or at least it's mostly rewritten.
+gl_drawimage2d.patch
+- 	Supposed to fix one-pixel-off errors. But I have no test-case, so nothing I can do. No obvious problem.
+compileflags.patch
+- can now be done in the project file.
+node_updateabspos.patch
+- Moved updateAbsolutePosition to another position because it had caused problems with animation. Got rewritten a lot and I have no test-case, so can't check it. No obvious problem afaik.
+image_hideright.patch
+- Allow drawing images partly to support progressbars is solved now better in Irrlicht 1.9
+- Not sure about bugfix to fight a one-pixel-off problem in drawing. But not seeing it currently and I didn't write test-cases back then I have no longer a way to check it.
+devicestub_dropvideolater.patch
+- solved in Irrlicht
+remove_event.patch
+- screensaver should be fixed in Irrlicht now. And the event stuff no longer needed (partly changed in game, partly in Irrlicht).
+octreescenenode.patch (needs octreescenenodetriangleselector.patch)
+- No longer using those.
+dds_and_compressed.patch (no longer used in hcraft, but might be used in hc2)
+- to my knowledge Irrlicht got some compressed texture support by now. But wasn't even used in H-Craft anymore anyway (only tried that at the start).
+profile_blocks.patch
+- Irrlicht 1.9 has profile info's (not exactly the same, but added on need)
+focus.patch
+- Irrlicht 1.9 has better focus management
+filesystem.patch
+- All patches in Irrlicht by now (most improved)
+particles.patch
+- Irrlicht 1.9 has those patches (improved slightly)
+meshmanipulator.patch
+- Irrlicht has now createMeshWith2TCoords. Vertex melding in Irrlicht, but better one now in game-code (can't add that to Irrlicht easily as it needs STL for now).
+matrix_fastcopy.patch
+-  Copy by loop instead of using memcpy. Was slightly faster in my tests, but slower in Hybrid's tests. Not really important.
+xanimation.patch
+- Seems to work now in Irrlicht (was about fractional animations in .X)
+octreescenenodetriangleselector.patch
+- No longer using octree for this in the game
+elementfrompoint.patch
+- partly in Irrlicht, rest could be done with game-code changes.
+button_images.patch
+- Stuff that mattered is in Irrlicht 1.9
+profiler.patch
+- Is in Irrlicht 1.9
+resident_textures.patch
+- I heard newer opengl cards no longer support that anyway. So forget about it.
+devicewindows_consumequit.patch
+-  called run once more after closeDevice to consume the quit message. I don't remember anymore why - it looks on first view like I could do that in the application on need.
+unknown_probably_ignore.patch
+- No idea what that was about (compile problem maybe), but works as it is in Irrlicht.
+listbox.patch
+- Irrlicht has now setItem and removeItem . 
+vbo.patch
+- Now supported in Irrrlicht.
+quaternion_wrecking.patch
+- That patched used the transposed matrix in the quaterion->matrix conversion. I fixed h-craft code instead.
+unicode_keys.patch
+- better solution in Irrlicht now
+arg_unused.patch
+- define to avoid compiler warnings
+bugfix_d3d_texturestage.patch
+- was a fix from some forum thread, but that's rewritten now in Irrlicht and I'm not even sure if the patch was really correct.
+bmp_writer.patch
+- is now in Irrlicht
+bugfix_node_triangleselector.patch
+- is now in Irrlicht
+bugfix_ogl_stencilrenderbuffer.patch
+- is now in Irrlicht (and improved)
+bugfix_sceneuserdataserializer.patch
+- is now in Irrlicht
+constification.patch
+- is now in Irrlicht
+devicelinux_initdisplay.patch
+- is now in Irrlicht
+devicelinux_resizable.patch
+- is now in Irrlicht
+devicestub_init.patch
+- is now in Irrlicht
+devicewindows_initmode.patch
+- is now in Irrlicht
+gl_speed_lessflush.patch
+- is now in Irrlicht
+gl_texturestage.patch
+- is now in Irrlicht
+guimenu_fontpointercheck.patch
+- is now in Irrlicht
+list_copyinit.patch
+- is now in Irrlicht
+poly_sorting.patch
+-  Sorting transparent polygons back to front. But completely outcommented - the problem I tried to fix with it turned out to be a material thing.
+sceneman_dropdriverlater.patch
+- is now in Irrlicht
+skybox.patch
+- 	Skybox texture had been something like inside-out and this patch fixed it. Might be fixed - need to test that.
+- 	some vbo support added, which seems actually rather useless (6 polygons!)d
+node_translate.patch
+- add a translate function to nodes. I have no idea why I added that one - probably from the time I was happily applying every patch I found. Even if I used it somewhere (don't think so) it can be done outside the engine.
+statictext_hcenter.patch
+- add setHoricontalCenter to IGUIStaticText. There is now setTextAlignment which should be used instead.
+clearpendingevents.patch
++ clearPendingEvents clears the event-loop for linux and windows. Replaced by clearSystemMessages which is now in Irrlicht.
+slider_spinbox.patch
++ spinbox (there's now one in Irrlicht which can probably be used)
++ textslider (is now put into h-craft code)
+xpath.patch
+-   add support for an own texture path for .x files. 
+- is now in Irrlicht
+devicelinux_nowindow.patch
+-   some hack that creates a window also for null-device (and closes it again) because I needed to access the modes which are received in there. 
+    Irrlicht does that now in getVideoModeList when it has no videomodes 

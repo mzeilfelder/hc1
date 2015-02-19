@@ -1,0 +1,59 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+@@ -755,5 +776,5 @@ void CSceneManager::registerNodeForRende
+ 	case ESNRP_SOLID:
+ 		if (!isCulled(node))
+-			SolidNodeList.push_back(node);
++					SolidNodeList.push_back(DefaultNodeEntry(node, camTransPos));
+ 		break;
+ 	case ESNRP_TRANSPARENT:
+@@ -780,5 +802,5 @@ void CSceneManager::registerNodeForRende
+ 
+ 			// not transparent, register as solid
+-			SolidNodeList.push_back(node);
++					SolidNodeList.push_back(DefaultNodeEntry(node, camTransPos));
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.h hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.h	2007-01-31 07:31:16.000000000 +0100
+@@ -416,24 +416,21 @@ namespace scene
+ 		void readUserData(io::IXMLReader* reader, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer);
+ 		
++        // MICHA: sorting by cam-distance front-to-back seemed more useful than by texture (all my nodes have several textures anyway)
+ 		struct DefaultNodeEntry
+ 		{
+ 			DefaultNodeEntry() {};
+ 
+-			DefaultNodeEntry(ISceneNode* n)
++			DefaultNodeEntry(ISceneNode* n, core::vector3df camera)
+ 			{
+-				textureValue = 0;
+-
+-				if (n->getMaterialCount())
+-					textureValue = (n->getMaterial(0).Texture1);
+-
+ 				node = n;
++				distance = (f32)(node->getAbsoluteTransformation().getTranslation().getDistanceFromSQ(camera));
+ 			}
+ 
+ 			ISceneNode* node;
+-			void* textureValue;
++			f32 distance;
+ 
+ 			bool operator < (const DefaultNodeEntry& other) const
+ 			{
+-				return (textureValue < other.textureValue);
++				return (distance < other.distance);
+ 			}
+ 		};
+@@ -447,7 +444,5 @@ namespace scene
+ 			{
+ 				node = n;
+-
+-				// TODO: this could be optimized, by not using sqrt
+-				distance = (f32)(node->getAbsoluteTransformation().getTranslation().getDistanceFrom(camera));
++				distance = (f32)(node->getAbsoluteTransformation().getTranslation().getDistanceFromSQ(camera));
+ 			}
+ 

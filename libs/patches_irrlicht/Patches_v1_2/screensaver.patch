@@ -1,0 +1,22 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+@@ -643,4 +701,5 @@ bool CIrrDeviceLinux::run()
+ {
+ 	os::Timer::tick();
++    XResetScreenSaver(display);
+ 
+ #ifdef _IRR_COMPILE_WITH_X11_
+
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2007-06-09 11:31:27.000000000 +0100
+@@ -249,6 +432,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT
+ 	case WM_SYSCOMMAND:
+ 		// prevent screensaver or monitor powersave mode from starting
+-		if (wParam == SC_SCREENSAVE ||
+-			wParam == SC_MONITORPOWER)
++		if ((wParam&0xFFF0) == SC_SCREENSAVE ||
++			(wParam&0xFFF0) == SC_MONITORPOWER)
+ 			return 0;
+ 		break;

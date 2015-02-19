@@ -1,0 +1,128 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SceneParameters.h hcraft_libs/irrlicht/include/SceneParameters.h
+--- svn_hcraft_1.2/irrlicht/include/SceneParameters.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/SceneParameters.h	2006-12-04 20:49:23.000000000 +0100
+@@ -17,4 +17,13 @@ namespace irr
+ namespace scene
+ {
++	//! Name of the parameter for changing the texture path of the built-in X loader.
++	/** Use it like this:
++	 \code
++	 SceneManager->getParameters()->setAttribute(
++	    scene::X_TEXTURE_PATH, "path/to/your/textures");
++	\endcode
++	**/
++    const c8* const X_TEXTURE_PATH = "X_TexturePath";
++
+ 	//! Name of the parameter for changing the texture path of the built-in csm loader.
+ 	/** Use it like this:
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+@@ -video::SMaterial CXAnimationPlayer::getM
+ 	if (xmat.TextureFileName.size() != 0)
+ 	{
+-		mat.Texture1 = Driver->getTexture(getTextureFileName(xmat.TextureFileName).c_str());
+-		if (mat.Texture1 == 0)
+ 			mat.Texture1 = Driver->getTexture(xmat.TextureFileName.c_str());
++	    if (mat.Texture1 == 0)
++            mat.Texture1 = Driver->getTexture(getTextureFileName(xmat.TextureFileName).c_str());
+ 	}
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXFileReader.cpp hcraft_libs/irrlicht/source/Irrlicht/CXFileReader.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXFileReader.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CXFileReader.cpp	2006-12-06 12:41:51.000000000 +0100
+@@ -6,4 +6,6 @@
+ #include "os.h"
+ #include "fast_atof.h"
++#include "IAttributes.h"    // MICHA: i need this for X_TEXTURE_PATH
++#include "ISceneManager.h"
+ #include <ctype.h>
+ #include <stdlib.h>
+@@ -17,6 +19,7 @@ namespace scene
+ {
+ 
+-CXFileReader::CXFileReader(io::IReadFile* file)
++CXFileReader::CXFileReader(scene::ISceneManager* manager, io::IReadFile* file)
+ : ErrorHappened(false), Buffer(0), Size(0), P(0), End(0), binary(false), m_pgCurFrame(0)
++	,SceneManager(manager)
+ {
+ 	if (!file)
+@@ -1304,4 +1308,8 @@ bool CXFileReader::parseDataObjectTextur
+ 	}
+ 
++    core::stringc texturePath = SceneManager->getParameters()->getAttributeAsString(X_TEXTURE_PATH);
++    texturename = texturePath + texturename;
++//        printf("path: %s texture: %s \n", path, texturename.c_str());
++
+ 	return true;
+ }
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXFileReader.h hcraft_libs/irrlicht/source/Irrlicht/CXFileReader.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXFileReader.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CXFileReader.h	2006-12-06 12:34:19.000000000 +0100
+@@ -21,4 +21,6 @@ namespace scene
+ {
+ 
++class ISceneManager;
++
+ //! This is a .x file reader. It only reads data from uncompressed .x files.
+ class CXFileReader : public virtual IUnknown
+@@ -29,5 +31,5 @@ public:
+ 	struct SXFrame;
+ 
+-	CXFileReader(io::IReadFile* file);
++	CXFileReader(ISceneManager* manager, io::IReadFile* file);
+ 	~CXFileReader();
+ 
+@@ -307,4 +309,6 @@ private:
+ 	core::array<SXTemplateMaterial> TemplateMaterials; 
+    bool m_bFrameRemoved;
++
++	scene::ISceneManager* SceneManager;
+ };
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXMeshFileLoader.cpp hcraft_libs/irrlicht/source/Irrlicht/CXMeshFileLoader.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXMeshFileLoader.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CXMeshFileLoader.cpp	2006-05-12 00:23:55.000000000 +0100
+@@ -19,6 +19,6 @@ namespace scene
+ //! Constructor
+ CXMeshFileLoader::CXMeshFileLoader(IMeshManipulator* manip,
+-				   video::IVideoDriver* driver)
+-: Manipulator(manip), Driver(driver)
++								   video::IVideoDriver* driver, ISceneManager* manager)
++: Manipulator(manip), Driver(driver), SceneManager(manager)
+ {
+ 	if (Manipulator)
+@@ -62,5 +62,5 @@ IAnimatedMesh* CXMeshFileLoader::createM
+ 
+ 	IAnimatedMesh* mesh = 0;
+-	CXFileReader *xreader = new CXFileReader(file);
++	CXFileReader *xreader = new CXFileReader(SceneManager, file);
+ 
+ 	if (xreader->errorHappened())
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXMeshFileLoader.h hcraft_libs/irrlicht/source/Irrlicht/CXMeshFileLoader.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXMeshFileLoader.h	2006-06-27 12:46:39.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CXMeshFileLoader.h	2006-05-12 00:19:13.000000000 +0100
+@@ -26,5 +26,5 @@ public:
+ 
+ 	//! Constructor
+-	CXMeshFileLoader(IMeshManipulator* manip, video::IVideoDriver* driver);
++	CXMeshFileLoader(IMeshManipulator* manip, video::IVideoDriver* driver, ISceneManager* manager);
+ 
+ 	//! destructor
+@@ -45,4 +45,5 @@ private:
+ 	IMeshManipulator* Manipulator;
+ 	video::IVideoDriver* Driver;
++	scene::ISceneManager* SceneManager;
+ };
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp	2007-03-06 02:39:38.000000000 +0100
+@@ -66,4 +66,7 @@
+@@ -113,5 +116,5 @@ CSceneManager::CSceneManager(video::IVid
+ 	MeshLoaderList.push_back(new CDefaultMeshFormatLoader(FileSystem, Driver, this));
+ 	MeshLoaderList.push_back(new C3DSMeshFileLoader(MeshManipulator,FileSystem, Driver));
+-	MeshLoaderList.push_back(new CXMeshFileLoader(MeshManipulator, Driver));
++	MeshLoaderList.push_back(new CXMeshFileLoader(MeshManipulator, Driver, this));
+ 	MeshLoaderList.push_back(new COCTLoader(Driver));
+ 	MeshLoaderList.push_back(new CCSMLoader(this, FileSystem));

@@ -1,0 +1,60 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2007-03-14 23:16:50.000000000 +0100
+@@ namespace irr
+ 	private:
+ 
+-		bool createWindow(const core::dimension2d<s32>& windowSize, u32 bits);
++        // MICHA: justFooling_ added to get the videomodes without really creating a window
++		bool createWindow(const core::dimension2d<s32>& windowSize, u32 bits, bool justFooling_);
+ 
+ 		void createKeyMap();
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+@@ -75,11 +77,7 @@ CIrrDeviceLinux::CIrrDeviceLinux(video::
+ 	createKeyMap();
+ 
+-	// create window
+-	if (driverType != video::EDT_NULL)
+-	{
+-		// create the window, only if we do not use the null device
+-		if (!createWindow(windowSize, bits))
++	// create window or fool it when driver is EDT_NULL
++    if (!createWindow(windowSize, bits, driverType == video::EDT_NULL ))
+ 			return;
+-	}
+ 
+ 	// create cursor control
+@@ -156,6 +154,5 @@ int IrrPrintXError(Display *display, XEr
+ 
+ 
+-bool CIrrDeviceLinux::createWindow(const core::dimension2d<s32>& windowSize,
+-						u32 bits)
++bool CIrrDeviceLinux::createWindow(const core::dimension2d<s32>& windowSize, u32 bits, bool justFooling_)
+ {
+ 	Width = windowSize.Width;
+@@ -204,11 @@ bool CIrrDeviceLinux::createWindow(const
+ 			}
++        if (Fullscreen && !justFooling_)
++        {
+ 			if (bestMode != -1)
+ 			{
+@@ -223,4 +254,5 @@ bool CIrrDeviceLinux::createWindow(const
+ 				Fullscreen = false;
+ 			}
++        }
+ 
+ 			XFree(modes);
+@@ -260,4 +269,11 @@ bool CIrrDeviceLinux::createWindow(const
+ 	}
+ 
++    if ( justFooling_ )
++    {
++        XCloseDisplay(display);
++        display = 0;
++        return true;
++    }
++
+ 	// get visual
+ 	XVisualInfo* visual = 0;

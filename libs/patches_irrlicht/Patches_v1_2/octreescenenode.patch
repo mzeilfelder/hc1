@@ -1,0 +1,182 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNode.cpp hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNode.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNode.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNode.cpp	2007-03-03 01:34:10.000000000 +0100
+@@ -10,8 +10,13 @@
+ #include "IMeshCache.h"
+ #include "IAnimatedMesh.h"
++#include "COctTreeSceneNodeTriangleSelector.h"
+ 
+ #include "os.h"
+ #include <stdio.h>
+ 
++#include "irrlicht.h"   // for profiler
++#include "profile_enums.h"
++
++
+ namespace irr
+ {
+@@ -30,5 +35,18 @@ COctTreeSceneNode::COctTreeSceneNode(ISc
+ #endif
+ 
++	AutomaticCullingEnabled = true;
+ 	vertexType = (video::E_VERTEX_TYPE)-1;
++
++	static int profile = 0;
++	if ( !profile )
++	{
++	    profile = 1;
++        PROFILE_ADD_GROUP(PRG_OCT_NODE, "mesh node");
++        PROFILE_ADD(PRB_OCT_MATERIAL, PRG_OCT_NODE, "material");
++        PROFILE_ADD(PRB_OCT_DRAWBUFFER, PRG_OCT_NODE, "drawbuffer");
++
++        PROFILE_ADD(PRB_OCT_A, PRG_OCT_NODE, "oct a");
++        PROFILE_ADD(PRB_OCT_B, PRG_OCT_NODE, "oct b");
++	}
+ }
+ 
+@@ -102,4 +121,6 @@ void COctTreeSceneNode::render()
+ 		return;
+ 
++    PROFILE_START(PRB_OCT_A);
++
+ 	bool isTransparentPass =
+ 		SceneManager->getSceneNodeRenderPass() == scene::ESNRP_TRANSPARENT;
+@@ -113,9 +135,12 @@ void COctTreeSceneNode::render()
+ 
+ 	core::matrix4 invTrans(AbsoluteTransformation);
+-	invTrans.makeInverse();
++	if ( !invTrans.makeInverse() )
++        return;
+ 
+ 	frust.transform(invTrans);
+ 
+-	core::aabbox3d<f32> box = frust.getBoundingBox();
++    core::aabbox3d<float> box = frust.getBoundingBox();
++
++    PROFILE_STOP(PRB_OCT_A);
+ 
+ 	switch(vertexType)
+@@ -123,8 +148,14 @@ void COctTreeSceneNode::render()
+ 	case video::EVT_STANDARD:
+ 		{
+-			//StdOctTree->calculatePolys(box);
++		    PROFILE_START(PRB_OCT_B);
++			//StdOctTree->calculatePolys(box, StdMeshes);
+ 			StdOctTree->calculatePolys(frust);
+ 
+ 			OctTree<video::S3DVertex>::SIndexData* d =  StdOctTree->getIndexData();
++			PROFILE_STOP(PRB_OCT_B);
++
++//            int cntMaterialsRendered = 0;
++//            int cntVerticesRendered = 0;
++//            int cntIndicesRendered = 0;
+ 
+ 			for (u32 i=0; i<Materials.size(); ++i)
+@@ -137,11 +168,42 @@ void COctTreeSceneNode::render()
+ 				if (transparent == isTransparentPass)
+ 				{
++//				    ++cntMaterialsRendered;
++//				    cntVerticesRendered += StdMeshes[i].Vertices.size();
++//				    cntIndicesRendered += d[i].CurrentSize / 3;
++
++                    PROFILE_START(PRB_OCT_MATERIAL);
+ 					driver->setMaterial(Materials[i]);
++                    PROFILE_STOP(PRB_OCT_MATERIAL);
++
++                    PROFILE_START(PRB_OCT_DRAWBUFFER);
++                    if ( Mesh->getMeshBuffer(i)->getVertexBuffer() )    // VBO
++                    {
++//                        driver->drawMeshBuffer(Mesh->getMeshBuffer(i));
++                        driver->drawVertexPrimitiveList(
++                                Mesh->getMeshBuffer(i)->getVertices()
++                                , Mesh->getMeshBuffer(i)->getVertexCount()
++                                , d[i].Indices, d[i].CurrentSize / 3
++                                , vertexType, scene::EPT_TRIANGLES
++                                , Mesh->getMeshBuffer(i)->getVertexBuffer() );
++                    }
++                    else
++                    {
+ 					driver->drawIndexedTriangleList(
+ 						&StdMeshes[i].Vertices[0], StdMeshes[i].Vertices.size(),
+-						d[i].Indices, d[i].CurrentSize / 3);
++                            d[i].Indices, d[i].CurrentSize / 3, 0);
++                    }
++                    PROFILE_STOP(PRB_OCT_DRAWBUFFER);
+ 				}
+ 			}
+ 
++//			if ( !isTransparentPass )
++//			{
++//			    printf("solid: %d %d %d\n", cntMaterialsRendered, cntVerticesRendered, cntIndicesRendered);
++//			}
++//			else
++//			{
++//			    printf("transp: %d %d %d\n", cntMaterialsRendered, cntVerticesRendered, cntIndicesRendered);
++//			}
++
+ 			// for debug purposes only
+ 			if (DebugDataVisible && !Materials.empty() && PassCount==1)
+@@ -153,5 +215,5 @@ void COctTreeSceneNode::render()
+ 				StdOctTree->renderBoundingBoxes(box, boxes);
+ 				for (u32 b=0; b<boxes.size(); ++b)
+-					driver->draw3DBox(boxes[b], video::SColor(0,255,255,255));
++					driver->draw3DBox(boxes[b], video::SColor((b*10)%255,255,255,255));
+ 
+ 				driver->draw3DBox(Box,video::SColor(0,255,0,0));
+@@ -162,5 +224,5 @@ void COctTreeSceneNode::render()
+ 	case video::EVT_2TCOORDS:
+ 		{
+-			//LightMapOctTree->calculatePolys(box);
++			//LightMapOctTree->calculatePolys(box, StdMeshes);
+ 			LightMapOctTree->calculatePolys(frust);
+ 
+@@ -177,7 +239,20 @@ void COctTreeSceneNode::render()
+ 				{
+ 					driver->setMaterial(Materials[i]);
++					if ( Mesh->getMeshBuffer(i)->getVertexBuffer() )    // VBO
++                    {
++//                        driver->drawMeshBuffer(Mesh->getMeshBuffer(i));
++                            driver->drawVertexPrimitiveList(
++                                Mesh->getMeshBuffer(i)->getVertices()
++                                , Mesh->getMeshBuffer(i)->getVertexCount()
++                                , d[i].Indices, d[i].CurrentSize / 3
++                                , vertexType, scene::EPT_TRIANGLES
++                                , Mesh->getMeshBuffer(i)->getVertexBuffer() );
++                    }
++                    else
++                    {
+ 					driver->drawIndexedTriangleList(
+ 						&LightMapMeshes[i].Vertices[0], LightMapMeshes[i].Vertices.size(),
+-						d[i].Indices, d[i].CurrentSize / 3);
++                            d[i].Indices, d[i].CurrentSize / 3, 0);
++                    }
+ 				}
+ 			}
+@@ -301,9 +376,15 @@ bool COctTreeSceneNode::createTree(IMesh
+ 	}
+ 
+-	u32 endTime = os::Timer::getRealTime();
+-	c8 tmp[255];
+-	sprintf(tmp, "Needed %ums to create OctTree SceneNode.(%d nodes, %d polys)",
+-		endTime - beginTime, nodeCount, polyCount/3);
+-	os::Printer::log(tmp, ELL_INFORMATION);
++//	u32 endTime = os::Timer::getRealTime();
++//	c8 tmp[255];
++//	sprintf(tmp, "Needed %ums to create OctTree SceneNode.(%d nodes, %d polys)",
++//		endTime - beginTime, nodeCount, polyCount/3);
++//	os::Printer::log(tmp, ELL_INFORMATION);
++//	sprintf(tmp, "StdOctTree: %d LightMapOctTree %d\n", StdOctTree ? 1:0, LightMapOctTree ? 1:0);
++//	os::Printer::log(tmp, ELL_INFORMATION);
++
++    ITriangleSelector* selector = new COctTreeSceneNodeTriangleSelector(this);
++    setTriangleSelector(selector);
++    selector->drop();
+ 
+ 	return true;
+@@ -383,4 +464,6 @@ void COctTreeSceneNode::deserializeAttri
+ void COctTreeSceneNode::deleteTree()
+ {
++    setTriangleSelector(0);
++
+ 	delete StdOctTree;
+ 	StdOctTree = 0;

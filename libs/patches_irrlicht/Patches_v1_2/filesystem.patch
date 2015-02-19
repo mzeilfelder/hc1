@@ -1,0 +1,302 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IFileSystem.h hcraft_libs/irrlicht/include/IFileSystem.h
+--- svn_hcraft_1.2/irrlicht/include/IFileSystem.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/IFileSystem.h	2006-12-05 10:19:12.000000000 +0100
+@@ -44,5 +44,5 @@ public:
+ 	The returned pointer should be dropped when no longer needed.
+ 	See IUnknown::drop() for more information. */
+-	virtual IReadFile* createAndOpenFile(const c8* filename) = 0;
++	virtual IReadFile* createAndOpenFile(const c8* filename, bool checkAlternatives=true) = 0;
+ 
+ 	//! Opens a file for write access.
+@@ -114,5 +114,5 @@ public:
+ 	/** \param filename is the string identifying the file which should be tested for existance.
+ 	\return Returns true if file exsits, and false if it does not exist or an error occured. */
+-	virtual bool existFile(const c8* filename) = 0;
++	virtual bool existFile(const c8* filename, bool checkAlternatives=true) = 0;
+ 
+ 	//! Creates a XML Reader from a file which returns all parsed strings as wide characters (wchar_t*).
+@@ -173,4 +173,19 @@ public:
+ 	See IUnknown::drop() for more information. */
+ 	virtual IAttributes* createEmptyAttributes(video::IVideoDriver* driver=0) = 0;
++
++    //! Set additional filenendings which will be checked while searching files
++	virtual void setAlternativeFileEndings(const c8* origEnding_, const c8 * altEnding_) = 0;
++
++    //! clear additional filenendings for given original ending
++	virtual void clearAlternativeFileEndings(const c8* origEnding_) = 0;
++
++    //! "path/file.abc" will return "path/"
++    virtual bool getPathFromFilename(const c8* filename, core::stringc & path_) = 0;
++
++    //! "path/file.abc" will return "file"
++    virtual bool getFileFromFilename(const c8* filename, core::stringc & file_) = 0;
++
++    //! "path/file.abc" will return "abc"
++    virtual bool getEndingFromFilename(const c8* filename, core::stringc & ending_) = 0;
+ };
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CFileSystem.cpp hcraft_libs/irrlicht/source/Irrlicht/CFileSystem.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CFileSystem.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CFileSystem.cpp	2007-01-19 17:38:57.000000000 +0100
+@@ -36,4 +36,5 @@ namespace io
+ CFileSystem::CFileSystem()
+ {
++    WorkingDirectory[0] = 0;
+ 	#ifdef _DEBUG
+ 	setDebugName("CFileSystem");
+@@ -61,5 +62,5 @@ CFileSystem::~CFileSystem()
+ 
+ //! opens a file for read access
+-IReadFile* CFileSystem::createAndOpenFile(const c8* filename)
++IReadFile* CFileSystem::createAndOpenFile(const c8* filename, bool checkAlternatives)
+ {
+ 	IReadFile* file = 0;
+@@ -88,4 +89,32 @@ IReadFile* CFileSystem::createAndOpenFil
+ 
+ 	file = createReadFile(filename);
++
++    // check for files with alternative fileendings
++    core::stringc ending;
++	if ( !file && checkAlternatives && getEndingFromFilename(filename, ending) )
++	{
++	    core::stringc path;
++	    core::stringc name;
++	    core::stringc nameWithoutEnding;
++        if ( getPathFromFilename(filename, path) )
++            nameWithoutEnding.append(path);
++        if ( getFileFromFilename(filename, name) )
++            nameWithoutEnding.append(name);
++
++        for ( u32 i= 0; i < AlternativeFileEndings.size(); ++i )
++        {
++            if ( AlternativeFileEndings[i].Orig == ending )
++            {
++                core::stringc alternativeFilename(nameWithoutEnding);
++                alternativeFilename.append(".");
++                alternativeFilename.append(AlternativeFileEndings[i].Alternative);
++
++                file = createAndOpenFile(alternativeFilename.c_str(), false);
++                if ( file )
++                    return file;
++            }
++        }
++	}
++
+ 	return file;
+ }
+@@ -201,5 +232,5 @@ bool CFileSystem::changeWorkingDirectory
+ 
+ #if (defined(LINUX) || defined(MACOSX))
+-	success=(chdir(newDirectory) != 0);
++    success=(chdir(newDirectory) == 0);
+ #endif
+ 	return success;
+@@ -237,5 +268,5 @@ IFileList* CFileSystem::createFileList()
+ 
+ //! determines if a file exists and would be able to be opened.
+-bool CFileSystem::existFile(const c8* filename)
++bool CFileSystem::existFile(const c8* filename, bool checkAlternatives)
+ {
+ 	u32 i;
+@@ -260,4 +291,30 @@ bool CFileSystem::existFile(const c8* fi
+ 	}
+ 
++    // check for files with alternative fileendings
++    core::stringc ending;
++	if ( checkAlternatives && getEndingFromFilename(filename, ending) )
++	{
++	    core::stringc path;
++	    core::stringc name;
++	    core::stringc nameWithoutEnding;
++        if ( getPathFromFilename(filename, path) )
++            nameWithoutEnding.append(path);
++        if ( getFileFromFilename(filename, name) )
++            nameWithoutEnding.append(name);
++
++        for (i= 0; i < AlternativeFileEndings.size(); ++i )
++        {
++            if ( AlternativeFileEndings[i].Orig == ending )
++            {
++                core::stringc alternativeFilename(nameWithoutEnding);
++                alternativeFilename.append(".");
++                alternativeFilename.append(AlternativeFileEndings[i].Alternative);
++
++                if ( existFile(alternativeFilename.c_str(), false) )
++                    return true;
++            }
++        }
++	}
++
+ 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+ 	return false;
+@@ -339,4 +396,96 @@ IAttributes* CFileSystem::createEmptyAtt
+ }
+ 
++//! Set additional filenendings which will be checked while searching files
++void CFileSystem::setAlternativeFileEndings(const c8* origEnding_, const c8 * altEnding_)
++{
++    if ( !origEnding_ || !altEnding_ )
++        return;
++
++    SAlternativeEnding alternative;
++    alternative.Orig = origEnding_;
++    alternative.Alternative = altEnding_;
++	AlternativeFileEndings.push_back(alternative);
++}
++
++//! clear additional filenendings for given original ending
++void CFileSystem::clearAlternativeFileEndings(const c8* origEnding_)
++{
++    if ( !origEnding_ )
++        return;
++    for ( s32 i= (s32)AlternativeFileEndings.size(); i >= 0; --i )
++    {
++        if ( AlternativeFileEndings[i].Orig == origEnding_ )
++        {
++            AlternativeFileEndings.erase(i);
++        }
++    }
++}
++
++//! "path/file.abc" will return "path/"
++bool CFileSystem::getPathFromFilename(const c8* filename_, core::stringc & path_)
++{
++    if ( !filename_)
++        return false;
++    s32 last = -1;
++    s32 i=0;
++    while ( filename_[i] )
++    {
++        if ( filename_[i] == '/' || filename_[i] == '\\' )
++            last = i;
++        ++i;
++    }
++    if ( last > 0 )
++    {
++        path_ = core::stringc(filename_, last+1);
++        return true;
++    }
++    return false;
++}
++
++//! "path/file.abc" will return "file"
++bool CFileSystem::getFileFromFilename(const c8* filename_, core::stringc & file_)
++{
++    if ( !filename_)
++        return false;
++    s32 lastSlash = -1;
++    s32 lastPoint = -1;
++    s32 i=0;
++    while ( filename_[i] )
++    {
++        if ( filename_[i] == '/' || filename_[i] == '\\' )
++            lastSlash = i;
++        if ( filename_[i] == '.' )
++            lastPoint = i;
++        ++i;
++    }
++    if ( lastSlash >= 0 && lastPoint > lastSlash+1 )
++    {
++        file_ = core::stringc(&(filename_[lastSlash+1]), lastPoint - (lastSlash+1));
++        return true;
++    }
++    return false;
++}
++
++//! "path/file.abc" will return "abc"
++bool CFileSystem::getEndingFromFilename(const c8* filename_, core::stringc & ending_)
++{
++    if ( !filename_)
++        return false;
++    s32 last = -1;
++    s32 i=0;
++    while ( filename_[i] )
++    {
++        if ( filename_[i] == '.' )
++            last = i;
++        ++i;
++    }
++    if ( last >= 0 )
++    {
++        ending_ = core::stringc(&(filename_[last+1]));
++        return true;
++    }
++    return false;
++}
++
+ } // end namespace irr
+ } // end namespace io
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CFileSystem.h hcraft_libs/irrlicht/source/Irrlicht/CFileSystem.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CFileSystem.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CFileSystem.h	2006-12-05 10:23:04.000000000 +0100
+@@ -33,5 +33,5 @@ public:
+ 
+ 	//! opens a file for read access
+-	virtual IReadFile* createAndOpenFile(const c8* filename);
++	virtual IReadFile* createAndOpenFile(const c8* filename, bool checkAlternatives=true);
+ 
+ 	//! Opens a file for write access.
+@@ -61,5 +61,5 @@ public:
+ 
+ 	//! determinates if a file exists and would be able to be opened.
+-	virtual bool existFile(const c8* filename);
++	virtual bool existFile(const c8* filename, bool checkAlternatives=true);
+ 
+ 	//! Creates a XML Reader from a file.
+@@ -84,4 +84,19 @@ public:
+ 	virtual IAttributes* createEmptyAttributes(video::IVideoDriver* driver);
+ 
++    //! Set additional filenendings which will be checked while searching files
++	virtual void setAlternativeFileEndings(const c8* origEnding_, const c8 * altEnding_);
++
++    //! clear additional filenendings for given original ending
++	virtual void clearAlternativeFileEndings(const c8* origEnding_);
++
++    //! "path/file.abc" will return "path/"
++    virtual bool getPathFromFilename(const c8* filename, core::stringc & path_);
++
++    //! "path/file.abc" will return "file"
++    virtual bool getFileFromFilename(const c8* filename, core::stringc & file_);
++
++    //! "path/file.abc" will return "abc"
++    virtual bool getEndingFromFilename(const c8* filename, core::stringc & ending_);
++
+ private:
+ 
+@@ -90,4 +105,12 @@ private:
+ 	core::array<CUnZipReader*> UnZipFileSystems;
+ 	c8 WorkingDirectory[FILE_SYSTEM_MAX_PATH];
++
++    struct SAlternativeEnding
++    {
++        core::stringc Orig;
++        core::stringc Alternative;
++    };
++
++	core::array<SAlternativeEnding> AlternativeFileEndings;
+ };
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/ITexture.h hcraft_libs/irrlicht/include/ITexture.h
+--- svn_hcraft_1.2/irrlicht/include/ITexture.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/ITexture.h	2007-02-28 01:25:49.000000000 +0100
+@@ public:
+ 	const core::stringc& getName() { return Name; }
+ 
++	//! Set the name of the texture
++	void setName(const c8 *name)    { Name = name; Name.make_lower(); }
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+@@ ITexture* CNullDriver::getTexture(const 
+ 		if (texture)
+ 		{
++			texture->setName(filename);	// otherwise filesystem is no longer really useful
+ 			addTexture(texture);
+ 			texture->drop(); // drop it becaus we created it, one grab to much
+ 		}
++		else
++		{
++//			os::Printer::log("Could not load texture for filename", filename, ELL_ERROR);
++		}
+ 	}

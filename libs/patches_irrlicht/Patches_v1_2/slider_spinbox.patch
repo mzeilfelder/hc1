@@ -1,0 +1,939 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h hcraft_libs/irrlicht/include/IEventReceiver.h
+--- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h
++++ hcraft_libs/irrlicht/include/IEventReceiver.h
+@@ namespace irr
++			//! spin box has changed or enter was pressed in it's editbox
++			EGET_SPINBOX_CHANGED,
++
++			//! content of text slider as changed
++			EGET_TEXTSLIDER_CHANGED,
+ 		};
+ 	} // end namespace gui
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/EGUIElementTypes.h hcraft_libs/irrlicht/include/EGUIElementTypes.h
+--- svn_hcraft_1.2/irrlicht/include/EGUIElementTypes.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/EGUIElementTypes.h	2007-02-10 17:05:46.000000000 +0100
+@@ -72,4 +72,10 @@ enum EGUI_ELEMENT_TYPE
+ 	EGUIET_WINDOW,
+ 
++	//! A textslider
++	EGUIET_TEXT_SLIDER,
++
++	//! A spinbox
++	EGUIET_SPIN_BOX,
++
+ 	//! Not an element, amount of elements in there
+ 	EGUIET_COUNT
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/irrlicht.h hcraft_libs/irrlicht/include/irrlicht.h
+--- svn_hcraft_1.2/irrlicht/include/irrlicht.h
++++ hcraft_libs/irrlicht/include/irrlicht.h
+@@ -71,4 +71,6 @@
+ #include "IGUIWindow.h"
+ #include "IGUIToolbar.h"
++#include "IGUISpinBox.h"
++#include "IGUITextSlider.h"
+ #include "IImage.h"
+ #include "ILightSceneNode.h"
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUISpinBox.h hcraft_libs/irrlicht/include/IGUISpinBox.h
+--- svn_hcraft_1.2/irrlicht/include/IGUISpinBox.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/include/IGUISpinBox.h	2007-02-10 17:06:18.000000000 +0100
+@@ -0,0 +1,58 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++#ifndef __I_GUI_SPIN_BOX_H_INCLUDED__
++#define __I_GUI_SPIN_BOX_H_INCLUDED__
++
++#include "IGUIElement.h"
++
++namespace irr
++{
++namespace gui
++{
++    class IGUIEditBox;
++
++	//! Single line edit box + spin buttons
++	class IGUISpinBox : public IGUIElement
++	{
++	public:
++
++		//! constructor
++		IGUISpinBox(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
++			: IGUIElement(EGUIET_SPIN_BOX, environment, parent, id, rectangle) {}
++
++		//! destructor
++		~IGUISpinBox() {};
++
++        //! Access the edit box used in the spin control
++		/** \param enable: If set to true, the override color, which can be set
++		 with IGUIEditBox::setOverrideColor is used, otherwise the
++		 EGDC_BUTTON_TEXT color of the skin. */
++		virtual IGUIEditBox* getEditBox() = 0;
++
++        //! set the current value of the spinbox
++		/** \param val: value to be set in the spinbox */
++		virtual void setValue(f32 val) = 0;
++
++        //! Get the current value of the spinbox
++		virtual f32 getValue() = 0;
++
++        //! set the range of values which can be used in the spinbox
++		/** \param min: minimum value
++		\param max: maximum value */
++		virtual void setRange(f32 min, f32 max) = 0;
++
++		//! get the minimum value which can be used in the spinbox
++		virtual f32 getMin() = 0;
++
++		//! get the maximum value which can be used in the spinbox
++		virtual f32 getMax() = 0;
++
++		//! stepsize by which values are changed when pressing the spinbuttons
++		/** \param step: stepsize used for value changes when pressing spinbuttons */
++		virtual void setStepSize(f32 step=1.f) = 0;
++	};
++} // end namespace gui
++} // end namespace irr
++
++#endif // __I_GUI_SPIN_BOX_H_INCLUDED__
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUITextSlider.h hcraft_libs/irrlicht/include/IGUITextSlider.h
+--- svn_hcraft_1.2/irrlicht/include/IGUITextSlider.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/include/IGUITextSlider.h	2007-02-10 17:05:51.000000000 +0100
+@@ -0,0 +1,61 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++#ifndef __I_GUI_TEXT_SLIDER_H_INCLUDED__
++#define __I_GUI_TEXT_SLIDER_H_INCLUDED__
++
++#include "IGUIElement.h"
++
++namespace irr
++{
++namespace video
++{
++    class ITexture;
++};
++namespace gui
++{
++    class IGUIFont;
++
++	//! Single line edit box + spin buttons
++	class IGUITextSlider : public IGUIElement
++	{
++	public:
++
++		//! constructor
++		IGUITextSlider(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle, f32 buttonAspectRatio)
++			: IGUIElement(EGUIET_TEXT_SLIDER, environment, parent, id, rectangle) {}
++
++		//! destructor
++		~IGUITextSlider() {};
++
++		virtual s32 getCurrentTextId() const = 0;
++		virtual void setCurrentTextId(s32 id_) = 0;
++
++		virtual void addText(const wchar_t* text) = 0;
++		virtual const wchar_t* getCurrentText() const = 0;
++		virtual s32 getNumTexts() const = 0;
++        virtual void clearTexts() = 0;
++
++        virtual void setOverrideFont(IGUIFont* font=0) = 0;
++        virtual void setLeftImage(video::ITexture* image) = 0;
++        virtual void setLeftImagePressed(video::ITexture* image) = 0;
++        virtual void setRightImage(video::ITexture* image) = 0;
++        virtual void setRightImagePressed(video::ITexture* image) = 0;
++        virtual void setFocusedImage(video::ITexture* image) = 0;
++
++        //! Sets if the alpha channel should be used for drawing images on the button (default is false)
++		virtual void setUseAlphaChannel(bool useAlphaChannel) = 0;
++
++		//! Returns if the alpha channel should be used for drawing images on the button
++		virtual bool getUseAlphaChannel() const = 0;
++
++        //! when the last/first text is reached, wrap around to first/last text
++        //! default is true
++		virtual void setWrapAround(bool wrap_) = 0;
++		virtual bool getWrapAround(bool wrap_) const = 0;
++	};
++} // end namespace gui
++} // end namespace irr
++
++#endif // __I_GUI_TEXT_SLIDER_H_INCLUDED__
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUISpinBox.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUISpinBox.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUISpinBox.cpp	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUISpinBox.cpp	2006-05-18 18:27:01.000000000 +0100
+@@ -0,0 +1,176 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++#include "IrrCompileConfig.h"
++#include "CGUISpinBox.h"
++#include "CGUIEditBox.h"
++#include "CGUIButton.h"
++#include "IGUIEnvironment.h"
++#include "IEventReceiver.h"
++#include <float.h>
++#include <wchar.h>
++
++
++namespace irr
++{
++namespace gui
++{
++
++//! constructor
++CGUISpinBox::CGUISpinBox(const wchar_t* text, IGUIEnvironment* environment,
++			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle)
++: IGUISpinBox(environment, parent, id, rectangle)
++, ButtonSpinUp(NULL)
++, ButtonSpinDown(NULL)
++, StepSize(1.f)
++, RangeMin(-FLT_MAX)
++, RangeMax(FLT_MAX)
++{
++    ButtonSpinDown = Environment->addButton(core::rect<s32>(RelativeRect.getWidth() - rectangle.getHeight(), 0, RelativeRect.getWidth(), rectangle.getHeight()), this, -1, L"-");
++    ButtonSpinDown->grab();
++    ButtonSpinUp = Environment->addButton(core::rect<s32>(0, 0, rectangle.getHeight(), rectangle.getHeight()), this, -1, L"+");
++    ButtonSpinUp->grab();
++
++    core::rect< s32 > rectEdit(rectangle.getHeight()+1, 0, RelativeRect.getWidth() - (rectangle.getHeight() + 1), rectangle.getHeight());
++    EditBox = Environment->addEditBox(text, rectEdit, true, this, -1);
++    EditBox->grab();
++
++//    verifyValueRange();
++}
++
++//! destructor
++CGUISpinBox::~CGUISpinBox()
++{
++	if (ButtonSpinUp)
++		ButtonSpinUp->drop();
++    if (ButtonSpinDown)
++        ButtonSpinDown->drop();
++    if (EditBox)
++        EditBox->drop();
++}
++
++IGUIEditBox* CGUISpinBox::getEditBox()
++{
++    return EditBox;
++}
++
++void CGUISpinBox::setValue(f32 val)
++{
++    wchar_t str[100];
++#ifdef _IRR_WINDOWS_
++    _snwprintf(str, 99, L"%f", val);
++#else
++    swprintf(str, 99, L"%f", val);
++#endif
++    EditBox->setText(str);
++    verifyValueRange();
++}
++
++f32 CGUISpinBox::getValue()
++{
++    const wchar_t* val = EditBox->getText();
++    if ( !val )
++        return 0.f;
++    wprintf(L"val: %S", val);
++    return wcstof(val, NULL);
++}
++
++void CGUISpinBox::setRange(f32 min, f32 max)
++{
++    RangeMin = min;
++    RangeMax = max;
++    verifyValueRange();
++}
++
++f32 CGUISpinBox::getMin()
++{
++    return RangeMin;
++}
++
++f32 CGUISpinBox::getMax()
++{
++    return RangeMax;
++}
++
++void CGUISpinBox::setStepSize(f32 step)
++{
++    StepSize = step;
++}
++
++bool CGUISpinBox::OnEvent(SEvent event)
++{
++    bool changeEvent = false;
++    switch(event.EventType)
++	{
++	case EET_GUI_EVENT:
++		if (event.GUIEvent.EventType == EGET_BUTTON_CLICKED)
++		{
++		    if (event.GUIEvent.Caller == ButtonSpinUp)
++		    {
++		        f32 val = getValue();
++		        val += StepSize;
++		        setValue(val);
++		        changeEvent = true;
++		    }
++		    else if ( event.GUIEvent.Caller == ButtonSpinDown)
++		    {
++		        f32 val = getValue();
++		        val -= StepSize;
++		        setValue(val);
++		        changeEvent = true;
++		    }
++		}
++		if ( event.GUIEvent.EventType == EGET_EDITBOX_ENTER )
++		{
++		    if (event.GUIEvent.Caller == EditBox)
++		    {
++		        verifyValueRange();
++		        changeEvent = true;
++		    }
++		}
++		break;
++    default:
++        break;
++	}
++
++	if ( changeEvent )
++	{
++        SEvent e;
++        e.EventType = EET_GUI_EVENT;
++        e.GUIEvent.Caller = this;
++        //fprintf(stderr, "EGET_SPINBOX_CHANGED caller:%p id: %d\n", e.GUIEvent.Caller, e.GUIEvent.Caller->getID() );
++        e.GUIEvent.EventType = EGET_SPINBOX_CHANGED;
++        if ( Parent )
++            Parent->OnEvent(e);
++	}
++
++    return false;
++}
++
++void CGUISpinBox::verifyValueRange()
++{
++    f32 val = getValue();
++    if ( val < RangeMin )
++        val = RangeMin;
++    else if ( val > RangeMax )
++        val = RangeMax;
++    else
++        return;
++
++    setValue(val);
++}
++
++//! Sets the new caption of the element
++void CGUISpinBox::setText(const wchar_t* text)
++{
++    EditBox->setText(text);
++}
++
++//! Returns caption of this element.
++const wchar_t* CGUISpinBox::getText() const
++{
++    return EditBox->getText();
++}
++
++} // end namespace gui
++} // end namespace irr
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUISpinBox.h hcraft_libs/irrlicht/source/Irrlicht/CGUISpinBox.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUISpinBox.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUISpinBox.h	2006-05-13 22:15:13.000000000 +0100
+@@ -0,0 +1,77 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++#ifndef __C_GUI_SPIN_BOX_H_INCLUDED__
++#define __C_GUI_SPIN_BOX_H_INCLUDED__
++
++#include "IGUISpinBox.h"
++
++namespace irr
++{
++namespace gui
++{
++    class IGUIEditBox;
++    class IGUIButton;
++
++	class CGUISpinBox : public IGUISpinBox
++	{
++	public:
++
++		//! constructor
++		CGUISpinBox(const wchar_t* text, IGUIEnvironment* environment,
++			IGUIElement* parent, s32 id, const core::rect<s32>& rectangle);
++
++		//! destructor
++		~CGUISpinBox();
++
++        //! Access the edit box used in the spin control
++		/** \param enable: If set to true, the override color, which can be set
++		 with IGUIEditBox::setOverrideColor is used, otherwise the
++		 EGDC_BUTTON_TEXT color of the skin. */
++		virtual IGUIEditBox* getEditBox();
++
++        //! set the current value of the spinbox
++		/** \param val: value to be set in the spinbox */
++		virtual void setValue(f32 val);
++
++        //! Get the current value of the spinbox
++		virtual f32 getValue();
++
++        //! set the range of values which can be used in the spinbox
++		/** \param min: minimum value
++		\param max: maximum value */
++		virtual void setRange(f32 min, f32 max);
++
++		//! get the minimum value which can be used in the spinbox
++		virtual f32 getMin();
++
++		//! get the maximum value which can be used in the spinbox
++		virtual f32 getMax();
++
++		//! stepsize by which values are changed when pressing the spinbuttons
++		/** \param step: stepsize used for value changes when pressing spinbuttons */
++		virtual void setStepSize(f32 step=1.f);
++
++		//! called if an event happened.
++		virtual bool OnEvent(SEvent event);
++
++        //! Sets the new caption of the element
++        virtual void setText(const wchar_t* text);
++
++        //! Returns caption of this element.
++        virtual const wchar_t* getText() const;
++
++    protected:
++        virtual void verifyValueRange();
++
++        IGUIEditBox * EditBox;
++        IGUIButton * ButtonSpinUp;
++        IGUIButton * ButtonSpinDown;
++        f32 StepSize;
++        f32 RangeMin;
++        f32 RangeMax;
++	};
++} // end namespace gui
++} // end namespace irr
++
++#endif // __C_GUI_SPIN_BOX_H_INCLUDED__
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITextSlider.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUITextSlider.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITextSlider.cpp	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUITextSlider.cpp	2007-01-10 20:59:48.000000000 +0100
+@@ -0,0 +1,331 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++#include "IGUIEnvironment.h"
++#include "irrArray.h"
++#include "irrString.h"
++#include "ITexture.h"
++#include "IVideoDriver.h"
++#include "CGUITextSlider.h"
++#include "CGUIButton.h"
++#include "CGUIStaticText.h"
++#include "os.h"
++
++namespace irr
++{
++namespace gui
++{
++
++//! constructor
++CGUITextSlider::CGUITextSlider(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle, f32 buttonAspectRatio)
++: IGUITextSlider(environment, parent, id, rectangle, buttonAspectRatio)
++, mCurrentTextId(-1), FocusedImage(0), UseAlphaChannel(true), WrapAround(true)
++{
++    ButtonLeft = Environment->addButton(core::rect<s32>(0, 0, (int)(rectangle.getHeight()*buttonAspectRatio), rectangle.getHeight()), this, -1, L"<");
++    ButtonLeft->grab();
++    ButtonLeft->setFocusable(false);
++    ButtonRight = Environment->addButton(core::rect<s32>(RelativeRect.getWidth() - (int)(rectangle.getHeight()*buttonAspectRatio), 0, RelativeRect.getWidth(), rectangle.getHeight()), this, -1, L">");
++    ButtonRight->grab();
++    ButtonRight->setFocusable(false);
++
++    setUseAlphaChannel(UseAlphaChannel);
++
++    core::rect< s32 > rectEdit((int)(rectangle.getHeight()*buttonAspectRatio)+1, 0, RelativeRect.getWidth() - ((int)(rectangle.getHeight()*buttonAspectRatio) + 1), rectangle.getHeight());
++    bool border = false;
++    bool wordWrap = false;
++    bool fillBackground = false;
++    StaticText = Environment->addStaticText(L"text", rectEdit, border, wordWrap, this, -1, fillBackground);
++    StaticText->setHoricontalCenter(true);
++    StaticText->grab();
++}
++
++//! destructor
++CGUITextSlider::~CGUITextSlider()
++{
++	if (ButtonLeft)
++		ButtonLeft->drop();
++    if (ButtonRight)
++        ButtonRight->drop();
++    if (StaticText)
++        StaticText->drop();
++    if (FocusedImage)
++        FocusedImage->drop();
++}
++
++s32 CGUITextSlider::getCurrentTextId() const
++{
++    return mCurrentTextId;
++}
++
++void CGUITextSlider::setCurrentTextId(s32 id_)
++{
++    mCurrentTextId = id_;
++    const wchar_t* text = getCurrentText();
++    if ( text )
++    {
++        StaticText->setText(text);
++    }
++    else
++    {
++        StaticText->setText(L"");
++    }
++}
++
++void CGUITextSlider::addText(const wchar_t* text)
++{
++    mTexts.push_back(text);
++    if ( mCurrentTextId < 0 )
++        setCurrentTextId(0);
++}
++
++const wchar_t* CGUITextSlider::getCurrentText() const
++{
++    if ( mCurrentTextId < 0 || mCurrentTextId >= (s32)mTexts.size() )
++        return NULL;
++    return mTexts[mCurrentTextId].c_str();
++}
++
++s32 CGUITextSlider::getNumTexts() const
++{
++    return mTexts.size();
++}
++
++void CGUITextSlider::clearTexts()
++{
++    mTexts.clear();
++    setCurrentTextId(-1);
++}
++
++void CGUITextSlider::setOverrideFont(IGUIFont* font)
++{
++    if ( StaticText )
++        StaticText->setOverrideFont(font);
++    if (ButtonLeft)
++		ButtonLeft->setOverrideFont(font);
++    if (ButtonRight)
++        ButtonRight->setOverrideFont(font);
++}
++
++void CGUITextSlider::setLeftImage(video::ITexture* image)
++{
++    ButtonLeft->setImage(image, true);
++    if ( image )
++    {
++        ButtonLeft->setText(NULL);
++    }
++    else
++    {
++        ButtonLeft->setText(L"<");
++    }
++}
++
++void CGUITextSlider::setLeftImagePressed(video::ITexture* image)
++{
++    ButtonLeft->setPressedImage(image, true);
++}
++
++void CGUITextSlider::setRightImage(video::ITexture* image)
++{
++    ButtonRight->setImage(image, true);
++    if ( image )
++    {
++        ButtonRight->setText(NULL);
++    }
++    else
++    {
++        ButtonRight->setText(L">");
++    }
++}
++
++void CGUITextSlider::setRightImagePressed(video::ITexture* image)
++{
++    ButtonRight->setPressedImage(image, true);
++}
++
++void CGUITextSlider::setFocusedImage(video::ITexture* image)
++{
++    if (FocusedImage)
++    {
++		FocusedImage->drop();
++    }
++
++	FocusedImage = image;
++    if (FocusedImage)
++    {
++		FocusedImage->grab();
++    }
++}
++
++//! Sets the enabled state of this element.
++void CGUITextSlider::setEnabled(bool enabled)
++{
++    IGUITextSlider::setEnabled(enabled);
++    if (ButtonLeft)
++		ButtonLeft->setEnabled(enabled);
++    if (ButtonRight)
++        ButtonRight->setEnabled(enabled);
++    if (StaticText)
++        StaticText->setEnabled(enabled);
++}
++
++bool CGUITextSlider::hasFocus()
++{
++    if (     Environment->hasFocus(this)
++            ||  (ButtonLeft && Environment->hasFocus(ButtonLeft))
++            ||  (ButtonRight && Environment->hasFocus(ButtonRight))
++            ||  (StaticText && Environment->hasFocus(StaticText)))
++        return true;
++    return false;
++}
++
++void CGUITextSlider::draw()
++{
++    IGUITextSlider::draw();
++
++    if (    hasFocus()
++        &&  FocusedImage )
++    {
++        irr::video::IVideoDriver* driver = Environment->getVideoDriver();
++        core::rect<s32> *clip = &AbsoluteClippingRect;
++        core::rect<s32> focusedRect = core::rect<s32>(core::position2d<s32>(0,0), FocusedImage->getSize());
++        driver->draw2DImage(FocusedImage, AbsoluteRect, focusedRect, clip,
++                NULL, UseAlphaChannel);
++    }
++}
++
++bool CGUITextSlider::OnEvent(SEvent event)
++{
++    if (!IsEnabled)
++		return Parent ? Parent->OnEvent(event) : false;
++
++    bool buttonClicked = false;
++    switch(event.EventType)
++	{
++        case EET_GUI_EVENT:
++            if (event.GUIEvent.EventType == EGET_BUTTON_CLICKED)
++            {
++                if (event.GUIEvent.Caller == ButtonLeft)
++                {
++                    buttonClicked  = true;
++                    changeSlider(false);
++                }
++                else if ( event.GUIEvent.Caller == ButtonRight)
++                {
++                    buttonClicked = true;
++                    changeSlider(true);
++                }
++            }
++		break;
++        case EET_MOUSE_INPUT_EVENT:
++        {
++            if (    event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN
++                ||  event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP )
++            {
++                bool buttonHandledIt = false;
++                if (ButtonLeft && ButtonLeft->OnEvent(event) )
++                    buttonHandledIt = true;
++                if (ButtonRight && ButtonRight->OnEvent(event) )
++                    buttonHandledIt = true;
++                if ( buttonHandledIt )
++                    return true;
++            }
++        }
++        break;
++        case EET_KEY_INPUT_EVENT:
++        {
++            if (event.KeyInput.PressedDown && isEnabled() )
++            {
++                if ( event.KeyInput.Key == KEY_LEFT )
++                {
++                    changeSlider(false);
++                    return true;
++                }
++                else if ( event.KeyInput.Key == KEY_RIGHT )
++                {
++                    changeSlider(true);
++                    return true;
++                }
++            }
++        }
++        break;
++        default:
++        break;
++	}
++
++    if ( buttonClicked )
++    {
++        return true;
++    }
++
++
++    return Parent ? Parent->OnEvent(event) : false;
++}
++
++void CGUITextSlider::changeSlider(bool increase_)
++{
++    bool changeEvent = false;
++    if ( increase_ )
++    {
++        if ( mCurrentTextId >= 0 && mCurrentTextId+1 < (s32)mTexts.size() )
++        {
++            setCurrentTextId(mCurrentTextId+1);
++            changeEvent = true;
++        }
++        else if ( WrapAround && mCurrentTextId >= 0 && mCurrentTextId+1 == (s32)mTexts.size() )
++        {
++            setCurrentTextId(0);
++            changeEvent = true;
++        }
++    }
++    else
++    {
++        if ( mCurrentTextId > 0 )
++        {
++            setCurrentTextId(mCurrentTextId-1);
++            changeEvent = true;
++        }
++        else if ( WrapAround && 0 == mCurrentTextId )
++        {
++            setCurrentTextId(mTexts.size()-1);
++            changeEvent = true;
++        }
++    }
++
++	if ( changeEvent )
++	{
++        SEvent e;
++        e.EventType = EET_GUI_EVENT;
++        e.GUIEvent.Caller = this;
++        //fprintf(stderr, "EGET_SPINBOX_CHANGED caller:%p id: %d\n", e.GUIEvent.Caller, e.GUIEvent.Caller->getID() );
++        e.GUIEvent.EventType = EGET_TEXTSLIDER_CHANGED;
++        if ( Parent )
++            Parent->OnEvent(e);
++	}
++}
++
++void CGUITextSlider::setUseAlphaChannel(bool useAlphaChannel)
++{
++    UseAlphaChannel = useAlphaChannel;
++    if ( ButtonLeft )
++        ButtonLeft->setUseAlphaChannel(useAlphaChannel);
++    if ( ButtonRight )
++        ButtonRight->setUseAlphaChannel(useAlphaChannel);
++}
++
++bool CGUITextSlider::getUseAlphaChannel() const
++{
++    return UseAlphaChannel;
++}
++
++void CGUITextSlider::setWrapAround(bool wrap_)
++{
++    WrapAround = wrap_;
++}
++
++bool CGUITextSlider::getWrapAround(bool wrap_) const
++{
++    return WrapAround;
++}
++
++} // end namespace gui
++} // end namespace irr
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITextSlider.h hcraft_libs/irrlicht/source/Irrlicht/CGUITextSlider.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITextSlider.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUITextSlider.h	2007-02-23 05:14:23.000000000 +0100
+@@ -0,0 +1,98 @@
++// Copyright (C) 2006 Michael Zeilfelder
++// This file uses the licence of the Irrlicht Engine.
++
++// TODO: putting together several guielement into one element seemed a good idea at first.
++// It isn't. Simply because it's now a mixture of one element and three elements in one which
++// did cause already several problems with focus-stuff and should be changed in the long run.
++
++#ifndef __C_GUI_TEXT_SLIDER_H_INCLUDED__
++#define __C_GUI_TEXT_SLIDER_H_INCLUDED__
++
++#include "IGUITextSlider.h"
++
++namespace irr
++{
++namespace gui
++{
++    class IGUIButton;
++    class IGUIStaticText;
++
++	class CGUITextSlider : public IGUITextSlider
++	{
++	public:
++
++		//! constructor
++		CGUITextSlider(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle, f32 buttonAspectRatio);
++
++		//! destructor
++		~CGUITextSlider();
++
++		virtual s32 getCurrentTextId() const;
++		virtual void setCurrentTextId(s32 id_);
++
++		virtual void addText(const wchar_t* text);
++		virtual const wchar_t* getCurrentText() const;
++		virtual s32 getNumTexts() const;
++        virtual void clearTexts();
++
++        virtual void setOverrideFont(IGUIFont* font=0);
++        virtual void setLeftImage(video::ITexture* image);
++        virtual void setLeftImagePressed(video::ITexture* image);
++        virtual void setRightImage(video::ITexture* image);
++        virtual void setRightImagePressed(video::ITexture* image);
++        virtual void setFocusedImage(video::ITexture* image);
++
++        //! Sets if the alpha channel should be used for drawing images on the button (default is false)
++		virtual void setUseAlphaChannel(bool useAlphaChannel);
++
++		//! Returns if the alpha channel should be used for drawing images on the button
++		virtual bool getUseAlphaChannel() const;
++
++        //! Sets the enabled state of this element.
++        virtual void setEnabled(bool enabled);
++
++        //! draws the element and its children
++        virtual void draw();
++
++        //! called if an event happened.
++		virtual bool OnEvent(SEvent event);
++
++        //! when the last/first text is reached, wrap around to first/last text
++		virtual void setWrapAround(bool wrap_);
++		virtual bool getWrapAround(bool wrap_) const;
++
++        //! only element returned is textslider itself. No childs.
++        virtual IGUIElement* getElementFromPoint(const core::position2d<s32>& point)
++        {
++            if (!IsVisible)
++                return 0;
++
++            if (AbsoluteClippingRect.isPointInside(point) )
++                return this;
++
++            return 0;
++        }
++
++    protected:
++        // that text is most likely not the one any other class wants to use as it's not the one displayed
++        virtual const wchar_t* getText() const  { return IGUITextSlider::getText(); }
++
++        bool hasFocus();
++        void changeSlider(bool increase_);
++
++    private:
++        s32                         mCurrentTextId;
++        core::array<core::stringw>  mTexts;
++
++        IGUIStaticText *    StaticText;
++        IGUIButton *        ButtonLeft;
++        IGUIButton *        ButtonRight;
++        video::ITexture*    FocusedImage;
++        bool                UseAlphaChannel;
++        bool                WrapAround;
++	};
++} // end namespace gui
++} // end namespace irr
++
++#endif // __C_GUI_TEXT_SLIDER_H_INCLUDED__
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.cpp	
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.cpp
+@@ -27,4 +27,6 @@
+ #include "CGUIMenu.h"
+ #include "CGUIToolBar.h"
++#include "CGUISpinBox.h"
++#include "CGUITextSlider.h"
+ 
+ #include "CGUISkin.h"
+@@ -540,4 +662,22 @@ IGUIEditBox* CGUIEnvironment::addEditBox
+ }
+ 
++//! Adds a spin box.  The returned pointer must not be dropped.
++IGUISpinBox* CGUIEnvironment::addSpinBox(const wchar_t* text,
++                                        const core::rect<s32>& rectangle,
++                                        IGUIElement* parent,
++                                        s32 id)
++{
++    IGUISpinBox * sb = new CGUISpinBox(text, this, parent, id, rectangle);
++    sb->drop();
++    return sb;
++}
++
++IGUITextSlider* CGUIEnvironment::addTextSlider(const core::rect<s32>& rectangle, IGUIElement* parent, s32 id, f32 buttonAspectRatio)
++{
++    IGUITextSlider * ts = new CGUITextSlider(this, parent, id, rectangle, buttonAspectRatio);
++    ts->drop();
++    return ts;
++}
++
+ //! Adds a tab control to the environment.
+ IGUITabControl* CGUIEnvironment::addTabControl(const core::rect<s32>& rectangle,
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.h hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.h
+@@ -102,4 +102,10 @@ public:
+ 		bool border=false, IGUIElement* parent=0, s32 id=-1);
+ 
++    //! Adds a spin box.  The returned pointer must not be dropped.
++    virtual IGUISpinBox* addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1);
++
++    //! Adds a text slider control (buttons left and right and a textfield in the center)
++    virtual IGUITextSlider* addTextSlider(const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, f32 buttonAspectRatio=1.f);
++
+ 	//! Adds a tab control to the environment.
+ 	virtual IGUITabControl* addTabControl(const core::rect<s32>& rectangle,
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIEnvironment.h hcraft_libs/irrlicht/include/IGUIEnvironment.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIEnvironment.h
++++ hcraft_libs/irrlicht/include/IGUIEnvironment.h
+@@ -42,4 +42,6 @@ class IGUIContextMenu;
+ class IGUIComboBox;
+ class IGUIToolBar;
++class IGUISpinBox;
++class IGUITextSlider;
+ 
+ //! GUI Environment. Used as factory and manager of all other GUI elements.
+@@ public:
+ 		bool border=true, IGUIElement* parent=0, s32 id=-1) = 0;
+ 
++    //! Adds a spin box (and edit box + two buttons for up/down)
++    /** \param text is the text to be displayed.
++    \param rectangle is the position of the spin box.
++    \param parent is the parent item of the element. E.g. a window. Set it to 0 to place the edit box directly in the environment.
++    \param id is a s32 to identify the edit box.
++     \return
++	 Returns a pointer to the created spin box. Returns 0 if an error occured.
++	 This pointer should not be dropped. See IUnknown::drop() for more information. */
++    virtual IGUISpinBox* addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1) = 0;
++
++    //! Adds a text slider control (buttons left and right and a textfield in the center)
++    /** \param rectangle is the position and size of the element
++    \param parent is the parent item of the element. E.g. a window. Set it to 0 to place the edit box directly in the environment.
++    \param id is a s32 to identify the edit box.
++    \param buttonAspectRation_ ist the ratio of buttonwidth/buttonheight
++    Returns a pointer to the created textslider. Returns 0 if an error occured.
++	 This pointer should not be dropped. See IUnknown::drop() for more information. */
++    virtual IGUITextSlider* addTextSlider(const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, f32 buttonAspectRatio=1.f) = 0;
++

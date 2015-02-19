@@ -1,0 +1,272 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNode.h hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNode.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNode.h	2006-06-27 12:46:39.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNode.h	2006-06-28 15:38:37.000000000 +0100
+@@ -19,4 +19,6 @@ namespace scene
+ 	public:
+ 
++        friend class COctTreeSceneNodeTriangleSelector;
++
+ 		//! constructor
+ 		COctTreeSceneNode(ISceneNode* parent, ISceneManager* mgr, s32 id, 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.cpp hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.cpp	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.cpp	2006-08-02 01:55:29.000000000 +0100
+@@ -0,0 +1,208 @@
++#include "COctTreeSceneNodeTriangleSelector.h"
++#include "COctTreeSceneNode.h"
++#include "OctTree.h"
++
++using namespace irr;
++using namespace scene;
++
++COctTreeSceneNodeTriangleSelector::COctTreeSceneNodeTriangleSelector(COctTreeSceneNode* node)
++: SceneNode(node)
++{
++}
++
++COctTreeSceneNodeTriangleSelector::~COctTreeSceneNodeTriangleSelector()
++{
++}
++
++s32 COctTreeSceneNodeTriangleSelector::getTriangleCount() const
++{
++    int triangleCount = 0;
++    switch (SceneNode->vertexType)
++    {
++    case video::EVT_STANDARD:
++        {
++            for ( u32 i=0; i < SceneNode->StdMeshes.size(); ++i )
++            {
++                triangleCount += SceneNode->StdMeshes[i].Indices.size();
++            }
++            triangleCount /= 3;
++            break;
++        }
++    case video::EVT_2TCOORDS:
++        {
++            for ( u32 i=0; i < SceneNode->LightMapMeshes.size(); ++i )
++            {
++                triangleCount += SceneNode->LightMapMeshes[i].Indices.size();
++            }
++            triangleCount /= 3;
++
++            break;
++        }
++    }
++    return triangleCount;
++}
++
++void COctTreeSceneNodeTriangleSelector::getTriangles(core::triangle3df* triangles, s32 arraySize,
++		s32& outTriangleCount, const core::matrix4* transform)
++{
++    outTriangleCount = 0;
++    if ( !arraySize )
++        return;
++
++	core::matrix4 mat;
++
++	if (transform)
++		mat = (*transform);
++
++	if (SceneNode)
++		mat *= SceneNode->getAbsoluteTransformation();
++
++    switch (SceneNode->vertexType)
++    {
++    case video::EVT_STANDARD:
++        {
++            for ( u32 i=0; i < SceneNode->StdMeshes.size(); ++i )
++            {
++                OctTree<video::S3DVertex>::SMeshChunk &mesh = SceneNode->StdMeshes[i];
++                for ( u32 t=0; t<mesh.Indices.size(); t+=3 )
++                {
++                    triangles[outTriangleCount].pointA = mesh.Vertices[ mesh.Indices[t] ].Pos;
++                    triangles[outTriangleCount].pointB = mesh.Vertices[ mesh.Indices[t+1] ].Pos;
++                    triangles[outTriangleCount].pointC = mesh.Vertices[ mesh.Indices[t+2] ].Pos;
++                    mat.transformVect(triangles[outTriangleCount].pointA);
++                    mat.transformVect(triangles[outTriangleCount].pointB);
++                    mat.transformVect(triangles[outTriangleCount].pointC);
++
++                    if ( ++outTriangleCount >= arraySize )
++                        return;
++                }
++            }
++            break;
++        }
++    case video::EVT_2TCOORDS:
++        {
++            for ( u32 i=0; i < SceneNode->LightMapMeshes.size(); ++i )
++            {
++                OctTree<video::S3DVertex2TCoords>::SMeshChunk &mesh = SceneNode->LightMapMeshes[i];
++                for ( u32 t=0; t<mesh.Indices.size(); t+=3 )
++                {
++                    triangles[outTriangleCount].pointA = mesh.Vertices[ mesh.Indices[t] ].Pos;
++                    triangles[outTriangleCount].pointB = mesh.Vertices[ mesh.Indices[t+1] ].Pos;
++                    triangles[outTriangleCount].pointC = mesh.Vertices[ mesh.Indices[t+2] ].Pos;
++                    mat.transformVect(triangles[outTriangleCount].pointA);
++                    mat.transformVect(triangles[outTriangleCount].pointB);
++                    mat.transformVect(triangles[outTriangleCount].pointC);
++
++                    if ( ++outTriangleCount >= arraySize )
++                        return;
++                }
++            }
++            break;
++        }
++    }
++}
++
++void COctTreeSceneNodeTriangleSelector::getTriangles(core::triangle3df* triangles, s32 arraySize, s32& outTriangleCount,
++		const core::aabbox3d<f32>& box, const core::matrix4* transform)
++{
++    outTriangleCount = 0;
++    if ( !arraySize )
++        return;
++	core::matrix4 mat;
++
++	if (SceneNode)
++		mat = SceneNode->getAbsoluteTransformation();
++
++	mat.makeInverse();
++	core::aabbox3d<f32> invbox = box;
++	mat.transformBox(invbox);
++
++	mat.makeIdentity();
++
++	if (transform)
++		mat = (*transform);
++
++	if (SceneNode)
++		mat *= SceneNode->getAbsoluteTransformation();
++
++    core::aabbox3d<f32> boxTriangle;
++
++	switch(SceneNode->vertexType)
++	{
++	case video::EVT_STANDARD:
++		{
++		    SceneNode->StdOctTree->calculatePolys(invbox);
++            OctTree<video::S3DVertex>::SIndexData* d =  SceneNode->StdOctTree->getIndexData();
++
++            for ( u32 i=0; i < SceneNode->StdMeshes.size(); ++i )
++            {
++                OctTree<video::S3DVertex>::SMeshChunk &mesh = SceneNode->StdMeshes[i];
++
++                for ( int t=0; t<d[i].CurrentSize; t+=3 )
++                {
++                    triangles[outTriangleCount].pointA = mesh.Vertices[ d[i].Indices[t] ].Pos;
++                    triangles[outTriangleCount].pointB = mesh.Vertices[ d[i].Indices[t+1] ].Pos;
++                    triangles[outTriangleCount].pointC = mesh.Vertices[ d[i].Indices[t+2] ].Pos;
++
++                    boxTriangle.reset(triangles[outTriangleCount].pointA);
++                    boxTriangle.addInternalPoint(triangles[outTriangleCount].pointB);
++                    boxTriangle.addInternalPoint(triangles[outTriangleCount].pointC);
++                    if ( boxTriangle.intersectsWithBox(invbox) )
++                    {
++                        mat.transformVect(triangles[outTriangleCount].pointA);
++                        mat.transformVect(triangles[outTriangleCount].pointB);
++                        mat.transformVect(triangles[outTriangleCount].pointC);
++
++                        if ( ++outTriangleCount >= arraySize )
++                            return;
++                    }
++                }
++            }
++
++		    break;
++		}
++    case video::EVT_2TCOORDS:
++        {
++            SceneNode->LightMapOctTree->calculatePolys(invbox);
++            OctTree<video::S3DVertex2TCoords>::SIndexData* d = SceneNode->LightMapOctTree->getIndexData();
++
++            for ( u32 i=0; i < SceneNode->LightMapMeshes.size(); ++i )
++            {
++                OctTree<video::S3DVertex2TCoords>::SMeshChunk &mesh = SceneNode->LightMapMeshes[i];
++
++                for ( int t=0; t<d[i].CurrentSize; t+=3 )
++                {
++                    triangles[outTriangleCount].pointA = mesh.Vertices[ d[i].Indices[t] ].Pos;
++                    triangles[outTriangleCount].pointB = mesh.Vertices[ d[i].Indices[t+1] ].Pos;
++                    triangles[outTriangleCount].pointC = mesh.Vertices[ d[i].Indices[t+2] ].Pos;
++
++                    boxTriangle.reset(triangles[outTriangleCount].pointA);
++                    boxTriangle.addInternalPoint(triangles[outTriangleCount].pointB);
++                    boxTriangle.addInternalPoint(triangles[outTriangleCount].pointC);
++                    if ( boxTriangle.intersectsWithBox(invbox) )
++                    {
++                        mat.transformVect(triangles[outTriangleCount].pointA);
++                        mat.transformVect(triangles[outTriangleCount].pointB);
++                        mat.transformVect(triangles[outTriangleCount].pointC);
++
++                        if ( ++outTriangleCount >= arraySize )
++                            return;
++                    }
++                }
++            }
++
++            break;
++        }
++	}
++}
++
++void COctTreeSceneNodeTriangleSelector::getTriangles(core::triangle3df* triangles, s32 arraySize,
++		s32& outTriangleCount, const core::line3d<f32>& line, const core::matrix4* transform)
++{
++	core::aabbox3d<f32> box(line.start);
++	box.addInternalPoint(line.end);
++
++	// TODO: Could be optimized for line a little bit more.
++	COctTreeSceneNodeTriangleSelector::getTriangles(triangles, arraySize, outTriangleCount,	box, transform);
++}
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.h hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/COctTreeSceneNodeTriangleSelector.h	2006-05-05 14:05:57.000000000 +0100
+@@ -0,0 +1,46 @@
++#ifndef __C_OCT_TREE_SCENE_NODETRIANGLE_SELECTOR_H_INCLUDED__
++#define __C_OCT_TREE_SCENE_NODETRIANGLE_SELECTOR_H_INCLUDED__
++
++#include "ITriangleSelector.h"
++
++namespace irr
++{
++namespace scene
++{
++
++class COctTreeSceneNode;
++
++//! triangle selector which does use the OctTree already available for a COctTreeSceneNode
++class COctTreeSceneNodeTriangleSelector : public ITriangleSelector
++{
++public:
++
++	//! Constructs a selector based on a mesh
++	COctTreeSceneNodeTriangleSelector(COctTreeSceneNode* node);
++
++	~COctTreeSceneNodeTriangleSelector();
++
++	//! Returns amount of all available triangles in this selector
++	virtual s32 getTriangleCount() const;
++
++	//! Gets all triangles.
++	virtual void getTriangles(core::triangle3df* triangles, s32 arraySize,
++		s32& outTriangleCount, const core::matrix4* transform=0);
++
++	//! Gets all triangles which lie within a specific bounding box.
++	void getTriangles(core::triangle3df* triangles, s32 arraySize, s32& outTriangleCount,
++		const core::aabbox3d<f32>& box, const core::matrix4* transform=0);
++
++	//! Gets all triangles which have or may have contact with a 3d line.
++	virtual void getTriangles(core::triangle3df* triangles, s32 arraySize,
++		s32& outTriangleCount, const core::line3d<f32>& line,
++		const core::matrix4* transform=0);
++
++private:
++    COctTreeSceneNode * SceneNode;
++};
++
++} // end namespace scene
++} // end namespace irr
++
++#endif // __C_OCT_TREE_SCENE_NODETRIANGLE_SELECTOR_H_INCLUDED__

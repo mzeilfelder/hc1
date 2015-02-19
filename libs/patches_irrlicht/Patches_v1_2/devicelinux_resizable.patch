@@ -1,0 +1,40 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+@@ bool CIrrDeviceLinux::createWindow(const
+ }
+ 
++//! Sets if the window should be resizeable in windowed mode.
++void CIrrDeviceLinux::setResizeAble(bool resize)
++{
++#ifdef _IRR_COMPILE_WITH_X11_
++    if ( Fullscreen )
++        return;
++    XUnmapWindow(display, window);
++    if ( !resize )
++    {
++        // Must be heap memory because data size depends on X Server
++        XSizeHints *hints = XAllocSizeHints();
++        hints->flags=PSize|PMinSize|PMaxSize;
++        hints->min_width=hints->max_width=hints->base_width=Width;
++        hints->min_height=hints->max_height=hints->base_height=Height;
++        XSetWMNormalHints(display, window, hints);
++        XFree(hints);
++    }
++    else
++    {
++        // MICHA: i've not added StdHints hints yet, it's fixed in newer irrlicht versions
++        // XSetWMNormalHints(display, window, StdHints);
++    }
++    XMapWindow(display, window);
++    XFlush(display);
++#endif // #ifdef _IRR_COMPILE_WITH_X11_
++}
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2007-03-14 23:16:50.000000000 +0100
+@@ namespace irr
++		//! Sets if the window should be resizeable in windowed mode.
++		virtual void setResizeAble(bool resize=false);
++

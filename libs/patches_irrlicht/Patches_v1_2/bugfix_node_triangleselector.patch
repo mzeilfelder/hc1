@@ -1,0 +1,9 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/ISceneNode.h hcraft_libs/irrlicht/include/ISceneNode.h
+--- svn_hcraft_1.2/irrlicht/include/ISceneNode.h
++++ hcraft_libs/irrlicht/include/ISceneNode.h
+@@ -531,4 +546,5 @@ namespace scene
+ 
+ 			TriangleSelector = selector;
++			if ( TriangleSelector )
+ 			TriangleSelector->grab();
+ 		}

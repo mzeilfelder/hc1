@@ -1,0 +1,384 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp
+@@ -19,4 +19,6 @@ namespace video
+ {
+ 
++bool COpenGLTexture::HACK_DropImageDataImmediatly = true;
++
+ const bool checkFBOStatus(COpenGLDriver* Driver)
+ {
+@@ -90,4 +92,11 @@ COpenGLTexture::COpenGLTexture(IImage* i
+ 		glGenTextures(1, &TextureName);
+ 		copyTexture();
++
++		// MICHA: hack
++        if ( HACK_DropImageDataImmediatly )
++        {
++            delete [] ImageData;
++            ImageData=0;
++        }
+ 	}
+ }
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.h hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.h	2007-02-28 01:25:45.000000000 +0100
+@@ public:
+ 	void unbindFrameBufferObject();
+ 
++    // MICHA: an ugly hack that allows me to save a few hundred MB in my game
++    // Should be done clean some day.
++    static bool HACK_DropImageDataImmediatly;
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIFont.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIFont.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIFont.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIFont.cpp	2006-12-06 18:13:02.000000000 +0100
+@@ -5,5 +5,8 @@
+ #include "CGUIFont.h"
+ #include "os.h"
+-#include "CImage.h"
++
++// MICHA: for HACK_DropImageDataImmediatly
++#include "COpenGLTexture.h"
++
+ 
+ namespace irr
+@@ -37,22 +40,4 @@ CGUIFont::~CGUIFont()
+ 
+ 
+-//! loads a font file, native file needed, for texture parsing
+-bool CGUIFont::load(io::IReadFile* file)
+-{
+-	return loadTexture ( Driver->createImageFromFile ( file ),
+-						file->getFileName()
+-							);
+-}
+-
+-//! loads a font file, native file needed, for texture parsing
+-bool CGUIFont::load(const c8* filename)
+-{
+-	return loadTexture (	Driver->createImageFromFile ( filename ),
+-							filename
+-							);
+-}
+-
+-
+-/*
+ 
+ //! loads a font file
+@@ -62,18 +47,14 @@ bool CGUIFont::load(io::IReadFile* file)
+ 		return false;
+ 
+-	// turn mip-maps off
+-	bool mipmap = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+-	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+-	Driver->setTextureCreationFlag(video::ETCF_FILTER_TEXTURE, false);
++    // MICHA: hack
++    bool oldHackValue = video::COpenGLTexture::HACK_DropImageDataImmediatly;
++    video::COpenGLTexture::HACK_DropImageDataImmediatly = false;
+ 
+-	// get a pointer to the texture
+-	video::ITexture* tex = Driver->getTexture(file);
++    bool loaded = loadTexture(Driver->getTexture(file));
+ 
+-	// set previous mip-map state
+-	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, mipmap);
+-	Driver->setTextureCreationFlag(video::ETCF_FILTER_TEXTURE, true);
++	// MICHA: hack
++	video::COpenGLTexture::HACK_DropImageDataImmediatly = oldHackValue;
+ 
+-	// load the texture
+-	return loadTexture(tex);
++	return loaded;
+ }
+ 
+@@ -82,7 +63,4 @@ bool CGUIFont::load(io::IReadFile* file)
+ bool CGUIFont::load(const c8* filename)
+ {
+-	Environment->getFileSystem ();
+-	FileSystem->createAndOpenFile(filename);
+-
+ 	if (!Driver)
+ 		return false;
+@@ -91,43 +69,46 @@ bool CGUIFont::load(const c8* filename)
+ 	bool mipmap = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+ 	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+-	Driver->setTextureCreationFlag(video::ETCF_FILTER_TEXTURE, false);
++
++    // MICHA: hack
++    bool oldHackValue = video::COpenGLTexture::HACK_DropImageDataImmediatly;
++    video::COpenGLTexture::HACK_DropImageDataImmediatly = false;
+ 
+ 	// get a pointer to the texture
+ 	video::ITexture* tex = Driver->getTexture(filename);
+ 
++	// MICHA: hack
++	video::COpenGLTexture::HACK_DropImageDataImmediatly = oldHackValue;
++
+ 	// set previous mip-map state
+ 	Driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, mipmap);
+-	Driver->setTextureCreationFlag(video::ETCF_FILTER_TEXTURE, true);
+ 
+ 	// load the texture
+ 	return loadTexture(tex);
+ }
+-*/
++
+ 
+ 
+ //! load & prepare font from ITexture
+-bool CGUIFont::loadTexture(video::IImage* image, const c8 * name)
++bool CGUIFont::loadTexture(video::ITexture* texture)
+ {
+-	if (!image)
++	if (!texture)
+ 		return false;
+ 
++	Texture = texture;
++	Texture->grab();
++
+ 	s32 lowerRightPositions = 0;
+ 
+-	video::IImage* tmpImage=image;
+-	bool deleteTmpImage=false;
+-	switch(image->getColorFormat())
++	switch(texture->getColorFormat())
+ 	{
+-	case video::ECF_R5G6B5:
+-		tmpImage =  new video::CImage(video::ECF_A1R5G5B5,image);
+-		deleteTmpImage=true;
+ 	case video::ECF_A1R5G5B5:
+-		readPositions16bit(tmpImage, lowerRightPositions);
++		readPositions16bit(texture, lowerRightPositions);
+ 		break;
+-	case video::ECF_R8G8B8:
+-		tmpImage = new video::CImage(video::ECF_A8R8G8B8,image);
+-		deleteTmpImage=true;
+ 	case video::ECF_A8R8G8B8:
+-		readPositions32bit (tmpImage, lowerRightPositions);
++		readPositions32bit(texture, lowerRightPositions);
+ 		break;
++	default:
++		os::Printer::log("Unsupported font texture color format.", ELL_ERROR);
++		return false;
+ 	}
+ 
+@@ -135,33 +116,14 @@ bool CGUIFont::loadTexture(video::IImage
+ 		WrongCharacter = 127;
+ 
+-	// output warnings
+-	if (!lowerRightPositions || !Positions.size())
+-		os::Printer::log("The amount of upper corner pixels or lower corner pixels is == 0, font file may be corrupted.", ELL_ERROR);
+-	else
+-	if (lowerRightPositions != (s32)Positions.size())
+-		os::Printer::log("The amount of upper corner pixels and the lower corner pixels is not equal, font file may be corrupted.", ELL_ERROR);
+-
+-	bool ret = ( !Positions.empty() && lowerRightPositions );
+-
+-
+-	if ( ret )
+-	{
+-		Texture = Driver->addTexture ( name, tmpImage );
+-		Texture->grab ();
+-	}
+-	if (deleteTmpImage)
+-		tmpImage->drop();
+-	image->drop ();
+-
+-	return ret;
++	return (!Positions.empty() && lowerRightPositions);
+ }
+ 
+ 
+ 
+-void CGUIFont::readPositions32bit(video::IImage* image, s32& lowerRightPositions)
++void CGUIFont::readPositions32bit(video::ITexture* texture, s32& lowerRightPositions)
+ {
+-	const core::dimension2d<s32>& size = image->getDimension();
++	const core::dimension2d<s32>& size = texture->getOriginalSize();
+ 
+-	s32* p = (s32*)image->lock();
++	s32* p = (s32*)texture->lock();
+ 	if (!p)
+ 	{
+@@ -170,14 +132,8 @@ void CGUIFont::readPositions32bit(video:
+ 	}
+ 
+-	// TODO: Hack till it's getting better...
+-	// Pixel(0,0) == half opacity assume font with alpha..
+-
+-	s32 truealphaFont = ( (p[0] & 0xFF000000) == 0x7f000000 );
+-	p[0] |= 0xFF000000;
+-
+-	s32 colorTopLeft = p[0];;
++	s32 colorTopLeft = *p;
+ 	s32 colorLowerRight = *(p+1);
+ 	s32 colorBackGround = *(p+2);
+-	s32 colorBackGroundTransparent = 0x00FFFFFF & colorBackGround;
++	s32 colorBackGroundWithAlphaFalse = 0x00FFFFFF & colorBackGround;
+ 	s32 colorFont = 0xFFFFFFFF;
+ 
+@@ -193,5 +149,5 @@ void CGUIFont::readPositions32bit(video:
+ 			if ( *p == colorTopLeft)
+ 			{
+-				*p = colorBackGroundTransparent;
++				*p = colorBackGroundWithAlphaFalse;
+ 				Positions.push_back(core::rect<s32>(pos, pos));
+ 			}
+@@ -201,10 +157,10 @@ void CGUIFont::readPositions32bit(video:
+ 				if (Positions.size()<=(u32)lowerRightPositions)
+ 				{
+-					image->unlock();
++					texture->unlock();
+ 					lowerRightPositions = 0;
+ 					return;
+ 				}
+ 
+-				*p = colorBackGroundTransparent;
++				*p = colorBackGroundWithAlphaFalse;
+ 				Positions[lowerRightPositions].LowerRightCorner = pos;
+ 				++lowerRightPositions;
+@@ -212,12 +168,7 @@ void CGUIFont::readPositions32bit(video:
+ 			else
+ 			if (*p == colorBackGround)
+-			{
+-				*p = colorBackGroundTransparent;
+-			}
++				*p = colorBackGroundWithAlphaFalse;
+ 			else
+-			if ( 0 == truealphaFont )
+-			{
+ 				*p = colorFont;
+-			}
+ 			++p;
+ 		}
+@@ -226,15 +177,21 @@ void CGUIFont::readPositions32bit(video:
+ 	// Positions parsed.
+ 
+-	image->unlock();
+-}
++	texture->unlock();
+ 
++	// output warnings
++	if (!lowerRightPositions || !Positions.size())
++		os::Printer::log("The amount of upper corner pixels or lower corner pixels is == 0, font file may be corrupted.", ELL_ERROR);
++	else
++	if (lowerRightPositions != (s32)Positions.size())
++		os::Printer::log("The amount of upper corner pixels and the lower corner pixels is not equal, font file may be corrupted.", ELL_ERROR);
++}
+ 
+ 
+ 
+-void CGUIFont::readPositions16bit(video::IImage* image, s32& lowerRightPositions)
++void CGUIFont::readPositions16bit(video::ITexture* texture, s32& lowerRightPositions)
+ {
+-	core::dimension2d<s32> size = image->getDimension();
++	core::dimension2d<s32> size = texture->getOriginalSize();
+ 
+-	s16* p = (s16*)image->lock();
++	s16* p = (s16*)texture->lock();
+ 	if (!p)
+ 	{
+@@ -243,12 +200,9 @@ void CGUIFont::readPositions16bit(video:
+ 	}
+ 
+-	s16 truealphaFont = ( (p[0] & 0x8000) == 0x8000 );
+-	p[0] |= 0x8000;
+-
+-	s16 colorTopLeft = p[0];;
++	s16 colorTopLeft = *p;
+ 	s16 colorLowerRight = *(p+1);
+ 	s16 colorBackGround = *(p+2);
+-	s16 colorBackGroundTransparent = 0x7FFF & colorBackGround;
+-	u16 colorFont = 0xFFFF;
++	s16 colorBackGroundWithAlphaFalse = 0x7FFF & colorBackGround;
++	s16 colorFont = 0xFFFF;
+ 
+ 	*(p+1) = colorBackGround;
+@@ -263,5 +217,5 @@ void CGUIFont::readPositions16bit(video:
+ 			if (*p == colorTopLeft)
+ 			{
+-				*p = colorBackGroundTransparent;
++				*p = colorBackGroundWithAlphaFalse;
+ 				Positions.push_back(core::rect<s32>(pos, pos));
+ 			}
+@@ -269,13 +223,12 @@ void CGUIFont::readPositions16bit(video:
+ 			if (*p == colorLowerRight)
+ 			{
+-				// too many lower right points
+ 				if (Positions.size()<=(u32)lowerRightPositions)
+ 				{
+-					image->unlock();
++					texture->unlock();
+ 					lowerRightPositions = 0;
+ 					return;
+ 				}
+ 
+-				*p = colorBackGroundTransparent;
++				*p = colorBackGroundWithAlphaFalse;
+ 				Positions[lowerRightPositions].LowerRightCorner = pos;
+ 				++lowerRightPositions;
+@@ -283,10 +236,7 @@ void CGUIFont::readPositions16bit(video:
+ 			else
+ 			if (*p == colorBackGround)
+-				*p = colorBackGroundTransparent;
++				*p = colorBackGroundWithAlphaFalse;
+ 			else
+-			if ( 0 == truealphaFont )
+-			{
+ 				*p = colorFont;
+-			}
+ 			++p;
+ 		}
+@@ -295,5 +245,12 @@ void CGUIFont::readPositions16bit(video:
+ 	// Positions parsed.
+ 
+-	image->unlock();
++	texture->unlock();
++
++	// output warnings
++	if (!lowerRightPositions || !Positions.size())
++		os::Printer::log("The amount of upper corner pixels or lower corner pixels is == 0, font file may be corrupted.", ELL_ERROR);
++	else
++	if (lowerRightPositions != (s32)Positions.size())
++		os::Printer::log("The amount of upper corner pixels and the lower corner pixels is not equal, font file may be corrupted.", ELL_ERROR);
+ }
+ 
+@@ -351,7 +308,6 @@ void CGUIFont::draw(const wchar_t* text,
+ 	}
+ 
+-	core::array<s32> indices;
+-	indices.reallocate(core::stringw(text).size());
+ 	u32 n;
++
+ 	while(*text)
+ 	{
+@@ -359,8 +315,11 @@ void CGUIFont::draw(const wchar_t* text,
+ 		if ( n > Positions.size())
+ 			n = WrongCharacter;
+-		indices.push_back(n);
++
++		Driver->draw2DImage(Texture, offset, Positions[n], clip, color, true);
++
++		offset.X += Positions[n].getWidth();
++
+ 		++text;
+ 	}
+-	Driver->draw2DImage(Texture, offset, Positions, indices, clip, color, true);
+ }
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIFont.h hcraft_libs/irrlicht/source/Irrlicht/CGUIFont.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIFont.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIFont.h	2006-05-05 14:38:58.000000000 +0100
+@@ -44,8 +44,8 @@ private:
+ 
+ 	//! load & prepare font from ITexture
+-	bool loadTexture(video::IImage * image, const c8* name);
++	bool loadTexture(video::ITexture* texture);
+ 
+-	void readPositions16bit(video::IImage* texture, s32& lowerRightPositions);
+-	void readPositions32bit(video::IImage* texture, s32& lowerRightPositions);
++	void readPositions16bit(video::ITexture* texture, s32& lowerRightPositions);
++	void readPositions32bit(video::ITexture* texture, s32& lowerRightPositions);
+ 
+ 	inline s32 getWidthFromCharacter(wchar_t c);

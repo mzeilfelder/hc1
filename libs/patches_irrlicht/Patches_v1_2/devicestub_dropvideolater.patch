@@ -1,0 +1,19 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+@@ -47,7 +54,4 @@ CIrrDeviceStub::~CIrrDeviceStub()
+ 		GUIEnvironment->drop();
+ 
+-	if (VideoDriver)
+-		VideoDriver->drop();
+-
+ 	if (SceneManager)
+ 		SceneManager->drop();
+@@ -56,4 +60,7 @@ CIrrDeviceStub::~CIrrDeviceStub()
+ 		CursorControl->drop();
+ 
++	if (VideoDriver)
++		VideoDriver->drop();
++
+ 	if (Operator)
+ 		Operator->drop();

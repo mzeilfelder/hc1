@@ -1,0 +1,49 @@
+diff -U 2 -H -b -w -B -E -d -p hcraft_libs/irrlicht/include/IGUIElement.h svn_hcraft_1.2/irrlicht/include/IGUIElement.h
+--- hcraft_libs/irrlicht/include/IGUIElement.h
++++ svn_hcraft_1.2/irrlicht/include/IGUIElement.h
+@@ -82,5 +92,5 @@ public:
+ 
+ 	//! Returns the absolute rectangle of element.
+-	core::rect<s32> getAbsolutePosition()
++	core::rect<s32> getAbsolutePosition() const
+ 	{
+ 		return AbsoluteRect;
+@@ -198,5 +220,5 @@ public:
+ 
+ 	//! Returns true if element is visible.
+-	virtual bool isVisible()
++	virtual bool isVisible() const
+ 	{
+ 		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+@@ -214,7 +236,7 @@ public:
+ 
+ 	//! Returns true if element is enabled.
+-	virtual bool isEnabled()
++	virtual bool isEnabled() const
+ 	{
+-		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
++		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX
+ 		return IsEnabled;
+ 	}
+@@ -236,5 +257,5 @@ public:
+ 
+ 	//! Returns caption of this element.
+-	virtual const wchar_t* getText()
++	virtual const wchar_t* getText() const
+ 	{
+ 		return Text.c_str();
+@@ -243,5 +264,5 @@ public:
+ 
+ 	//! Returns id. Can be used to identify the element.
+-	virtual s32 getID()
++	virtual s32 getID() const
+ 	{
+ 		return ID;
+@@ public:
+ 	If you wrote your own GUIElements, you need to set the type for your element as first parameter
+ 	in the constructor of IGUIElement. For own (=unknown) elements, simply use EGUIET_ELEMENT as type */
+-	EGUI_ELEMENT_TYPE getType()
++	EGUI_ELEMENT_TYPE getType() const
+ 	{
+ 		return Type;
+ 	}

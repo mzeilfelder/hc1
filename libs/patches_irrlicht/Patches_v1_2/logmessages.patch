@@ -1,0 +1,44 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+@@ ITexture* CNullDriver::getTexture(const 
+ 		if (texture)
+ 		{
+			texture->setName(filename);	// otherwise filesystem is no longer really useful
+ 			addTexture(texture);
+ 			texture->drop(); // drop it becaus we created it, one grab to much
+ 		}
++		else
++		{
++//			os::Printer::log("Could not load texture for filename", filename, ELL_ERROR);
++		}
+ 	}
+ 	else
+ 	{
+ 		errorReported = true;
+-		os::Printer::log("Could not open file of texture", filename, ELL_ERROR);
++//		os::Printer::log("Could not open file of texture", filename, ELL_ERROR);
+ 	}
+ 
+-	if (!texture && !errorReported)
+-		os::Printer::log("Could not load texture", filename, ELL_ERROR);
++//	if (!texture && !errorReported)
++//		os::Printer::log("Could not load texture", filename, ELL_ERROR);
+ 
+ 	return texture;
+@@ -332,6 +340,6 @@ ITexture* CNullDriver::getTexture(io::IR
+ 	}
+ 
+-	if (!texture)
+-		os::Printer::log("Could not load texture", file->getFileName(), ELL_ERROR);
++//	if (!texture)
++//		os::Printer::log("Could not load texture", file->getFileName(), ELL_ERROR);
+ 
+ 	return texture;
+@@ -350,5 +358,5 @@ video::ITexture* CNullDriver::loadTextur
+ 		// create texture from surface
+ 		texture = createDeviceDependentTexture(image, file->getFileName());
+-		os::Printer::log("Loaded texture", file->getFileName());
++//		os::Printer::log("Loaded texture", file->getFileName());
+ 		image->drop();
+ 	}

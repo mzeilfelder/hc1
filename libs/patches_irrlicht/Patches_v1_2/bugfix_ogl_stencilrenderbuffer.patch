@@ -1,0 +1,17 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp	2007-07-08 19:05:02.000000000 +0100
+@@ -78,5 +80,5 @@ COpenGLTexture::COpenGLTexture(IImage* i
+   Driver(driver), ImageData(0), ColorFormat(ECF_A8R8G8B8), TextureName(0),
+   InternalFormat(GL_RGBA), PixelFormat(GL_BGRA_EXT), PixelType(GL_UNSIGNED_BYTE),
+-  ColorFrameBuffer(0), DepthRenderBuffer(0)
++  ColorFrameBuffer(0), DepthRenderBuffer(0), StencilRenderBuffer(0)
+ {
+ 	#ifdef _DEBUG
+@@ -101,5 +110,5 @@ COpenGLTexture::COpenGLTexture(const cor
+   Driver(driver), ImageData(0), ColorFormat(ECF_A8R8G8B8), TextureName(0),
+   InternalFormat(GL_RGBA), PixelFormat(GL_BGRA_EXT), PixelType(GL_UNSIGNED_BYTE),
+-  ColorFrameBuffer(0), DepthRenderBuffer(0)
++  ColorFrameBuffer(0), DepthRenderBuffer(0), StencilRenderBuffer(0)
+ {
+ 	#ifdef _DEBUG

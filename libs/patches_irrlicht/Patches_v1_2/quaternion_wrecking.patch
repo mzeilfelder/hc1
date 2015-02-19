@@ -1,0 +1,63 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/quaternion.h hcraft_libs/irrlicht/include/quaternion.h
+--- svn_hcraft_1.2/irrlicht/include/quaternion.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/quaternion.h	2006-12-05 00:24:53.000000000 +0100
+@@ -143,6 +143,7 @@ inline quaternion& quaternion::operator=
+ }
+ 
+-
+-//! matrix assignment operator
++//! MICHA: most likely this version is wrong!
++//! But it already worked and the change in the engine came to late to find out
++//! which places i would have to change in the game
+ inline quaternion& quaternion::operator=(const matrix4& m)
+ {
+@@ -152,11 +153,12 @@ inline quaternion& quaternion::operator=
+ 	if( diag > 0.0f )
+ 	{
+-		scale = sqrtf(diag) * 2.0f; // get scale from diagonal
++	    // TODO(MICHA): i got this patch from somewhere and it works, don't know which way is correct
++        scale = 0.5f / sqrtf(diag); // get scale from diagonal
+ 
+ 		// TODO: speed this up
+-		X = ( m(2,1) - m(1,2)) / scale;
+-		Y = ( m(0,2) - m(2,0)) / scale;
+-		Z = ( m(1,0) - m(0,1)) / scale;
+-		W = 0.25f * scale;
++		X = ( m(1,2) - m(2,1) ) * scale;
++		Y = ( m(2,0) - m(0,2) ) * scale;
++		Z = ( m(0,1) - m(1,0) ) * scale;
++		W = 0.25f / scale;
+ 	}
+ 	else
+@@ -170,6 +172,6 @@ inline quaternion& quaternion::operator=
+ 			// TODO: speed this up
+ 			X = 0.25f * scale;
+-			Y = (m(0,1) + m(1,0)) / scale;
+-			Z = (m(2,0) + m(0,2)) / scale;
++			Y = (m(1,0) + m(0,1)) / scale;
++			Z = (m(0,2) + m(2,0)) / scale;
+ 			W = (m(2,1) - m(1,2)) / scale;
+ 		}
+@@ -181,7 +183,7 @@ inline quaternion& quaternion::operator=
+ 
+ 			// TODO: speed this up
+-			X = (m(0,1) + m(1,0) ) / scale;
++			X = (m(1,0) + m(0,1) ) / scale;
+ 			Y = 0.25f * scale;
+-			Z = (m(1,2) + m(2,1) ) / scale;
++			Z = (m(2,1) + m(1,2) ) / scale;
+ 			W = (m(0,2) - m(2,0) ) / scale;
+ 		}
+@@ -194,5 +196,5 @@ inline quaternion& quaternion::operator=
+ 			// TODO: speed this up
+ 			X = (m(0,2) + m(2,0)) / scale;
+-			Y = (m(1,2) + m(2,1)) / scale;
++			Y = (m(2,1) + m(1,2)) / scale;
+ 			Z = 0.25f * scale;
+ 			W = (m(1,0) - m(0,1)) / scale;
+@@ -204,5 +206,4 @@ inline quaternion& quaternion::operator=
+ }
+ 
+-
+ //! multiplication operator
+ inline quaternion quaternion::operator*(const quaternion& other) const

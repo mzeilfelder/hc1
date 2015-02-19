@@ -1,0 +1,43 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h hcraft_libs/irrlicht/include/IEventReceiver.h
+--- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h
++++ hcraft_libs/irrlicht/include/IEventReceiver.h
+@@ namespace irr
++			//! the window will be removed now
++			EGET_REMOVE,
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIElement.h hcraft_libs/irrlicht/include/IGUIElement.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIElement.h
++++ hcraft_libs/irrlicht/include/IGUIElement.h
+@@ -54,6 +55,15 @@ public:
+ 		{
+ 			(*it)->Parent = 0;
++
++            // My own addition, i just want the info as event.
++            SEvent event;
++            event.EventType = EET_GUI_EVENT;
++            event.GUIEvent.Caller = (*it);
++            event.GUIEvent.EventType = EGET_REMOVE;
++            if ( !(*it)->OnEvent(event) )
++            {
+ 			(*it)->drop();
+ 		}
++		}
+ 	};
+ 
+@@ -161,7 +174,16 @@ public:
+ 			if ((*it) == child)
+ 			{
++			    // My own addition, i just want the info as event.
++			    SEvent event;
++			    event.EventType = EET_GUI_EVENT;
++			    event.GUIEvent.Caller = child;
++			    event.GUIEvent.EventType = EGET_REMOVE;
++			    if ( !(*it)->OnEvent(event) )
++                {
++                    //(*it)->OnEvent(event);
+ 				(*it)->Parent = 0;
+ 				(*it)->drop();
+ 				Children.erase(it);
++                }
+ 				return;
+ 			}

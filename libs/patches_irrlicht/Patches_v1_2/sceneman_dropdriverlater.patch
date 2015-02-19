@@ -1,0 +1,19 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp	2007-03-06 02:39:38.000000000 +0100
+@@ -140,7 +159,4 @@ CSceneManager::~CSceneManager()
+ 	clearDeletionList();
+ 
+-	if (Driver)
+-		Driver->drop();
+-
+ 	if (FileSystem)
+ 		FileSystem->drop();
+@@ -171,4 +187,7 @@ CSceneManager::~CSceneManager()
+ 	for (i=0; i<SceneNodeAnimatorFactoryList.size(); ++i)
+ 		SceneNodeAnimatorFactoryList[i]->drop();
++
++	if (Driver)
++		Driver->drop();
+ }
+ 

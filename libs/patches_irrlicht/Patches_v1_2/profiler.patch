@@ -1,0 +1,467 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IrrCompileConfig.h hcraft_libs/irrlicht/include/IrrCompileConfig.h
+--- svn_hcraft_1.2/irrlicht/include/IrrCompileConfig.h
++++ hcraft_libs/irrlicht/include/IrrCompileConfig.h
+@@ -159,3 +166,6 @@ Note that the engine will run in D3D REF
+ #endif
+ 
+-#endif
++// enable/disable compiling of profiler macros
++//#define IRR_PROFILE 1
++
++#endif // __IRR_COMPILE_CONFIG_H_INCLUDED__
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/irrlicht.h hcraft_libs/irrlicht/include/irrlicht.h
+--- svn_hcraft_1.2/irrlicht/include/irrlicht.h
++++ hcraft_libs/irrlicht/include/irrlicht.h
+@@ -245,4 +247,6 @@
+  */
+ 
++
++#include "profiler.h"
+ #include "SIrrCreationParameters.h"
+ 
+@@ -291,4 +296,5 @@ namespace irr
+ 		const SIrrlichtCreationParameters& parameters);
+ 
++    IRRLICHT_API Profiler* IRRCALLCONV getProfiler();
+ 
+ 	// THE FOLLOWING IS AN EMPTY LIST OF ALL SUB NAMESPACES
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+@@ -35,4 +37,9 @@ CIrrDeviceStub::CIrrDeviceStub(const cha
+ 	Timer = new irr::CTimer();
+ 
++#if IRR_PROFILE
++    gPROFILER.SetTimer(Timer);
++#endif // IRR_PROFILE
++
++
+ 	// create filesystem
+ 	FileSystem = io::createFileSystem();
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/profiler.h hcraft_libs/irrlicht/include/profiler.h
+--- svn_hcraft_1.2/irrlicht/include/profiler.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/include/profiler.h	2007-02-14 16:00:43.000000000 +0100
+@@ -0,0 +1,90 @@
++#ifndef __PROFILER_H_INCLUDED__
++#define __PROFILER_H_INCLUDED__
++
++#define PROFILER_GUI_ID 99999
++
++#include <irrlicht.h>
++#include <map>
++#include <string>
++#include <iostream>
++
++namespace irr
++{
++
++struct IRRLICHT_API ProfileData
++{
++    ProfileData();
++    void Reset();
++
++    u32 mGroupId;
++    std::string mName;
++
++    u32 mCountCalls;
++    u32 mHighestTime;
++    u32 mLowestTime;
++    u32 mTimeSum;
++
++    u32 mLastTimeStarted;
++};
++
++class IRRLICHT_API Profiler
++{
++public:
++    Profiler();
++    virtual ~Profiler();
++
++    void SetTimer(irr::ITimer * irrlichtTimer_)         { mIrrTimer = irrlichtTimer_; }
++
++    // set the rectangle used for the display listbox
++    void SetDisplayRect(const core::rect<s32> &rect_)   { mDisplayRect = rect_; }
++
++    void Add(u32 id_, u32 groupId_, const std::string &name_);
++    void AddGroup(u32 groupId_, const std::string &name_);
++    void Start(u32 id_);
++    void Stop(u32 id_);
++
++    void Reset(u32 id_);
++    void ResetGroup(u32 groupId_);
++    void ResetAll();
++    void Show(irr::gui::IGUIEnvironment* env_);        // print current display group on screen
++    void Hide(irr::gui::IGUIEnvironment* env_);
++    void Print(std::ostream &stream_);       // write current display group to wcout
++    void PrintAll(std::ostream &stream_);    // write all groups to wcout
++
++    void SetDisplayGroup(u32 groupId_);
++    void NextDisplayGroup();
++    void PreviousDisplayGroup();
++    void FirstDisplayGroup();
++
++protected:
++    void PrintGroup(std::ostream &stream_, u32 groupId_);
++    virtual std::string MakeDataString(const ProfileData & data_);
++    virtual std::string MakeTitleString();
++
++private:
++    irr::ITimer * mIrrTimer;
++
++    core::rect<s32> mDisplayRect;
++    u32 mCurrentGroupId;
++    typedef std::map<u32, ProfileData> ProfileDataMap;
++    ProfileDataMap   mProfileDatas;
++    ProfileDataMap   mProfileGroups;
++};
++
++extern Profiler gPROFILER;
++
++#if IRR_PROFILE
++    #define PROFILE_ADD(id_, groupId_, name_)   getProfiler()->Add(id_, groupId_, name_)
++    #define PROFILE_ADD_GROUP(groupId_, name_)  getProfiler()->AddGroup(groupId_, name_)
++    #define PROFILE_START(id_)                  getProfiler()->Start(id_)
++    #define PROFILE_STOP(id_)                   getProfiler()->Stop(id_)
++#else
++    #define PROFILE_ADD(id_, groupId_, name_)
++    #define PROFILE_ADD_GROUP(groupId_, name_)
++    #define PROFILE_START(id_)
++    #define PROFILE_STOP(id_)
++#endif // IRR_PROFILE
++
++} // namespace irr
++
++#endif // __PROFILER_H_INCLUDED__
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/profiler.cpp hcraft_libs/irrlicht/source/Irrlicht/profiler.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/profiler.cpp	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/profiler.cpp	2007-02-14 16:00:36.000000000 +0100
+@@ -0,0 +1,315 @@
++#include <iostream>
++#include <sstream>
++#include <iomanip>
++#include <limits.h>
++#include "irrlicht.h"
++
++using namespace irr;
++
++Profiler irr::gPROFILER;
++
++ProfileData::ProfileData()
++{
++    mGroupId = 0;
++    Reset();
++}
++
++void ProfileData::Reset()
++{
++    mCountCalls = 0;
++    mHighestTime = 0;
++    mLowestTime = UINT_MAX;
++    mTimeSum = 0;
++    mLastTimeStarted = 0;
++}
++
++Profiler::Profiler()
++:  mDisplayRect(0, 40, 600, 400)
++{
++    mCurrentGroupId = 0;
++    AddGroup(0, "overview");
++    mProfileGroups[0].mGroupId = UINT_MAX;
++}
++
++Profiler::~Profiler()
++{
++}
++
++void Profiler::Add(u32 id_, u32 groupId_, const std::string &name_)
++{
++    ProfileData &data = mProfileDatas[id_];
++    data.Reset();
++    data.mName = name_;
++    data.mGroupId = groupId_;
++}
++
++void Profiler::AddGroup(u32 groupId_, const std::string &name_)
++{
++    ProfileData group;
++    group.mName = name_;
++    mProfileGroups[groupId_] = group;
++}
++
++void Profiler::Reset(u32 id_)
++{
++    ProfileDataMap::iterator itData = mProfileDatas.find(id_);
++    if ( itData != mProfileDatas.end() )
++    {
++        ProfileDataMap::iterator itGroup = mProfileGroups.find(itData->second.mGroupId);
++        if ( itGroup != mProfileGroups.end() )
++        {
++            itGroup->second.mCountCalls -= itData->second.mCountCalls;
++            itGroup->second.mTimeSum -= itData->second.mTimeSum;
++        }
++
++        itData->second.Reset();
++    }
++}
++
++void Profiler::ResetGroup(u32 groupId_)
++{
++    ProfileDataMap::iterator itData = mProfileDatas.begin();
++    for ( ; itData != mProfileDatas.end(); ++itData )
++    {
++        if ( itData->second.mGroupId == groupId_ )
++        {
++            Reset(itData->first);
++        }
++    }
++}
++
++void Profiler::Start(u32 id_)
++{
++    mProfileDatas[id_].mLastTimeStarted = mIrrTimer->getRealTime();
++}
++
++void Profiler::Stop(u32 id_)
++{
++    ProfileData &data = mProfileDatas[id_];
++    u32 diffTime = mIrrTimer->getRealTime() - data.mLastTimeStarted;
++    if ( data.mLastTimeStarted == 0 )
++        return;
++
++    ++data.mCountCalls;
++    data.mTimeSum += diffTime;
++    if ( diffTime > data.mHighestTime )
++        data.mHighestTime = diffTime;
++    if ( diffTime < data.mLowestTime )
++        data.mLowestTime = diffTime;
++    data.mLastTimeStarted = 0;
++
++    ProfileData & group = mProfileGroups[data.mGroupId];
++    ++group.mCountCalls;
++    group.mTimeSum += diffTime;
++    if ( diffTime > group.mHighestTime )
++        group.mHighestTime = diffTime;
++    if ( diffTime < group.mLowestTime )
++        group.mLowestTime = diffTime;
++    group.mLastTimeStarted = 0;
++}
++
++void Profiler::ResetAll()
++{
++    ProfileDataMap::iterator itData = mProfileDatas.begin();
++    for ( ; itData != mProfileDatas.end(); ++itData )
++    {
++        itData->second.Reset();
++    }
++
++    ProfileDataMap::iterator itGroup = mProfileGroups.begin();
++    for ( ; itGroup != mProfileGroups.end(); ++itGroup )
++    {
++        itGroup->second.Reset();
++    }
++}
++
++void Profiler::Show(irr::gui::IGUIEnvironment* env_)
++{
++    if ( !env_)
++        return;
++
++    Hide(env_);
++
++	gui::IGUIListBox* listBox = env_->addListBox(mDisplayRect, 0, PROFILER_GUI_ID, true);
++
++    std::string strTitle(MakeTitleString());
++    std::wstring wstrTitle(strTitle.begin(), strTitle.end());
++    listBox->addItem(wstrTitle.c_str());
++
++    std::map<u32, ProfileData>::iterator itGroup = mProfileGroups.find(mCurrentGroupId);
++    if ( itGroup == mProfileGroups.end() )
++        return;
++
++    std::string strGroup(MakeDataString(itGroup->second));
++    std::wstring wstrGroup(strGroup.begin(), strGroup.end());
++    listBox->addItem(wstrGroup.c_str());
++
++    if ( mCurrentGroupId == 0 )
++    {
++        ProfileDataMap::iterator itData = mProfileGroups.begin();
++        for ( ; itData != mProfileGroups.end(); ++itData )
++        {
++            if ( itData->second.mGroupId == mCurrentGroupId )
++            {
++                std::string strData(MakeDataString(itData->second));
++                std::wstring wstrData(strData.begin(), strData.end());
++                listBox->addItem(wstrData.c_str());
++            }
++        }
++    }
++    else
++    {
++        ProfileDataMap::iterator itData = mProfileDatas.begin();
++        for ( ; itData != mProfileDatas.end(); ++itData )
++        {
++            if ( itData->second.mGroupId == mCurrentGroupId )
++            {
++                std::string strData(MakeDataString(itData->second));
++                std::wstring wstrData(strData.begin(), strData.end());
++                listBox->addItem(wstrData.c_str());
++            }
++        }
++    }
++}
++
++void Profiler::Hide(irr::gui::IGUIEnvironment* env_)
++{
++    if ( !env_)
++        return;
++
++	gui::IGUIElement* root = env_->getRootGUIElement();
++	gui::IGUIElement* e = root->getElementFromId(PROFILER_GUI_ID, true);
++	if (e)
++	{
++        e->remove();
++	}
++}
++
++void Profiler::SetDisplayGroup(u32 groupId_)
++{
++    mCurrentGroupId = groupId_;
++}
++
++void Profiler::NextDisplayGroup()
++{
++    ProfileDataMap::iterator itGroup = mProfileGroups.find(mCurrentGroupId);
++    if ( itGroup == mProfileGroups.end() )
++    {
++        mCurrentGroupId = 0;
++    }
++    else
++    {
++        ++itGroup;
++        if ( itGroup == mProfileGroups.end() )
++            itGroup = mProfileGroups.begin();
++        mCurrentGroupId  = itGroup->first;
++    }
++}
++
++void Profiler::PreviousDisplayGroup()
++{
++    ProfileDataMap::iterator itGroup = mProfileGroups.find(mCurrentGroupId);
++    if ( itGroup == mProfileGroups.end() )
++    {
++        mCurrentGroupId = 0;
++    }
++    else
++    {
++        if ( itGroup == mProfileGroups.begin() )
++        {
++            itGroup = mProfileGroups.end();
++        }
++        --itGroup;
++        mCurrentGroupId  = itGroup->first;
++    }
++}
++
++void Profiler::FirstDisplayGroup()
++{
++    ProfileDataMap::iterator itGroup = mProfileGroups.begin();
++    if ( itGroup == mProfileGroups.end() )
++    {
++        mCurrentGroupId = 0;
++    }
++    else
++    {
++        mCurrentGroupId = itGroup->first;
++    }
++}
++
++void Profiler::Print(std::ostream &stream_)
++{
++    stream_ << MakeTitleString();
++    PrintGroup(stream_, mCurrentGroupId);
++}
++
++void Profiler::PrintAll(std::ostream &stream_)
++{
++    stream_ << MakeTitleString();
++    ProfileDataMap::iterator itGroup = mProfileGroups.begin();
++    for ( ; itGroup != mProfileGroups.end(); ++itGroup )
++    {
++        PrintGroup( stream_, itGroup->first );
++    }
++}
++
++void Profiler::PrintGroup(std::ostream &stream_, u32 groupId_)
++{
++    ProfileDataMap::iterator itGroup = mProfileGroups.find(groupId_);
++    if ( itGroup == mProfileGroups.end() )
++        return;
++
++    stream_ << MakeDataString(itGroup->second);
++
++    if ( groupId_ == 0 )
++    {
++        ProfileDataMap::iterator itData = mProfileGroups.begin();
++        for ( ; itData != mProfileGroups.end(); ++itData )
++        {
++            if ( itData->second.mGroupId == groupId_ )
++            {
++                stream_ << MakeDataString(itData->second);
++            }
++        }
++    }
++    else
++    {
++        ProfileDataMap::iterator itData = mProfileDatas.begin();
++        for ( ; itData != mProfileDatas.end(); ++itData )
++        {
++            if ( itData->second.mGroupId == groupId_ )
++            {
++                stream_ << MakeDataString(itData->second);
++            }
++        }
++    }
++}
++
++std::string Profiler::MakeTitleString()
++{
++    std::ostringstream ostr;
++    ostr << "name           calls       time(sum)   time(avg)   time(max)   time(min)   " << std::endl;
++
++    return ostr.str();
++}
++
++std::string Profiler::MakeDataString(const ProfileData & data_)
++{
++    std::ostringstream ostr;
++
++    if ( data_.mCountCalls > 0 )
++    {
++        ostr << std::left << std::setw(15) << data_.mName << std::setw(12) << data_.mCountCalls
++            << std::setw(12) << data_.mTimeSum
++            << std::setw(12) << data_.mTimeSum / data_.mCountCalls
++            << std::setw(12) << data_.mHighestTime
++            << std::setw(12) << (data_.mLowestTime < data_.mHighestTime ? data_.mLowestTime : 0)
++            << std::endl;
++    }
++    else
++    {
++        ostr << data_.mName << std::endl;
++    }
++
++    return ostr.str();
++}
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/Irrlicht.cpp hcraft_libs/irrlicht/source/Irrlicht/Irrlicht.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/Irrlicht.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/Irrlicht.cpp
+@@ -46,4 +49,10 @@ namespace irr
+ 	}
+ 
++//#define IRR_PROFILE 1
++    IRRLICHT_API Profiler* IRRCALLCONV getProfiler()
++    {
++        return &gPROFILER;
++    }
++
+ } // end namespace irr
+ 

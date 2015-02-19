@@ -1,0 +1,331 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIButton.h hcraft_libs/irrlicht/include/IGUIButton.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIButton.h	2006-06-27 12:46:42.000000000 +0100
++++ hcraft_libs/irrlicht/include/IGUIButton.h	2007-01-09 03:39:40.000000000 +0100
+@@ -39,5 +39,5 @@ namespace gui
+ 		//! Sets an image which should be displayed on the button when it is in normal state. 
+ 		/** \param image: Image to be displayed */
+-		virtual void setImage(video::ITexture* image) = 0;
++		virtual void setImage(video::ITexture* image, bool scaleToButtonSize=false) = 0;
+ 
+ 		//! Sets an image which should be displayed on the button when it is in normal state. 
+@@ -50,5 +50,5 @@ namespace gui
+ 		setPressedImage(), this image is also drawn in pressed state.
+ 		\param image: Image to be displayed */
+-		virtual void setPressedImage(video::ITexture* image) = 0;
++		virtual void setPressedImage(video::ITexture* image, bool scaleToButtonSize=false) = 0;
+ 
+ 		//! Sets an image which should be displayed on the button when it is in pressed state. 
+@@ -57,4 +57,9 @@ namespace gui
+ 		virtual void setPressedImage(video::ITexture* image, const core::rect<s32>& pos) = 0;
+ 
++        //! MICHA: sets an image to display on focus
++		virtual void setFocusedImage(video::ITexture* image, bool scaleToButtonSize=false) = 0;
++		//! MICHA: sets an image to display on focus
++		virtual void setFocusedImage(video::ITexture* image, const core::rect<s32>& pos) = 0;
++
+ 		//! Sets if the button should behave like a push button. 
+ 		/** Which means it can be in two states: Normal or Pressed. With a click on the button,
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIButton.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIButton.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIButton.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIButton.cpp	2007-02-01 11:40:56.000000000 +0100
+@@ -8,4 +8,5 @@
+ #include "IVideoDriver.h"
+ #include "IGUIFont.h"
++#include "os.h"
+ 
+ namespace irr
+@@ -18,6 +19,9 @@ CGUIButton::CGUIButton(IGUIEnvironment* 
+ 					   s32 id, core::rect<s32> rectangle, bool noclip)
+ : IGUIButton(environment, parent, id, rectangle), Pressed(false), 
+-	OverrideFont(0), NoClip(noclip), Image(0), PressedImage(0),
++    Clicked(false),
++    OverrideFont(0), NoClip(noclip), Image(0), PressedImage(0), FocusedImage(0),
+ 	IsPushButton(false), UseAlphaChannel(false)
++    , ScaleImage(false), ScalePressedImage(false), ScaleFocusedImage(false)
++
+ {
+ 	#ifdef _DEBUG
+@@ -39,4 +43,7 @@ CGUIButton::~CGUIButton()
+ 	if (PressedImage)
+ 		PressedImage->drop();
++
++    if (FocusedImage)
++        FocusedImage->drop();
+ }
+ 
+@@ -83,4 +90,5 @@ bool CGUIButton::OnEvent(SEvent event)
+ 			return true;
+ 		}
++        return false;
+ 	case EET_GUI_EVENT:
+ 		if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST)
+@@ -88,5 +96,5 @@ bool CGUIButton::OnEvent(SEvent event)
+ 			if (!IsPushButton)
+ 				Pressed = false;
+-			return true;
++			break;
+ 		}
+ 		break;
+@@ -94,33 +102,40 @@ bool CGUIButton::OnEvent(SEvent event)
+ 		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+ 		{
+-			if (Environment->hasFocus(this) &&
+-			    !AbsoluteRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
++		    bool isInside = AbsoluteRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
++			if ( !isInside)
+ 			{
++			    if (!IsPushButton)
++                    Pressed = false;
++			    if ( Environment->hasFocus(this) )
+ 					Environment->removeFocus(this);
+ 					return false;
+ 			}
+ 
++            Clicked = true;
++
+ 			if (!IsPushButton)
+ 				Pressed = true;
+ 			
+-			Environment->setFocus(this);
++//			Environment->setFocus(this);
+ 			return true;
+ 		}
+-		else
+-		if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP)
++		else if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP)
+ 		{
+ 			bool wasPressed = Pressed;
+-			Environment->removeFocus(this);
+ 
++			//Environment->removeFocus(this);
++
++            bool isInside = AbsoluteRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
+ 			if (!IsPushButton)
+ 				Pressed = false;
+ 			else
+ 			{
+-				if (AbsoluteRect.isPointInside(
+-					core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
++				if (isInside)
+ 					Pressed = !Pressed;
+ 			}
++		    Clicked = false;
+ 			
+-			if ((!IsPushButton && wasPressed && Parent) ||
++
++			if ((!IsPushButton && wasPressed && isInside && Parent) ||
+ 				(IsPushButton && wasPressed != Pressed))
+ 			{
+@@ -134,4 +149,22 @@ bool CGUIButton::OnEvent(SEvent event)
+ 			return true;
+ 		}
++		else if ( event.MouseInput.Event == EMIE_MOUSE_MOVED )
++		{
++		    if ( !IsPushButton )
++		    {
++		        bool isInside = AbsoluteRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
++                if ( Clicked )
++                {
++                    if ( !isInside )
++                    {
++                        Pressed = false;
++                    }
++                    else
++                    {
++                        Pressed = true;
++                    }
++                }
++		    }
++		}
+ 		break;
+ 	}
+@@ -164,5 +197,24 @@ void CGUIButton::draw()
+ 		skin->draw3DButtonPaneStandard(this, rect, clip);
+ 
+-		if (Image)
++        if ( Environment->hasFocus(this)
++            && FocusedImage )
++        {
++		    if ( !ScaleFocusedImage )
++		    {
++                core::position2d<s32> pos = AbsoluteRect.getCenter();
++                pos.X -= FocusedImageRect.getWidth() / 2;
++                pos.Y -= FocusedImageRect.getHeight() / 2;
++                driver->draw2DImage(FocusedImage, pos, FocusedImageRect, clip,
++                    video::SColor(255,255,255,255), UseAlphaChannel);
++		    }
++		    else
++		    {
++		        driver->draw2DImage(FocusedImage, AbsoluteRect, FocusedImageRect, clip,
++                    NULL, UseAlphaChannel);
++		    }
++        }
++		else if (Image)
++		{
++		    if ( !ScaleImage )
+ 		{
+ 			core::position2d<s32> pos = AbsoluteRect.getCenter();
+@@ -173,4 +225,10 @@ void CGUIButton::draw()
+ 				video::SColor(255,255,255,255), UseAlphaChannel);
+ 		}
++		    else
++		    {
++		        driver->draw2DImage(Image, AbsoluteRect, ImageRect, clip,
++                    NULL, UseAlphaChannel);
++		    }
++		}
+ 	}
+ 	else
+@@ -180,16 +238,18 @@ void CGUIButton::draw()
+ 		if (PressedImage)
+ 		{
++		    if ( !ScalePressedImage )
++		    {
+ 			core::position2d<s32> pos = AbsoluteRect.getCenter();
+ 			pos.X -= PressedImageRect.getWidth() / 2;
+ 			pos.Y -= PressedImageRect.getHeight() / 2;
+-			// patch by Alan Tyndall/Jonas Petersen
+-			if (Image == PressedImage)
+-			{
+-				pos.X += 1;
+-				pos.Y += 1;
+-			}
+ 			driver->draw2DImage(PressedImage, pos, PressedImageRect, clip,
+ 				video::SColor(255,255,255,255), UseAlphaChannel);
+ 		}
++		    else
++		    {
++		        driver->draw2DImage(PressedImage, AbsoluteRect, PressedImageRect, clip,
++                    NULL, UseAlphaChannel);
++		    }
++		}
+ 	}
+ 
+@@ -197,6 +257,4 @@ void CGUIButton::draw()
+ 	{
+ 		rect = AbsoluteRect;
+-        if (Pressed)
+-			rect.UpperLeftCorner.Y += 2;
+ 
+ 		if (font)
+@@ -225,5 +283,5 @@ void CGUIButton::setOverrideFont(IGUIFon
+ 
+ //! Sets an image which should be displayed on the button when it is in normal state. 
+-void CGUIButton::setImage(video::ITexture* image)
++void CGUIButton::setImage(video::ITexture* image, bool scaleToButtonSize)
+ {
+ 	if (Image)
+@@ -231,4 +289,5 @@ void CGUIButton::setImage(video::ITextur
+ 
+ 	Image = image;
++	ScaleImage = scaleToButtonSize;
+ 	if (image)
+ 		ImageRect = core::rect<s32>(core::position2d<s32>(0,0), image->getSize());
+@@ -238,5 +297,11 @@ void CGUIButton::setImage(video::ITextur
+ 
+ 	if (!PressedImage)
+-		setPressedImage(Image);
++	{
++		setPressedImage(Image, scaleToButtonSize);
++	}
++    if  (!FocusedImage)
++    {
++        setFocusedImage(Image, scaleToButtonSize);
++    }
+ }
+ 
+@@ -255,8 +320,10 @@ void CGUIButton::setImage(video::ITextur
+ 	if (!PressedImage)
+ 		setPressedImage(Image, pos);
++    if  (!FocusedImage)
++        setFocusedImage(Image, pos);
+ }
+ 
+ //! Sets an image which should be displayed on the button when it is in pressed state. 
+-void CGUIButton::setPressedImage(video::ITexture* image)
++void CGUIButton::setPressedImage(video::ITexture* image, bool scaleToButtonSize)
+ {
+ 	if (PressedImage)
+@@ -264,4 +331,5 @@ void CGUIButton::setPressedImage(video::
+ 
+ 	PressedImage = image;
++	ScalePressedImage = scaleToButtonSize;
+ 	if (image)
+ 		PressedImageRect = core::rect<s32>(core::position2d<s32>(0,0), image->getSize());
+@@ -284,4 +352,31 @@ void CGUIButton::setPressedImage(video::
+ }
+ 
++//! MICHA: sets an image to display on focus
++void CGUIButton::setFocusedImage(video::ITexture* image, bool scaleToButtonSize)
++{
++    if (FocusedImage)
++		FocusedImage->drop();
++
++	FocusedImage = image;
++	ScaleFocusedImage = scaleToButtonSize;
++	if (image)
++		FocusedImageRect = core::rect<s32>(core::position2d<s32>(0,0), image->getSize());
++
++	if (FocusedImage)
++		FocusedImage->grab();
++}
++
++//! MICHA: sets an image to display on focus
++void CGUIButton::setFocusedImage(video::ITexture* image, const core::rect<s32>& pos)
++{
++    if (FocusedImage)
++		FocusedImage->drop();
++
++	FocusedImage= image;
++	FocusedImageRect = pos;
++
++	if (FocusedImage)
++		FocusedImage->grab();
++}
+ 
+ //! Sets if the button should behave like a push button. Which means it
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIButton.h hcraft_libs/irrlicht/source/Irrlicht/CGUIButton.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIButton.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIButton.h	2007-01-09 03:42:31.000000000 +0100
+@@ -34,5 +34,5 @@ namespace gui
+ 
+ 		//! Sets an image which should be displayed on the button when it is in normal state. 
+-		virtual void setImage(video::ITexture* image);
++		virtual void setImage(video::ITexture* image, bool scaleToButtonSize=false);
+ 
+ 		//! Sets an image which should be displayed on the button when it is in normal state. 
+@@ -40,9 +40,15 @@ namespace gui
+ 
+ 		//! Sets an image which should be displayed on the button when it is in pressed state. 
+-		virtual void setPressedImage(video::ITexture* image);
++		virtual void setPressedImage(video::ITexture* image, bool scaleToButtonSize=false);
+ 
+ 		//! Sets an image which should be displayed on the button when it is in pressed state. 
+ 		virtual void setPressedImage(video::ITexture* image, const core::rect<s32>& pos);
+ 
++		//! MICHA: sets an image to display on focus
++		virtual void setFocusedImage(video::ITexture* image, bool scaleToButtonSize=false);
++
++		//! MICHA: sets an image to display on focus
++		virtual void setFocusedImage(video::ITexture* image, const core::rect<s32>& pos);
++
+ 		//! Sets if the button should behave like a push button. Which means it
+ 		//! can be in two states: Normal or Pressed. With a click on the button,
+@@ -64,4 +70,5 @@ namespace gui
+ 	private:
+ 
++        bool Clicked;   // MICHA: true when button was below mouse on left-mouse-click
+ 		bool Pressed;
+ 		bool NoClip;
+@@ -72,6 +79,11 @@ namespace gui
+ 		video::ITexture* Image;
+ 		video::ITexture* PressedImage;
++		video::ITexture* FocusedImage;
+ 		core::rect<s32> ImageRect;
+ 		core::rect<s32> PressedImageRect;
++		core::rect<s32> FocusedImageRect;
++		bool ScaleImage;
++		bool ScalePressedImage;
++		bool ScaleFocusedImage;
+ 	};
+ 

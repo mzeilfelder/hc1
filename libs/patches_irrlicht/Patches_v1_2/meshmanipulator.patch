@@ -1,0 +1,225 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IMeshManipulator.h hcraft_libs/irrlicht/include/IMeshManipulator.h
+--- svn_hcraft_1.2/irrlicht/include/IMeshManipulator.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/IMeshManipulator.h	2006-07-18 13:03:21.000000000 +0100
+@@ -84,7 +84,13 @@ namespace scene
+ 		virtual IMesh* createMeshWithTangents(IMesh* mesh) const = 0;
+ 
++        //! Creates a copy of the mesh, which will only consist of 3DVertex2TCoords vertices.
++        //! The texture coordinates and the texture for the lightmap will not be initialized here.
++        virtual IMesh* createMeshWithLightmap(IMesh* mesh) const = 0;
++
+ 		//! Unweld vertices
+ 		virtual IMesh* createMeshUniquePrimitives(IMesh* mesh) const = 0;
+ 
++        virtual void weldVertices(IMeshBuffer* buffer) = 0;
++
+ 		//! Recalculates the bounding box for a meshbuffer
+ 		virtual void recalculateBoundingBox(scene::IMeshBuffer* buffer) const = 0;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CMeshManipulator.cpp hcraft_libs/irrlicht/source/Irrlicht/CMeshManipulator.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CMeshManipulator.cpp	2006-08-28 04:40:34.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CMeshManipulator.cpp	2006-08-29 15:01:48.000000000 +0100
+@@ -528,4 +528,101 @@ void CMeshManipulator::makePlanarTexture
+ }
+ 
++void CMeshManipulator::weldVertices(IMeshBuffer* buffer)
++{
++    s32 idxCnt = buffer->getIndexCount();
++    const u16* idx = buffer->getIndices();
++
++    switch(buffer->getVertexType())
++    {
++        case video::EVT_STANDARD:
++			{
++			    SMeshBuffer * standardBuffer = static_cast<SMeshBuffer*>(buffer);
++			    core::array<video::S3DVertex> vertices;
++
++				video::S3DVertex* v =
++					(video::S3DVertex*)buffer->getVertices();
++
++				for (s32 i=0; i<idxCnt; ++i)
++				{
++				    bool found = false;
++				    for ( u32 a=0; a<vertices.size(); ++a )
++				    {
++				        if ( v[idx[i]].equals(vertices[a]) )
++				        {
++				            standardBuffer->Indices[i] = a;
++				            found = true;
++				            break;
++				        }
++				    }
++				    if ( !found )
++				    {
++                        vertices.push_back( v[idx[i]] );
++                        standardBuffer->Indices[i] = vertices.size()-1;
++				    }
++				}
++				standardBuffer->Vertices = vertices;
++			}
++			break;
++		case video::EVT_2TCOORDS:
++			{
++			    SMeshBufferLightMap * lmBuffer = static_cast<SMeshBufferLightMap*>(buffer);
++			    core::array<video::S3DVertex2TCoords> vertices;
++
++				video::S3DVertex2TCoords* v =
++					(video::S3DVertex2TCoords*)buffer->getVertices();
++
++				for (s32 i=0; i<idxCnt; ++i)
++				{
++				    bool found = false;
++				    for ( u32 a=0; a<vertices.size(); ++a )
++				    {
++				        if ( v[idx[i]].equals(vertices[a]) )
++				        {
++				            lmBuffer->Indices[i] = a;
++				            found = true;
++				            break;
++				        }
++				    }
++				    if ( !found )
++				    {
++                        vertices.push_back( v[idx[i]] );
++                        lmBuffer->Indices[i] = vertices.size()-1;
++				    }
++				}
++				lmBuffer->Vertices = vertices;
++			}
++			break;
++		case video::EVT_TANGENTS:
++			{
++			    SMeshBufferTangents * tangentBuffer = static_cast<SMeshBufferTangents*>(buffer);
++			    core::array<video::S3DVertexTangents> vertices;
++
++				video::S3DVertexTangents* v =
++					(video::S3DVertexTangents*)buffer->getVertices();
++
++				for (s32 i=0; i<idxCnt; ++i)
++				{
++				    bool found = false;
++				    for ( u32 a=0; a<vertices.size(); ++a )
++				    {
++				        if ( v[idx[i]].equals(vertices[a]) )
++				        {
++				            tangentBuffer->Indices[i] = a;
++				            found = true;
++				            break;
++				        }
++				    }
++				    if ( !found )
++				    {
++                        vertices.push_back( v[idx[i]] );
++                        tangentBuffer->Indices[i] = vertices.size()-1;
++				    }
++				}
++				tangentBuffer->Vertices = vertices;
++			}
++            break;
++    // end switch
++    }
++}
+ 
+ 
+@@ -867,4 +964,88 @@ s32 CMeshManipulator::getPolyCount(scene
+ }
+ 
++//! Creates a copy of the mesh, which will only consist of 3DVertex2TCoords vertices.
++//! The texture coordinates and the texture for the lightmap will not be initialized here.
++IMesh* CMeshManipulator::createMeshWithLightmap(IMesh* mesh) const
++{
++        if (!mesh)
++                return 0;
++
++        // copy mesh and fill data into SMeshBufferTangents
++
++        SMesh* clone = new SMesh();
++        s32 meshBufferCount = mesh->getMeshBufferCount();
++
++    for (s32 b=0; b<meshBufferCount; ++b)
++        {
++                s32 idxCnt = mesh->getMeshBuffer(b)->getIndexCount();
++                const u16* idx = mesh->getMeshBuffer(b)->getIndices();
++
++                SMeshBufferLightMap* buffer = new SMeshBufferLightMap();
++                buffer->Material = mesh->getMeshBuffer(b)->getMaterial();
++
++                // copy vertices
++                switch(mesh->getMeshBuffer(b)->getVertexType())
++                {
++                case video::EVT_STANDARD:
++                        {
++                                video::S3DVertex* v =
++                                        (video::S3DVertex*)mesh->getMeshBuffer(b)->getVertices();
++
++                                for (s32 i=0; i<idxCnt; ++i)
++                                {
++                                    video::S3DVertex2TCoords vertex2T;
++                                    vertex2T.Color = v[idx[i]].Color;
++                                    vertex2T.Normal = v[idx[i]].Normal;
++                                    vertex2T.Pos = v[idx[i]].Pos;
++                                    vertex2T.TCoords = v[idx[i]].TCoords;
++                                        buffer->Vertices.push_back(vertex2T);
++                                }
++                        }
++                        break;
++                case video::EVT_2TCOORDS:
++                        {
++                                video::S3DVertex2TCoords* v =
++                                        (video::S3DVertex2TCoords*)mesh->getMeshBuffer(b)->getVertices();
++
++                                for (s32 i=0; i<idxCnt; ++i)
++                                {
++                                        buffer->Vertices.push_back(*v);
++                                }
++                        }
++                        break;
++                case video::EVT_TANGENTS:
++                        {
++                                video::S3DVertexTangents* v =
++                                        (video::S3DVertexTangents*)mesh->getMeshBuffer(b)->getVertices();
++
++                                for (s32 i=0; i<idxCnt; ++i)
++                                {
++                                    video::S3DVertex2TCoords vertex2T;
++                                    vertex2T.Color = v[idx[i]].Color;
++                                    vertex2T.Normal = v[idx[i]].Normal;
++                                    vertex2T.Pos = v[idx[i]].Pos;
++                                    vertex2T.TCoords = v[idx[i]].TCoords;
++                                        buffer->Vertices.push_back(vertex2T);
++                }
++                        }
++                        break;
++                }
++
++                // create new indices
++
++                buffer->Indices.set_used(idxCnt);
++                for (s32 i=0; i<idxCnt; ++i)
++                        buffer->Indices[i] = i;
++
++                // add new buffer
++                clone->addMeshBuffer(buffer);
++                buffer->drop();
++        }
++
++        clone->BoundingBox = mesh->getBoundingBox();
++
++    return clone;
++}
++
+ 
+ } // end namespace scene
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CMeshManipulator.h hcraft_libs/irrlicht/source/Irrlicht/CMeshManipulator.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CMeshManipulator.h	2006-06-27 12:46:39.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CMeshManipulator.h	2006-07-30 16:18:33.000000000 +0100
+@@ -75,4 +75,10 @@ public:
+ 	virtual IMesh* createMeshUniquePrimitives(IMesh* mesh) const;
+ 
++    virtual void weldVertices(IMeshBuffer* buffer);
++
++    //! Creates a copy of the mesh, which will only consist of 3DVertex2TCoords vertices.
++    //! The texture coordinates and the texture for the lightmap will not be initialized here.
++	virtual IMesh* createMeshWithLightmap(IMesh* mesh) const;
++
+ 	//! Recalculates the bounding box for a meshbuffer
+ 	virtual void recalculateBoundingBox(scene::IMeshBuffer* buffer) const;

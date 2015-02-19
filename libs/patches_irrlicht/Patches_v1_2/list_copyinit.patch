@@ -1,0 +1,9 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/irrList.h hcraft_libs/irrlicht/include/irrList.h
+--- svn_hcraft_1.2/irrlicht/include/irrList.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/irrList.h	2007-01-15 17:41:39.000000000 +0100
+@@ -90,4 +90,5 @@ public:
+ 	//! copy constructor
+ 	list(const list<T>& other)
++	: root(0), last(0), size(0)
+ 	{
+ 		*this = other;

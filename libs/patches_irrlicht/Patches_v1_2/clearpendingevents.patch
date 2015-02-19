@@ -1,0 +1,83 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IrrlichtDevice.h hcraft_libs/irrlicht/include/IrrlichtDevice.h
+--- svn_hcraft_1.2/irrlicht/include/IrrlichtDevice.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/IrrlichtDevice.h	2007-01-10 21:16:30.000000000 +0100
+@@ -151,4 +151,7 @@ while(device->run())
+ 		/** The default is false. This method only works in windowed mode. */
+ 		virtual void setResizeAble(bool resize=false) = 0;
++
++		//! MICHA: remove all events pending in the message loop
++		virtual void clearPendingEvents() = 0;
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.cpp
+@@ -637,4 +680,19 @@ void CIrrDeviceLinux::createDriver(const
+ }
+ 
++//! MICHA: remove all events pending in the message loop
++void CIrrDeviceLinux::clearPendingEvents()
++{
++#ifdef _IRR_COMPILE_WITH_X11_
++	if (DriverType != video::EDT_NULL)
++	{
++		irr::SEvent irrevent;
++
++		while (XPending(display) > 0 )
++		{
++			XNextEvent(display, &event);
++		}
++	}
++#endif //_IRR_COMPILE_WITH_X11_
++}
+ 
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceLinux.h	2007-03-14 23:16:50.000000000 +0100
+@@ namespace irr
+ 		virtual void closeDevice();
+ 
++		//! MICHA: remove all events pending in the message loop
++		virtual void clearPendingEvents();
++
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.h	2007-01-10 21:16:46.000000000 +0100
+@@ -99,4 +99,7 @@ namespace irr
+ 		virtual void setResizeAble(bool resize=false);
+ 
++		//! MICHA: remove all events pending in the message loop
++		virtual void clearPendingEvents() {}
++
+ 	protected:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2007-06-09 11:31:27.000000000 +0100
+@@ -482,5 +671,13 @@ void CIrrDeviceWin32::createDriver(video
+ }
+ 
+-
++//! MICHA: remove all events pending in the message loop
++void CIrrDeviceWin32::clearPendingEvents()
++{
++	MSG msg;
++	while (PeekMessage(&msg, NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
++	{}
++	while (PeekMessage(&msg, NULL, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
++	{}
++}
+ 
+ //! runs the device. Returns false if device wants to be deleted
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.h hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.h
+@@ -61,4 +61,7 @@ namespace irr
+ 		virtual void setResizeAble(bool resize=false);
+ 
++		//! MICHA: remove all events pending in the message loop
++		virtual void clearPendingEvents();
++
+ 		//! Implementation of the win32 cursor control
+ 		class CCursorControl : public gui::ICursorControl

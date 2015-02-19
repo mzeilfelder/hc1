@@ -1,0 +1,14 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CImageWriterBMP.cpp hcraft_libs/irrlicht/source/Irrlicht/CImageWriterBMP.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CImageWriterBMP.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CImageWriterBMP.cpp	2006-12-19 20:54:13.000000000 +0100
+@@ -47,7 +47,8 @@ bool CImageWriterBMP::writeImage(io::IWr
+ 	imageHeader.ImportantColors = 0;
+ 
+-	// data size is rounded up to nearest 4 bytes
+-	imageHeader.BitmapDataSize = (imageHeader.Width * imageHeader.Height) * 3;
++    // data size is rounded up to next larger 4 bytes boundary
++    imageHeader.BitmapDataSize = imageHeader.Width * imageHeader.BPP / 8;
+ 	imageHeader.BitmapDataSize = (imageHeader.BitmapDataSize + 3) & ~3;
++    imageHeader.BitmapDataSize *= imageHeader.Height;
+ 
+ 	// file size is data size plus offset to data

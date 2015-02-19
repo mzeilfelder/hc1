@@ -1,0 +1,189 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/profile_enums.h hcraft_libs/irrlicht/source/Irrlicht/profile_enums.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/profile_enums.h	1970-01-01 00:00:00.000000000 +0000
++++ hcraft_libs/irrlicht/source/Irrlicht/profile_enums.h	2006-12-27 22:47:23.000000000 +0100
+@@ -0,0 +1,40 @@
++#ifndef PROFILE_ENUMS_H
++#define PROFILE_ENUMS_H
++
++enum ProfileGroups
++{
++    PRG_SCENE_MANAGER = 1,
++    PRG_OCT_NODE = 2,
++    PRG_OPENGL = 3,
++};
++
++enum ProfileBlocks
++{
++    PRB_SM_DRAW_ALL=1,
++    PRB_SM_PRE_RENDER,
++    PRB_SM_DEL_LIGHTS,
++    PRB_SM_RENDER_LIGHTS,
++    PRB_SM_SKYBOX,
++    PRB_SM_NODES,
++    PRB_SM_NODES2,
++    PRB_SM_NODES3,
++    PRB_SM_SHADOWS,
++    PRB_SM_TRANSPARENT,
++    PRB_SM_POST,
++    PRB_SM_REGISTER,
++    PRB_DX8_TRIANGLE1,
++    PRB_DX8_TRIANGLE2,
++
++    PRB_OCT_MATERIAL,
++    PRB_OCT_DRAWBUFFER,
++    PRB_OCT_A,
++    PRB_OCT_B,
++
++    PRB_GL_TEST1,
++    PRB_GL_TEST2,
++    PRB_GL_TEST3,
++    PRB_GL_TEST4,
++    PRB_GL_TEST5,
++};
++
++#endif // PROFILE_ENUMS_H
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp	2007-03-06 02:39:38.000000000 +0100
+@@ -66,4 +66,7 @@
+ #include "CDefaultSceneNodeAnimatorFactory.h"
+ 
++#include "irrlicht.h"   // for profiler
++#include "profile_enums.h"
++
+ namespace irr
+ {
+@@ -131,4 +135,19 @@ CSceneManager::CSceneManager(video::IVid
+ 	registerSceneNodeAnimatorFactory(animatorFactory);
+ 	animatorFactory->drop();
++
++    printf("add profile stuff\n");
++    PROFILE_ADD_GROUP(PRG_SCENE_MANAGER, "scene manager");
++    PROFILE_ADD(PRB_SM_DRAW_ALL, PRG_SCENE_MANAGER, "drawAll");
++    PROFILE_ADD(PRB_SM_PRE_RENDER, PRG_SCENE_MANAGER, "preRender");
++    PROFILE_ADD(PRB_SM_DEL_LIGHTS, PRG_SCENE_MANAGER, "delLight");
++    PROFILE_ADD(PRB_SM_RENDER_LIGHTS, PRG_SCENE_MANAGER, "renderLight");
++    PROFILE_ADD(PRB_SM_SKYBOX, PRG_SCENE_MANAGER, "Sky");
++    PROFILE_ADD(PRB_SM_NODES, PRG_SCENE_MANAGER, "Nodes");
++    PROFILE_ADD(PRB_SM_NODES2, PRG_SCENE_MANAGER, "Nodes2");
++    PROFILE_ADD(PRB_SM_NODES3, PRG_SCENE_MANAGER, "Nodes3");
++    PROFILE_ADD(PRB_SM_SHADOWS, PRG_SCENE_MANAGER, "Shadows");
++    PROFILE_ADD(PRB_SM_TRANSPARENT, PRG_SCENE_MANAGER, "Transparence");
++    PROFILE_ADD(PRB_SM_POST, PRG_SCENE_MANAGER, "Post");
++//    PROFILE_ADD(PRB_SM_REGISTER, PRG_SCENE_MANAGER, "Register");
+ }
+ 
+@@ -734,4 +754,5 @@ bool CSceneManager::isCulled(ISceneNode*
+ void CSceneManager::registerNodeForRendering(ISceneNode* node, E_SCENE_NODE_RENDER_PASS time)
+ {
++//    PROFILE_START(PRB_SM_REGISTER);
+ 	switch(time)
+ 	{
+@@ -775,4 +796,5 @@ void CSceneManager::registerNodeForRende
+ 					TransparentNodeEntry e(node, camTransPos);
+ 					TransparentNodeList.push_back(e);
++									// PROFILE_STOP(PRB_SM_REGISTER);
+ 					return;
+ 				}
+@@ -790,4 +812,5 @@ void CSceneManager::registerNodeForRende
+ 		break;
+ 	}
++//    PROFILE_STOP(PRB_SM_REGISTER);
+ }
+ 
+@@ -800,5 @@ void CSceneManager::drawAll()
+ 		return;
+ 
+-	Driver->setAmbientLight(AmbientLight);
++    PROFILE_START(PRB_SM_DRAW_ALL);
++
++	// Driver->setAmbientLight(AmbientLight);
+ 
+ 	// calculate camera pos.
+@@ -808,5 +833,8 @@ void CSceneManager::drawAll()
+ 
+ 	// let all nodes register themselfes
++    PROFILE_START(PRB_SM_PRE_RENDER);
+ 	OnPreRender();
++	PROFILE_STOP(PRB_SM_PRE_RENDER);
++
+ 
+ 	// render cameras
+@@ -825,13 +853,17 @@ void CSceneManager::drawAll()
+ 	CurrentRendertime = ESNRP_LIGHT;
+ 
++    PROFILE_START(PRB_SM_DEL_LIGHTS);
+ 	Driver->deleteAllDynamicLights();
++	PROFILE_STOP(PRB_SM_DEL_LIGHTS);
+ 
++    PROFILE_START(PRB_SM_RENDER_LIGHTS);
+ 	for (i=0; i<LightList.size(); ++i)
+ 		LightList[i]->render();
+ 
+ 	LightList.clear();
++    PROFILE_STOP(PRB_SM_RENDER_LIGHTS);
+ 
+ 	// render skyboxes
+-
++	PROFILE_START(PRB_SM_SKYBOX);
+ 	CurrentRendertime = ESNRP_SKY_BOX;
+ 
+@@ -840,5 +872,5 @@ void CSceneManager::drawAll()
+ 
+ 	SkyBoxList.clear();
+-
++	PROFILE_STOP(PRB_SM_SKYBOX);
+ 
+ 	// render default objects
+@@ -846,13 +878,20 @@ void CSceneManager::drawAll()
+ 	CurrentRendertime = ESNRP_SOLID;
+ 
++    PROFILE_START(PRB_SM_NODES2);
+ 	SolidNodeList.sort(); // sort by textures
++	PROFILE_STOP(PRB_SM_NODES2);
+ 
++    PROFILE_START(PRB_SM_NODES);
+ 	for (i=0; i<SolidNodeList.size(); ++i)
+ 		SolidNodeList[i].node->render();
++    PROFILE_STOP(PRB_SM_NODES);
+ 
++    PROFILE_START(PRB_SM_NODES3);
+ 	SolidNodeList.clear();
++	PROFILE_STOP(PRB_SM_NODES3);
+ 
+ 	// render shadows
+ 
++    PROFILE_START(PRB_SM_SHADOWS);
+ 	CurrentRendertime = ESNRP_SHADOW;
+ 
+@@ -865,22 +904,27 @@ void CSceneManager::drawAll()
+ 
+ 	ShadowNodeList.clear();
++	PROFILE_STOP(PRB_SM_SHADOWS);
+ 
+ 	// render transparent objects.
+ 
+ 	CurrentRendertime = ESNRP_TRANSPARENT;
+-
++    PROFILE_START(PRB_SM_TRANSPARENT);
+ 	TransparentNodeList.sort(); // sort by distance from camera
+-
+ 	for (i=0; i<TransparentNodeList.size(); ++i)
+ 		TransparentNodeList[i].node->render();
+-
+ 	TransparentNodeList.clear();
+ 
++    PROFILE_STOP(PRB_SM_TRANSPARENT);
++
++    PROFILE_START(PRB_SM_POST);
+ 	// do animations and other stuff.
+ 	OnPostRender(os::Timer::getTime());
++	PROFILE_STOP(PRB_SM_POST);
+ 
+ 	clearDeletionList();
+ 
+ 	CurrentRendertime = ESNRP_COUNT;
++
++    PROFILE_STOP(PRB_SM_DRAW_ALL);
+ }
+ 

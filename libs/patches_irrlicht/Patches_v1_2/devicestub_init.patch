@@ -1,0 +1,12 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceStub.cpp
+@@ -19,5 +19,7 @@ namespace irr
+ //! constructor
+ CIrrDeviceStub::CIrrDeviceStub(const char* version, irr::IEventReceiver* resv)
+-: Logger(0), Operator(0), VideoDriver(0)
++    : FileSystem(0), VideoDriver(0), GUIEnvironment(0), SceneManager(0)
++    , Timer(0), CursorControl(0)
++    , Logger(0), Operator(0)
+ {
+ 	UserReceiver = resv;

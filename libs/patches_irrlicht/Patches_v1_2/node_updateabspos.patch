@@ -1,0 +1,22 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/ISceneNode.h hcraft_libs/irrlicht/include/ISceneNode.h
+--- svn_hcraft_1.2/irrlicht/include/ISceneNode.h
++++ hcraft_libs/irrlicht/include/ISceneNode.h
+@@ -76,4 +76,9 @@ namespace scene
+ 			if (IsVisible)
+ 			{
++			    // MICHA: i moved it here to get around animation woes.
++			    // Also i think it's just correct that the engine actually uses the positions
++			    // of the current frame and does not delay my changes one frame.
++			    updateAbsolutePosition();
++
+ 				core::list<ISceneNode*>::Iterator it = Children.begin();
+ 				for (; it != Children.end(); ++it)
+@@ -97,6 +102,7 @@ namespace scene
+ 					(*ait)->animateNode(this, timeMs);
+ 
++                // MICHA: moved that to OnPreRender
+ 				// update absolute position
+-				updateAbsolutePosition();
++//				updateAbsolutePosition();
+ 
+ 				// perform the post render process on all children

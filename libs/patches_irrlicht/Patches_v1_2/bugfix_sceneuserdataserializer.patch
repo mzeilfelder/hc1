@@ -1,0 +1,10 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/ISceneUserDataSerializer.h hcraft_libs/irrlicht/include/ISceneUserDataSerializer.h
+--- svn_hcraft_1.2/irrlicht/include/ISceneUserDataSerializer.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/ISceneUserDataSerializer.h	2006-12-04 23:37:52.000000000 +0100
+@@ -25,4 +25,6 @@ class ISceneUserDataSerializer
+ {
+ public:
++    virtual ~ISceneUserDataSerializer() {}
++
+ 
+ 	//! Called when the scene manager read a scene node while loading a file.

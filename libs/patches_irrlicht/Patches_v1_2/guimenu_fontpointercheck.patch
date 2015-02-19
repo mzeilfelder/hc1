@@ -1,0 +1,19 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMenu.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIMenu.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMenu.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIMenu.cpp	2006-12-06 09:07:31.000000000 +0100
+@@ -68,6 +69,8 @@ void CGUIMenu::draw()
+ 					true, true, rect, &AbsoluteClippingRect);
+ 			}
+-			// draw text
+ 
++			// draw text
++            if ( font )
++            {
+ 			EGUI_DEFAULT_COLOR c = EGDC_BUTTON_TEXT;
+ 
+@@ -82,4 +85,5 @@ void CGUIMenu::draw()
+ 		}
+ 	}
++	}
+ 
+ 	IGUIElement::draw();

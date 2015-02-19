@@ -1,0 +1,35 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLTexture.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLTexture.cpp
+@@ -19,4 +19,6 @@ namespace video
+@@ -250,7 +283,15 @@ void COpenGLTexture::getImageData(IImage
+ 	if (image->getColorFormat()==ECF_R8G8B8)
+ 	{
++		if (Driver && Driver->getTextureCreationFlag(ETCF_ALWAYS_16_BIT))
++		{
++		    bpp=2;
++            ColorFormat = ECF_A1R5G5B5;
++		}
++		else
++		{
+ 		bpp=4;
+ 		ColorFormat = ECF_A8R8G8B8;
+ 	}
++    }
+ 	else
+ 	{
+@@ -266,5 +307,14 @@ void COpenGLTexture::getImageData(IImage
+ 		void* source = image->lock();
+ 		if (image->getColorFormat()==ECF_R8G8B8)
++		{
++		    if (Driver && Driver->getTextureCreationFlag(ETCF_ALWAYS_16_BIT))
++		    {
++                CColorConverter::convert_R8G8B8toA1R5G5B5(source,ImageSize.Width*ImageSize.Height,ImageData);
++		    }
++		    else
++		    {
+ 			CColorConverter::convert_R8G8B8toA8R8G8B8(source,ImageSize.Width*ImageSize.Height,ImageData);
++		    }
++		}
+ 		else
+ 			memcpy(ImageData,source,Pitch*nImageSize.Height);

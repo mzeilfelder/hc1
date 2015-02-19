@@ -1,0 +1,10 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSceneManager.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CSceneManager.cpp
+@@ -800,5 @@ void CSceneManager::drawAll()
+ 		return;
+ 
+-	Driver->setAmbientLight(AmbientLight);
++	// Driver->setAmbientLight(AmbientLight);
+ 
+ 	// calculate camera pos.

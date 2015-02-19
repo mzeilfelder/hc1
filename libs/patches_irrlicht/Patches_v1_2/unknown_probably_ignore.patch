@@ -1,0 +1,10 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9ShaderMaterialRenderer.h hcraft_libs/irrlicht/source/Irrlicht/CD3D9ShaderMaterialRenderer.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9ShaderMaterialRenderer.h	2006-06-27 12:46:39.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9ShaderMaterialRenderer.h	2006-05-05 16:29:15.000000000 +0100
+@@ -22,5 +22,5 @@ namespace video  
+ class IVideoDriver;
+ class IShaderConstantSetCallBack;
+-class IMaterialRenderer;
++//class IMaterialRenderer;
+ 
+ //! Class for using vertex and pixel shaders with D3D9

@@ -1,0 +1,9 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CIrrDeviceWin32.cpp	2007-06-09 11:31:27.000000000 +0100
+@@ -616,4 +813,5 @@ void CIrrDeviceWin32::closeDevice()
+ {
+ 	DestroyWindow(HWnd); 	//PostQuitMessage(0);
++	run(); // consume quit message
+ }
+ 

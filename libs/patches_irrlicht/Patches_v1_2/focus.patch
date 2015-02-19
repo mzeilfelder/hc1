@@ -1,0 +1,308 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h hcraft_libs/irrlicht/include/IEventReceiver.h
+--- svn_hcraft_1.2/irrlicht/include/IEventReceiver.h
++++ hcraft_libs/irrlicht/include/IEventReceiver.h
+@@ -75,4 +75,7 @@ namespace irr
+ 			EGET_ELEMENT_FOCUS_LOST = 0,
+ 
++			//! A gui element got the focus
++			EGET_ELEMENT_FOCUS_SET,
++
+ 			//! A gui element was hovered.
+ 			EGET_ELEMENT_HOVERED,
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIElement.h hcraft_libs/irrlicht/include/IGUIElement.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIElement.h
++++ hcraft_libs/irrlicht/include/IGUIElement.h
+@@ -29,4 +29,5 @@ public:
+ 		s32 id, core::rect<s32> rectangle)
+ 		: Parent(0), RelativeRect(rectangle), IsVisible(true), IsEnabled(true),
++            IsFocusable(true), FocusId(-1),
+ 			ID(id), Environment(environment), Type(type)
+ 	{
+@@ public:
++	//! MICHA: i need another focus behaviour
++    virtual bool isFocusable() const            { return IsFocusable; }
++    virtual bool isFocusableNow() const         { return isFocusable() && isVisible() && isEnabled() && FocusId >= 0; }
++    virtual void setFocusable(bool focusable)   { IsFocusable = focusable; }
++    virtual s32 getFocusId() const              { return FocusId; }
++    virtual void setFocusId(s32 id)             { FocusId = id; }
++
+ protected:
+ 
+@@ -350,4 +380,8 @@ protected:
+ 	bool IsEnabled;
+ 
++	//! MICHA: i need another focus behaviour
++	bool IsFocusable;
++	s32  FocusId;
++
+ 	//! caption
+ 	core::stringw Text;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIEnvironment.h hcraft_libs/irrlicht/include/IGUIEnvironment.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIEnvironment.h
++++ hcraft_libs/irrlicht/include/IGUIEnvironment.h
+@@ -57,7 +59,16 @@ public:
+ 	virtual void setFocus(IGUIElement* element) = 0;
+ 
++	//! MICHA: get current focus
++	virtual IGUIElement* getFocus() = 0;
++
+ 	//! Removes the focus from an element.
+ 	virtual void removeFocus(IGUIElement* element) = 0;
+ 
++	//! MICHA: focus sibling element with next higher FocusId
++	virtual void focusNextSibling() = 0;
++
++    //! MICHA: focus sibling element weiht next lower FocusId
++	virtual void focusPreviousSibling() = 0;
++
+ 	//! Returns if the element has focus
+ 	virtual bool hasFocus(IGUIElement* element) = 0;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIContextMenu.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIContextMenu.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIContextMenu.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIContextMenu.cpp	2006-12-06 09:20:59.000000000 +0100
+@@ -169,5 +169,7 @@ bool CGUIContextMenu::OnEvent(SEvent eve
+ 		case gui::EGET_ELEMENT_FOCUS_LOST:
+ 			remove();
+-			return true;
++            break;
++        default:
++            break;
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.cpp
+@@ -150,5 +153,74 @@ void CGUIEnvironment::setFocus(IGUIEleme
+ 	Focus = element;
+ 	if (Focus)
++	{
+ 		Focus->grab();
++
++        // printf("CGUIEnvironment::setFocus: %d\n", element->getID());
++		SEvent e;
++		e.EventType = EET_GUI_EVENT;
++		e.GUIEvent.Caller = Focus;
++		e.GUIEvent.EventType = EGET_ELEMENT_FOCUS_SET;
++		Focus->OnEvent(e);
++	}
++}
++
++//! MICHA: focus sibling element with next higher FocusId
++void CGUIEnvironment::focusNextSibling()
++{
++    if ( !Focus || !Focus->getParent() )
++        return;
++
++    s32 oldFocusId = Focus->getFocusId();
++    const core::list<IGUIElement*>& children = Focus->getParent()->getChildren();
++
++    IGUIElement* nextFocus = 0;
++    core::list<IGUIElement*>::Iterator it = children.begin();
++    for (; it != children.end(); ++it)
++    {
++        if ((*it)->getID() == Focus->getID() )
++            continue;
++        if (!(*it)->isFocusableNow() )
++            continue;
++        if ( (*it)->getFocusId() > oldFocusId &&
++            ( !nextFocus || (*it)->getFocusId() < nextFocus->getFocusId()) )
++        {
++            nextFocus = (*it);
++        }
++    }
++
++    if ( nextFocus )
++    {
++        setFocus ( nextFocus );
++    }
++}
++
++//! MICHA: focus sibling element with next lower FocusId
++void CGUIEnvironment::focusPreviousSibling()
++{
++    if ( !Focus || !Focus->getParent() )
++        return;
++
++    s32 oldFocusId = Focus->getFocusId();
++    const core::list<IGUIElement*>& children = Focus->getParent()->getChildren();
++
++    IGUIElement* nextFocus = 0;
++    core::list<IGUIElement*>::Iterator it = children.begin();
++    for (; it != children.end(); ++it)
++    {
++        if ((*it)->getID() == Focus->getID() )
++            continue;
++        if (!(*it)->isFocusableNow() )
++            continue;
++        if ( (*it)->getFocusId() < oldFocusId &&
++            ( !nextFocus || (*it)->getFocusId() > nextFocus->getFocusId()) )
++        {
++            nextFocus = (*it);
++        }
++    }
++
++    if ( nextFocus )
++    {
++        setFocus ( nextFocus );
++    }
+ }
+ 
+@@ -159,7 +231,8 @@ void CGUIEnvironment::removeFocus(IGUIEl
+ 	if (Focus && Focus==element)
+ 	{
++	    // printf("CGUIEnvironment::removeFocus: %d\n", element->getID());
+ 		SEvent e;
+ 		e.EventType = EET_GUI_EVENT;
+-		e.GUIEvent.Caller = this;
++		e.GUIEvent.Caller = Focus;
+ 		e.GUIEvent.EventType = EGET_ELEMENT_FOCUS_LOST;
+ 		Focus->OnEvent(e);
+@@ -255,5 +328,6 @@ bool CGUIEnvironment::postEventFromUser(
+ 			return true;
+ 
+-		if (!Focus) // focus could have died in last call
++        // TODO: MICHA: Some changes here because i need to have the focus always under the mouse
++//		if (!Focus) // focus could have died in last call
+ 		{
+ 			// trying to send input to hovered element
+@@ -261,10 +335,58 @@ bool CGUIEnvironment::postEventFromUser(
+ 
+ 			if (Hovered && Hovered != this)
++			{
++			    if ( Hovered != Focus
++                    && Hovered->isFocusable()
++                    && Hovered->isEnabled()
++			    )
++                {
++                    setFocus(Hovered);
++                }
++
+ 				return Hovered->OnEvent(event);
+ 		}
++		}
+ 		break;
+ 	case EET_KEY_INPUT_EVENT:
++
++        if (Focus && Focus->OnEvent(event))
++			return true;
++
+ 		if (Focus && Focus != this)
+-			return Focus->OnEvent(event);
++		{
++		    // MICHA: changed focus with cursor keys
++            if ( event.KeyInput.PressedDown )
++            {
++                switch(event.KeyInput.Key)
++                {
++                    case KEY_TAB:
++                    {
++                        if ( event.KeyInput.Shift )
++                        {
++                            focusPreviousSibling();
++                        }
++                        else
++                        {
++                            focusNextSibling();
++                        }
++                    }
++                    break;
++                    case KEY_UP:
++                    case KEY_LEFT:
++                    {
++                        focusPreviousSibling();
++                    }
++                    break;
++                    case KEY_DOWN:
++                    case KEY_RIGHT:
++                    {
++                        focusNextSibling();
++                    }
++                    break;
++                    default:
++                    break;
++                }
++            }
++		}
+ 		break;
+ 	} // end switch
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.h hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIEnvironment.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIEnvironment.h
+@@ -128,4 +134,13 @@ public:
+ 	virtual void setFocus(IGUIElement* element);
+ 
++    //! MICHA: get current focus
++	IGUIElement* getFocus() { return Focus; }
++
++	//! MICHA: focus sibling element with next higher FocusId
++	virtual void focusNextSibling();
++
++    //! MICHA: focus sibling element weiht next lower FocusId
++	virtual void focusPreviousSibling();
++
+ 	//! removes the focus from an element
+ 	virtual void removeFocus(IGUIElement* element);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMenu.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIMenu.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMenu.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIMenu.cpp	2006-12-06 09:07:31.000000000 +0100
+@@ -100,5 +104,7 @@ bool CGUIMenu::OnEvent(SEvent event)
+ 		case gui::EGET_ELEMENT_FOCUS_LOST:
+ 			closeAllSubMenus();
+-            return true;
++            break;
++        default:
++            break;
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITabControl.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUITabControl.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUITabControl.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUITabControl.cpp	2006-08-28 12:23:32.000000000 +0100
+@@ -166,5 +166,7 @@ bool CGUITabControl::OnEvent(SEvent even
+ 		{
+ 			case gui::EGET_ELEMENT_FOCUS_LOST:
+-				return true;
++			break;
++        default:
++            break;
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUICheckBox.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUICheckBox.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUICheckBox.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUICheckBox.cpp	2006-08-29 02:41:22.000000000 +0100
+@@ -42,5 +42,5 @@ bool CGUICheckBox::OnEvent(SEvent event)
+ 		{
+ 			Pressed = false;
+-			return true;
++			break;
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIScrollBar.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIScrollBar.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIScrollBar.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIScrollBar.cpp	2006-12-04 20:56:24.000000000 +0100
+@@ -74,5 +74,4 @@ bool CGUIScrollBar::OnEvent(SEvent event
+ 		{
+ 			Dragging = false;
+-			return true;
+ 		}
+ 		break;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIWindow.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIWindow.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIWindow.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIWindow.cpp	2006-12-06 09:23:38.000000000 +0100
+@@ -71,5 +71,5 @@ bool CGUIWindow::OnEvent(SEvent event)
+ 		{
+ 			Dragging = false;
+-			return true;
++			break;
+ 		}
+ 		else
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIListBox.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIListBox.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIListBox.cpp	
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIListBox.cpp
+@@ -170,6 +194,6 @@ bool CGUIListBox::OnEvent(SEvent event)
+ 			{
+ 				Selecting = false;
+-				return true;
+ 			}
++			break;
+ 		}
+ 		break;

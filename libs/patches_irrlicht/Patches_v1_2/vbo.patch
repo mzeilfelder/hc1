@@ -1,0 +1,1142 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IVideoDriver.h hcraft_libs/irrlicht/include/IVideoDriver.h
+--- svn_hcraft_1.2/irrlicht/include/IVideoDriver.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/IVideoDriver.h	2007-03-02 19:50:47.000000000 +0100
+@@ -360,6 +360,7 @@ namespace video
+ 		\param triangleCount: amount of Triangles.
+ 		\param vType: Vertex type, e.g. EVT_STANDARD for S3DVertex.
+-		\param pType: Primitive type, e.g. EPT_TRIANGLE_FAN for a triangle fan. */
+-		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType) = 0;
++		\param pType: Primitive type, e.g. EPT_TRIANGLE_FAN for a triangle fan.
++		\param vboID: ID for a vertex buffer object or 0 for no vbo*/
++		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID ) = 0;
+ 
+ 		//! Draws an indexed triangle list.
+@@ -373,5 +374,5 @@ namespace video
+ 		\param triangleCount: amount of Triangles. Usually amount of indizes / 3. */
+ 		virtual void drawIndexedTriangleList(const S3DVertex* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount) = 0;
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID ) = 0;
+ 
+ 		//! Draws an indexed triangle list.
+@@ -385,5 +386,5 @@ namespace video
+ 		\param triangleCount: amount of Triangles. Usually amount of indizes / 3.*/
+ 		virtual void drawIndexedTriangleList(const S3DVertex2TCoords* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount) = 0;
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID ) = 0;
+ 
+ 		//! Draws an indexed triangle list.
+@@ -397,5 +398,5 @@ namespace video
+ 		\param triangleCount: amount of Triangles. Usually amount of indizes / 3. */
+ 		virtual void drawIndexedTriangleList(const S3DVertexTangents* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount) = 0;
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID ) = 0;
+ 
+ 		//! Draws an indexed triangle fan.
+@@ -411,5 +412,5 @@ namespace video
+ 		\param triangleCount: amount of Triangles. Usually amount of indizes - 2. */
+ 		virtual void drawIndexedTriangleFan(const S3DVertex* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount) = 0;
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID ) = 0;
+ 
+ 		//! Draws an indexed triangle fan.
+@@ -425,5 +426,5 @@ namespace video
+ 		\param triangleCount: amount of Triangles. Usually amount of indizes - 2. */
+ 		virtual void drawIndexedTriangleFan(const S3DVertex2TCoords* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount) = 0;
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID ) = 0;
+ 
+ 		//! Draws a 3d line.
+@@ -842,4 +843,21 @@ namespace video
+ 		//! Returns an image created from the last rendered frame.
+ 		virtual IImage* createScreenShot() = 0;
++
++
++		// MICHA: vertexbuffers. Thanks a lot to spintz for implementing it in irrspintz. I did it mostly the same way.
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) = 0;
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType ) = 0;
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID ) = 0;
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) = 0;
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID ) = 0;
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IMesh.h hcraft_libs/irrlicht/include/IMesh.h
+--- svn_hcraft_1.2/irrlicht/include/IMesh.h	2006-06-27 12:46:42.000000000 +0100
++++ hcraft_libs/irrlicht/include/IMesh.h	2007-03-02 06:37:20.000000000 +0100
+@@ -8,4 +8,5 @@
+ #include "IUnknown.h"
+ #include "IMeshBuffer.h"
++#include "IVideoDriver.h"
+ 
+ namespace irr
+@@ -47,4 +48,6 @@ namespace scene
+ 		 \param newvalue: New value to set in all materials. */
+ 		virtual void setMaterialFlag(video::E_MATERIAL_FLAG flag, bool newvalue) = 0;
++
++		virtual void createVertexBuffer( video::IVideoDriver* driver, bool isStatic = true ) = 0;
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IMeshBuffer.h hcraft_libs/irrlicht/include/IMeshBuffer.h
+--- svn_hcraft_1.2/irrlicht/include/IMeshBuffer.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/IMeshBuffer.h	2007-03-02 05:13:51.000000000 +0100
+@@ -94,4 +94,10 @@ enum E_PRIMITIVE_TYPE
+ 		//! returns an axis aligned bounding box
+ 		virtual core::aabbox3df& getBoundingBox() = 0;
++
++		//! sets the pointer to the device dependent vertex buffer
++		virtual void setVertexBuffer( u32 buffer ) = 0;
++
++		//! gets the pointer to the device dependent vertex buffer
++		virtual u32 getVertexBuffer() const = 0;
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SMesh.h hcraft_libs/irrlicht/include/SMesh.h
+--- svn_hcraft_1.2/irrlicht/include/SMesh.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/SMesh.h	2007-03-06 02:38:54.000000000 +0100
+@@ -19,5 +19,5 @@ namespace scene
+ 	{
+ 		//! constructor
+-		SMesh()
++		SMesh() : DriverForVBO(0)
+ 		{
+ 			#ifdef _DEBUG
+@@ -29,4 +29,13 @@ namespace scene
+ 		~SMesh()
+ 		{
++		    // drop VBO's
++		    if ( DriverForVBO )
++		    {
++		        for (u32 i=0; i<MeshBuffers.size(); ++i)
++                {
++                    DriverForVBO->destroyVertexBuffer( MeshBuffers[i]->getVertexBuffer() );
++                }
++		    }
++
+ 			// drop buffers
+ 			for (u32 i=0; i<MeshBuffers.size(); ++i)
+@@ -89,4 +98,29 @@ namespace scene
+ 		}
+ 
++		//! MICHA: create a vbo
++		virtual void createVertexBuffer( video::IVideoDriver* driver, bool isStatic = true )
++		{
++		    // drop old VBO's
++		    if ( DriverForVBO )
++		    {
++		        for (u32 i=0; i<MeshBuffers.size(); ++i)
++                {
++                    driver->destroyVertexBuffer( MeshBuffers[i]->getVertexBuffer() );
++                }
++                DriverForVBO = 0;
++		    }
++
++            DriverForVBO = driver;
++            if ( DriverForVBO )
++            {
++                for (u32 i=0; i<MeshBuffers.size(); ++i)
++                {
++                    u32 vbo = DriverForVBO->createVertexBuffer( MeshBuffers[i]->getVertices(), MeshBuffers[i]->getVertexCount(), MeshBuffers[i]->getVertexType(), isStatic );
++                    MeshBuffers[i]->setVertexBuffer(vbo);
++                }
++            }
++		}
++
++        video::IVideoDriver* DriverForVBO;
+ 		core::array<IMeshBuffer*> MeshBuffers;
+ 		core::aabbox3d<f32> BoundingBox;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SMeshBuffer.h hcraft_libs/irrlicht/include/SMeshBuffer.h
+--- svn_hcraft_1.2/irrlicht/include/SMeshBuffer.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/SMeshBuffer.h	2007-05-30 02:56:13.000000000 +0100
+@@ -17,5 +17,5 @@ namespace scene
+ 	{
+ 		//! constructor
+-		SMeshBuffer()
++		SMeshBuffer() : VertexBuffer(0)
+ 		{
+ 			#ifdef _DEBUG
+@@ -100,4 +100,10 @@ namespace scene
+ 		}
+ 
++		//! sets the pointer to the device dependent vertex buffer
++		virtual void setVertexBuffer( u32 buffer )  { VertexBuffer = buffer; }
++
++		//! gets the pointer to the device dependent vertex buffer
++		virtual u32 getVertexBuffer() const         { return VertexBuffer; }
++
+ 		//! returns which type of vertex data is stored.
+ 		virtual video::E_VERTEX_TYPE getVertexType() const
+@@ -110,4 +116,5 @@ namespace scene
+ 		core::array<u16> Indices; //! Array of the Indices.
+ 		core::aabbox3d<f32> BoundingBox;
++		u32 VertexBuffer; //! Pointer to a device
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SMeshBufferLightMap.h hcraft_libs/irrlicht/include/SMeshBufferLightMap.h
+--- svn_hcraft_1.2/irrlicht/include/SMeshBufferLightMap.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/SMeshBufferLightMap.h	2007-03-02 05:22:41.000000000 +0100
+@@ -17,5 +17,5 @@ namespace scene
+ 	{
+ 		//! constructor
+-		SMeshBufferLightMap()
++		SMeshBufferLightMap() : VertexBuffer(0)
+ 		{
+ 			#ifdef _DEBUG
+@@ -101,4 +101,10 @@ namespace scene
+ 		}
+ 
++		//! sets the pointer to the device dependent vertex buffer
++		virtual void setVertexBuffer( u32 buffer )  { VertexBuffer = buffer; }
++
++		//! gets the pointer to the device dependent vertex buffer
++		virtual u32 getVertexBuffer() const         { return VertexBuffer; }
++
+ 		//! returns which type of vertex data is stored.
+ 		virtual video::E_VERTEX_TYPE getVertexType() const
+@@ -111,4 +117,5 @@ namespace scene
+ 		core::array<u16> Indices; //! Array of the Indices.
+ 		core::aabbox3d<f32> BoundingBox;
++		u32 VertexBuffer; //! Pointer to a device dependent vertex buffer
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/SMeshBufferTangents.h hcraft_libs/irrlicht/include/SMeshBufferTangents.h
+--- svn_hcraft_1.2/irrlicht/include/SMeshBufferTangents.h	2006-08-28 04:40:36.000000000 +0100
++++ hcraft_libs/irrlicht/include/SMeshBufferTangents.h	2007-03-02 05:23:28.000000000 +0100
+@@ -17,5 +17,5 @@ namespace scene
+ 	{
+ 		//! constructor
+-		SMeshBufferTangents()
++		SMeshBufferTangents() : VertexBuffer(0)
+ 		{
+ 			#ifdef _DEBUG
+@@ -100,4 +100,10 @@ namespace scene
+ 		}
+ 
++		//! sets the pointer to the device dependent vertex buffer
++		virtual void setVertexBuffer( u32 buffer )  { VertexBuffer = buffer; }
++
++		//! gets the pointer to the device dependent vertex buffer
++		virtual u32 getVertexBuffer() const         { return VertexBuffer; }
++
+ 		//! returns which type of vertex data is stored.
+ 		virtual video::E_VERTEX_TYPE getVertexType() const
+@@ -110,4 +116,5 @@ namespace scene
+ 		core::array<u16> Indices; //! Array of the Indices.
+ 		core::aabbox3d<f32> BoundingBox;
++		u32 VertexBuffer; //! Pointer to a device dependent vertex buffer
+ 	};
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.h hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.h	2007-03-02 19:52:31.000000000 +0100
+@@ -71,23 +71,23 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! draws an indexed triangle list
+-		virtual void drawIndexedTriangleList(const S3DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount);
++		virtual void drawIndexedTriangleList(const S3DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID );
+ 
+ 		//! draws an indexed triangle list
+-		virtual void drawIndexedTriangleList(const S3DVertex2TCoords* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount);
++		virtual void drawIndexedTriangleList(const S3DVertex2TCoords* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID );
+ 
+ 		//! Draws an indexed triangle list.
+ 		virtual void drawIndexedTriangleList(const S3DVertexTangents* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount);
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID );
+ 
+ 		//! Draws an indexed triangle fan.
+ 		virtual void drawIndexedTriangleFan(const S3DVertex* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount);
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID );
+ 
+ 		//! Draws an indexed triangle list.
+ 		virtual void drawIndexedTriangleFan(const S3DVertex2TCoords* vertices,
+-			s32 vertexCount, const u16* indexList, s32 triangleCount);
++			s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID );
+ 
+ 		//! Draws a 3d line.
+@@ -378,4 +378,21 @@ namespace video
+ 		virtual void fillMaterialStructureFromAttributes(video::SMaterial& outMaterial, io::IAttributes* attributes);
+ 
++		// MICHA: vertexbuffers.
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) { return 0; }
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )    { return false; }
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID )   { return 0; }
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) {}
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID )    {}
++
++
+ 	protected:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver.cpp	2007-03-02 20:31:16.000000000 +0100
+@@ -317,5 +317,5 @@ void CSoftwareDriver::setViewPort(const 
+ 
+ //! draws a vertex primitive list
+-void CSoftwareDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void CSoftwareDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	const u16* indexPointer=0;
+@@ -535,5 +535,5 @@ void CSoftwareDriver::drawClippedIndexed
+ 
+ 	CNullDriver::drawVertexPrimitiveList(clippedVertices.pointer(), clippedVertices.size(),
+-		clippedIndices.pointer(), clippedIndices.size()/3, EVT_STANDARD, scene::EPT_TRIANGLES);
++		clippedIndices.pointer(), clippedIndices.size()/3, EVT_STANDARD, scene::EPT_TRIANGLES, 0 );
+ 
+ 	if (TransformedPoints.size() < clippedVertices.size())
+@@ -615,5 +615,5 @@ void CSoftwareDriver::draw3DLine(const c
+ 	u16 idx[12] = {0,1,2, 0,2,1, 0,1,3, 0,3,1};
+ 
+-	drawIndexedTriangleList(vtx, 4, idx, 4);
++	drawIndexedTriangleList(vtx, 4, idx, 4, 0);
+ }
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver.h hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver.h	2007-03-02 08:12:26.000000000 +0100
+@@ -47,5 +47,5 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! Draws a 3d line.
+@@ -91,4 +91,20 @@ namespace video
+ 		virtual IImage* createScreenShot();
+ 
++		// MICHA: vertexbuffers ain't useful in software
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) { return 0; }
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )    { return false; }
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID )   { return 0; }
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) {}
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID )    {}
++
+ 	protected:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver2.cpp hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver2.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver2.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver2.cpp	2007-03-02 05:32:27.000000000 +0100
+@@ -820,10 +820,10 @@ inline void CSoftwareDriver2::select_pol
+ 
+ //! draws a vertex primitive list
+-void CSoftwareDriver2::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void CSoftwareDriver2::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	if (!checkPrimitiveCount(primitiveCount))
+ 		return;
+ 
+-	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType);
++	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, vboID );
+ 
+ 	if ( 0 == CurrentTriangleRenderer )
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver2.h hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver2.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CSoftwareDriver2.h	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CSoftwareDriver2.h	2007-03-02 08:12:14.000000000 +0100
+@@ -63,5 +63,5 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! draws an 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
+@@ -110,4 +110,20 @@ namespace video
+ 		virtual void setTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag, bool enabled);
+ 
++        // MICHA: vertexbuffers ain't useful in software
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) { return 0; }
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )    { return false; }
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID )   { return 0; }
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) {}
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID )    {}
++
+ 	protected:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CBillboardSceneNode.cpp hcraft_libs/irrlicht/source/Irrlicht/CBillboardSceneNode.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CBillboardSceneNode.cpp	2006-08-28 04:40:33.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CBillboardSceneNode.cpp	2007-03-02 19:54:36.000000000 +0100
+@@ -121,5 +121,5 @@ void CBillboardSceneNode::render()
+ 	driver->setMaterial(Material);
+ 
+-	driver->drawIndexedTriangleList(vertices, 4, indices, 2);
++	driver->drawIndexedTriangleList(vertices, 4, indices, 2, 0);
+ }
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMeshViewer.cpp hcraft_libs/irrlicht/source/Irrlicht/CGUIMeshViewer.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CGUIMeshViewer.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CGUIMeshViewer.cpp	2007-03-02 19:59:43.000000000 +0100
+@@ -155,8 +155,8 @@ void CGUIMeshViewer::draw()
+ 			{
+ 			case video::EVT_STANDARD:
+-				driver->drawIndexedTriangleList((video::S3DVertex*)mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/ 3);
++				driver->drawIndexedTriangleList((video::S3DVertex*)mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/ 3, mb->getVertexBuffer());
+ 				break;
+ 			case video::EVT_2TCOORDS:
+-				driver->drawIndexedTriangleList((video::S3DVertex2TCoords*)mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/ 3);
++				driver->drawIndexedTriangleList((video::S3DVertex2TCoords*)mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/ 3, mb->getVertexBuffer());
+ 				break;
+ 			}
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshB3d.
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshB3d.h	
+@@ -102,4 +102,6 @@ namespace scene
+ 		virtual void SetAnimateMode(s32 mode);
+ 
++		virtual void createVertexBuffer( video::IVideoDriver* driver, bool isStatic = true ) {}
++
+ private:
+ 
+@@ -182,4 +184,8 @@ private:
+ 			}
+ 
++			//! VBO's for this not yet supported
++            virtual void setVertexBuffer( u32 buffer )  { }
++            virtual u32 getVertexBuffer() const         { return 0; }
++
+ 			video::SMaterial Material;
+ 			core::array<video::S3DVertex2TCoords> Vertices;
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h	2006-08-28 04:40:33.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMD2.h	2007-03-02 06:38:41.000000000 +0100
+@@ -96,4 +96,9 @@ namespace scene
+ 		virtual const c8* getAnimationName(s32 nr) const;
+ 
++		//! vbo's for this not yet supported
++        virtual void setVertexBuffer( u32 buffer )  { }
++        virtual u32 getVertexBuffer() const         { return 0; }
++        virtual void createVertexBuffer( video::IVideoDriver* driver, bool isStatic = true ) {}
++
+ 	private:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CAnimatedMeshMS3D.h
+@@ -72,4 +72,6 @@ namespace scene
+ 		virtual s32 getJointNumber(const c8* name) const;
+ 
++		virtual void createVertexBuffer( video::IVideoDriver* driver, bool isStatic = true ) {}
++
+ 	private:
+ 	
+@@ -149,4 +151,8 @@ namespace scene
+ 			virtual video::E_VERTEX_TYPE getVertexType() const;
+ 
++			//! vbo's for this not yet supported
++            virtual void setVertexBuffer( u32 buffer )  { }
++            virtual u32 getVertexBuffer() const         { return 0; }
++
+ 			video::SMaterial Material;                  //! material for this meshBuffer. 
+ 			core::array<video::S3DVertex> *Vertices;      //! Array of vertices 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CTerrainSceneNode.cpp hcraft_libs/irrlicht/source/Irrlicht/CTerrainSceneNode.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CTerrainSceneNode.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CTerrainSceneNode.cpp	2007-03-02 05:39:52.000000000 +0100
+@@ -534,5 +534,5 @@ namespace scene
+ 			RenderBuffer.getVertices(), RenderBuffer.getVertexCount(),
+ 			RenderBuffer.getIndices(), IndicesToRender / 3,
+-			video::EVT_2TCOORDS, EPT_TRIANGLES);
++			video::EVT_2TCOORDS, EPT_TRIANGLES, RenderBuffer.getVertexBuffer());
+ 	}
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+@@ -783,10 +803,10 @@ const core::rect<s32>& CD3D8Driver::getV
+ 
+ //! draws a vertex primitive list
+-void CD3D8Driver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void CD3D8Driver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	if (!checkPrimitiveCount(primitiveCount))
+ 		return;
+ 
+-	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType);
++	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, vboID );
+ 
+ 	if (!vertexCount || !primitiveCount)
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.h hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.h
+@@ -67,5 +67,5 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! draws an 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
+@@ -184,4 +184,21 @@ namespace video
+ 		virtual IImage* createScreenShot();
+ 
++
++		// MICHA: vertexbuffers. I do not need dx support for now. Check irrspintz for a valid implementation
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) { return 0; }
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )    { return false; }
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID )   { return 0; }
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) {}
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID )    {}
++
+ 	private:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+@@ -766,10 +788,10 @@ const core::rect<s32>& CD3D9Driver::getV
+ 
+ //! draws a vertex primitive list
+-void CD3D9Driver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void CD3D9Driver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	if (!checkPrimitiveCount(primitiveCount))
+ 		return;
+ 
+-	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType);
++	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, vboID );
+ 
+ 	if (!vertexCount || !primitiveCount)
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.h hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.h
+@@ -59,5 +59,5 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		virtual void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! draws an 2d image, using a color (if color is other then Color(255,255,255,255)) and the alpha channel of the texture if wanted.
+@@ -176,4 +176,20 @@ namespace video
+ 		virtual IImage* createScreenShot();
+ 
++		// MICHA: vertexbuffers. I do not need dx support for now. Check irrspintz for a valid implementation
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true ) { return 0; }
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )    { return false; }
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID )   { return 0; }
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID ) {}
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID )    {}
++
+ 	private:
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CNullDriver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CNullDriver.cpp
+@@ -468,5 +476,5 @@ const core::rect<s32>& CNullDriver::getV
+ 
+ //! draws a vertex primitive list
+-void CNullDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void CNullDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	PrimitivesDrawn += primitiveCount;
+@@ -476,7 +484,7 @@ void CNullDriver::drawVertexPrimitiveLis
+ 
+ //! draws an indexed triangle list
+-inline void CNullDriver::drawIndexedTriangleList(const S3DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount)
++inline void CNullDriver::drawIndexedTriangleList(const S3DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID )
+ {
+-	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_STANDARD, scene::EPT_TRIANGLES);
++	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_STANDARD, scene::EPT_TRIANGLES, vboID );
+ }
+ 
+@@ -484,7 +492,7 @@ inline void CNullDriver::drawIndexedTria
+ 
+ //! draws an indexed triangle list
+-inline void CNullDriver::drawIndexedTriangleList(const S3DVertex2TCoords* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount)
++inline void CNullDriver::drawIndexedTriangleList(const S3DVertex2TCoords* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID )
+ {
+-	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_2TCOORDS, scene::EPT_TRIANGLES);
++	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_2TCOORDS, scene::EPT_TRIANGLES, vboID );
+ }
+ 
+@@ -492,7 +500,7 @@ inline void CNullDriver::drawIndexedTria
+ //! Draws an indexed triangle list.
+ inline void CNullDriver::drawIndexedTriangleList(const S3DVertexTangents* vertices,
+-	s32 vertexCount, const u16* indexList, s32 triangleCount)
++	s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID )
+ {
+-	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_TANGENTS, scene::EPT_TRIANGLES);
++	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_TANGENTS, scene::EPT_TRIANGLES, vboID );
+ }
+ 
+@@ -501,7 +509,7 @@ inline void CNullDriver::drawIndexedTria
+ //! Draws an indexed triangle fan.
+ inline void CNullDriver::drawIndexedTriangleFan(const S3DVertex* vertices,
+-	s32 vertexCount, const u16* indexList, s32 triangleCount)
++	s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID )
+ {
+-	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_STANDARD, scene::EPT_TRIANGLE_FAN);
++	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_STANDARD, scene::EPT_TRIANGLE_FAN, vboID );
+ }
+ 
+@@ -510,7 +518,7 @@ inline void CNullDriver::drawIndexedTria
+ //! Draws an indexed triangle fan.
+ inline void CNullDriver::drawIndexedTriangleFan(const S3DVertex2TCoords* vertices,
+-	s32 vertexCount, const u16* indexList, s32 triangleCount)
++	s32 vertexCount, const u16* indexList, s32 triangleCount, u32 vboID )
+ {
+-	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_2TCOORDS, scene::EPT_TRIANGLE_FAN);
++	drawVertexPrimitiveList(vertices, vertexCount, indexList, triangleCount, EVT_2TCOORDS, scene::EPT_TRIANGLE_FAN, vboID );
+ }
+ 
+@@ -1191,5 +1200,5 @@ void CNullDriver::drawMeshBuffer(scene::
+ 		return;
+ 
+-	drawVertexPrimitiveList(mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/3, mb->getVertexType(), scene::EPT_TRIANGLES);
++	drawVertexPrimitiveList(mb->getVertices(), mb->getVertexCount(), mb->getIndices(), mb->getIndexCount()/3, mb->getVertexType(), scene::EPT_TRIANGLES, mb->getVertexBuffer());
+ }
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+@@ COpenGLDriver::COpenGLDriver(const core:
+     pGlBindRenderbufferEXT(0), pGlDeleteRenderbuffersEXT(0), pGlGenRenderbuffersEXT(0),
+     pGlRenderbufferStorageEXT(0), pGlFramebufferRenderbufferEXT(0)
++
++    ,pGlGenBuffersARB(0)
++    ,pGlBindBufferARB(0)
++    ,pGlBufferDataARB(0)
++    ,pGlBufferSubDataARB(0)
++    ,pGlDeleteBuffersARB(0)
++    ,pGlIsBufferARB(0)
++    ,pGlGetBufferSubDataARB(0)
++    ,pGlMapBufferARB(0)
++    ,pGlUnmapBufferARB(0)
++    ,pGlGetBufferParameterivARB(0)
++    ,pGlGetBufferPointervARB(0)
+ {
+@@ COpenGLDriver::COpenGLDriver(const core:
++    ,pGlGenBuffersARB	(0)
++    ,pGlBindBufferARB(0)
++    ,pGlBufferDataARB(0)
++    ,pGlBufferSubDataARB(0)
++    ,pGlDeleteBuffersARB(0)
++    ,pGlIsBufferARB(0)
++    ,pGlGetBufferSubDataARB(0)
++    ,pGlMapBufferARB(0)
++    ,pGlUnmapBufferARB(0)
++    ,pGlGetBufferParameterivARB(0)
++    ,pGlGetBufferPointervARB(0)
+ #ifdef GLX_SGI_swap_control
+ 	,glxSwapIntervalSGI(0)
+@@ -549,4 +586,17 @@ void COpenGLDriver::loadExtensions()
+         pGlFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
+ 
++        // vbo
++        pGlGenBuffersARB = (PFNGLGENBUFFERSARBPROC) wglGetProcAddress( "glGenBuffersARB" );
++        pGlBindBufferARB = (PFNGLBINDBUFFERARBPROC) wglGetProcAddress( "glBindBufferARB" );
++        pGlBufferDataARB = (PFNGLBUFFERDATAARBPROC) wglGetProcAddress( "glBufferDataARB" );
++        pGlBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC) wglGetProcAddress( "glBufferSubDataARB" );
++        pGlDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC) wglGetProcAddress( "glDeleteBuffersARB" );
++        pGlIsBufferARB = (PFNGLISBUFFERARBPROC) wglGetProcAddress( "glIsBufferARB" );
++        pGlGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC) wglGetProcAddress( "glGetBufferSubDataARB" );
++        pGlMapBufferARB = (PFNGLMAPBUFFERARBPROC) wglGetProcAddress( "glMapBufferARB" );
++        pGlUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC) wglGetProcAddress( "glUnmapBufferARB" );
++        pGlGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC) wglGetProcAddress( "glGetBufferPointervARB" );
++        pGlGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC) wglGetProcAddress( "glGetBufferPointervARB" );
++
+ 		// get vsync extension
+ 		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress( "wglSwapIntervalEXT" );
+@@ -703,4 +751,37 @@ void COpenGLDriver::loadExtensions()
+                 IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glFramebufferRenderbufferEXT"));
+ 
++            // vbo's
++            pGlGenBuffersARB = (PFNGLGENBUFFERSARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glGenBuffersARB" ) );
++
++            pGlBindBufferARB = (PFNGLBINDBUFFERARBPROC)
++              IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glBindBufferARB" ) );
++
++            pGlBufferDataARB = (PFNGLBUFFERDATAARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glBufferDataARB" ) );
++
++            pGlBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glBufferSubDataARB" ) );
++
++            pGlDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glDeleteBuffersARB" ) );
++
++            pGlIsBufferARB = (PFNGLISBUFFERARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glIsBufferARB" ) );
++
++            pGlGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glGetBufferSubDataARB" ) );
++
++            pGlMapBufferARB = (PFNGLMAPBUFFERARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glMapBufferARB" ) );
++
++            pGlUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glUnmapBufferARB" ) );
++
++            pGlGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glGetBufferPointervARB" ) );
++
++            pGlGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)
++                IRR_OGL_LOAD_EXTENSION(reinterpret_cast<const GLubyte*>("glGetBufferPointervARB" ) );
+ 			#endif // _IRR_OPENGL_USE_EXTPOINTER_
+ 		#endif // _IRR_WINDOWS_
+
+@@ void COpenGLDriver::setTransform(E_TRANS
+ }
+ 
+ //! draws a vertex primitive list
+-void COpenGLDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType)
++void COpenGLDriver::drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID )
+ {
+ 	if (!primitiveCount || !vertexCount)
+@@ void COpenGLDriver::drawVertexPrimitiveL
+ 		return;
+ 
+-	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType);
++	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, vboID );
+ 
++    if ( !vboID )
++    {
+ 	// convert colors to gl color format.
+ 	vertexCount *= 4; //reused as color component count
+@@ -867,4 +1026,5 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 		break;
+ 	}
++    }
+ 
+ 	// draw everything
+@@ -875,4 +1035,10 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 		extGlClientActiveTextureARB(GL_TEXTURE0_ARB);
+ 
++    if ( vboID )
++    {
++//        fprintf(stderr, "vboID: %d\n", vboID);
++        extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, vboID );
++    }
++
+ 	glEnableClientState(GL_COLOR_ARRAY);
+ 	glEnableClientState(GL_VERTEX_ARRAY);
+@@ -882,4 +1048,51 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 		glEnableClientState(GL_NORMAL_ARRAY);
+ 
++    if ( vboID )
++    {
++        switch (vType)
++        {
++            case EVT_STANDARD:
++                glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex), (u8*)0);
++                glNormalPointer(GL_FLOAT, sizeof(S3DVertex), (u8*)0 + 12);
++                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(S3DVertex), (u8*)0 + 24 );
++                glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex), (u8*)0 + 28);
++                break;
++            case EVT_2TCOORDS:
++                glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex2TCoords), (u8*)0);
++                glNormalPointer(GL_FLOAT, sizeof(S3DVertex2TCoords), (u8*)0 + 12);
++                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(S3DVertex2TCoords), (u8*)0 + 24 );
++                // texture coordinates
++                if (MultiTextureExtension)
++                {
++                    extGlClientActiveTextureARB(GL_TEXTURE1_ARB);
++                    glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
++                    glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex2TCoords), (u8*)0 + 36);
++                    extGlClientActiveTextureARB(GL_TEXTURE0_ARB);
++                }
++                glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex2TCoords), (u8*)0 + 28);
++                break;
++            case EVT_TANGENTS:
++                glVertexPointer(3, GL_FLOAT, sizeof(S3DVertexTangents), (u8*)0);
++                glNormalPointer(GL_FLOAT, sizeof(S3DVertexTangents), (u8*)0 + 12);
++                glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(S3DVertexTangents), (u8*)0 + 24 );
++                // texture coordinates
++                if (MultiTextureExtension)
++                {
++                    extGlClientActiveTextureARB(GL_TEXTURE1_ARB);
++                    glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
++                    glTexCoordPointer(3, GL_FLOAT, sizeof(S3DVertexTangents), (u8*)0 + 36);
++
++                    extGlClientActiveTextureARB(GL_TEXTURE2_ARB);
++                    glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
++                    glTexCoordPointer(3, GL_FLOAT, sizeof(S3DVertexTangents), (u8*)0 + 48);
++
++                    extGlClientActiveTextureARB(GL_TEXTURE0_ARB);
++                }
++                glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertexTangents), (u8*)0 + 28);
++                break;
++        }
++    }
++    else
++    {
+ 	glColorPointer(4, GL_UNSIGNED_BYTE, 0, &ColorBuffer[0]);
+ 	switch (vType)
+@@ void COpenGLDriver::drawVertexPrimitiveL
+ 			break;
+ 	}
++    }
+@@ void COpenGLDriver::drawVertexPrimitiveL
+ 	}
+ 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
++
++	if ( vboID )
++    {
++        extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
++    }
+ }
+ 
+ 
++u32 COpenGLDriver::getVertexSize(E_VERTEX_TYPE vType)
++{
++	switch( vType )
++	{
++		case video::EVT_STANDARD:
++			return sizeof(S3DVertex);
++		case video::EVT_2TCOORDS:
++			return sizeof(S3DVertex2TCoords);
++		case video::EVT_TANGENTS:
++			return sizeof(S3DVertexTangents);
++		default:
++			return 0;
++	}
++}
++
++//! creates a device dependent vertex buffer from an array of vertices
++u32 COpenGLDriver::createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic )
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++	u32 vertexSize = getVertexSize(vType);
++    // MICHA: i didn't find any documentation stating that vbo 0 can never be returned.
++    // But it's that way for texturebuffers, so it's very likely that this is the case.
++	GLuint vbo = 0;
++	extGlGenBuffersARB( 1, &vbo );
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, vbo );
++
++    u32 bufferSize = vtxCount * vertexSize;
++    u8 * vertexCopy = new u8[bufferSize];
++    memcpy(vertexCopy, vertices, bufferSize);
++    SColor dummyColor;
++    switch (vType)
++    {
++        case EVT_STANDARD:
++        {
++            S3DVertex* p = (S3DVertex*)vertexCopy;
++            for (u32 i=0; i<vtxCount; i+=4)
++            {
++                p->Color.toOpenGLColor((u8*)&dummyColor);
++                p->Color = dummyColor;
++                ++p;
++            }
++        }
++        break;
++        case EVT_2TCOORDS:
++        {
++            S3DVertex2TCoords* p = (S3DVertex2TCoords*)vertexCopy;
++            for (u32 i=0; i<vtxCount; i+=4)
++            {
++                p->Color.toOpenGLColor((u8*)&dummyColor);
++                p->Color = dummyColor;
++                ++p;
++            }
++        }
++        break;
++        case EVT_TANGENTS:
++        {
++            S3DVertexTangents* p = (S3DVertexTangents*)vertexCopy;
++            for (u32 i=0; i<vtxCount; i+=4)
++            {
++                p->Color.toOpenGLColor((u8*)&dummyColor);
++                p->Color = dummyColor;
++                ++p;
++            }
++        }
++        break;
++    }
++
++	if( isStatic )
++		extGlBufferDataARB( GL_ARRAY_BUFFER_ARB, bufferSize, vertexCopy, GL_STATIC_DRAW_ARB );
++	else
++		extGlBufferDataARB( GL_ARRAY_BUFFER_ARB, bufferSize, vertexCopy, GL_DYNAMIC_DRAW_ARB );
++
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
++
++	delete[] vertexCopy;
++
++//    fprintf(stderr, "vbo: %d\n", vbo);
++
++	return vbo;
++#elif
++    return 0;
++#endif
++}
++
++//! updates an already created vertex buffer with new data
++bool COpenGLDriver::updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType )
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++	u32 vertexSize = getVertexSize(vType);
++
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, (GLuint)vertices );
++	extGlBufferSubDataARB( GL_ARRAY_BUFFER_ARB, 0, vtxCount * vertexSize, vertices );
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
++
++	return true;
++#elif
++    return false;
++#endif
++}
++
++//! Locks and gets the pointer to the vertex buffer data
++void* COpenGLDriver::lockVertexBuffer( u32 vbID )
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++	void* pVertices = 0;
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, vbID );
++	pVertices = extGlMapBufferARB( GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB );
++
++	return pVertices;
++#elif
++    return 0;
++#endif
++}
++
++//! Unlocks the pointer to the vertex buffer data
++void COpenGLDriver::unlockVertexBuffer( u32 vbID )
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++	extGlBindBufferARB( GL_ARRAY_BUFFER_ARB, vbID );
++	extGlUnmapBufferARB( GL_ARRAY_BUFFER_ARB);
++#endif
++}
++
++//! removes a vertex buffer from memory
++void COpenGLDriver::destroyVertexBuffer( u32 vbID )
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    extGlDeleteBuffersARB( 1, &vbID );
++#endif
++}
+@@ -2655,4 +3297,98 @@ void COpenGLDriver::extGlFramebufferRend
+ }
+ 
++void COpenGLDriver::extGlGenBuffersARB(GLsizei n, GLuint *buffers)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlGenBuffersARB )
++        pGlGenBuffersARB(n, buffers);
++#endif
++}
++
++void COpenGLDriver::extGlBindBufferARB(GLenum target, GLuint buffer)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlBindBufferARB )
++        pGlBindBufferARB(target, buffer);
++#endif
++}
++
++void COpenGLDriver::extGlBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlBufferDataARB )
++        pGlBufferDataARB(target, size, data, usage);
++#endif
++}
++
++void COpenGLDriver::extGlBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlBufferSubDataARB )
++        pGlBufferSubDataARB(target, offset, size, data);
++#endif
++}
++
++void COpenGLDriver::extGlDeleteBuffersARB(GLsizei n, const GLuint *buffers)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlDeleteBuffersARB )
++        pGlDeleteBuffersARB(n, buffers);
++#endif
++}
++
++GLboolean COpenGLDriver::extGlIsBufferARB(GLuint buffer)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlIsBufferARB )
++        return pGlIsBufferARB(buffer);
++#elif
++    return false;
++#endif
++}
++
++void COpenGLDriver::extGlGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlGetBufferSubDataARB )
++        pGlGetBufferSubDataARB(target, offset, size, data);
++#endif
++}
++
++void * COpenGLDriver::extGlMapBufferARB(GLenum target, GLenum access)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlMapBufferARB )
++        return pGlMapBufferARB(target, access);
++#elif
++    return 0;
++#endif
++}
++
++GLboolean COpenGLDriver::extGlUnmapBufferARB(GLenum target)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlUnmapBufferARB )
++        return pGlUnmapBufferARB(target);
++#elif
++    return false;
++#endif
++}
++
++void COpenGLDriver::extGlGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlGetBufferParameterivARB )
++        pGlGetBufferParameterivARB(target, pname, params);
++#endif
++}
++
++void COpenGLDriver::extGlGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params)
++{
++#ifdef _IRR_OPENGL_USE_EXTPOINTER_
++    if ( pGlGetBufferPointervARB )
++        pGlGetBufferPointervARB(target, pname, params);
++#endif
++}
++
+ //! Sets a vertex shader constant.
+ void COpenGLDriver::setVertexShaderConstant(const f32* data, s32 startRegister, s32 constantAmount)
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.h hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.h
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.h
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.h
+@@ -87,5 +87,5 @@ namespace video
+ 
+ 		//! draws a vertex primitive list
+-		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType);
++		void drawVertexPrimitiveList(const void* vertices, s32 vertexCount, const u16* indexList, s32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, u32 vboID );
+ 
+ 		//! queries the features of the driver, returns true if feature is available
+@@ -246,4 +246,17 @@ namespace video
+         void extGlFramebufferRenderbufferEXT (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+ 
++        // vbo's
++        void extGlGenBuffersARB(GLsizei n, GLuint *buffers);
++        void extGlBindBufferARB(GLenum target, GLuint buffer);
++        void extGlBufferDataARB(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
++        void extGlBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data);
++        void extGlDeleteBuffersARB(GLsizei n, const GLuint *buffers);
++        GLboolean extGlIsBufferARB(GLuint buffer);
++        void extGlGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, GLvoid *data);
++        void * extGlMapBufferARB(GLenum target, GLenum access);
++        GLboolean extGlUnmapBufferARB(GLenum target);
++        void extGlGetBufferParameterivARB(GLenum target, GLenum pname, GLint *params);
++        void extGlGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **params);
++
+ 		//! Can be called by an IMaterialRenderer to make its work easier.
+ 		void setBasicRenderStates(const SMaterial& material, const SMaterial& lastmaterial,
+@@ namespace video
+ 		bool testGLError();
+ 
++		// MICHA: vertexbuffers. Thanks a lot to spintz for implementing it in irrspintz. I did it mostly the same way.
++		//! creates a device dependent vertex buffer from an array of vertices
++		virtual u32 createVertexBuffer( const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType, bool isStatic = true );
++
++		//! updates an already created vertex buffer with new data
++		virtual bool updateVertexBuffer( u32 vbID, const void * vertices, u32 vtxCount, E_VERTEX_TYPE vType );
++
++		//! Locks and gets the pointer to the vertex buffer data
++		virtual void* lockVertexBuffer( u32 vbID );
++
++		//! Unlocks the pointer to the vertex buffer data
++		virtual void unlockVertexBuffer( u32 vbID );
++
++		//! removes a vertex buffer from memory
++		virtual void destroyVertexBuffer( u32 vbID );
++
++		//! get the size of given vertex type
++		u32 getVertexSize(E_VERTEX_TYPE vType);
++
+ 	private:
+@@ -419,4 +474,20 @@ namespace video
+ 			PFNGLRENDERBUFFERSTORAGEEXTPROC pGlRenderbufferStorageEXT;
+ 			PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC pGlFramebufferRenderbufferEXT;
++
++
++            // MICHA: VBO Extension Function Pointers
++            // Btw, why don't we just add all known extension pointers so we have that behind us?
++            // Sooner or later we want 'em anyway.
++            PFNGLGENBUFFERSARBPROC pGlGenBuffersARB;
++            PFNGLBINDBUFFERARBPROC pGlBindBufferARB;
++            PFNGLBUFFERDATAARBPROC pGlBufferDataARB;
++            PFNGLBUFFERSUBDATAARBPROC pGlBufferSubDataARB;
++            PFNGLDELETEBUFFERSARBPROC pGlDeleteBuffersARB;
++            PFNGLISBUFFERARBPROC pGlIsBufferARB;
++            PFNGLGETBUFFERSUBDATAARBPROC pGlGetBufferSubDataARB;
++            PFNGLMAPBUFFERARBPROC pGlMapBufferARB;
++            PFNGLUNMAPBUFFERARBPROC pGlUnmapBufferARB;
++            PFNGLGETBUFFERPARAMETERIVARBPROC pGlGetBufferParameterivARB;
++            PFNGLGETBUFFERPOINTERVARBPROC pGlGetBufferPointervARB;
+ 		#endif
+ 
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CParticleSystemSceneNode.cpp hcraft_libs/irrlicht/source/Irrlicht/CParticleSystemSceneNode.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CParticleSystemSceneNode.cpp	2006-12-04 16:19:49.000000000 +0100
++++ hcraft_libs/irrlicht/source/Irrlicht/CParticleSystemSceneNode.cpp	2007-03-02 05:29:22.000000000 +0100
+@@ -224,5 +224,5 @@ void CParticleSystemSceneNode::render()
+ 
+ 	driver->drawVertexPrimitiveList(Buffer.getVertices(), Particles.size()*4,
+-		Buffer.getIndices(), Particles.size()*2, video::EVT_STANDARD, EPT_TRIANGLES);
++		Buffer.getIndices(), Particles.size()*2, video::EVT_STANDARD, EPT_TRIANGLES, Buffer.getVertexBuffer());
+ 
+ 	// for debug purposes only:

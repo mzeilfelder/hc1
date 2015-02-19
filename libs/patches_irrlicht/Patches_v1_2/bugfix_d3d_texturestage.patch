@@ -1,0 +1,28 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D8Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D8Driver.cpp
+@@ -1369,8 +1389,8 @@ void CD3D8Driver::setRenderStatesStencil
+ 		setTexture(3,0);
+ 
++		pID3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
++		pID3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+ 		pID3DDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+ 		pID3DDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+-		pID3DDevice->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
+-		pID3DDevice->SetTextureStageState(2, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+ 
+ 		pID3DDevice->SetVertexShader(D3DFVF_XYZ);
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CD3D9Driver.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CD3D9Driver.cpp
+@@ -1358,8 +1380,8 @@ void CD3D9Driver::setRenderStatesStencil
+ 		setTexture(3,0);
+ 
++		pID3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
++		pID3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+ 		pID3DDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+ 		pID3DDevice->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+-		pID3DDevice->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
+-		pID3DDevice->SetTextureStageState(2, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+ 
+ 		pID3DDevice->SetFVF(D3DFVF_XYZ);

@@ -1,0 +1,41 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/IGUIElement.h hcraft_libs/irrlicht/include/IGUIElement.h
+--- svn_hcraft_1.2/irrlicht/include/IGUIElement.h
++++ hcraft_libs/irrlicht/include/IGUIElement.h
+@@ -116,13 +126,16 @@ public:
+ 
+ 	//! Returns the child element, which is at the position of the point.
+-	IGUIElement* getElementFromPoint(const core::position2d<s32>& point)
++	//! MICHA: I want to be able to overwrite it in derived classes, therefore it's now virtual
++	virtual IGUIElement* getElementFromPoint(const core::position2d<s32>& point)
+ 	{
+ 		IGUIElement* target = 0;
+ 
++		if (!IsVisible)
++            return target;
++
+ 		// we have to search from back to front.
+ 
+ 		core::list<IGUIElement*>::Iterator it = Children.getLast();
+ 
+-		if (IsVisible)
+ 			while(it != Children.end())
+ 			{
+@@ -134,5 +147,5 @@ public:
+ 			}
+ 
+-		if (AbsoluteClippingRect.isPointInside(point) && IsVisible)
++		if (AbsoluteClippingRect.isPointInside(point) )
+ 			target = this;
+ 		
+@@ -259,7 +280,9 @@ public:
+ 	{
+ 		if (Parent)
+-			Parent->OnEvent(event);
++			//Parent->OnEvent(event);
++			return Parent->OnEvent(event);  // (Micha): looks more correct to me
+ 
+-		return true;
++		//return true;
++		return false;   // (Micha): looks more correct to me
+ 	}
+ 

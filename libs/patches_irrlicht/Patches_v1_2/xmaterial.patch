@@ -1,0 +1,16 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
++++ hcraft_libs/irrlicht/source/Irrlicht/CXAnimationPlayer.cpp
+@@ -video::SMaterial CXAnimationPlayer::getM
+ 	mat.Shininess = xmat.Power;
+ 	
++	if ( mat.EmissiveColor.getRed() == 0
++    && mat.EmissiveColor.getGreen() == 0
++    && mat.EmissiveColor.getBlue() == 0 )
++    {
++        mat.AmbientColor = video::SColor(255, 255, 255, 255);
++    }
++
++	//if (mat.Shininess > core::ROUNDING_ERROR)
++	//	mat. TODO: enable specular highlights
++

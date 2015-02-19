@@ -1,0 +1,20 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+--- svn_hcraft_1.2/irrlicht/source/Irrlicht/COpenGLDriver.cpp	
++++ hcraft_libs/irrlicht/source/Irrlicht/COpenGLDriver.cpp
+@@ -889,4 +1102,5 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 			glNormalPointer(GL_FLOAT, sizeof(S3DVertex), &((S3DVertex*)vertices)[0].Normal);
+ 			glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex), &((S3DVertex*)vertices)[0].TCoords);
++//                glColorPointer(4, GL_UNSIGNED_BYTE, 0, &((S3DVertex*)vertices)[0].Color);
+ 			break;
+ 		case EVT_2TCOORDS:
+@@ -902,8 +1116,10 @@ void COpenGLDriver::drawVertexPrimitiveL
+ 			}
+ 			glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex2TCoords), &((S3DVertex2TCoords*)vertices)[0].TCoords);
++//                glColorPointer(4, GL_UNSIGNED_BYTE, 0, &((S3DVertex2TCoords*)vertices)[0].Color);
+ 			break;
+ 		case EVT_TANGENTS:
+ 			glVertexPointer(3, GL_FLOAT, sizeof(S3DVertexTangents), &((S3DVertexTangents*)vertices)[0].Pos);
+ 			glNormalPointer(GL_FLOAT, sizeof(S3DVertexTangents), &((S3DVertexTangents*)vertices)[0].Normal);
++//                glColorPointer(4, GL_UNSIGNED_BYTE, 0, &((S3DVertexTangents*)vertices)[0].Color);
+ 			// texture coordinates
+ 			if (MultiTextureExtension)

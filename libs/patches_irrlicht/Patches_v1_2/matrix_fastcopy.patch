@@ -1,0 +1,31 @@
+diff -U 2 -H -b -w -B -E -d -p -r -N -x '*.svn' -x '*.d' -- svn_hcraft_1.2/irrlicht/include/matrix4.h hcraft_libs/irrlicht/include/matrix4.h
+--- svn_hcraft_1.2/irrlicht/include/matrix4.h	2006-12-04 16:19:50.000000000 +0100
++++ hcraft_libs/irrlicht/include/matrix4.h	2006-12-04 23:56:02.000000000 +0100
+@@ -216,5 +216,7 @@ namespace core
+ 		newMatrix[15] = m1[3]*m2[12] + m1[7]*m2[13] + m1[11]*m2[14] + m1[15]*m2[15];
+ 
+-		memcpy(M, newMatrix, 16*sizeof(f32));
++		// not using memcpy for speed reasons
++		for (s32 i = 0; i < 16; ++i)
++			M[i] = newMatrix[i];
+ 
+ 		return *this;
+@@ -389,5 +391,7 @@ namespace core
+ 	inline void matrix4::makeIdentity()
+ 	{
+-		memset(M, 0, 16*sizeof(f32));
++		// not using memcpy for speed reasons
++		for (s32 i = 0; i < 16; ++i)
++			M[i] = 0.0f;
+ 		M[0] = M[5] = M[10] = M[15] = 1.0f;
+ 	}
+@@ -629,5 +633,8 @@ namespace core
+ 	inline matrix4& matrix4::operator=(const matrix4 &other)
+ 	{
+-		memcpy(M, other.M, 16*sizeof(f32));
++		// not using memcpy for speed reasons (it was faster this way on each test i did)
++		for ( s32 i=0; i < 16; ++i )
++			M[i] = other.M[i];
++
+ 		return *this;
+ 	}
