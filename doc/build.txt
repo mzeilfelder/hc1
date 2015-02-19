@@ -20,7 +20,7 @@ See http://www.irrgheist.com/hcraftsource.htm for getting the newest sources.
 
 The media has to be placed in a folder called media_hc1 which must be besides the h-craft folder.
 So you have for example:
-my_home/hcraft
+my_home/trunk_hc1
 my_home/media_hc1
 
 Then the media must be copied once more for development. 
@@ -28,7 +28,7 @@ Open a bash console and go into the build folder. There call:
 copy-media-linux.sh
 Not sure if this script works also on MinGW, otherwise just copy over the media folder inside media_hc into 
 the hcraft folder. In the end you should have:
-my_home/hcraft/media
+my_home/trunk_hc1/media
 
 The media inside hcraft can be used for development - so config files are changed, user data is added.
 The media_hc1 folder is important to do clean releases without any development data left in it.
@@ -47,6 +47,8 @@ On Windows you have to install MinGW to get a GNU toolchain. Cygwin is not suppo
 Also only Windows XP was tested so far.
 
 On Linux you should have most of the gnu-toolchain installed already. You might have to add a 'gcc' package.
+
+You need cmake to compile the libs.
 
 The project files are currently made for the Code::Blocks IDE (http://www.codeblocks.org/).
 I am working with nighly builds of Code::Blocks.
