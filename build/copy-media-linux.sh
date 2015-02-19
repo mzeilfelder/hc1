@@ -1,7 +1,5 @@
 # Copy the media from their original location into the working folder
-# While usually the data just should live in there already, we can't do that because the media
-# is not under source control and so would/will get lost on clones. 
-# There is a non-technical reason why media are handled different (about rights).
+# You keep original media for releases, while the copied media can be worked with.
 
 export TOOL_FOLDER=`pwd`
 if test `basename "$TOOL_FOLDER"` != build
@@ -10,7 +8,7 @@ then
     exit -1
 fi
 
-if test -z "MEDIA_PATH"
+if test -z "$MEDIA_PATH"
 then
     export MEDIA_PATH=${TOOL_FOLDER}/../../media_hc1
 fi
