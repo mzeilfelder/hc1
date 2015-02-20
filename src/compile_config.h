@@ -46,7 +46,7 @@
 	// Simulate the behavior of the mobile platform UI on a PC desktop.
 	// For example use a touchpad with the mouse (well, as good as possible)
 	// It's just easier debugging stuff on PC than on a mobile platform.
-	#define HC1_SIMULATE_MOBILE_UI
+	// #define HC1_SIMULATE_MOBILE_UI
 #endif
 
 #if (IRR_REV >= 3)

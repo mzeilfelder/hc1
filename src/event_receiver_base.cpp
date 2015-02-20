@@ -87,7 +87,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                                 APP.GetGame()->Pause();
                             }
                         }
-                        if ( APP.GetMode() == MODE_EDITOR )
+                        if ( APP.GetMode() == MODE_EDITOR || APP.GetMode() == MODE_FREEFLY)
                         {
                             APP.SetMode(MODE_GUI);
                         }
