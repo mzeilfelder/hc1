@@ -1257,3 +1257,21 @@ void IrrlichtManager::LogAllMeshInformation(LogPriority priority)
         }
     }
 }
+
+void IrrlichtManager::SendFakeKeyEvent( irr::EKEY_CODE key_, bool pressedDown_)
+{
+	if ( mIrrlichtDevice && mIrrlichtDevice->getGUIEnvironment() )
+    {
+        SEvent irrEvent;
+        irrEvent.EventType = irr::EET_KEY_INPUT_EVENT;
+        irrEvent.KeyInput.PressedDown = pressedDown_;
+        irrEvent.KeyInput.Control = false;
+        irrEvent.KeyInput.Shift = false;
+        irrEvent.KeyInput.Char = 0; // that's ignored for now (not nice)
+        irrEvent.KeyInput.Key = key_;
+
+        if ( mEventReceiver )
+			mEventReceiver->OnEvent(irrEvent);
+        mIrrlichtDevice->getGUIEnvironment()->postEventFromUser(irrEvent);
+    }
+}

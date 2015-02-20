@@ -663,22 +663,6 @@ void Gui::SetEditGuiVisible(bool visible_)
  #endif
 }
 
-void Gui::SendFakeKeyEvent( irr::EKEY_CODE key_, bool pressedDown_)
-{
-    if ( mEnvironment )
-    {
-        SEvent irrEvent;
-        irrEvent.EventType = irr::EET_KEY_INPUT_EVENT;
-        irrEvent.KeyInput.PressedDown = pressedDown_;
-        irrEvent.KeyInput.Control = false;
-        irrEvent.KeyInput.Shift = false;
-        irrEvent.KeyInput.Char = 0; // that's ignored for now (not nice)
-        irrEvent.KeyInput.Key = key_;
-
-        mEnvironment->postEventFromUser(irrEvent);
-    }
-}
-
 void Gui::Update(irr::u32 timeTick)
 {
     if ( !mEnvironment || !mVideoDriver )
@@ -694,28 +678,33 @@ void Gui::Update(irr::u32 timeTick)
         &&  APP.GetMode() == MODE_GUI )
     {
         Controller* controller = APP.GetController();
-        if ( controller )
+		IrrlichtManager* irrManager = APP.GetIrrlichtManager();
+        if ( controller && irrManager )
         {
             if ( controller->GetMenuUp() )
             {
-                SendFakeKeyEvent(KEY_UP, true);
+                irrManager->SendFakeKeyEvent(KEY_UP, true);
+                irrManager->SendFakeKeyEvent(KEY_UP, false);
             }
             else if ( controller->GetMenuDown() )
             {
-                SendFakeKeyEvent(KEY_DOWN, true);
+                irrManager->SendFakeKeyEvent(KEY_DOWN, true);
+                irrManager->SendFakeKeyEvent(KEY_DOWN, false);
             }
             else if ( controller->GetMenuLeft() )
             {
-                SendFakeKeyEvent(KEY_LEFT, true);
+                irrManager->SendFakeKeyEvent(KEY_LEFT, true);
+                irrManager->SendFakeKeyEvent(KEY_LEFT, false);
             }
             else if ( controller->GetMenuRight() )
             {
-                SendFakeKeyEvent(KEY_RIGHT, true);
+                irrManager->SendFakeKeyEvent(KEY_RIGHT, true);
+                irrManager->SendFakeKeyEvent(KEY_RIGHT, false);
             }
             else if ( controller->GetMenuExecute() )
             {
-                SendFakeKeyEvent(KEY_SPACE, true);
-                SendFakeKeyEvent(KEY_SPACE, false);
+                irrManager->SendFakeKeyEvent(KEY_SPACE, true);
+                irrManager->SendFakeKeyEvent(KEY_SPACE, false);
             }
         }
     }
