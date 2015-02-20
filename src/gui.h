@@ -188,7 +188,6 @@ public:
 
 protected:
     void SetHoveredElement(irr::gui::IGUIElement* hovered);
-    void SendFakeKeyEvent( irr::EKEY_CODE key_, bool pressedDown_);
 
 private:
     irr::gui::IGUIEnvironment*   mEnvironment;

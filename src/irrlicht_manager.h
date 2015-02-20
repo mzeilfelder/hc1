@@ -97,6 +97,8 @@ public:
     MeshTextureLoader* GetStaticMeshTextureLoader() const	{ return mStaticMeshTextureLoader; }
     MeshTextureLoader* GetDynamicMeshTextureLoader() const	{ return mDynamicMeshTextureLoader; }
 
+	void SendFakeKeyEvent( irr::EKEY_CODE key_, bool pressedDown_);
+
 protected:
 
     irr::u32 getMeshVertexCount(const irr::scene::IMesh* mesh) const;
