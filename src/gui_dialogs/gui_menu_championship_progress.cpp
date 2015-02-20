@@ -113,11 +113,15 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
         mSeason2 = static_cast<IGUIStaticText*>(GetElementByName(root, "season2", errorMsg));
         mSeason3 = static_cast<IGUIStaticText*>(GetElementByName(root, "season3", errorMsg));
         if ( !mSeason1 || !mSeason2 || !mSeason3 )
+		{
 			mActiveSeason = 0;	// Backward compatibility to old dialog
-
-        mButtonSeason1 = static_cast<IGUIButton*>(GetElementByName(root, "1ch_title", errorMsg));
-        mButtonSeason2 = static_cast<IGUIButton*>(GetElementByName(root, "2ch_title", errorMsg));
-        mButtonSeason3 = static_cast<IGUIButton*>(GetElementByName(root, "3ch_title", errorMsg));
+		}
+		else	// careful - those elements exist, but are not buttons in old dialog! (yeah, one case where rtti would be nice)
+		{
+			mButtonSeason1 = static_cast<IGUIButton*>(GetElementByName(root, "1ch_title", errorMsg));
+			mButtonSeason2 = static_cast<IGUIButton*>(GetElementByName(root, "2ch_title", errorMsg));
+			mButtonSeason3 = static_cast<IGUIButton*>(GetElementByName(root, "3ch_title", errorMsg));
+		}
 
         mTotalPoints = static_cast<IGUIStaticText*>(GetElementByName(root, "ch_totalpoints", errorMsg));
         mButtonContinue = static_cast<IGUIButton*>(GetElementByName(root, "id_continue", errorMsg));
@@ -128,9 +132,12 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
         AddGuiEventFunctor( GetIdForName(std::string("id_quit")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonQuit) );
         AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonContinue) );
 
-        AddGuiEventFunctor( GetIdForName(std::string("1ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason1) );
-        AddGuiEventFunctor( GetIdForName(std::string("2ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason2) );
-        AddGuiEventFunctor( GetIdForName(std::string("3ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason3) );
+        if ( mButtonSeason1 )
+			AddGuiEventFunctor( GetIdForName(std::string("1ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason1) );
+		if ( mButtonSeason2 )
+			AddGuiEventFunctor( GetIdForName(std::string("2ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason2) );
+		if ( mButtonSeason3 )
+			AddGuiEventFunctor( GetIdForName(std::string("3ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason3) );
     }
     return ok;
 }
