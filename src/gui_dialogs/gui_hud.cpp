@@ -113,9 +113,7 @@ bool GuiHud::Load(const char* filename_, bool reloadLast_)
         mImageSessionGap = static_cast<IGUIImage*>(GetElementByName(root, "bg_sessiongap", errorMsg));
         mImageSessionGap2 = static_cast<IGUIImage*>(GetElementByName(root, "bg_sessiongap2", errorMsg));
 
-#if (IRR_REV == 1 )
-	mImageSpeedBar->setProgress(100.f);
-#elif (IRR_SVN >= 4734)
+#if (IRR_SVN >= 4734)
 	mImageSpeedBar->setDrawBounds(core::rect<f32>(0.f, 0.f, 1.f, 1.f));
 #endif
     }
@@ -337,9 +335,7 @@ void GuiHud::SetSpeed(f32 speedScaled_)
     if ( ! mImageSpeedBar )
         return;
 
-#if (IRR_REV == 1 )
-	mImageSpeedBar->setProgress(100.f);
-#elif (IRR_SVN >= 4734)
+#if (IRR_SVN >= 4734)
 	mImageSpeedBar->setDrawBounds(core::rect<f32>(0.f, 0.f, speedScaled_, 1.f));
 #endif
 }

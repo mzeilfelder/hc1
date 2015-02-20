@@ -73,13 +73,8 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
         IOSOperator * osOperator = dummyDevice->getOSOperator();
         if ( osOperator )
         {
-#if (IRR_REV == 1)
-			core::stringw osVersion( osOperator->getOperationSystemVersion() );
-			if ( osVersion.size() )
-#else
 			const core::stringc& osVersion( osOperator->getOperatingSystemVersion() );
 			if ( !osVersion.empty() )
-#endif
             {
                 LOG.Log(LP_INFO, osVersion.c_str() );
                 LOG.LogLn(LP_INFO, NULL);
@@ -119,9 +114,6 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
     creationParameters.EventReceiver = mEventReceiver;
     creationParameters.Fullscreen = config.GetFullscreen();
     creationParameters.HighPrecisionFPU  = false;
-#if (IRR_REV == 1)
-    creationParameters.Frequency = config.GetFrequency();
-#endif
     creationParameters.Stencilbuffer = false;
     creationParameters.Vsync = config.GetVSync() > 0 ? true : false;
     creationParameters.WindowId = 0;
@@ -335,11 +327,6 @@ bool IrrlichtManager::Init(const Config& config)
     mCameraEditor->setFarValue( config.GetFarClipping() );
     mCameraGui = mSceneManager->addCameraSceneNode();
     mCameraGui->setFarValue( config.GetFarClipping() );
-
-#if (IRR_REV == 1 )
-	// work around old broken media files which used wrong texturename-endings (was an ugly hack)
-    mIrrlichtDevice->getFileSystem()->setAlternativeFileEndings(".tga", ".jpg");
-#endif
 
 #ifdef _IRR_ANDROID_PLATFORM_
 	// The Android assets file-system does not know which sub-directories it has (blame google).

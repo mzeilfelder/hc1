@@ -39,21 +39,19 @@ const float RADTODEG		= 180.0f / PI;
 #define MAXPATHLEN 1024
 #endif // MAXPATHLEN
 
-#if (IRR_REV > 1)
-	// Groups got simplified when the profiler got added to Irrlicht, so defines are a little strange now.
-    #define PROFILE_ADD_GROUP(groupId_, name_)
+// Groups got simplified when the profiler got added to Irrlicht, so defines are a little strange now.
+#define PROFILE_ADD_GROUP(groupId_, name_)
 
-    #if defined(HC1_ENABLE_PROFILE) && (IRR_REV >= 3)
-		#define HC1_PROFILE(X) X
-		#define PROFILE_ADD(id_, group_, name_) getProfiler().add(id_, name_, #group_)
-		#define PROFILE_START(id_) 				getProfiler().start(id_)
-		#define PROFILE_STOP(id_) 				getProfiler().stop(id_)
-	#else
-		#define HC1_PROFILE(X)
-		#define PROFILE_ADD(id_, group_, name_)
-		#define PROFILE_START(id_)
-		#define PROFILE_STOP(id_)
-	#endif
+#if defined(HC1_ENABLE_PROFILE) && (IRR_REV >= 3)
+    #define HC1_PROFILE(X) X
+    #define PROFILE_ADD(id_, group_, name_) getProfiler().add(id_, name_, #group_)
+    #define PROFILE_START(id_) 				getProfiler().start(id_)
+    #define PROFILE_STOP(id_) 				getProfiler().stop(id_)
+#else
+    #define HC1_PROFILE(X)
+    #define PROFILE_ADD(id_, group_, name_)
+    #define PROFILE_START(id_)
+    #define PROFILE_STOP(id_)
 #endif
 
 #endif // GLOBALS_H
