@@ -93,10 +93,10 @@ Select the corresponding mingw target and click build.
 ------------------
 Doing PC releases:
 ------------------
-x compile with -DNDEBUG and without profile (comment out IRR_PROFILE in IrrCompileConfig.h in the irrlicht engine)
-x compile irrlicht with optimized settings (-s -O2 -fexpensive-optimizations -march=i686)
+x compile with -DNDEBUG and without profile
+x compile Irrlicht with optimized settings (-s -O2 -fexpensive-optimizations -march=i686)
 . set settings in compile_config.h (HOVER_RELEASE 1)
-. fullversion: HOVER_DEMO 0 in compile_config.h
+. full version: HOVER_DEMO 0 in compile_config.h
 . compile hcraft with optimized settings (-s -O2 -fexpensive-optimizations -march=i686)
 . call the release script in /tools
 . check file folders
@@ -104,15 +104,14 @@ x compile irrlicht with optimized settings (-s -O2 -fexpensive-optimizations -ma
 . test the release
 . Need to update any websites?
 . Make a backup for each version released to the public
-. Do any keys need to be distributed?
 
 x check executable flags. All files copied from windows partition will have it set (which is wrong)
 Compress Demo with:
 	zip hcraft_demo.zip -9 -r hcraft_demo/
-Release mit Passwort (unsafe!):
+Release with password:
 	zip hcraft.zip -e -9 -r hcraft/
 	zip hcraft_demo.zip -e -9 -r hcraft_demo/
-Release ohne Passwort:
+Release without password:
 	zip hcraft.zip -9 -r hcraft/
 
 Remove for system specific versions (works only when the files are decompressed on the system!)
