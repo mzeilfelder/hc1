@@ -20,6 +20,7 @@ syntax: glob
 *.file
 *.layout
 *.kdevelop.pcs
+*.cbTemp
 #Makefile.in
 CMakeFiles/*
 CMakeCache.txt
