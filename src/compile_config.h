@@ -6,7 +6,7 @@
 #define HC1_MAJOR_REV 1
 #define HC1_MINOR_REV 3
 
-// #define HOVER_RELEASE	// define if this version will go to customers (or for testing an identical version). No more debug-keys, etc.
+// #define HOVER_RELEASE // define if this version will go to customers (enabled by default in release targets).
 // #define HOVER_DEMO 	// define if this should only be a demo-version of the game
 #define HOVER_NO_LOCKS 	// define if you don't want any keymanagement for restrictions at all (should by now always be set)
 

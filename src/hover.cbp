@@ -267,6 +267,7 @@
 				<Option projectResourceIncludeDirsRelation="1" />
 				<Compiler>
 					<Add option="-march=i686" />
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wall" />
 					<Add option="-W" />
@@ -275,7 +276,7 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D__GNUWIN32__" />
 					<Add option="-DWIN32" />
-					<Add option="-DHOVER_RELEASE=1" />
+					<Add option="-DHOVER_RELEASE" />
 					<Add directory="..\libs\libogg\Win32-gcc\include" />
 					<Add directory="..\libs\libvorbis\Win32-gcc\include" />
 					<Add directory="..\libs\freealut\Win32-gcc\include" />

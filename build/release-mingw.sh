@@ -53,24 +53,18 @@ cp $HOVER_PATH/*.dll $RELEASE_PATH
 cp $HOVER_PATH/hovercraft.exe $RELEASE_PATH/hcraft.exe
 cp $HOVER_PATH/doc/HCraft_Manual.pdf $RELEASE_PATH/HCraft_Manual.pdf
 cp $HOVER_PATH/doc/changes.txt $RELEASE_PATH/doc
-
-cp -r $HOVER_PATH/media $RELEASE_PATH
-rm -rf $RELEASE_PATH/media/recordings
-rm -rf $RELEASE_PATH/media/shaders/*
-rm -f $RELEASE_PATH/media/userdata/*
-rm -f $RELEASE_PATH/media/ui/*.bmp
+cp -r ${MEDIA_PATH}/media $RELEASE_PATH
 
 #currently shaders are only for gles2.0 - which is not used in release
 #cp -r $HOVER_PATH/shaders $RELEASE_PATH
 
 # put one file in the folder, as otherwise some installers will remove the folder
-cp MEDIA_PATH/media/userdata.txt $RELEASE_PATH/media/userdata
 cp $HOVER_PATH/ghosts/ghosts.txt $RELEASE_PATH/ghosts
 
 # copy&modify language specific files
 if test "$lang" = ru
 then
-	cp -r MEDIA_PATH/media_i18n/ru/* $RELEASE_PATH
+	cp -r ${MEDIA_PATH}/media_i18n/ru/* $RELEASE_PATH
 
 	# sed in mingw does not yet know -i 
 	cp $RELEASE_PATH/media/config.xml dummy.xml
