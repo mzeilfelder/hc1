@@ -164,15 +164,8 @@ void GuiMenuGameEndChampionship::Show()
 
 		// id_hdresultpoints contains a %d
 		core::stringw editText(APP.GetStringTable()->Get("id_hdresultpoints"));
-#if IRR_REV == 1	// irrlicht didn't have the replace back then.
-		int editSize=1000;
-		wchar_t old_editText[editSize+1];
-		swprintf( old_editText, editSize, APP.GetStringTable()->Get("id_hdresultpoints").c_str(), gameResult.mChampionshipScore);
-        mStaticPoints->setText( old_editText );
-#else
 		editText.replace( core::stringw(L"%d"), core::stringw(gameResult.mChampionshipScore));
         mStaticPoints->setText( editText.c_str() );
-#endif
 
         mStaticTrackName->setText( gameSettings.mLevelName.c_str() );
 

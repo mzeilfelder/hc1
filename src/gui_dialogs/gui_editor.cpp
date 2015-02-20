@@ -1491,9 +1491,9 @@ void GuiEditor::UpdatePlayerStart()
     {
         TrackStart & trackStart = APP.GetLevelManager()->GetTrackStart(i);
         if ( !trackStart.mSettings.mIsValid )
-            swprintf(editText, editSize, L"undefined");
+            swprintf_hc(editText, editSize, L"undefined");
         else
-            swprintf(editText, editSize, L"%.0f %.0f %.0f", trackStart.mSettings.mCenter.X, trackStart.mSettings.mCenter.Y, trackStart.mSettings.mCenter.Z);
+            swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", trackStart.mSettings.mCenter.X, trackStart.mSettings.mCenter.Y, trackStart.mSettings.mCenter.Z);
         std::wstring str( editText );
 
         listBox->setItem(i, str.c_str(), 0);
@@ -1555,9 +1555,9 @@ void GuiEditor::UpdateTrackMarker()
     {
         TrackMarker marker = APP.GetLevelManager()->GetTrackMarker(i);
         if ( !marker.mSettings.mIsValid )
-            swprintf(editText, editSize, L"undefined");
+            swprintf_hc(editText, editSize, L"undefined");
         else
-            swprintf(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
+            swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
         std::wstring str( editText );
         listBox->addItem(str.c_str());
     }
@@ -1629,7 +1629,7 @@ void GuiEditor::UpdateTeleportSource()
     wchar_t editText[editSize+1];
 
     TrackMarker & marker = APP.GetLevelManager()->GetTpSource();
-    swprintf(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
+    swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
 
@@ -1660,7 +1660,7 @@ void GuiEditor::UpdateTeleportTarget()
     wchar_t editText[editSize+1];
 
     TrackMarker & marker = APP.GetLevelManager()->GetTpTarget();
-    swprintf(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
+    swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
 
@@ -1691,7 +1691,7 @@ void GuiEditor::UpdateFinishLine()
     wchar_t editText[editSize+1];
 
     TrackMarker& marker = APP.GetLevelManager()->GetFinishLine();
-    swprintf(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
+    swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
 
@@ -1762,18 +1762,18 @@ void GuiEditor::UpdateObjects()
         if ( editPosX && editPosY && editPosZ && editRotX && editRotY && editRotZ
             && spinAmbR && spinAmbG && spinAmbB)
         {
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mCenter.X);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mCenter.X);
             editPosX->setText(editText);
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mCenter.Y);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mCenter.Y);
             editPosY->setText(editText);
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mCenter.Z);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mCenter.Z);
             editPosZ->setText(editText);
 
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mRotation.X);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mRotation.X);
             editRotX->setText(editText);
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mRotation.Y);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mRotation.Y);
             editRotY->setText(editText);
-            swprintf(editText, editSize, L"%.1f", model.mSettings.mRotation.Z);
+            swprintf_hc(editText, editSize, L"%.1f", model.mSettings.mRotation.Z);
             editRotZ->setText(editText);
 
             spinAmbR->setValue(model.mSettings.mAmbientRed);

@@ -81,7 +81,7 @@ void GuiGame::SetGameTime(u32 time_)
 
     int editSize=1024;
     wchar_t editText[editSize+1];
-    swprintf(editText, editSize, L"TIME %.2f", (float)time_ / 1000.f);
+    swprintf_hc(editText, editSize, L"TIME %.2f", (float)time_ / 1000.f);
     mStaticGameTime->setText(editText);
 }
 
@@ -92,7 +92,7 @@ void GuiGame::SetTrackTime(u32 time_)
 
     int editSize=1024;
     wchar_t editText[editSize+1];
-    swprintf(editText, editSize, L"track %.2f", (float)time_ / 1000.f);
+    swprintf_hc(editText, editSize, L"track %.2f", (float)time_ / 1000.f);
     mStaticTrackTime->setText(editText);
 }
 
@@ -103,7 +103,7 @@ void GuiGame::SetBestTrackTime(u32 time_)
 
     int editSize=1024;
     wchar_t editText[editSize+1];
-    swprintf(editText, editSize, L"best %.2f", (float)time_ / 1000.f);
+    swprintf_hc(editText, editSize, L"best %.2f", (float)time_ / 1000.f);
     mStaticBestTrackTime->setText(editText);
 }
 

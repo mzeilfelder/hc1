@@ -47,6 +47,10 @@ local.properties
 .git
 .directory
 *.keystore
+Irrlicht.dll
+OpenAL32.dll
+SDL.dll
+libalut.dll
 
 media/userdata/*.rec
 media/userdata/*.xml

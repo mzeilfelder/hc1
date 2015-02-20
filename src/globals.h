@@ -25,11 +25,12 @@
 const float DEGTORAD		= PI / 180.0f;
 const float RADTODEG		= 180.0f / PI;
 
+#define swprintf_hc swprintf
+
 #ifdef __GNUWIN32__
 
-// TODO: this is ugly - why didn't I use a new name :-(
-#undef swprintf
-#define swprintf   _snwprintf
+#undef swprintf_hc
+#define swprintf_hc   _snwprintf
 
 #endif  // __GNUWIN32__
 

@@ -57,55 +57,55 @@ void GuiDeveloperSettings::CreateDeveloperSettings()
     int textRight = left + 200;
     mEnvironment->addStaticText(L"rotation speed", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mRotationSpeed);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mRotationSpeed);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_ROTATION_SPEED);
     top += 25;
 
     mEnvironment->addStaticText(L"scale rotation speed", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mScaleRotationBySpeed);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mScaleRotationBySpeed);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_SCALE_ROTATION_SPEED);
     top += 25;
 
 //    mEnvironment->addStaticText(L"(scale rotation engine)", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
 //    top += 15;
-//    swprintf(editText, editSize, L"%.3f", steering.mScaleRotationByEngine);
+//    swprintf_hc(editText, editSize, L"%.3f", steering.mScaleRotationByEngine);
 //    mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_SCALE_ROTATION_ENGINE);
 //    top += 25;
 
     mEnvironment->addStaticText(L"force factor", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mForceFactor);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mForceFactor);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_FORCE_FACTOR);
     top += 25;
 
     mEnvironment->addStaticText(L"brake factor", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mBrakeFactor);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mBrakeFactor);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_BRAKE_FACTOR);
     top += 25;
 
     mEnvironment->addStaticText(L"scale rolling", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mScaleRolling);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mScaleRolling);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_SCALE_ROLLING);
     top += 25;
 
     mEnvironment->addStaticText(L"max rolling", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mMaxRolling);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mMaxRolling);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_MAX_ROLLING);
     top += 25;
 
     mEnvironment->addStaticText(L"scale pitch flying", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mScalePitchFlying);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mScalePitchFlying);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_SCALE_PITCH_FLYING);
     top += 25;
 
     mEnvironment->addStaticText(L"scale floor alignment", core::rect<s32>(left, top, textRight, top+10), false, false, tabSteering, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", steering.mScaleAlignment);
+    swprintf_hc(editText, editSize, L"%.3f", steering.mScaleAlignment);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,150,top+20), true, tabSteering, EDIT_SCALE_ALIGNMENT);
     top += 25;
 
@@ -122,7 +122,7 @@ void GuiDeveloperSettings::CreateDeveloperSettings()
     IGUIListBox * listCameras =	mEnvironment->addListBox(controllersRect, tabCamera, LIST_CAMERAS );
     for ( size_t i=0; i < APP.GetGame()->GetNumCameras(); ++i )
     {
-        swprintf(editText, editSize, L"%d", (int)i);
+        swprintf_hc(editText, editSize, L"%d", (int)i);
         std::wstring str( editText );
         listCameras->addItem(str.c_str());
     }
@@ -135,43 +135,43 @@ void GuiDeveloperSettings::CreateDeveloperSettings()
 
     mEnvironment->addStaticText(L"cam behind", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamBehind);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamBehind);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_BEHIND);
     top += 25;
 
     mEnvironment->addStaticText(L"cam height", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamHeight);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamHeight);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_HEIGHT);
     top += 25;
 
     mEnvironment->addStaticText(L"cam height upwards", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     mEnvironment->addStaticText(L"cam height downwards", core::rect<s32>(left2, top, right2, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamHeightUpwards);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamHeightUpwards);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_UPWARDS);
-    swprintf(editText, editSize, L"%.3f", camera.mCamHeightDownwards);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamHeightDownwards);
     mEnvironment->addEditBox(editText, core::rect<s32>(left2,top,right2,top+20), true, tabCamera, EDIT_CAM_DOWNWARDS);
     top += 25;
 
     mEnvironment->addStaticText(L"cam target height", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamTargetHeight);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamTargetHeight);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_TARGET_FRONT);
     top += 25;
 
     mEnvironment->addStaticText(L"cam trailing", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamTrailing);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamTrailing);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_TRAILING);
     top += 25;
 
     mEnvironment->addStaticText(L"cam speed slow", core::rect<s32>(left, top, textRight, top+10), false, false, tabCamera, -1, false);
     mEnvironment->addStaticText(L"cam speed fast", core::rect<s32>(left2, top, right2, top+10), false, false, tabCamera, -1, false);
     top += 15;
-    swprintf(editText, editSize, L"%.3f", camera.mCamSpeedFactorSlow);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamSpeedFactorSlow);
     mEnvironment->addEditBox(editText, core::rect<s32>(left,top,textRight,top+20), true, tabCamera, EDIT_CAM_SPEED_FACTOR_SLOW);
-    swprintf(editText, editSize, L"%.3f", camera.mCamSpeedFactorFast);
+    swprintf_hc(editText, editSize, L"%.3f", camera.mCamSpeedFactorFast);
     mEnvironment->addEditBox(editText, core::rect<s32>(left2,top,right2,top+20), true, tabCamera, EDIT_CAM_SPEED_FACTOR_FAST);
     top += 25;
 
@@ -185,27 +185,27 @@ void GuiDeveloperSettings::CreateDeveloperSettings()
     hover.ReadFromXml(APP.GetConfig()->GetPhysicsObjectSettings("hover"));
 
     mEnvironment->addStaticText(L"timestep", core::rect<s32>(10, 20, 150, 30), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", physics.mTimeStep);
+    swprintf_hc(editText, editSize, L"%.3f", physics.mTimeStep);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,35,150,55), true, tabPhysics, EDIT_PHYSICS_TIMESTEP);
 
     mEnvironment->addStaticText(L"rollfriction", core::rect<s32>(10, 60, 150, 70), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", physics.mRollFriction);
+    swprintf_hc(editText, editSize, L"%.3f", physics.mRollFriction);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,75,150,95), true, tabPhysics, EDIT_PHYSICS_ROLLFRICTION);
 
     mEnvironment->addStaticText(L"airfriction", core::rect<s32>(10, 100, 150, 110), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", physics.mAirConst);
+    swprintf_hc(editText, editSize, L"%.3f", physics.mAirConst);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,115,150,135), true, tabPhysics, EDIT_PHYSICS_AIRCONST);
 
     mEnvironment->addStaticText(L"gravity", core::rect<s32>(10, 140, 150, 150), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", physics.mGravity);
+    swprintf_hc(editText, editSize, L"%.3f", physics.mGravity);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,155,150,175), true, tabPhysics, EDIT_PHYSICS_GRAVITY);
 
     mEnvironment->addStaticText(L"hover mass", core::rect<s32>(10, 180, 150, 190), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", hover.mMass);
+    swprintf_hc(editText, editSize, L"%.3f", hover.mMass);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,195,150,215), true, tabPhysics, EDIT_PHYSICS_HOVER_MASS);
 
     mEnvironment->addStaticText(L"hover max speed", core::rect<s32>(10, 220, 150, 230), false, false, tabPhysics, -1, false);
-    swprintf(editText, editSize, L"%.3f", hover.mMaxSpeed);
+    swprintf_hc(editText, editSize, L"%.3f", hover.mMaxSpeed);
     mEnvironment->addEditBox(editText, core::rect<s32>(10,235,150,255), true, tabPhysics, EDIT_PHYSICS_HOVER_MAX_SPEED);
 
     mEnvironment->addButton(core::rect<s32>(10,300,100,330), tabPhysics, BTN_SET_PHYSICS, L"set");

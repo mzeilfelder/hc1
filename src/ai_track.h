@@ -3,9 +3,9 @@
 #ifndef AI_TRACK_H
 #define AI_TRACK_H
 
-#include <vector>
 #include "irrlicht_manager.h"
 #include "recorder.h"
+#include <vector>
 
 class TiXmlNode;
 class TiXmlElement;
