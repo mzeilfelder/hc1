@@ -205,6 +205,10 @@ void GuiMenuChampionshipProgress::Show()
 					}
 				}
 		    }
+		    else
+		    {
+		        mRaceResults[r]->enableOverrideColor(false);
+		    }
 
             if ( IS_DEMO_VERSION )
             {
