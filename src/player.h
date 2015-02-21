@@ -180,6 +180,7 @@ private:
 	const Game& mGame;
     PLAYER_TYPE	mPlayerType;
     std::string mNameHoverLoaded;
+    bool mIsGhost;
     irr::scene::ISceneNode* mMeshHover;
     irr::scene::ISceneNode* mMeshBlobShadow;
     std::vector<irr::scene::ISceneNode*> mDriftMarkers;  // currently not used

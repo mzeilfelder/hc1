@@ -149,6 +149,7 @@ Player::Player(const Game& game)
     }
 
     mPlayerType = PT_UNKNOWN;
+    mIsGhost = false;
     mPhysicsId = -1;
     mMeshHover = NULL;
     mMeshBlobShadow = NULL;
@@ -308,7 +309,7 @@ bool Player::Init()
 
 void Player::ChangeModel(const std::string &name_)
 {
-    if ( name_ == mNameHoverLoaded )
+    if ( name_ == mNameHoverLoaded && !mIsGhost )
         return;
     mNameHoverLoaded.clear();
 
@@ -320,6 +321,7 @@ void Player::ChangeModel(const std::string &name_)
     }
 
     mMeshHover = APP.GetNodeManager()->LoadNode(name_);
+    mIsGhost = false;
 	if ( mMeshHover )
 	{
 	    mNameHoverLoaded = name_;
@@ -1435,6 +1437,7 @@ void Player::InfoPrepareForRace()
     {
         mMeshHover->setVisible(false);
         APP.GetIrrlichtManager()->MakeGhost(mMeshHover);
+        mIsGhost = true;
     }
 
     mAlignmentMat.makeIdentity();
