@@ -44,7 +44,7 @@ On Windows you have to install MinGW to get a GNU toolchain. Cygwin is not suppo
 Only tested with MinGW32 so far, so no experience with 64 bit on Windows yet. For 64-bit MinGW we would have
 to replace at least libgcc_s_dw2-1.dll and libstdc++-6.dll. If anyone knows a way to automate copying of 
 those dll's so we can remove them from the hg repository please tell me (bash-script instead would be nice).
-Also only Windows XP was tested so far.
+Also only Windows 7 was tested so far.
 
 On Linux you should have most of the gnu-toolchain installed already. You might have to add a 'gcc' package.
 
@@ -105,7 +105,7 @@ x compile Irrlicht with optimized settings (-s -O2 -fexpensive-optimizations -ma
 . Need to update any websites?
 . Make a backup for each version released to the public
 
-x check executable flags. All files copied from windows partition will have it set (which is wrong)
+x check executable flags. All files copied from Windows partition will have it set (which is wrong)
 Compress Demo with:
 	zip hcraft_demo.zip -9 -r hcraft_demo/
 Release with password:
