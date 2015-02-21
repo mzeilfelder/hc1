@@ -27,7 +27,11 @@ GuiHud::GuiHud()
     , mStaticCountdown(0)
     , mStaticCamera(0)
     , mStaticFps(0)
+#if defined(HOVER_RELEASE) && !defined(_IRR_ANDROID_PLATFORM_)
+    , mFpsVisible(false)
+#else
     , mFpsVisible(true)
+#endif
     , mImageSpeedBar(0)
     , mPosBackground(0)
     , mPosMarker1(0)

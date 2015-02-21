@@ -63,15 +63,16 @@ void GuiHelper::FillTextSliderWithLevelNames(irr::gui::IGUITextSlider *slider_, 
 
     int firstRace = 0;
     int numRaces = APP.GetChampionship()->GetNumRaces();
+    int numRacesPerSeason = numRaces /= 3;
     if ( season_ != SEASON_ALL )
-        numRaces /= 3;
+        numRaces = numRacesPerSeason;
     if ( SEASON_2 == season_ )
         firstRace += numRaces;
     else if ( SEASON_3 == season_ )
         firstRace += 2 * numRaces;
     for ( int i=0; i < numRaces; ++i )
     {
-        slider_->addText( MakeLevelName(i+firstRace).c_str() );
+        slider_->addText( MakeLevelName(i+firstRace, numRacesPerSeason) );
     }
 }
 
@@ -94,50 +95,19 @@ void GuiHelper::FillTextSliderWithNumbers(irr::gui::IGUITextSlider *slider_, int
     }
 }
 
-irr::core::stringw GuiHelper::MakeLevelName(int index_)
+irr::core::stringw GuiHelper::MakeLevelName(int index, int racesPerSeason)
 {
-    // This hack gets around some unfortunate variable names (historical reasons)
-    const char *names[] = {
-    "id_1ch01",
-    "id_1ch02",
-    "id_1ch03",
-    "id_1ch05",
-    "id_1ch06",
-    "id_1ch07",
-    "id_1ch09",
-    "id_1ch10",
-    "id_1ch11",
-    "id_1ch13",
-    "id_1ch14",
-    "id_1ch15",
+    core::stringw name(L"id_");
+    if ( index < racesPerSeason )
+        name += L"1";
+    else if ( index < 2*racesPerSeason )
+        name += L"2";
+    else
+        name += L"3";
+    name += L"ch";
+    name += core::stringw((index % racesPerSeason)+1);
 
-    "id_2ch01",
-    "id_2ch02",
-    "id_2ch03",
-    "id_2ch05",
-    "id_2ch06",
-    "id_2ch07",
-    "id_2ch09",
-    "id_2ch10",
-    "id_2ch11",
-    "id_2ch13",
-    "id_2ch14",
-    "id_2ch15",
-
-    "id_3ch01",
-    "id_3ch02",
-    "id_3ch03",
-    "id_3ch05",
-    "id_3ch06",
-    "id_3ch07",
-    "id_3ch09",
-    "id_3ch10",
-    "id_3ch11",
-    "id_3ch13",
-    "id_3ch14",
-    "id_3ch15" };
-
-    return APP.GetStringTable()->Get(names[index_]);
+    return APP.GetStringTable()->Get(name);
 }
 
 void GuiHelper::SetGameModeMenu(GAME_TYPE gameType_)

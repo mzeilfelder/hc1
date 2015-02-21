@@ -25,7 +25,7 @@ public:
     static void FillTextSliderWithTrackNames(irr::gui::IGUITextSlider *slider_, LevelDifficulty difficulty_, bool onlyEnabled_=true);
     static void FillTextSliderWithLevelNames(irr::gui::IGUITextSlider *slider_, CS_Season season_);
     static void FillTextSliderWithNumbers(irr::gui::IGUITextSlider *slider_, int from_, int to_, int stepSize_, bool useOffStringForZero_=true);    // include from_ and to_
-    static irr::core::stringw MakeLevelName(int index_);
+    static irr::core::stringw MakeLevelName(int index, int racesPerSeason);
     static void SetGameModeMenu(GAME_TYPE gameType_);
 
     static std::wstring MakeTimeString(irr::s32 time_, bool showPlusSign_=false, int signOnZero_=0);
