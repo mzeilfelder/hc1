@@ -8,3 +8,8 @@ See http://www.irrgheist.com/hcraftsource.htm for more information.
 ### How to set it up? ###
 
 Follow the instructions in doc/build.txt
+
+### What's the license ###
+
+The game sources are mostly under a z-lib license. A few files come with other, but similar liberal licenses. 
+The needed libraries are using a mixture of free software licenses
