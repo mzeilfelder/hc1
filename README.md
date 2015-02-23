@@ -7,4 +7,4 @@ See http://www.irrgheist.com/hcraftsource.htm for more information.
 
 ### How to set it up? ###
 
-Follow the instructions of doc/build.txt
+Follow the instructions in doc/build.txt
