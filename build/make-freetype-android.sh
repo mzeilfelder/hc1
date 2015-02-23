@@ -16,7 +16,7 @@ then
 fi
 if [ -z "$NDK_PLATFORM" ]
 then 
-	export NDK_PLATFORM=android-9
+	export NDK_PLATFORM=android-10
 fi
 $ANDROID_NDK/build/tools/make-standalone-toolchain.sh  --platform=$NDK_PLATFORM --install-dir=$LIB_TARGET/ndk
 PATH=$LIB_TARGET/ndk/bin:$PATH
