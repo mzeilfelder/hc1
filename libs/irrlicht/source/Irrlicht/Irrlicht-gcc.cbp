@@ -469,6 +469,7 @@
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wextra" />
 					<Add option="-fno-exceptions" />
@@ -478,6 +479,7 @@
 					<Add directory="libpng" />
 				</Compiler>
 				<Linker>
+					<Add option="-s" />
 					<Add library="GL" />
 					<Add library="Xxf86vm" />
 					<Add directory="/usr/X11R6/lib" />
