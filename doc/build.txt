@@ -120,6 +120,10 @@ Windows demo: zip -r -d hcraft_demo_windows.zip hcraft_demo/libs hcraft_demo/hcr
 Linux full: zip -d hcraft_linux.zip hcraft/*.exe hcraft/*.dll
 Linux demo: zip -d hcraft_demo_linux.zip hcraft_demo/*.exe hcraft_demo/*.dll
 
+Merge system version:
+diff -qr linux/hcraft windows/craft
+Copy the files from Windows to Linux which Linux version didn't have.
+chmod -x *.dll in the main folder.
 
 --------------------
 Requirements Android
