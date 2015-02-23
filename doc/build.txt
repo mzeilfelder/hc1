@@ -94,10 +94,10 @@ Select the corresponding mingw target and click build.
 Doing PC releases:
 ------------------
 x compile with -DNDEBUG and without profile
-x compile Irrlicht with optimized settings (-s -O2 -fexpensive-optimizations -march=i686)
+x compile Irrlicht with optimized settings (-s -O2 -fexpensive-optimizations, on 32-bit use -march=i686)
 . set settings in compile_config.h (HOVER_RELEASE 1)
 . full version: HOVER_DEMO 0 in compile_config.h
-. compile hcraft with optimized settings (-s -O2 -fexpensive-optimizations -march=i686)
+. compile hcraft with optimized settings (-s -O2 -fexpensive-optimizations, on 32-bit use -march=i686)
 . call the release script in /tools
 . check file folders
 . same for demo: HOVER_DEMO 1 in compile_config.h
