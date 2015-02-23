@@ -51,7 +51,12 @@ mkdir -p $RELEASE_PATH
 mkdir -p $RELEASE_PATH/doc
 mkdir -p $RELEASE_PATH/ghosts
 
-cp $HOVER_PATH/hovercraft $RELEASE_PATH/hcraft_bin
+if [ -f $HOVER_PATH/hovercraft ];
+then
+   cp $HOVER_PATH/hovercraft $RELEASE_PATH/hcraft_bin
+else
+   cp $HOVER_PATH/hovercraft64 $RELEASE_PATH/hcraft_bin
+fi
 cp $HOVER_PATH/hcraft.sh $RELEASE_PATH/hcraft
 cp $HOVER_PATH/swapsoundlibs.sh $RELEASE_PATH
 cp $HOVER_PATH/open_browser.sh $RELEASE_PATH/open_browser.sh
