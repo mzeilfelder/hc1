@@ -200,8 +200,8 @@ The things which need to be done for Android are:
 - Upload the package to the mobile phone
 - Show the debug info on PC while running it on the phone.
 
-My solution to that was a bunch of aliases which I put in my .bashrc:
-alias n0='rm $HCRAFT_HOME/build/android/assets; rm $HCRAFT_HOME/media/tests; ln -s $HCRAFT_HOME/media $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/tests $HCRAFT_HOME/media/tests'
+My solution is to put some aliases in my .bashrc:
+alias n0='rm -rf $HCRAFT_HOME/build/android/assets; cp -r $HCRAFT_HOME/media $HCRAFT_HOME/build/android/assets; cp -r $HCRAFT_HOME/shaders $HCRAFT_HOME/build/android/assets/shaders;cp -r $HCRAFT_HOME/tests $HCRAFT_HOME/build/android/assets/tests;'
 alias n1='ndk-build V=1 NDK_DEBUG=1'
 alias n2='ant debug'
 alias n3='adb -d install bin/hcraft1-debug.apk'
@@ -212,7 +212,7 @@ alias n1234='n1 && n2 && n3 && n4'
 alias n234='n2 && n3 && n4'
 alias n34='n3 && n4'
 
-alias nr0='rm $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/../media_hc1/media $HCRAFT_HOME/build/android/assets'
+alias nr0='rm -rf $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/../media_hc1/media $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/shaders $HCRAFT_HOME/build/android/assets/shaders'
 alias nr1='ndk-build NDEBUG=1 V=1 NDK_DEBUG=0 HOVER_RELEASE=1'
 alias nr2='ant release'
 alias nr3='jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore test.keystore bin/hcraft1-release-unsigned.apk test'
@@ -220,20 +220,19 @@ alias nr4='rm bin/hcraft1-release.apk; zipalign -v 4 bin/hcraft1-release-unsigne
 alias nr5='adb -d install bin/hcraft1-release.apk'
 alias nr12='nr1 && nr2'
 
-They all expect to be run from within the build/Android folder.
+Most aliases expect to be run from within the build/Android folder.
 n is normal nr is for release builds.
-n0, nr0 are to create soft-links to the corresponding media folders. That has only to be run once unless you want to switch between
-the media folders for debug/release.
+n0, nr0 are to copy the media folders and shaders. That has only to be run when the media changed or you switch between debug and release.
 n1, nr1 build the c++ code
 n2, nr2 build the Java .apk
-nr3 is for signing (see below in "Doing Android releases" what this is about)
+nr3 is for signing (see below in "Doing Android releases" what this is about - you have to create a key-store first and adapt this alias to it by replacing the 'test' parts)
 nr4 is for running zipalign
 n3, nr5 are for uploading the .apk to the Android device
 n4 is for running a log showing all Irrlicht and DEBUG messages while silenting all other messages.
-The combination numbers (like n1234) are just to run several commands in a row.
+The combination numbers (like n1234) are to run several commands in a row.
 Notice that adb returns always 0 - even on failure - so n3 and nr5 always return 0 (meaning n34 will always run n4 as well even if n3 failed).
 
-So typically I run n0 once. And then for a typical complete rebuild + debug session I type: n1234
+For a typical rebuild + debug session I type: n1234
 
 ----------------------
 Doing Android releases
