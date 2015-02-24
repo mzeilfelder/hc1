@@ -71,6 +71,7 @@ App::App()
 , mRivalsMode(0)
 , mAppTester(0)
 , mAndroidApp(0)
+, mLastAdTime(0)
 , mAdvert(0)
 , mInAppBilling(0)
 {
@@ -266,6 +267,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
     ForceUpdates(true, false);  // reduce chance of taskbar is in the foreground in XP and make sure intro is displayed in 98
 #endif // ifdef __GNUWIN32__
 	u32 timeIntroStart = GetIrrlichtManager()->GetIrrlichtTimer()->getRealTime();
+	mLastAdTime = timeIntroStart;
 
 	mStringTable->SetIrrFs(mIrrlichtManager->GetIrrlichtDevice()->getFileSystem());
     if (! mStringTable->Load(mConfig->GetStringTableName().c_str()) )
@@ -627,6 +629,21 @@ void App::AdvertismentCheck()
 #if defined(HOVER_ADS)
 	if ( DO_DISPLAY_ADS )
 	{
+		const unsigned int MIN_TIME_BETWEEN_ADS_MS = 1000*60*5;	// Only every few minutes, don't annoy people.
+	    unsigned int timeNow = UINT_MAX;
+		if ( GetIrrlichtManager() )
+		{
+			timeNow = GetIrrlichtManager()->GetIrrlichtTimer()->getRealTime();
+		}
+		if ( mLastAdTime == 0 )
+		{
+			mLastAdTime = timeNow;
+		}
+		if ( timeNow < mLastAdTime+MIN_TIME_BETWEEN_ADS_MS )
+			return;
+
+		mLastAdTime = timeNow;
+
 		if ( mAdvert && mAdvert->show(EAT_FULLSCREEN) )
 		{
 			ForceUpdates(true, false);

@@ -135,6 +135,7 @@ private:
     RivalsMode*         mRivalsMode;
     AppTester*			mAppTester;
 	android_app*		mAndroidApp;
+	unsigned int 		mLastAdTime;
 	IAdvert*			mAdvert;
 	IBilling*			mInAppBilling;
 
