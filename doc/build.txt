@@ -215,7 +215,7 @@ alias n34='n3 && n4'
 alias nr0='rm -rf $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/../media_hc1/media $HCRAFT_HOME/build/android/assets; ln -s $HCRAFT_HOME/shaders $HCRAFT_HOME/build/android/assets/shaders'
 alias nr1='ndk-build NDEBUG=1 V=1 NDK_DEBUG=0 HOVER_RELEASE=1'
 alias nr2='ant release'
-alias nr3='jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore test.keystore bin/hcraft1-release-unsigned.apk test'
+alias nr3='jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore test.keystore bin/hcraft1-release-unsigned.apk test -tsa http://timestamp.digicert.com'
 alias nr4='rm bin/hcraft1-release.apk; zipalign -v 4 bin/hcraft1-release-unsigned.apk bin/hcraft1-release.apk'
 alias nr5='adb -d install bin/hcraft1-release.apk'
 alias nr12='nr1 && nr2'
@@ -228,7 +228,7 @@ n2, nr2 build the Java .apk
 nr3 is for signing (see below in "Doing Android releases" what this is about - you have to create a key-store first and adapt this alias to it by replacing the 'test' parts)
 nr4 is for running zipalign
 n3, nr5 are for uploading the .apk to the Android device
-n4 is for running a log showing all Irrlicht and DEBUG messages while silenting all other messages.
+n4 is for running a log showing all Irrlicht and DEBUG messages while silencing all other messages.
 The combination numbers (like n1234) are to run several commands in a row.
 Notice that adb returns always 0 - even on failure - so n3 and nr5 always return 0 (meaning n34 will always run n4 as well even if n3 failed).
 
@@ -245,10 +245,10 @@ keytool -genkey -v -keystore test.keystore -alias test -keyalg RSA -keysize 2048
 Where "-keystore testest.keystore" set's the name of your keystore file. 
 "-alias test" is a max. 8 character alias to address the key, in this case it's called test
 "-validity" set's the key-validity in days.
-Remember your passwords!
+Remember your passwords and make sure you update your keystore file. If you lose any of it you can no longer update your game on google-play!
 For google play: Your application must be signed with a cryptographic key whose validity period ends after 22 October 2033.
 2. Sign the app, for example:
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore test.keystore bin/hcraft1-release-unsigned.apk test
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore test.keystore bin/hcraft1-release-unsigned.apk test -tsa http://timestamp.digicert.com
 where "test" is the alias from above.
 3. Align it:
 zipalign -v 4 bin/hcraft1-release-unsigned.apk bin/hcraft1-release.apk
