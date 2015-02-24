@@ -254,7 +254,8 @@ where "test" is the alias from above.
 zipalign -v 4 bin/hcraft1-release-unsigned.apk bin/hcraft1-release.apk
 4. When putting it on google-play you must increase android:versionCode in AndroidManifest.xml each time.
 
-Be aware that first release will take rather long (~2 days in my case), the next release got faster (minutes to hours) in my tests so far.
+Be careful - once you start uploading any files to google-play you should use your final keystore already.
+Also for info... the first release on google-play took it's time (~2 days in my case). But the next release got faster (minutes to hours).
 
 When distributing beta's to other people they have to enable:
 On old Android: Settings→Applications-Unknown Sources
