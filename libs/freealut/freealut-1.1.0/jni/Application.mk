@@ -1,2 +1,2 @@
-APP_PLATFORM := android-10
+APP_PLATFORM := android-13
 APP_MODULES := freealut

@@ -16,7 +16,7 @@ then
 fi
 if [ -z "$NDK_PLATFORM" ]
 then 
-	export NDK_PLATFORM=android-10
+	export NDK_PLATFORM=android-13
 fi
 $ANDROID_NDK/build/tools/make-standalone-toolchain.sh  --platform=$NDK_PLATFORM --install-dir=$LIB_TARGET/ndk
 PATH=$LIB_TARGET/ndk/bin:$PATH
@@ -24,6 +24,7 @@ echo $PATH
 
 mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
+make clean
 ${LIB_SOURCE}/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --without-zlib --without-png --host=arm-linux-androideabi
 make
 make install
