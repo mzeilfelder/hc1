@@ -17,3 +17,4 @@ The needed libraries are using a mixture of free software licenses
 ### Discussions ###
 
 Please use the [forum thread](http://irrlicht.sourceforge.net/forum/viewtopic.php?f=6&t=50627) in the Irrlicht forum for any questions about the code.
+I will also follow reddit post on [/r/hcraft](http://www.reddit.com/r/hcraft/).
