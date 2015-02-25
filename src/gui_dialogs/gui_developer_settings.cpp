@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_developer_settings.h"
 #include "../gui_ids.h"
 #include "../config.h"

@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_menu_licenses.h"
 #include "gui_menu_credits.h"
 #include "../gui.h"

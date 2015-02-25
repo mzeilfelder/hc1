@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_modellist.h"
 
 #ifdef HC1_ENABLE_EDITOR

@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_touch.h"
 #include "gui_helper.h"
 #include "../main.h"

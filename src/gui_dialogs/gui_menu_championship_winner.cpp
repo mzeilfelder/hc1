@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_menu_championship_winner.h"
 #include "gui_menu_championship_progress.h"
 #include "../gui.h"

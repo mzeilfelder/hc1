@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_menu_loadingscreen.h"
 #include "gui_menu_rivals_score.h"
 #include "gui_helper.h"

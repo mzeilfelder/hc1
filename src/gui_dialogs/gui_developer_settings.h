@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #ifndef GUI_DEVELOPER_SETTINGS_H
 #define GUI_DEVELOPER_SETTINGS_H
 

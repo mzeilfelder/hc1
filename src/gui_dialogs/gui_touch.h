@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #ifndef HC1_GUI_TOUCH_H
 #define HC1_GUI_TOUCH_H
 

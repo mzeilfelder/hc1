@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_dlg_okcancel.h"
 #include "../gui.h"
 #include "../main.h"

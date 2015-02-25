@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #ifndef GUI_MODELLIST_H
 #define GUI_MODELLIST_H
 

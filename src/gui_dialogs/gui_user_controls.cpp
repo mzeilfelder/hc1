@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_user_controls.h"
 #include "../gui_ids.h"
 #include "../input_device_manager.h"

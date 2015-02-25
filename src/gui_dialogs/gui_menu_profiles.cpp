@@ -1,3 +1,5 @@
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
+
 #include "gui_menu_profiles.h"
 #include "gui_menu_main.h"
 #include "gui_menu_newprofile.h"
