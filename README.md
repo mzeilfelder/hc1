@@ -13,3 +13,7 @@ Follow the instructions in doc/build.txt
 
 The game sources are mostly under a z-lib license. A few files come with other, but similar liberal licenses. 
 The needed libraries are using a mixture of free software licenses
+
+### Discussions ###
+
+Please use the [forum thread](http://irrlicht.sourceforge.net/forum/viewtopic.php?f=6&t=50627) in the Irrlicht forum for any questions about the code.
