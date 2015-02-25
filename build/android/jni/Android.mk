@@ -45,6 +45,10 @@ else
 LOCAL_CFLAGS += -fexpensive-optimizations -O3
 endif
 
+ifdef HOVER_RELEASE
+LOCAL_CFLAGS += -DHOVER_RELEASE
+endif
+
 ifeq ($(TARGET_ARCH_ABI),x86)
 LOCAL_CFLAGS += -fno-stack-protector
 endif

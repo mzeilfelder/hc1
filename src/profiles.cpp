@@ -293,7 +293,7 @@ void ProfileManager::LoadProfiles()
     if ( !xmlDoc.LoadFile() )
     {
 #ifdef _IRR_ANDROID_PLATFORM_
-		// We need profiles with everything played clear for testing
+		// We sometimes need profiles with everything played clear for testing, so we try the default profiles.xml from PC as well first.
 		std::string xmlName(APP.GetConfig()->MakeFilenameUserData(std::string("profiles.xml"), true));
 		if ( !xmlDoc.LoadFile(xmlName.c_str()) )
 		{

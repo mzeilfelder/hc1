@@ -33,13 +33,13 @@ void GuiHelper::FillTextSliderWithTrackNames(irr::gui::IGUITextSlider *slider_, 
     {
         const LevelSettings &settings = APP.GetLevelManager()->GetLevel(i, difficulty_);
 
-    if ( IS_DEMO_VERSION )
-    {
-        if ( settings.mId != 18 )  // white camel
-            continue;
-    }
+		if ( IS_DEMO_VERSION )
+		{
+			if ( settings.mId != 18 )  // white camel
+				continue;
+		}
 
-#if defined(HOVER_RELEASE)
+#if defined(HOVER_RELEASE)	// allow playing all levels in debug (an if you forget to set HOVER_RELEASE, but that's a bug anyway)
         if( !onlyEnabled_ || APP.GetProfileManager()->IsLevelUnlocked(settings.mId) )
 #endif
         {
