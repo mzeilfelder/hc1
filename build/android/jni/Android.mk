@@ -40,7 +40,7 @@ LOCAL_MODULE := hcraft1
 LOCAL_CFLAGS := -D_IRR_ANDROID_PLATFORM_ -pipe -fno-exceptions -fno-rtti -fstrict-aliasing
 
 ifndef NDEBUG
-LOCAL_CFLAGS += -g -ggdb -O0 -D_DEBUG 
+LOCAL_CFLAGS += -g -ggdb -O0 -D_DEBUG -DNDEBUG
 else
 LOCAL_CFLAGS += -fexpensive-optimizations -O3
 endif
