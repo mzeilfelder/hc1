@@ -17,8 +17,8 @@ This will likely never change as a lot of media is based on licenses which won't
 There are the following exceptions to that:
 The font Andika is using the open font license which can be found at: media/ui/andika/OFL.txt
 
-The songs 2'25'31 and Dream on from Manolo Camp had a liberal license back then. Thought they got removed from opsound since then.
-So before using them in any context best contact the writer at http://www.manolocamp.net/
+The songs 2'25'31 and Dream on from Manolo Camp are under a creative commons license. See media/sounds/music_level/license.txt
+Or contact the music author at http://www.manolocamp.net/
 
 
 ***
