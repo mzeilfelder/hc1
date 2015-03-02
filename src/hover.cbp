@@ -388,6 +388,8 @@
 		<Unit filename="advert_admob.h" />
 		<Unit filename="ai_track.cpp" />
 		<Unit filename="ai_track.h" />
+		<Unit filename="android_tools.cpp" />
+		<Unit filename="android_tools.h" />
 		<Unit filename="app_restrictions.cpp" />
 		<Unit filename="app_restrictions.h" />
 		<Unit filename="app_tester.cpp" />
