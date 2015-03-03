@@ -386,8 +386,9 @@ void GuiDialog::CreateElementsFromXml(TiXmlElement * xmlParent_, irr::gui::IGUIE
                 }
 
                 mGUIElements.push_back(guiElement);
+
+				CreateElementsFromXml(elementGui->ToElement(), guiElement);
             }
-            CreateElementsFromXml(elementGui->ToElement(), guiElement);
         }
 
         nodeGui = xmlParent_->IterateChildren("gui", nodeGui);
