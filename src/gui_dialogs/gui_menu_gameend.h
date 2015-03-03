@@ -7,7 +7,7 @@
 class GuiMenuGameEnd : public GuiDialog
 {
 public:
-    GuiMenuGameEnd();
+    GuiMenuGameEnd(const Config& config);
     ~GuiMenuGameEnd();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

@@ -53,7 +53,7 @@ public:
     irr::scene::ICameraSceneNode* GetGuiCamera() const    { return mCameraGui; }
     void SetCameraMaya();
     void SetCameraFPS();
-    void SetCameraGame();
+    void SetCameraGame(bool hideCursor);
     void SetCameraEditor();
     void SetCameraGui();
 

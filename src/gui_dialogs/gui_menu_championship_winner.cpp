@@ -8,8 +8,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuChampWinner::GuiMenuChampWinner()
-: GuiDialog()
+GuiMenuChampWinner::GuiMenuChampWinner(const Config& config)
+: GuiDialog(config)
 {
 }
 

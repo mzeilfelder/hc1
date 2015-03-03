@@ -9,8 +9,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuHoverUnlocked::GuiMenuHoverUnlocked()
-: GuiDialog()
+GuiMenuHoverUnlocked::GuiMenuHoverUnlocked(const Config& config)
+: GuiDialog(config)
 , mImageHover(0)
 {
 }

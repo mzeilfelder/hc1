@@ -25,8 +25,8 @@ namespace
 	const video::SColor COLOR_SELECTED(255, 73, 211, 246);
 };
 
-GuiMenuChampionshipProgress::GuiMenuChampionshipProgress()
-    : GuiDialog()
+GuiMenuChampionshipProgress::GuiMenuChampionshipProgress(const Config& config)
+    : GuiDialog(config)
     , NUM_QUARTERS(12) // 3 seasons with 4 quarters
     , NUM_RACES(NUM_QUARTERS*3)
     , mButtonContinue(0)

@@ -7,8 +7,8 @@
 using namespace irr;
 using namespace gui;
 
-ControllerDisplay::ControllerDisplay(gui::EGUI_ELEMENT_TYPE type_, gui::IGUIEnvironment * environment_, gui::IGUIElement * parent_, s32 id_, core::rect< s32 > rectangle_)
- : gui::IGUIElement(type_, environment_, parent_, id_, rectangle_)
+ControllerDisplay::ControllerDisplay(gui::IGUIEnvironment * environment_, gui::IGUIElement * parent_, s32 id_, core::rect< s32 > rectangle_)
+ : gui::IGUIElement(gui::EGUIET_ELEMENT, environment_, parent_, id_, rectangle_)
 {
     mController = NULL;
 }

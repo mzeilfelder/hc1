@@ -350,18 +350,17 @@ void Controller::MakeTouchSettings(ControllerSettings& settings)
     settings.mButtonCamera.mButtonId = ETB_CAMERA;
 }
 
-const ControllerSettings& Controller::GetActiveSettings() const
+const ControllerSettings& Controller::GetActiveSettings(ETouchInput touchInput) const
 {
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-	return mTouchDeviceSettings;
-#else
-	return mUserSettings;
-#endif
+	if ( touchInput == ETI_NO_TOUCH )
+		return mUserSettings;
+	else
+		return mTouchDeviceSettings;
 }
 
-void Controller::Update(const InputDeviceManager& idm)
+void Controller::Update(const InputDeviceManager& idm, ETouchInput touchInput)
 {
-	const ControllerSettings& settings = GetActiveSettings();
+	const ControllerSettings& settings = GetActiveSettings(touchInput);
 
     float accelerate = 0.f;
     accelerate = MAX(accelerate, idm.GetAxisValue(settings.mAnalogAcceleration, GetPower()) );

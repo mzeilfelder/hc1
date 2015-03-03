@@ -10,7 +10,7 @@
 class GuiMenuTutorial3 : public GuiDialog
 {
 public:
-    GuiMenuTutorial3();
+    GuiMenuTutorial3(const Config& config);
     ~GuiMenuTutorial3();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

@@ -8,7 +8,7 @@
 class GuiMenuAnalog : public GuiDialog
 {
 public:
-    GuiMenuAnalog();
+    GuiMenuAnalog(const Config& config);
     ~GuiMenuAnalog();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

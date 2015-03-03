@@ -39,8 +39,6 @@ IrrlichtManager::IrrlichtManager()
     , mStaticMeshTextureLoader(NULL)
     , mDynamicMeshTextureLoader(NULL)
 {
-    mEventReceiver = new EventReceiverBase();
-
     mDefaultEditorMaterial.DiffuseColor = video::SColor(130, 200, 200, 200);
     mDefaultEditorMaterial.AmbientColor = video::SColor(255, 255, 255, 255);
     mDefaultEditorMaterial.MaterialType = video::EMT_SOLID;
@@ -53,7 +51,6 @@ IrrlichtManager::IrrlichtManager()
 
 IrrlichtManager::~IrrlichtManager()
 {
-    delete mEventReceiver;
 }
 
 irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& config)
@@ -103,6 +100,8 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
             bitdepth = desktopDepth;
         }
     }
+
+    mEventReceiver = new EventReceiverBase(config);
 
 	SIrrlichtCreationParameters creationParameters;
 	creationParameters.AntiAlias = config.GetAntiAlias();
@@ -157,6 +156,8 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
 
 irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDeviceAndroid(const Config& config, android_app * systemData)
 {
+	mEventReceiver = new EventReceiverBase(config);
+
 #ifdef _IRR_ANDROID_PLATFORM_
 	SIrrlichtCreationParameters param;
 //	param.DriverType = video::EDT_OGLES1;				// android:glEsVersion in AndroidManifest.xml should be at least "0x00010000"
@@ -172,7 +173,6 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDeviceAndroid(const Config& 
 
 #ifndef _DEBUG
 	param.LoggingLevel = ELL_NONE;
-
 #endif
 
 	HC1_PROFILE( s32 profCreate = getProfiler().add(L"CreateDevice", L"STARTUP"); )
@@ -402,7 +402,10 @@ void IrrlichtManager::ShutDownEventReceiver()
 {
 	if ( mIrrlichtDevice )
 	{
+		mIrrlichtDevice->clearSystemMessages();
 		mIrrlichtDevice->setEventReceiver(NULL);
+		delete mEventReceiver;
+		mEventReceiver = NULL;
 	}
 }
 
@@ -793,6 +796,8 @@ scene::IAnimatedMeshSceneNode* IrrlichtManager::LoadAnimatedModel(const Config& 
 
 void IrrlichtManager::Quit()
 {
+	ShutDownEventReceiver();	// usually already down here.
+
 	if (mStaticMeshTextureLoader)
 	{
 		mStaticMeshTextureLoader->drop();
@@ -880,21 +885,19 @@ void IrrlichtManager::SetCameraFPS()
     }
 }
 
-void IrrlichtManager::SetCameraGame()
+void IrrlichtManager::SetCameraGame(bool hideCursor)
 {
     if ( mSceneManager)
     {
         mSceneManager->setActiveCamera(mCameraGame);
     }
 
-#ifndef HC1_SIMULATE_MOBILE_UI
-    if ( mIrrlichtDevice )
+    if ( mIrrlichtDevice && hideCursor)
     {
         ICursorControl* cursor = mIrrlichtDevice->getCursorControl();
         if(cursor)
 			cursor->setVisible(false);
     }
-#endif
 }
 
 void IrrlichtManager::SetCameraGui()

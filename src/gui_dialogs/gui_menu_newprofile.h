@@ -8,7 +8,7 @@
 class GuiMenuNewProfile : public GuiDialog
 {
 public:
-    GuiMenuNewProfile();
+    GuiMenuNewProfile(const Config& config);
     ~GuiMenuNewProfile();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

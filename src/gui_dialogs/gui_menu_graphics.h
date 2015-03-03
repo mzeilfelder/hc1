@@ -9,7 +9,7 @@
 class GuiMenuGraphics : public GuiDialog
 {
 public:
-    GuiMenuGraphics();
+    GuiMenuGraphics(const Config& config);
     ~GuiMenuGraphics();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

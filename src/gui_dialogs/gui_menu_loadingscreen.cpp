@@ -15,8 +15,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuLoadingScreen::GuiMenuLoadingScreen()
-    : GuiDialog()
+GuiMenuLoadingScreen::GuiMenuLoadingScreen(const Config& config)
+    : GuiDialog(config)
     , mLoadingMode(MLM_DEFAULT)
     , mTrackName(0)
     , mLaps(0)

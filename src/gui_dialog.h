@@ -14,11 +14,12 @@
 class TiXmlElement;
 
 class IEventFunctor;
+class Config;
 
 class GuiDialog
 {
 public:
-    GuiDialog();
+    GuiDialog(const Config& config);
     virtual ~GuiDialog();
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
@@ -103,7 +104,11 @@ protected:
 
     void BringElementsToFront();
 
+    const Config& GetConfig() const { return mConfig; }
+
 private:
+	const Config& mConfig;
+
     static int mHighestId;
     int mHighestFocusId;
     typedef std::map<std::string, int> IdNameMap;
@@ -127,7 +132,7 @@ private:
 
 class TestDialog : public GuiDialog
 {
-    TestDialog();
+    TestDialog(const Config& config);
     bool EventCallback(const irr::SEvent &event_);
 };
 

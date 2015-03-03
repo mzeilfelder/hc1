@@ -5,6 +5,7 @@
 
 #include "compile_config.h"
 #include "input_device.h"
+#include "config_enums.h"
 
 class TiXmlElement;
 class InputDeviceManager;
@@ -86,7 +87,7 @@ public:
     ~Controller();
 
     void Reset();
-    void Update(const InputDeviceManager& idm);
+    void Update(const InputDeviceManager& idm, ETouchInput touchInput);
 
     // values in range -1 to 1
     void SetPower(float val_)           { mPower = val_; }
@@ -116,7 +117,7 @@ public:
     ControllerSettings& GetUserSettings()                    { return mUserSettings; }
 
 protected:
-	const ControllerSettings& GetActiveSettings() const;
+	const ControllerSettings& GetActiveSettings(ETouchInput touchInput) const;
 	void MakeTouchSettings(ControllerSettings& settings);
 
 private:

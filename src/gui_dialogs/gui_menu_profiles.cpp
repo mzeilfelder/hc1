@@ -12,8 +12,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuProfiles::GuiMenuProfiles()
-    : GuiDialog()
+GuiMenuProfiles::GuiMenuProfiles(const Config& config)
+    : GuiDialog(config)
     , mSliderProfiles(0)
     , mActiveProfile(0)
     , mLevel(0)

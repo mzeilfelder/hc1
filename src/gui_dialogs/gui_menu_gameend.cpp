@@ -13,8 +13,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuGameEnd::GuiMenuGameEnd()
-    : GuiDialog()
+GuiMenuGameEnd::GuiMenuGameEnd(const Config& config)
+    : GuiDialog(config)
     , mStaticResultText(0)
     , mStaticResult(0)
     , mStaticTrackName(0)

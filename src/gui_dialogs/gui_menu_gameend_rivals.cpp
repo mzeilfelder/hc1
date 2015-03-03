@@ -13,8 +13,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuGameEndRivals::GuiMenuGameEndRivals()
-: GuiDialog()
+GuiMenuGameEndRivals::GuiMenuGameEndRivals(const Config& config)
+: GuiDialog(config)
 , mStaticTimeCurrentLap(0)
 , mStaticBestLap(0)
 , mStaticTrack(0)

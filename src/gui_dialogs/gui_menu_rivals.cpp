@@ -15,8 +15,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuRivals::GuiMenuRivals()
-    : GuiDialog()
+GuiMenuRivals::GuiMenuRivals(const Config& config)
+    : GuiDialog(config)
     , mButtonStart(0)
     , mButtonBack(0)
     , mSliderTrackDifficulty(0)

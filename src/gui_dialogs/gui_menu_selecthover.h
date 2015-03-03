@@ -8,7 +8,7 @@
 class GuiMenuSelectHover : public GuiDialog
 {
 public:
-    GuiMenuSelectHover();
+    GuiMenuSelectHover(const Config& config);
     ~GuiMenuSelectHover();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

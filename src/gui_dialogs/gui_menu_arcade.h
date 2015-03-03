@@ -10,7 +10,7 @@
 class GuiMenuArcade : public GuiDialog
 {
 public:
-    GuiMenuArcade();
+    GuiMenuArcade(const Config& config);
     ~GuiMenuArcade();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

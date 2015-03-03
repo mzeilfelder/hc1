@@ -8,7 +8,7 @@
 class GuiMenuHoverUnlocked : public GuiDialog
 {
 public:
-    GuiMenuHoverUnlocked();
+    GuiMenuHoverUnlocked(const Config& config);
     ~GuiMenuHoverUnlocked();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

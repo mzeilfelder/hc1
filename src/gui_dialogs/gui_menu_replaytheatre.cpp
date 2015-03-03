@@ -13,8 +13,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuReplayTheatre::GuiMenuReplayTheatre()
-    : GuiDialog()
+GuiMenuReplayTheatre::GuiMenuReplayTheatre(const Config& config)
+    : GuiDialog(config)
     , mActiveProfile(0)
 {
 }

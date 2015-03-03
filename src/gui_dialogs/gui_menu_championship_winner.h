@@ -8,7 +8,7 @@
 class GuiMenuChampWinner : public GuiDialog
 {
 public:
-    GuiMenuChampWinner();
+    GuiMenuChampWinner(const Config& config);
     ~GuiMenuChampWinner();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

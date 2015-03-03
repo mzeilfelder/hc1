@@ -169,8 +169,8 @@ bool App::Init(int argc, char *argv[], void * systemData)
     mRandomGenerator = new RandomGenerator();
     mIrrlichtManager = new IrrlichtManager();
     mConfig = new Config(systemData);
-    mGui = new Gui();
-    mInputDeviceManager = new InputDeviceManager();
+    mGui = new Gui(*mConfig);
+    mInputDeviceManager = new InputDeviceManager(*mConfig);
     mController = new Controller();
     mLevelManager = new LevelManager();
     mNodeManager = new NodeManager();
@@ -549,7 +549,7 @@ void App::SetNewMode(APP_MODES mode_)
                 }
                 else
                 {
-                    mIrrlichtManager->SetCameraGame();
+                    mIrrlichtManager->SetCameraGame(mConfig->GetUseTouchInput() == ETI_NO_TOUCH);
                 }
             }
             // if ( mEditGui )
@@ -786,7 +786,7 @@ void App::Run()
 
 		PROFILE_START(102);
 		mInputDeviceManager->Update();
-		mController->Update(*mInputDeviceManager);
+		mController->Update(*mInputDeviceManager, mConfig->GetUseTouchInput());
 		PROFILE_STOP(102);
 
 		PROFILE_START(103);

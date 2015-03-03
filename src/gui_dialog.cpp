@@ -22,8 +22,9 @@ int GuiDialog::mHighestId = GUI_MAX_ID+1;
 int GuiDialog::mDefaultScreenWidth = 640;
 int GuiDialog::mDefaultScreenHeight = 480;
 
-GuiDialog::GuiDialog()
-: mHighestFocusId(0)
+GuiDialog::GuiDialog(const Config& config)
+: mConfig(config)
+, mHighestFocusId(0)
 , mSkin(NULL)
 , mOldSkin(NULL)
 , mDefaultFocus(NULL)
@@ -314,11 +315,7 @@ void GuiDialog::CreateElementsFromXml(TiXmlElement * xmlParent_, irr::gui::IGUIE
     // This stuff is still handcoded in many dialogs because I started out using different xml's
     // before I realized putting all platforms in one XML is easier to handle.
     // Should probably even be dynamic instead of using compile-flags... but one step at a time.
-	#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		const char * FILTER = "TOUCH";
-	#else
-		const char * FILTER = "PC";
-	#endif
+	const char * FILTER = mConfig.GetUseTouchInput() == ETI_NO_TOUCH ? "PC" : "TOUCH";
 
     TiXmlNode* nodeGui = xmlParent_->IterateChildren("gui", NULL);
     while ( nodeGui )
@@ -602,7 +599,7 @@ irr::gui::IGUIFont* GuiDialog::ReadScaledFont(TiXmlElement * xmlElement_)
     const char * fontFile = xmlElement_->Attribute("font");
     if ( fontFile )
     {
-        std::string completeFontName(APP.GetConfig()->GetPathMedia());
+        std::string completeFontName(mConfig.GetPathMedia());
         completeFontName += fontFile;
 
         if ( strstr(completeFontName.c_str(), ".ttf") )
@@ -655,7 +652,7 @@ bool GuiDialog::ReadScaledRect(irr::core::rect<s32>& rect_, TiXmlElement * xmlEl
     core::dimension2d<s32> dim( driver->getScreenSize() );
 
     // tripplescreen mode?
-    if ( APP.GetConfig()->DoesNeedTrippleHeadMode(dim.Width, dim.Height) )
+    if ( mConfig.DoesNeedTrippleHeadMode(dim.Width, dim.Height) )
     {
         int newLeftSide = 0;
         if ( 0 == triplehead )
@@ -741,7 +738,7 @@ irr::video::ITexture * GuiDialog::GetGuiTexture(const char * name)
 		bool oldMips = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
 		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
-        std::string completeTexName(APP.GetConfig()->GetPathMedia());
+        std::string completeTexName(mConfig.GetPathMedia());
         completeTexName += name;
         texture = driver->getTexture( completeTexName.c_str() );
 
@@ -895,9 +892,11 @@ irr::gui::IGUIElement* GuiDialog::AddStatic(TiXmlElement * xmlElement_, irr::gui
 
     // HACK: We never need to draw borders for static elements in the game. They might still be needed for editing,
     // in which case we should add a special edit-mode for this. But for now disable always as those are expensive in drawing.
-#if defined(HOVER_RELEASE) || defined(HC1_SIMULATE_MOBILE_UI) || defined(_IRR_ANDROID_PLATFORM_)
+#if defined(HOVER_RELEASE) || defined(_IRR_ANDROID_PLATFORM_)
 	border = 0;
 #endif
+	if ( mConfig.GetUseTouchInput() == ETI_TOUCH_SIMULATION )
+		border = 0;
 
     irr::gui::IGUIStaticText *staticText = env->addStaticText(wtext.c_str(), rect, (bool)border, (bool)wordWrap, guiParent_, id, (bool)fillBackground);
     if ( staticText )
@@ -1192,13 +1191,14 @@ irr::gui::IGUIElement* GuiDialog::AddTextSlider(TiXmlElement * xmlElement_, irr:
         slider->setRightImagePressed(GetGuiTexture(rightTexPressed));
     }
 
-#if !defined(_IRR_ANDROID_PLATFORM_) && !defined(HC1_SIMULATE_MOBILE_UI)
-    const char * texFocused = xmlElement_->Attribute("tex_focused");
-    if ( texFocused )
-    {
-		slider->setFocusedImage(GetGuiTexture(texFocused));
-    }
-#endif
+    if ( mConfig.GetUseTouchInput() == ETI_NO_TOUCH )
+	{
+		const char * texFocused = xmlElement_->Attribute("tex_focused");
+		if ( texFocused )
+		{
+			slider->setFocusedImage(GetGuiTexture(texFocused));
+		}
+	}
 
     // TEST, but can stay
     slider->addText(L"dummy one");
@@ -1206,7 +1206,7 @@ irr::gui::IGUIElement* GuiDialog::AddTextSlider(TiXmlElement * xmlElement_, irr:
     slider->addText(L"dummy three");
     slider->setCurrentTextId(0);
 
-    if ( APP.GetConfig()->DoesNeedLargeButtons() )
+    if ( mConfig.DoesNeedLargeButtons() )
     {
 		slider->makeLargeButtons();
 	}
@@ -1241,7 +1241,8 @@ void GuiDialog::BringElementsToFront()
 }
 
 
-TestDialog::TestDialog()
+TestDialog::TestDialog(const Config& config)
+: GuiDialog(config)
 {
     AddGuiEventFunctor(0, new EventFunctor<TestDialog>(this, &TestDialog::EventCallback));
 }

@@ -15,8 +15,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuNagscreen::GuiMenuNagscreen()
-    : GuiDialog()
+GuiMenuNagscreen::GuiMenuNagscreen(const Config& config)
+    : GuiDialog(config)
     , mButtonBuy(0)
     , mStaticNagPrice(0)
     , mStaticNagAdvertise(0)

@@ -12,8 +12,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuHighscores::GuiMenuHighscores()
-    : GuiDialog()
+GuiMenuHighscores::GuiMenuHighscores(const Config& config)
+    : GuiDialog(config)
     , mActiveProfile(0)
     , mSliderScoreMode(0)
     , mSliderDifficulty(0)

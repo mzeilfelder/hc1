@@ -195,55 +195,56 @@ void DeviceTouch::ResetValues()
     }
 }
 
-void DeviceTouch::OnEvent(const irr::SEvent &event)
+void DeviceTouch::OnEvent(const irr::SEvent &event, ETouchInput touchInput)
 {
     switch ( event.EventType )
     {
-#ifdef HC1_SIMULATE_MOBILE_UI
         case EET_MOUSE_INPUT_EVENT:
         {
-			switch ( event.MouseInput.Event )
+        	if ( touchInput == ETI_TOUCH_SIMULATION )
 			{
-				case EMIE_LMOUSE_PRESSED_DOWN:
+				switch ( event.MouseInput.Event )
 				{
-					STouch touch;
-					touch.mID = 0;
-					touch.mX = event.MouseInput.X;
-					touch.mY = event.MouseInput.Y;
-					mTouches.push_back(touch);
-				}
-				break;
-				case EMIE_LMOUSE_LEFT_UP:
-				{
-					for ( size_t i=0; i<mTouches.size(); ++i )
+					case EMIE_LMOUSE_PRESSED_DOWN:
 					{
-						if ( mTouches[i].mID == 0 )
+						STouch touch;
+						touch.mID = 0;
+						touch.mX = event.MouseInput.X;
+						touch.mY = event.MouseInput.Y;
+						mTouches.push_back(touch);
+					}
+					break;
+					case EMIE_LMOUSE_LEFT_UP:
+					{
+						for ( size_t i=0; i<mTouches.size(); ++i )
 						{
-							mTouches.erase(mTouches.begin() + i);
-							break;
+							if ( mTouches[i].mID == 0 )
+							{
+								mTouches.erase(mTouches.begin() + i);
+								break;
+							}
 						}
 					}
-				}
-				break;
-				case EMIE_MOUSE_MOVED:
-				{
-					for ( size_t i=0; i<mTouches.size(); ++i )
+					break;
+					case EMIE_MOUSE_MOVED:
 					{
-						if ( mTouches[i].mID == 0 )
+						for ( size_t i=0; i<mTouches.size(); ++i )
 						{
-							mTouches[i].mX = event.MouseInput.X;
-							mTouches[i].mY = event.MouseInput.Y;
-							break;
+							if ( mTouches[i].mID == 0 )
+							{
+								mTouches[i].mX = event.MouseInput.X;
+								mTouches[i].mY = event.MouseInput.Y;
+								break;
+							}
 						}
 					}
+					break;
+					default:
+					break;
 				}
-				break;
-				default:
-				break;
 			}
 		}
 		break;
-#endif
 
 #ifdef _IRR_ANDROID_PLATFORM_
 		case EET_TOUCH_INPUT_EVENT:

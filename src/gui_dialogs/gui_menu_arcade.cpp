@@ -13,8 +13,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuArcade::GuiMenuArcade()
-    : GuiDialog()
+GuiMenuArcade::GuiMenuArcade(const Config& config)
+    : GuiDialog(config)
     , mActiveProfile(0)
     , mSliderTracks(0)
     , mSliderLevelDifficulty(0)

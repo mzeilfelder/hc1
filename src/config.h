@@ -3,6 +3,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "config_enums.h"
+
 // Do not include whole Irrlicht here because otherwise every file depends on it.
 // And this would cause a lot of warnings because Irrlicht and -Wall did not work together well
 #include <EDriverTypes.h>
@@ -19,19 +21,6 @@ namespace irr
 	{
 		class IFileSystem;
 	}
-};
-
-enum EParticleMode
-{
-    EPM_ON,
-    EPM_WEATHER_OFF,
-    EPM_ALL_OFF,
-};
-
-enum ELightMode
-{
-	ELM_STATIC,
-	ELM_DYNAMIC
 };
 
 class Config
@@ -74,6 +63,7 @@ public:
     bool GetUseTex32Bit() const                     { return mUseTex32Bit; }
     bool GetUseTexQuality() const                   { return mUseTexQuality; }
     bool GetUseTexSpeed() const                     { return mUseTexSpeed; }
+    ETouchInput GetUseTouchInput() const			{ return mUseTouchInput; }
 
     // format is: "path/"
     std::string GetPathMedia() const;
@@ -222,6 +212,10 @@ private:
 
 	// true when we're on a small device.
     bool mDoesNeedLargeButtons;
+
+    // fixed configuration values
+    const ETouchInput mUseTouchInput;
+
 };
 
 #endif // CONFIG_H

@@ -14,7 +14,7 @@ class Record;
 class GuiAi : public GuiDialog
 {
 public:
-    GuiAi();
+    GuiAi(const Config& config);
     ~GuiAi();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

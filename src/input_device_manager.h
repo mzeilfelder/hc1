@@ -14,6 +14,7 @@ class DeviceTouch;
 class ControllerAxis;
 class ControllerButton;
 class TiXmlElement;
+class Config;
 
 namespace irr
 {
@@ -28,7 +29,7 @@ namespace irr
 class InputDeviceManager
 {
 public:
-    InputDeviceManager();
+    InputDeviceManager(const Config& config);
     ~InputDeviceManager();
 
     void CreateAllDevices(irr::gui::ICursorControl * cursorControl);
@@ -62,6 +63,7 @@ protected:
     void UpdateDevices();
 
 private:
+	const Config& mConfig;
     DeviceKeyboard  * mKeyboard;
     DeviceMouse     * mMouse;
     DeviceTouch 	* mTouch;

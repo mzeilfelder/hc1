@@ -12,18 +12,12 @@
 #define MAX_RECORD_SIZE 3000000
 #define MAX_RIVALS 4
 
-#ifndef PI
-  #define PI 3.1415926536
-#endif
 #ifndef MIN
   #define MIN(x,y) (((x)<(y))?(x):(y))
 #endif
 #ifndef MAX
   #define MAX(x,y) (((x)>(y))?(x):(y))
 #endif
-
-const float DEGTORAD		= PI / 180.0f;
-const float RADTODEG		= 180.0f / PI;
 
 #define swprintf_hc swprintf
 

@@ -15,8 +15,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuAnalog::GuiMenuAnalog()
-    : GuiDialog()
+GuiMenuAnalog::GuiMenuAnalog(const Config& config)
+    : GuiDialog(config)
     , mSliderRange(0)
     , mSliderDead(0)
     , mActiveProfile(0)

@@ -8,7 +8,7 @@
 class GuiMenuPause : public GuiDialog
 {
 public:
-    GuiMenuPause();
+    GuiMenuPause(const Config& config);
     ~GuiMenuPause();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

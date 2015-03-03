@@ -9,8 +9,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuLicenses::GuiMenuLicenses()
-    : GuiDialog()
+GuiMenuLicenses::GuiMenuLicenses(const Config& config)
+    : GuiDialog(config)
 {
     SetSuppressSceneRendering(true);
 }

@@ -15,8 +15,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuRivalsScore::GuiMenuRivalsScore()
-    : GuiDialog()
+GuiMenuRivalsScore::GuiMenuRivalsScore(const Config& config)
+    : GuiDialog(config)
     , mButtonStart(0)
     , mButtonExit(0)
     , mStaticWinner(0)

@@ -38,7 +38,7 @@ class DeviceTouch;
 class GuiTouch : public GuiDialog
 {
 public:
-    GuiTouch();
+    GuiTouch(const Config& config);
     ~GuiTouch();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

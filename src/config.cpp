@@ -31,6 +31,14 @@ Config::Config(void * systemData)
 : mXmlDocument(NULL)
 , mXmlProviderDocument(NULL)
 , mDoesNeedLargeButtons(false)
+#ifdef _IRR_ANDROID_PLATFORM_
+, mUseTouchInput(ETI_TOUCH_HARDWARE)
+#elif defined(HOVER_RELEASE)
+, mUseTouchInput(ETI_NO_TOUCH)
+#else
+//, mUseTouchInput(ETI_TOUCH_SIMULATION)
+, mUseTouchInput(ETI_NO_TOUCH)
+#endif
 {
     mDriverType = irr::video::EDT_OPENGL;
     mNearClipping = 10.f;

@@ -8,7 +8,7 @@
 class GuiMenuReplayTheatre : public GuiDialog
 {
 public:
-    GuiMenuReplayTheatre();
+    GuiMenuReplayTheatre(const Config& config);
     ~GuiMenuReplayTheatre();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

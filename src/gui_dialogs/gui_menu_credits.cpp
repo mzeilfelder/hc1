@@ -5,13 +5,14 @@
 #include "gui_menu_options.h"
 #include "../gui.h"
 #include "../main.h"
+#include "../config.h"
 
 using namespace irr;
 using namespace gui;
 
 
-GuiMenuCredits::GuiMenuCredits()
-    : GuiDialog()
+GuiMenuCredits::GuiMenuCredits(const Config& config)
+    : GuiDialog(config)
 {
     SetSuppressSceneRendering(true);
 }
@@ -28,9 +29,10 @@ bool GuiMenuCredits::Load(const char* filename_, bool reloadLast_)
     if ( ok )
     {
         AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuCredits>(this, &GuiMenuCredits::OnButtonBack) );
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		AddGuiEventFunctor( GetIdForName(std::string("id_licenses")), new EventFunctor<GuiMenuCredits>(this, &GuiMenuCredits::OnButtonLicenses) );
-#endif
+		if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			AddGuiEventFunctor( GetIdForName(std::string("id_licenses")), new EventFunctor<GuiMenuCredits>(this, &GuiMenuCredits::OnButtonLicenses) );
+		}
     }
     return ok;
 }
@@ -40,9 +42,10 @@ void GuiMenuCredits::RemoveFunctors()
     if ( !IsLoaded() )
         return;
     RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-	RemoveGuiEventFunctor( GetIdForName(std::string("id_licenses")) );
-#endif
+	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+	{
+		RemoveGuiEventFunctor( GetIdForName(std::string("id_licenses")) );
+	}
 }
 
 bool GuiMenuCredits::OnButtonLicenses(const irr::SEvent &event_)

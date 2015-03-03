@@ -23,8 +23,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuMain::GuiMenuMain()
-    : GuiDialog()
+GuiMenuMain::GuiMenuMain(const Config& config)
+    : GuiDialog(config)
     , mButtonChampionShip(0)
     , mButtonArcade(0)
     , mButtonTimeattack(0)

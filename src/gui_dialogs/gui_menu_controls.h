@@ -11,7 +11,7 @@ class ControllerButton;
 class GuiMenuControls : public GuiDialog
 {
 public:
-    GuiMenuControls();
+    GuiMenuControls(const Config& config);
     ~GuiMenuControls();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

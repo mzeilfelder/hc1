@@ -14,8 +14,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuChampionship::GuiMenuChampionship()
-    : GuiDialog()
+GuiMenuChampionship::GuiMenuChampionship(const Config& config)
+    : GuiDialog(config)
     , mActiveProfile(0)
     , mButtonNew(0)
     , mButtonContinue(0)

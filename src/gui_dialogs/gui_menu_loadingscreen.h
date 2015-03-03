@@ -15,7 +15,7 @@ enum MenuLoadingMode
 class GuiMenuLoadingScreen : public GuiDialog
 {
 public:
-    GuiMenuLoadingScreen();
+    GuiMenuLoadingScreen(const Config& config);
     ~GuiMenuLoadingScreen();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

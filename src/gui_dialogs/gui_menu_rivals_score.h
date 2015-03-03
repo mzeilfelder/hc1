@@ -11,7 +11,7 @@
 class GuiMenuRivalsScore : public GuiDialog
 {
 public:
-    GuiMenuRivalsScore();
+    GuiMenuRivalsScore(const Config& config);
     ~GuiMenuRivalsScore();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

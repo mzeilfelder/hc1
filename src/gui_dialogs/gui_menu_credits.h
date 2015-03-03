@@ -8,7 +8,7 @@
 class GuiMenuCredits : public GuiDialog
 {
 public:
-    GuiMenuCredits();
+    GuiMenuCredits(const Config& config);
     ~GuiMenuCredits();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

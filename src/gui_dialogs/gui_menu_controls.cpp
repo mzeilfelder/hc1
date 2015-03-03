@@ -16,8 +16,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuControls::GuiMenuControls()
-: GuiDialog()
+GuiMenuControls::GuiMenuControls(const Config& config)
+: GuiDialog(config)
     ,mButtonAnalogSteer(0)
     ,mButtonAnalogAccelerate(0)
     ,mButtonAnalogBrake(0)

@@ -14,8 +14,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuSelectHover::GuiMenuSelectHover()
-    : GuiDialog()
+GuiMenuSelectHover::GuiMenuSelectHover(const Config& config)
+    : GuiDialog(config)
     , mImageHover(0)
     , mSliderHover(0)
     , mUnlock(0)

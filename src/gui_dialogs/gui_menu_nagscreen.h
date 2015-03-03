@@ -9,7 +9,7 @@
 class GuiMenuNagscreen : public GuiDialog
 {
 public:
-    GuiMenuNagscreen();
+    GuiMenuNagscreen(const Config& config);
     ~GuiMenuNagscreen();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

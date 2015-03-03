@@ -18,8 +18,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiTouch::GuiTouch()
-    : GuiDialog()
+GuiTouch::GuiTouch(const Config& config)
+    : GuiDialog(config)
     , mDialogState(ETDS_PLAY)
 	, mImageTouchPosH(0)
 	, mImageTouchPosV(0)
@@ -116,8 +116,7 @@ bool GuiTouch::Load(const char* filename_, bool reloadLast_)
 		mSetupElements = GetElementByName(root, "img1", errorMsg);
 
         mAndroidControlSlider = static_cast<IGUITextSlider*>(GetElementByName(root, "touchcontrol", errorMsg));
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-        if (mAndroidControlSlider)
+        if (GetConfig().GetUseTouchInput() != ETI_NO_TOUCH && mAndroidControlSlider)
         {
 			// Only add controls which allow to play the game so well that you can beat hard ai in hard tracks with it.
 			// Unfortunately that wasn't the case for any kind of analog touch controls so far. They are requested a lot
@@ -126,7 +125,7 @@ bool GuiTouch::Load(const char* filename_, bool reloadLast_)
 			mAndroidControlSlider->addText(GetLayoutName(ETL_DIGITAL_H_LEFT_V_RIGHT));
 			mAndroidControlSlider->addText(GetLayoutName(ETL_DIGITAL_V_LEFT_H_RIGHT));
         }
-#endif
+
 		mControlsPosSlider = static_cast<IGUITextSlider*>(GetElementByName(root, "controlspos_slider", errorMsg));
 		if ( mControlsPosSlider )
 		{

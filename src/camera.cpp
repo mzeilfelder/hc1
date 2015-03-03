@@ -324,7 +324,7 @@ void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene:
     core::vector3df flyHeight(0, mCameraAdditionalHeight, 0);
     gameCam_->setPosition(camPosParent + camPosRel + parentPitch*mCameraSettings.mPitchCam + flyHeight);
 
-    float addHeight = sin(DEGTORAD * mCameraSettings.mCamTargetHeight)*behind;  // make sure it's always the same angle
+    float addHeight = sin(core::DEGTORAD * mCameraSettings.mCamTargetHeight)*behind;  // make sure it's always the same angle
     core::vector3df camTarget(0.f, mCameraSettings.mCamHeight + addHeight, 0.f);
     camTarget = quatNewRot * camTarget;
     gameCam_->setTarget (camPosParent + camTarget + parentPitch*mCameraSettings.mPitchTarget);
@@ -334,11 +334,11 @@ void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene:
     {
         float fovIncrease = (speed-mCameraSettings.mFovSpeed)/maxSpeed;
         fovIncrease *= mCameraSettings.mFovFactor;
-        gameCam_->setFOV( PI/ (mCameraSettings.mFovDefault + fovIncrease) );
+        gameCam_->setFOV( M_PI/ (mCameraSettings.mFovDefault + fovIncrease) );
     }
     else
     {
-        gameCam_->setFOV( PI / mCameraSettings.mFovDefault );
+        gameCam_->setFOV( M_PI / mCameraSettings.mFovDefault );
     }
 
     // set rolling

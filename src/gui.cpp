@@ -63,8 +63,9 @@
 using namespace irr;
 using namespace gui;
 
-Gui::Gui()
-    : mEnvironment(NULL)
+Gui::Gui(const Config& config)
+    : mConfig(config)
+    , mEnvironment(NULL)
     , mVideoDriver(NULL)
 {
 #ifdef HC1_ENABLE_EDITOR
@@ -196,7 +197,7 @@ void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDr
 
 	// set a nicer font (TODO: add some bitmap-font to the media-folder for that)
 	IGUISkin* skin = mEnvironment->getSkin();
-	IGUIFont* font = fontManager->GetTtFont(mVideoDriver, fileSystem_, APP.GetConfig()->MakeFilenameUI("andika/Andika-R.ttf").c_str(), 12, true, true);
+	IGUIFont* font = fontManager->GetTtFont(mVideoDriver, fileSystem_, mConfig.MakeFilenameUI("andika/Andika-R.ttf").c_str(), 12, true, true);
 	if (font)
 		skin->setFont(font);
 
@@ -237,17 +238,17 @@ void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDr
 
 	// create toolbar
 	mBar = mEnvironment->addToolBar();
-	video::ITexture* image = mVideoDriver->getTexture(APP.GetConfig()->MakeFilenameUI("open.png").c_str());
+	video::ITexture* image = mVideoDriver->getTexture(mConfig.MakeFilenameUI("open.png").c_str());
 	mVideoDriver->makeColorKeyTexture(image, core::position2d<s32>(0,0));
 	mBar->addButton(GUI_ICON_OPEN_FILE, 0, 0, image, 0, false, true);
 
 
-	image = mVideoDriver->getTexture(APP.GetConfig()->MakeFilenameUI("tools.png").c_str());
+	image = mVideoDriver->getTexture(mConfig.MakeFilenameUI("tools.png").c_str());
 	mVideoDriver->makeColorKeyTexture(image, core::position2d<s32>(0,0));
 	mBar->addButton(GUI_ICON_TOOLBAR, 0, 0, image, 0, false, true);
 
     IGUIElement* root = mEnvironment->getRootGUIElement();
-	mControllerDisplay = new ControllerDisplay(gui::EGUIET_ELEMENT, mEnvironment, root, GUI_CONTROLLER_DISPLAY, core::rect<s32>(550,400,600,450));
+	mControllerDisplay = new ControllerDisplay(mEnvironment, root, GUI_CONTROLLER_DISPLAY, core::rect<s32>(550,400,600,450));
 	mControllerDisplay->setVisible(false);
 	mControllerDisplay->SetController(APP.GetController());
 
@@ -255,14 +256,14 @@ void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDr
     mDeveloperSettings = new GuiDeveloperSettings(mEnvironment);
     mGuiLevelManager = new GuiLevelManager(mEnvironment);
     mGuiEditor = new GuiEditor(mEnvironment);
-    mGuiAi = new GuiAi();
-    mGuiAi->Load(APP.GetConfig()->MakeFilenameUI("edit_ai.xml").c_str());
+    mGuiAi = new GuiAi(mConfig);
+    mGuiAi->Load(mConfig.MakeFilenameUI("edit_ai.xml").c_str());
     mGuiAi->Hide();
 
     mGuiGame = new GuiGame(mEnvironment);
 
     // TEST
-    mTestDialog = new GuiDialog();
+    mTestDialog = new GuiDialog(mConfig);
 #endif // HC1_ENABLE_EDITOR
 
 #if !defined(HOVER_RELEASE)
@@ -274,44 +275,44 @@ void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDr
 
 	// set window caption
 	std::wstring caption;
-	caption = APP.GetConfig()->GetDlgMainCaption();
+	caption = mConfig.GetDlgMainCaption();
 	caption += L" - [";
 	caption += mVideoDriver->getName();
 	caption += L"]";
 	APP.GetIrrlichtManager()->GetIrrlichtDevice()->setWindowCaption(caption.c_str());
 
 	// create all game dialogs
-    mGuiIntro = new GuiIntro();
-    mGuiHud = new GuiHud();
-    mGuiTouch = new GuiTouch();
-    mMenuMain = new GuiMenuMain();
-    mMenuChampionship = new GuiMenuChampionship();
-    mMenuChampionshipProgress = new GuiMenuChampionshipProgress();
-    mMenuChampWinner = new GuiMenuChampWinner();
-    mMenuArcade = new GuiMenuArcade();
-    mMenuTimeAttack = new GuiMenuTimeAttack();
-    mMenuRivals = new GuiMenuRivals();
-    mMenuRivalsScore = new GuiMenuRivalsScore();
-    mMenuSelectHover = new GuiMenuSelectHover();
-//    mMenuReplayTheatre = new GuiMenuReplayTheatre();
-    mMenuHighscores = new GuiMenuHighscores();
-    mMenuOptions = new GuiMenuOptions();
-    mMenuProfiles = new GuiMenuProfiles();
-    mMenuControls = new GuiMenuControls();
-    mMenuAnalog = new GuiMenuAnalog();
-    mMenuNewProfile = new GuiMenuNewProfile();
-    mMenuGameEnd = new GuiMenuGameEnd();
-    mMenuGameEndChampionship = new GuiMenuGameEndChampionship();
-    mMenuGameEndRivals = new GuiMenuGameEndRivals();
-    mMenuPause = new GuiMenuPause();
-    mMenuCredits = new GuiMenuCredits();
-    mMenuLicenses = new GuiMenuLicenses();
-    mMenuNagscreen = new GuiMenuNagscreen();
-    mMenuGraphics = new GuiMenuGraphics();
-    mMenuLoadingScreen = new GuiMenuLoadingScreen();
-    mMenuTutorial3 = new GuiMenuTutorial3();
-    mMenuHoverUnlocked = new GuiMenuHoverUnlocked();
-    mGuiDlgOkCancel = new GuiDlgOkCancel();
+    mGuiIntro = new GuiIntro(mConfig);
+    mGuiHud = new GuiHud(mConfig);
+    mGuiTouch = new GuiTouch(mConfig);
+    mMenuMain = new GuiMenuMain(mConfig);
+    mMenuChampionship = new GuiMenuChampionship(mConfig);
+    mMenuChampionshipProgress = new GuiMenuChampionshipProgress(mConfig);
+    mMenuChampWinner = new GuiMenuChampWinner(mConfig);
+    mMenuArcade = new GuiMenuArcade(mConfig);
+    mMenuTimeAttack = new GuiMenuTimeAttack(mConfig);
+    mMenuRivals = new GuiMenuRivals(mConfig);
+    mMenuRivalsScore = new GuiMenuRivalsScore(mConfig);
+    mMenuSelectHover = new GuiMenuSelectHover(mConfig);
+//    mMenuReplayTheatre = new GuiMenuReplayTheatre(mConfig);
+    mMenuHighscores = new GuiMenuHighscores(mConfig);
+    mMenuOptions = new GuiMenuOptions(mConfig);
+    mMenuProfiles = new GuiMenuProfiles(mConfig);
+    mMenuControls = new GuiMenuControls(mConfig);
+    mMenuAnalog = new GuiMenuAnalog(mConfig);
+    mMenuNewProfile = new GuiMenuNewProfile(mConfig);
+    mMenuGameEnd = new GuiMenuGameEnd(mConfig);
+    mMenuGameEndChampionship = new GuiMenuGameEndChampionship(mConfig);
+    mMenuGameEndRivals = new GuiMenuGameEndRivals(mConfig);
+    mMenuPause = new GuiMenuPause(mConfig);
+    mMenuCredits = new GuiMenuCredits(mConfig);
+    mMenuLicenses = new GuiMenuLicenses(mConfig);
+    mMenuNagscreen = new GuiMenuNagscreen(mConfig);
+    mMenuGraphics = new GuiMenuGraphics(mConfig);
+    mMenuLoadingScreen = new GuiMenuLoadingScreen(mConfig);
+    mMenuTutorial3 = new GuiMenuTutorial3(mConfig);
+    mMenuHoverUnlocked = new GuiMenuHoverUnlocked(mConfig);
+    mGuiDlgOkCancel = new GuiDlgOkCancel(mConfig);
 
     const core::dimension2d<u32> & videoDimension = mVideoDriver->getCurrentRenderTargetSize();
     const core::recti profilerRect(1, 1, videoDimension.Width-1, videoDimension.Height-1);
@@ -340,11 +341,11 @@ void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDr
 		mGuiProfiler2->setVisible(false);
 	mProfilerBackground->setVisible(false);
 
-    mSoundFocus = APP.GetConfig()->MakeFilenameSound("hc_menu_click01.wav");
+    mSoundFocus = mConfig.MakeFilenameSound("hc_menu_click01.wav");
     mSoundRefFocus = -1;
-    mSoundClick1 = APP.GetConfig()->MakeFilenameSound("hc_menu_confirm01.wav");
+    mSoundClick1 = mConfig.MakeFilenameSound("hc_menu_confirm01.wav");
     mSoundRefClick1 = -1;
-    mSoundClick2 = APP.GetConfig()->MakeFilenameSound("hc_menu_deny01.wav");
+    mSoundClick2 = mConfig.MakeFilenameSound("hc_menu_deny01.wav");
     mSoundRefClick2 = -1;
 }
 
@@ -355,7 +356,7 @@ void Gui::LoadIntro()
     if ( mGuiIntro )
     {
         LOG.Debug(L"intro\n");
-        if ( !mGuiIntro->Load(APP.GetConfig()->MakeFilenameUI("menu_intro.xml").c_str()) )
+        if ( !mGuiIntro->Load(mConfig.MakeFilenameUI("menu_intro.xml").c_str()) )
         {
             LOG.Warn(L"load intro failed\n");
         }
@@ -370,7 +371,7 @@ void Gui::LoadMenuDialogs()
     if ( mGuiHud )
     {
         LOG.Debug(L"hud\n");
-        if ( !mGuiHud->Load(APP.GetConfig()->MakeFilenameUI("menu_hud.xml").c_str()) )
+        if ( !mGuiHud->Load(mConfig.MakeFilenameUI("menu_hud.xml").c_str()) )
         {
             LOG.Warn(L"load hud failed\n");
         }
@@ -380,7 +381,7 @@ void Gui::LoadMenuDialogs()
     if ( mGuiTouch )
     {
         LOG.Debug(L"touch\n");
-        if ( !mGuiTouch->Load(APP.GetConfig()->MakeFilenameUI("menu_touch.xml").c_str()) )
+        if ( !mGuiTouch->Load(mConfig.MakeFilenameUI("menu_touch.xml").c_str()) )
         {
             LOG.Warn(L"load touch failed\n");
         }
@@ -390,7 +391,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuMain )
     {
         LOG.Debug(L"mainmenu01\n");
-        if ( !mMenuMain->Load(APP.GetConfig()->MakeFilenameUI("menu_main.xml").c_str()) )
+        if ( !mMenuMain->Load(mConfig.MakeFilenameUI("menu_main.xml").c_str()) )
         {
             LOG.Warn(L"load mainmenu01 failed\n");
         }
@@ -399,7 +400,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuChampionship )
     {
         LOG.Debug(L"championship\n");
-        if ( !mMenuChampionship->Load(APP.GetConfig()->MakeFilenameUI("menu_championship.xml").c_str()) )
+        if ( !mMenuChampionship->Load(mConfig.MakeFilenameUI("menu_championship.xml").c_str()) )
         {
             LOG.Warn(L"load championship failed\n");
         }
@@ -408,20 +409,26 @@ void Gui::LoadMenuDialogs()
     if ( mMenuChampionshipProgress )
     {
         LOG.Debug(L"championship_progress\n");
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		if ( !mMenuChampionshipProgress->Load(APP.GetConfig()->MakeFilenameUI("menu_championship_progress_touch.xml").c_str()) )
-#else
-        if ( !mMenuChampionshipProgress->Load(APP.GetConfig()->MakeFilenameUI("menu_championship_progress.xml").c_str()) )
-#endif
-        {
-            LOG.Warn(L"load championship_progress failed\n");
-        }
+        if ( mConfig.GetUseTouchInput() == ETI_NO_TOUCH )
+		{
+			if ( !mMenuChampionshipProgress->Load(mConfig.MakeFilenameUI("menu_championship_progress.xml").c_str()) )
+			{
+				LOG.Warn(L"load championship_progress failed\n");
+			}
+		}
+		else
+		{
+			if ( !mMenuChampionshipProgress->Load(mConfig.MakeFilenameUI("menu_championship_progress_touch.xml").c_str()) )
+			{
+				LOG.Warn(L"load championship_progress failed\n");
+			}
+		}
         mMenuChampionshipProgress->Hide();
     }
     if ( mMenuChampWinner )
     {
         LOG.Debug(L"ChampWinner\n");
-        if ( !mMenuChampWinner->Load(APP.GetConfig()->MakeFilenameUI("menu_champ_winner.xml").c_str()) )
+        if ( !mMenuChampWinner->Load(mConfig.MakeFilenameUI("menu_champ_winner.xml").c_str()) )
         {
             LOG.Warn(L"load champ_winner.xml failed\n");
         }
@@ -430,7 +437,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuArcade )
     {
         LOG.Debug(L"arcade\n");
-        if ( !mMenuArcade->Load(APP.GetConfig()->MakeFilenameUI("menu_arcade.xml").c_str()) )
+        if ( !mMenuArcade->Load(mConfig.MakeFilenameUI("menu_arcade.xml").c_str()) )
         {
             LOG.Warn(L"load arcade failed\n");
         }
@@ -439,7 +446,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuTimeAttack )
     {
         LOG.Debug(L"timeattack\n");
-        if  (!mMenuTimeAttack->Load(APP.GetConfig()->MakeFilenameUI("menu_timeattack.xml").c_str()) )
+        if  (!mMenuTimeAttack->Load(mConfig.MakeFilenameUI("menu_timeattack.xml").c_str()) )
         {
             LOG.Warn(L"load timeattack failed\n");
         }
@@ -448,7 +455,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuRivals )
     {
         LOG.Debug(L"rivals_menu\n");
-        if  (!mMenuRivals->Load(APP.GetConfig()->MakeFilenameUI("menu_rivals.xml").c_str()) )
+        if  (!mMenuRivals->Load(mConfig.MakeFilenameUI("menu_rivals.xml").c_str()) )
         {
             LOG.Warn(L"load rivals_menu failed\n");
         }
@@ -457,7 +464,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuRivalsScore )
     {
         LOG.Debug(L"rivals_score\n");
-        if  (!mMenuRivalsScore->Load(APP.GetConfig()->MakeFilenameUI("menu_rivals_score.xml").c_str()) )
+        if  (!mMenuRivalsScore->Load(mConfig.MakeFilenameUI("menu_rivals_score.xml").c_str()) )
         {
             LOG.Warn(L"load rivals_score.xml failed\n");
         }
@@ -466,7 +473,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuSelectHover )
     {
         LOG.Debug(L"selecthover\n");
-        if ( !mMenuSelectHover->Load(APP.GetConfig()->MakeFilenameUI("menu_selecthover.xml").c_str()) )
+        if ( !mMenuSelectHover->Load(mConfig.MakeFilenameUI("menu_selecthover.xml").c_str()) )
         {
             LOG.Warn(L"load selecthover failed\n");
         }
@@ -475,7 +482,7 @@ void Gui::LoadMenuDialogs()
 //    if ( mMenuReplayTheatre )
 //    {
 //        LOG.Info(L"replays\n");
-//        if ( !mMenuReplayTheatre->Load(APP.GetConfig()->MakeFilenameUI("replays.xml").c_str()) )
+//        if ( !mMenuReplayTheatre->Load(mConfig.MakeFilenameUI("replays.xml").c_str()) )
 //        {
 //            LOG.Warn(L"load replays failed\n");
 //        }
@@ -484,7 +491,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuHighscores )
     {
         LOG.Debug(L"highscores\n");
-        if ( !mMenuHighscores->Load(APP.GetConfig()->MakeFilenameUI("menu_highscores.xml").c_str()) )
+        if ( !mMenuHighscores->Load(mConfig.MakeFilenameUI("menu_highscores.xml").c_str()) )
         {
             LOG.Warn(L"load highscores failed\n");
         }
@@ -493,7 +500,7 @@ void Gui::LoadMenuDialogs()
     if  (mMenuOptions )
     {
         LOG.Debug(L"options\n");
-        if ( !mMenuOptions->Load(APP.GetConfig()->MakeFilenameUI("menu_options.xml").c_str()) )
+        if ( !mMenuOptions->Load(mConfig.MakeFilenameUI("menu_options.xml").c_str()) )
         {
             LOG.Warn(L"load options failed\n");
         }
@@ -502,7 +509,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuProfiles )
     {
         LOG.Debug(L"profiles\n");
-        if ( !mMenuProfiles->Load(APP.GetConfig()->MakeFilenameUI("menu_profiles.xml").c_str()) )
+        if ( !mMenuProfiles->Load(mConfig.MakeFilenameUI("menu_profiles.xml").c_str()) )
         {
             LOG.Warn(L"load profiles failed\n");
         }
@@ -511,7 +518,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuControls )
     {
         LOG.Debug(L"controls\n");
-        if ( !mMenuControls->Load(APP.GetConfig()->MakeFilenameUI("menu_controls.xml").c_str()) )
+        if ( !mMenuControls->Load(mConfig.MakeFilenameUI("menu_controls.xml").c_str()) )
         {
             LOG.Warn(L"load controls failed\n");
         }
@@ -520,7 +527,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuAnalog )
     {
         LOG.Debug(L"analog\n");
-        if ( !mMenuAnalog->Load(APP.GetConfig()->MakeFilenameUI("menu_analog.xml").c_str()) )
+        if ( !mMenuAnalog->Load(mConfig.MakeFilenameUI("menu_analog.xml").c_str()) )
         {
             LOG.Warn(L"load analog failed\n");
         }
@@ -529,7 +536,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuNewProfile )
     {
         LOG.Debug(L"newprofile\n");
-        if ( !mMenuNewProfile->Load(APP.GetConfig()->MakeFilenameUI("menu_newprofile.xml").c_str()) )
+        if ( !mMenuNewProfile->Load(mConfig.MakeFilenameUI("menu_newprofile.xml").c_str()) )
         {
             LOG.Warn(L"load newprofile failed\n");
         }
@@ -538,7 +545,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuGameEnd )
     {
         LOG.Debug(L"hud_gameend\n");
-        if ( !mMenuGameEnd->Load(APP.GetConfig()->MakeFilenameUI("menu_hud_gameend.xml").c_str()) )
+        if ( !mMenuGameEnd->Load(mConfig.MakeFilenameUI("menu_hud_gameend.xml").c_str()) )
         {
             LOG.Warn(L"load hud_gameend failed\n");
         }
@@ -547,7 +554,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuGameEndChampionship )
     {
         LOG.Debug(L"hud_gameend_c\n");
-        if (  !mMenuGameEndChampionship->Load(APP.GetConfig()->MakeFilenameUI("menu_hud_gameend_c.xml").c_str()) )
+        if (  !mMenuGameEndChampionship->Load(mConfig.MakeFilenameUI("menu_hud_gameend_c.xml").c_str()) )
         {
             LOG.Warn(L"load hud_gameend_c failed\n");
         }
@@ -556,7 +563,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuGameEndRivals)
     {
         LOG.Debug(L"rivals_gameend\n");
-        if (  !mMenuGameEndRivals->Load(APP.GetConfig()->MakeFilenameUI("menu_rivals_gameend.xml").c_str()) )
+        if (  !mMenuGameEndRivals->Load(mConfig.MakeFilenameUI("menu_rivals_gameend.xml").c_str()) )
         {
             LOG.Warn(L"load rivals_gameend failed\n");
         }
@@ -565,7 +572,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuPause )
     {
         LOG.Debug(L"pause\n");
-        if ( !mMenuPause->Load(APP.GetConfig()->MakeFilenameUI("menu_pause.xml").c_str()) )
+        if ( !mMenuPause->Load(mConfig.MakeFilenameUI("menu_pause.xml").c_str()) )
         {
             LOG.Warn(L"load pause failed\n");
         }
@@ -574,7 +581,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuCredits )
     {
         LOG.Debug(L"credits\n");
-        if ( ! mMenuCredits->Load(APP.GetConfig()->MakeFilenameUI("menu_credits.xml").c_str()) )
+        if ( ! mMenuCredits->Load(mConfig.MakeFilenameUI("menu_credits.xml").c_str()) )
         {
             LOG.Warn(L"load credits failed\n");
         }
@@ -583,7 +590,7 @@ void Gui::LoadMenuDialogs()
 	if ( mMenuLicenses )
     {
         LOG.Debug(L"licenses\n");
-        if ( ! mMenuLicenses->Load(APP.GetConfig()->MakeFilenameUI("menu_licenses.xml").c_str()) )
+        if ( ! mMenuLicenses->Load(mConfig.MakeFilenameUI("menu_licenses.xml").c_str()) )
         {
             LOG.Warn(L"load licenses failed\n");
         }
@@ -591,7 +598,7 @@ void Gui::LoadMenuDialogs()
     }
     if ( mMenuNagscreen )
     {
-        if ( ! mMenuNagscreen->Load(APP.GetConfig()->MakeFilenameUI("menu_nagscreen.xml").c_str()) )
+        if ( ! mMenuNagscreen->Load(mConfig.MakeFilenameUI("menu_nagscreen.xml").c_str()) )
         {
             LOG.Warn(L"load nagscreen failed\n");
         }
@@ -600,7 +607,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuGraphics )
     {
         LOG.Debug(L"graphic_setup\n");
-        if ( ! mMenuGraphics->Load(APP.GetConfig()->MakeFilenameUI("menu_graphic_setup.xml").c_str()) )
+        if ( ! mMenuGraphics->Load(mConfig.MakeFilenameUI("menu_graphic_setup.xml").c_str()) )
         {
             LOG.Warn(L"load graphic_setup failed\n");
         }
@@ -609,7 +616,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuLoadingScreen )
     {
         LOG.Debug(L"loadingscreen\n");
-        if ( !mMenuLoadingScreen->Load(APP.GetConfig()->MakeFilenameUI("menu_loadingscreen.xml").c_str()) )
+        if ( !mMenuLoadingScreen->Load(mConfig.MakeFilenameUI("menu_loadingscreen.xml").c_str()) )
         {
             LOG.Warn(L"load loadingscreen failed\n");
         }
@@ -618,7 +625,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuTutorial3 )
     {
         LOG.Debug(L"MenuTutorial3\n");
-        if ( !mMenuTutorial3->Load(APP.GetConfig()->MakeFilenameUI("menu_tutorial03.xml").c_str()) )
+        if ( !mMenuTutorial3->Load(mConfig.MakeFilenameUI("menu_tutorial03.xml").c_str()) )
         {
             LOG.Warn(L"load MenuTutorial3 failed\n");
         }
@@ -627,7 +634,7 @@ void Gui::LoadMenuDialogs()
     if ( mMenuHoverUnlocked )
     {
         LOG.Debug(L"hcunlocked\n");
-        if ( !mMenuHoverUnlocked->Load(APP.GetConfig()->MakeFilenameUI("menu_hcunlocked.xml").c_str()) )
+        if ( !mMenuHoverUnlocked->Load(mConfig.MakeFilenameUI("menu_hcunlocked.xml").c_str()) )
         {
             LOG.Warn(L"load hcunlocked failed\n");
         }
@@ -636,7 +643,7 @@ void Gui::LoadMenuDialogs()
     if ( mGuiDlgOkCancel )
     {
         LOG.Debug(L"GuiDlgOkCancel\n");
-        if ( !mGuiDlgOkCancel->Load(APP.GetConfig()->MakeFilenameUI("dlg_okcancel.xml").c_str()) )
+        if ( !mGuiDlgOkCancel->Load(mConfig.MakeFilenameUI("dlg_okcancel.xml").c_str()) )
         {
             LOG.Warn(L"load GuiDlgOkCancel failed\n");
         }
@@ -809,11 +816,10 @@ bool Gui::OnEvent(const SEvent &event)
 {
 	switch ( event.EventType )
     {
-#if !defined(_IRR_ANDROID_PLATFORM_) && !defined(HC1_SIMULATE_MOBILE_UI)
     	case EET_MOUSE_INPUT_EVENT:
     	{
     		// We set the focus on mouse-over instead of just on mouse-click.
-			if ( mHoveredElement )
+    		if ( mConfig.GetUseTouchInput() == ETI_NO_TOUCH && mHoveredElement)
 			{
 				IGUIEnvironment* env = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getGUIEnvironment();
 				if ( env
@@ -826,7 +832,6 @@ bool Gui::OnEvent(const SEvent &event)
 			}
 			break;
     	}
-#endif
 #ifndef _IRR_ANDROID_PLATFORM_
     	case EET_KEY_INPUT_EVENT:
     	{
@@ -951,12 +956,6 @@ bool Gui::OnEvent(const SEvent &event)
 #ifdef _IRR_ANDROID_PLATFORM_
 						if ( event.GUIEvent.Caller->getType() == irr::gui::EGUIET_EDIT_BOX )
 						{
-							// TODO: couldn't figure out yet how to send existing text to Android.
-							// Wouldn't matter much - except that Android does for some unknown reason
-							// absorb all delete-key events when it thinks there is no text.
-							// So it's not possible to remove text which is already in the editbox.
-							static_cast<gui::IGUIEditBox*>(event.GUIEvent.Caller)->setText(L"");
-
 							hc1::android::setSoftInputVisibility(APP.GetAndroidApp(), true);
 						}
 #endif

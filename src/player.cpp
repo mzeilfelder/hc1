@@ -621,7 +621,7 @@ float Player::CalcScaledAngleToVector(const core::vector3df &normDirXZ_, const c
     float crossY = normDirXZ_.crossProduct(normTargetDirXZ_).Y;
     float dot = normDirXZ_.dotProduct(normTargetDirXZ_);
 
-    float result = ExtMath::acos_save(dot)/PI;
+    float result = ExtMath::acos_save(dot)/M_PI;
     if ( crossY < 0 )
         result *= -1.f;
 

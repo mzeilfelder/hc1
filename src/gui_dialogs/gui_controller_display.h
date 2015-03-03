@@ -10,7 +10,7 @@ class Controller;
 class ControllerDisplay : public irr::gui::IGUIElement
 {
 public:
-    ControllerDisplay(irr::gui::EGUI_ELEMENT_TYPE type_, irr::gui::IGUIEnvironment * environment_, irr::gui::IGUIElement * parent_, irr::s32 id_, irr::core::rect< irr::s32 > rectangle_);
+    ControllerDisplay(irr::gui::IGUIEnvironment * environment_, irr::gui::IGUIElement * parent_, irr::s32 id_, irr::core::rect< irr::s32 > rectangle_);
 	virtual ~ControllerDisplay();
 
 	virtual void draw();

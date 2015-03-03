@@ -5,10 +5,17 @@
 
 #include "irrlicht_manager.h"
 
+class Config;
+
 class EventReceiverBase : public irr::IEventReceiver
 {
 public:
+	EventReceiverBase(const Config& config);
+
 	virtual bool OnEvent(const irr::SEvent& event);
+
+private:
+	const Config& mConfig;
 };
 
 #endif // EVENT_RECEIVER_BASE_H

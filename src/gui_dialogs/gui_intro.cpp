@@ -2,8 +2,8 @@
 
 #include "gui_intro.h"
 
-GuiIntro::GuiIntro()
-    : GuiDialog()
+GuiIntro::GuiIntro(const Config& config)
+    : GuiDialog(config)
 {
     SetSuppressSceneRendering(true);
 }

@@ -18,8 +18,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuPause::GuiMenuPause()
-    : GuiDialog()
+GuiMenuPause::GuiMenuPause(const Config& config)
+    : GuiDialog(config)
     , mButtonRestart(0)
     , mButtonQuit(0)
     , mStaticTrackName(0)
@@ -45,9 +45,10 @@ bool GuiMenuPause::Load(const char* filename_, bool reloadLast_)
         AddGuiEventFunctor( GetIdForName(std::string("sfxvolume")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnSliderSfx) );
         AddGuiEventFunctor( GetIdForName(std::string("musicvolume")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnSliderMusic) );
 
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonTouchControls) );
-#endif
+        if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonTouchControls) );
+		}
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -78,9 +79,10 @@ void GuiMenuPause::RemoveFunctors()
     RemoveGuiEventFunctor( GetIdForName(std::string("id_hdquit")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("sfxvolume")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("musicvolume")) );
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
-#endif
+	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+	{
+		RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
+	}
 }
 
 void GuiMenuPause::Show()
@@ -129,20 +131,21 @@ void GuiMenuPause::Show()
         }
     }
 
-#if !defined(_IRR_ANDROID_PLATFORM_) && !defined(HC1_SIMULATE_MOBILE_UI)
-	IGUIElement * root = GetDialogParent();
-	if ( root )
+    if ( GetConfig().GetUseTouchInput() == ETI_NO_TOUCH )
 	{
-		std::string errorMsg("");
-        IGUIElement * ele = NULL;
-        ele = GetElementByName(root, "id_touch_controls", errorMsg);
-        if ( ele )
-        {
-			ele->setEnabled(false);
-			ele->setVisible(false);
-        }
+		IGUIElement * root = GetDialogParent();
+		if ( root )
+		{
+			std::string errorMsg("");
+			IGUIElement * ele = NULL;
+			ele = GetElementByName(root, "id_touch_controls", errorMsg);
+			if ( ele )
+			{
+				ele->setEnabled(false);
+				ele->setVisible(false);
+			}
+		}
 	}
-#endif
 }
 
 bool GuiMenuPause::OnSliderSfx(const irr::SEvent &event_)

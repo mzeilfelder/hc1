@@ -8,7 +8,7 @@
 class GuiIntro : public GuiDialog
 {
 public:
-    GuiIntro();
+    GuiIntro(const Config& config);
     virtual ~GuiIntro();
 };
 

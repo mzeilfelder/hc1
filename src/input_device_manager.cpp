@@ -14,8 +14,9 @@
 
 using namespace irr;
 
-InputDeviceManager::InputDeviceManager()
-: mKeyboard(NULL)
+InputDeviceManager::InputDeviceManager(const Config& config)
+: mConfig(config)
+, mKeyboard(NULL)
 , mMouse(NULL)
 , mTouch(NULL)
 {
@@ -503,7 +504,7 @@ bool InputDeviceManager::OnEvent(const irr::SEvent &event)
 		{
 			if ( mTouch )
 			{
-				mTouch->OnEvent(event);
+				mTouch->OnEvent(event, mConfig.GetUseTouchInput());
 			}
 		}
 		break;
@@ -521,12 +522,11 @@ bool InputDeviceManager::OnEvent(const irr::SEvent &event)
         break;
         case EET_MOUSE_INPUT_EVENT:
         {
-#ifdef HC1_SIMULATE_MOBILE_UI
-			if ( mTouch )
+			if ( mTouch && mConfig.GetUseTouchInput() == ETI_TOUCH_SIMULATION)
 			{
-				mTouch->OnEvent(event);
+				mTouch->OnEvent(event, mConfig.GetUseTouchInput());
 			}
-#endif
+
             if ( mMouse )
             {
                 switch ( event.MouseInput.Event )

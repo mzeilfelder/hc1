@@ -10,8 +10,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuNewProfile::GuiMenuNewProfile()
-    : GuiDialog()
+GuiMenuNewProfile::GuiMenuNewProfile(const Config& config)
+    : GuiDialog(config)
     , mFirstProfile(false)
     , mEditName(0)
 {

@@ -10,7 +10,7 @@
 class GuiMenuTimeAttack : public GuiDialog
 {
 public:
-    GuiMenuTimeAttack();
+    GuiMenuTimeAttack(const Config& config);
     ~GuiMenuTimeAttack();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

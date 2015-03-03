@@ -23,8 +23,8 @@ using namespace irr;
 using namespace gui;
 
 
-GuiMenuOptions::GuiMenuOptions()
-    : GuiDialog()
+GuiMenuOptions::GuiMenuOptions(const Config& config)
+    : GuiDialog(config)
     , mSfxVolumeSlider(0)
     , mMusicVolumeSlider(0)
     , mActiveProfile(0)
@@ -43,12 +43,15 @@ bool GuiMenuOptions::Load(const char* filename_, bool reloadLast_)
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonTouchControls) );
-#else
-        AddGuiEventFunctor( GetIdForName(std::string("id_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonController) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_analog")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonAnalog) );
-#endif
+		if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonTouchControls) );
+		}
+		else
+		{
+			AddGuiEventFunctor( GetIdForName(std::string("id_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonController) );
+			AddGuiEventFunctor( GetIdForName(std::string("id_analog")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonAnalog) );
+		}
         AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonAccept) );
         AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonCancel) );
         AddGuiEventFunctor( GetIdForName(std::string("id_watchcredits")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonCredits) );
@@ -115,35 +118,40 @@ void GuiMenuOptions::Show()
 	{
 		std::string errorMsg("");
         IGUIElement * ele = NULL;
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-		// No analog setup and also no normal controller setup.
-		// (normal controller may make some sense on OUYA, but I can't code for it without a test-device)
-        ele = GetElementByName(root, "id_controls", errorMsg);
-        if ( ele )
-        {
-			ele->setEnabled(false);
-			ele->setVisible(false);
-        }
-        ele = GetElementByName(root, "id_analog", errorMsg);
-        if ( ele )
-        {
-			ele->setEnabled(false);
-			ele->setVisible(false);
-        }
-#else
-		ele = GetElementByName(root, "id_touch_controls", errorMsg);
-        if ( ele )
-        {
-			ele->setEnabled(false);
-			ele->setVisible(false);
-        }
-        ele = GetElementByName(root, "id_analog", errorMsg);
-        if ( ele )
-        {
-			bool hasAnalogDevice = APP.GetInputDeviceManager() && (APP.GetInputDeviceManager()->GetNumJoysticks() > 0);
-			ele->setEnabled(hasAnalogDevice);
-        }
-#endif
+
+
+		if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			// No analog setup and also no normal controller setup.
+			// (normal controller may make some sense on OUYA, but I can't code for it without a test-device)
+			ele = GetElementByName(root, "id_controls", errorMsg);
+			if ( ele )
+			{
+				ele->setEnabled(false);
+				ele->setVisible(false);
+			}
+			ele = GetElementByName(root, "id_analog", errorMsg);
+			if ( ele )
+			{
+				ele->setEnabled(false);
+				ele->setVisible(false);
+			}
+		}
+		else
+		{
+			ele = GetElementByName(root, "id_touch_controls", errorMsg);
+			if ( ele )
+			{
+				ele->setEnabled(false);
+				ele->setVisible(false);
+			}
+			ele = GetElementByName(root, "id_analog", errorMsg);
+			if ( ele )
+			{
+				bool hasAnalogDevice = APP.GetInputDeviceManager() && (APP.GetInputDeviceManager()->GetNumJoysticks() > 0);
+				ele->setEnabled(hasAnalogDevice);
+			}
+		}
 	}
 }
 
@@ -152,12 +160,15 @@ void GuiMenuOptions::RemoveFunctors()
     if ( !IsLoaded() )
         return;
 
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-	RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
-#else
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_controls")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_analog")) );
-#endif
+	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+	{
+		RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
+	}
+	else
+	{
+		RemoveGuiEventFunctor( GetIdForName(std::string("id_controls")) );
+		RemoveGuiEventFunctor( GetIdForName(std::string("id_analog")) );
+	}
     RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("id_watchcredits")) );

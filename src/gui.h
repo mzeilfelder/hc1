@@ -48,6 +48,7 @@ class GuiMenuTutorial3;
 class GuiMenuHoverUnlocked;
 class GuiDlgOkCancel;
 class FontManager;
+class Config;
 
 class IEventFunctor
 {
@@ -89,7 +90,7 @@ enum GUI_SOUNDS
 class Gui
 {
 public:
-    Gui();
+    Gui(const Config& config);
     ~Gui();
 
     void Init(irr::gui::IGUIEnvironment * environment_, irr::video::IVideoDriver* videoDriver_, irr::io::IFileSystem* fileSystem_, FontManager* fontManager);
@@ -190,6 +191,8 @@ protected:
     void SetHoveredElement(irr::gui::IGUIElement* hovered);
 
 private:
+	const Config& mConfig;
+
     irr::gui::IGUIEnvironment*   mEnvironment;
     irr::video::IVideoDriver*    mVideoDriver;
 

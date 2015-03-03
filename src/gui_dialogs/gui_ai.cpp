@@ -16,8 +16,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiAi::GuiAi()
-    : GuiDialog()
+GuiAi::GuiAi(const Config& config)
+    : GuiDialog(config)
     , mWindow(NULL)
 {
 }

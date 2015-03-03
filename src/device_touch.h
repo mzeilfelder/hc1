@@ -7,6 +7,7 @@
 #include "input_device.h"
 #include "device_touch_settings.h"
 #include "irrlicht.h"
+#include "config_enums.h"
 #include <vector>
 
 class TiXmlElement;
@@ -43,7 +44,7 @@ public:
     virtual bool IsButtonDown(int button_) const;
     virtual float GetAxisValue(int axis_) const;  // between -1 and 1
 
-	void OnEvent(const irr::SEvent &event);
+	void OnEvent(const irr::SEvent &event, ETouchInput touchInput);
 
 	void addButton(const irr::core::recti& area, const std::string& name);
 	void removeAllButtons();

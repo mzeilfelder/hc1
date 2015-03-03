@@ -19,7 +19,7 @@ enum HUD_COUNTDOWN
 class GuiHud : public GuiDialog
 {
 public:
-    GuiHud();
+    GuiHud(const Config& config);
     ~GuiHud();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

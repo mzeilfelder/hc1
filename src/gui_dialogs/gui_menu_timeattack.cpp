@@ -20,8 +20,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuTimeAttack::GuiMenuTimeAttack()
-    : GuiDialog()
+GuiMenuTimeAttack::GuiMenuTimeAttack(const Config& config)
+    : GuiDialog(config)
     , mActiveProfile(0)
     , mSliderTracks(0)
     , mSliderDifficulty(0)
@@ -306,13 +306,11 @@ void GuiMenuTimeAttack::Show()
         }
     }
 
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)	// no ghost exports so far on Android
-	if ( mButtonExportGhost )
+    if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH && mButtonExportGhost ) // no ghost exports so far on Android
 	{
 		mButtonExportGhost->setEnabled(false);
 		mButtonExportGhost->setVisible(false);
 	}
-#endif
 }
 
 bool GuiMenuTimeAttack::IsExchangableGhostRecord( const GhostRecordSettings &r1_, const GhostRecordSettings &r2_ )

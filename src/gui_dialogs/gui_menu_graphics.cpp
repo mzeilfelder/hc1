@@ -14,8 +14,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuGraphics::GuiMenuGraphics()
-    : GuiDialog()
+GuiMenuGraphics::GuiMenuGraphics(const Config& config)
+    : GuiDialog(config)
     , mSliderResolution(0)
     , mSliderFilter(0)
     , mSliderAntialias(0)

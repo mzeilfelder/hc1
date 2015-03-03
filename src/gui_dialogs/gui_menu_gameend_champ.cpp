@@ -14,8 +14,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuGameEndChampionship::GuiMenuGameEndChampionship()
-    : GuiDialog()
+GuiMenuGameEndChampionship::GuiMenuGameEndChampionship(const Config& config)
+    : GuiDialog(config)
     , mStaticResult(0)
     , mStaticPoints(0)
     , mStaticTrackName(0)

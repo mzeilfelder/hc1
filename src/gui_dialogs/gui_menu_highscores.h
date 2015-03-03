@@ -10,7 +10,7 @@
 class GuiMenuHighscores : public GuiDialog
 {
 public:
-    GuiMenuHighscores();
+    GuiMenuHighscores(const Config& config);
     ~GuiMenuHighscores();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

@@ -8,12 +8,13 @@
 #include "../main.h"
 #include "../string_table.h"
 #include "../game.h"
+#include "../config.h"
 
 using namespace irr;
 using namespace gui;
 
-GuiHud::GuiHud()
-    : GuiDialog()
+GuiHud::GuiHud(const Config& config)
+    : GuiDialog(config)
     , mStaticTimeCurrentLap(0)
     , mStaticBestLap(0)
     , mStaticTrack(0)
@@ -191,13 +192,11 @@ void GuiHud::Show()
     if ( mStaticCamera )
         mStaticCamera->setText(L"");
 
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-	if ( APP.GetGui()->GetGuiTouch() )
+	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH && APP.GetGui()->GetGuiTouch() )
 	{
 		APP.GetGui()->GetGuiTouch()->Show();
 		APP.GetGui()->GetGuiTouch()->SetDialogState(ETDS_PLAY);
 	}
-#endif
 }
 
 void GuiHud::Hide()

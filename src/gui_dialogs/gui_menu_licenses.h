@@ -8,7 +8,7 @@
 class GuiMenuLicenses : public GuiDialog
 {
 public:
-    GuiMenuLicenses();
+    GuiMenuLicenses(const Config& config);
     ~GuiMenuLicenses();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

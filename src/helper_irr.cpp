@@ -82,7 +82,7 @@ void SmoothAlignToVector(irr::core::matrix4 &newMat_, const irr::core::matrix4 &
     quatRot.slerp(quatSource, quatTarget, interpolate_);
     core::vector3df newRot;
     quatRot.toEuler(newRot);
-    newRot *= RADTODEG;
+    newRot *= core::RADTODEG;
     newMat_.setRotationDegrees(newRot);
 
     newMat_ = newMat_*oldMat_;

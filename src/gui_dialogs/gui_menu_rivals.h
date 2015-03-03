@@ -21,7 +21,7 @@ enum NumRacesSelected
 class GuiMenuRivals : public GuiDialog
 {
 public:
-    GuiMenuRivals();
+    GuiMenuRivals(const Config& config);
     ~GuiMenuRivals();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

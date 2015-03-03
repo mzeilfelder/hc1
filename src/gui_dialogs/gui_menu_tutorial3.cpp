@@ -8,8 +8,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiMenuTutorial3::GuiMenuTutorial3()
-: GuiDialog()
+GuiMenuTutorial3::GuiMenuTutorial3(const Config& config)
+: GuiDialog(config)
 {
     SetSuppressSceneRendering(true);
 }

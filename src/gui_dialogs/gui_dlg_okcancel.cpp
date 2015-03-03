@@ -7,8 +7,8 @@
 using namespace irr;
 using namespace gui;
 
-GuiDlgOkCancel::GuiDlgOkCancel()
-    : GuiDialog()
+GuiDlgOkCancel::GuiDlgOkCancel(const Config& config)
+    : GuiDialog(config)
     , mButtonOk(0)
     , mFunctorOk(0)
     , mFunctorCancel(0)

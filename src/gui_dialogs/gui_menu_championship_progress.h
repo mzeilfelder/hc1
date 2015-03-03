@@ -11,7 +11,7 @@ struct PlayerProfile;
 class GuiMenuChampionshipProgress : public GuiDialog
 {
 public:
-    GuiMenuChampionshipProgress();
+    GuiMenuChampionshipProgress(const Config& config);
     ~GuiMenuChampionshipProgress();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);

@@ -31,6 +31,11 @@
 using namespace irr;
 using namespace gui;
 
+EventReceiverBase::EventReceiverBase(const Config& config)
+: mConfig(config)
+{
+}
+
 // Most events should be distributed to the Gui and/or the InputDeviceManager
 // The rest which is in here is mostly used for debug/edit purposes and
 // didn't quite fit anywhere else while developing it.
@@ -95,7 +100,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                     }
                     case KEY_F12:
                     {
-                        if ( APP.GetIrrlichtManager() && APP.GetIrrlichtManager()->GetVideoDriver() && APP.GetConfig() )
+                        if ( APP.GetIrrlichtManager() && APP.GetIrrlichtManager()->GetVideoDriver() )
                         {
                             video::IImage * imageScreenShot = APP.GetIrrlichtManager()->GetVideoDriver()->createScreenShot();
                             if ( imageScreenShot )
@@ -103,7 +108,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                                 time_t timeNow = time(0);
                                 tm * timeNowTm = localtime(&timeNow);
                                 std::ostringstream shotName;
-                                shotName << APP.GetConfig()->MakeFilenameUserData("shot");
+                                shotName << mConfig.MakeFilenameUserData("shot");
                                 if ( timeNowTm )
                                 {
                                     shotName << 1900+timeNowTm->tm_year << "_" << timeNowTm->tm_mon+1 << "_" << timeNowTm->tm_mday;
@@ -237,16 +242,13 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
 #ifdef HC1_ENABLE_PROFILE
                     case KEY_F8:
                     {
-                        if ( APP.GetConfig() )
-                        {
-                            core::stringw irrstringw;
-                            core::stringc irrstringc;
-                            getProfiler().printAll(irrstringw, false, true);
-                            getProfiler().resetAll();
-                            irrstringc = irrstringw;
-                            std::ofstream streamProfile( APP.GetConfig()->MakeFilenameBase("profile.txt").c_str() );
-                            streamProfile << irrstringc.c_str();
-                        }
+						core::stringw irrstringw;
+						core::stringc irrstringc;
+						getProfiler().printAll(irrstringw, false, true);
+						getProfiler().resetAll();
+						irrstringc = irrstringw;
+						std::ofstream streamProfile( mConfig.MakeFilenameBase("profile.txt").c_str() );
+						streamProfile << irrstringc.c_str();
                         break;
                     }
 #if !defined(HOVER_RELEASE)
@@ -333,8 +335,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
         break;
 
         case EET_MOUSE_INPUT_EVENT:
-#if defined(_IRR_ANDROID_PLATFORM_) || defined(HC1_SIMULATE_MOBILE_UI)
-			if ( event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN && APP.GetGui() )
+			if ( event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN && mConfig.GetUseTouchInput() != ETI_NO_TOUCH && APP.GetGui() )
 			{
 				GuiHud* hud = APP.GetGui()->GetGuiHud();
 				if ( hud )
@@ -342,7 +343,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
 					hud->OnMouseClick( event.MouseInput.X, event.MouseInput.Y );
 				}
 			}
-#endif
+
 			if ( APP.GetInputDeviceManager() && APP.GetInputDeviceManager()->OnEvent(event) )
                 return true;
 		break;
@@ -459,7 +460,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                         case GUI_OPEN_GUI_DLG:
                             if (  APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem() )
                             {
-                                APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem()->changeWorkingDirectoryTo (APP.GetConfig()->GetPathUI().c_str());
+                                APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem()->changeWorkingDirectoryTo (mConfig.GetPathUI().c_str());
                                 env->addFileOpenDialog(L"Please select a GUI XML", /*modal*/false, /*parent*/0, GUI_FILEDLG_OPEN_GUI);
                             }
                         break;
@@ -494,10 +495,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                         break;
 
                         case GUI_LOAD_SETTINGS:
-                            if ( APP.GetConfig() )
-                            {
-                                APP.LoadSettings();
-                            }
+							APP.LoadSettings();
                         break;
 
                         case GUI_OPEN_USER_CONTROLS:
@@ -567,7 +565,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                             if ( dialog && APP.GetIrrlichtManager() )
                             {
                                 std::wstring str(dialog->getFileName());
-                                APP.GetIrrlichtManager()->LoadAnimatedModel(*APP.GetConfig(), std::string(str.begin(), str.end()).c_str());
+                                APP.GetIrrlichtManager()->LoadAnimatedModel(mConfig, std::string(str.begin(), str.end()).c_str());
                             }
                         }
                         break;
