@@ -3,7 +3,7 @@
 #include "ov_callbacks.h"
 
 #ifdef HC1_ENABLE_OGG
-#include "irrlicht.h"
+#include <irrlicht.h>
 
 ov_callbacks ov_callback_irr_fs =
 {

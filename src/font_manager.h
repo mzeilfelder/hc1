@@ -5,9 +5,9 @@
 
 #include "compile_config.h"
 
+#include <irrlicht.h>
 #include <string>
 #include <map>
-#include <irrlicht.h>
 
 namespace irr
 {

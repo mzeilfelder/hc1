@@ -93,6 +93,7 @@ void GuiDialog::Clear()
 
 bool GuiDialog::Load(const char* filename_, bool reloadLast_)
 {
+	LOG.DebugLn("Load Dialog ", filename_);
     Hide();
     Clear();
     mIsLoaded = false;

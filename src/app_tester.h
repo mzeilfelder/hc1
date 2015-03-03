@@ -3,8 +3,8 @@
 #ifndef APP_TESTER_H
 #define APP_TESTER_H
 
-#include "irrlicht.h"
 #include "logging_priorities.h"
+#include <irrlicht.h>
 #include <map>
 #include <vector>
 #include <string>

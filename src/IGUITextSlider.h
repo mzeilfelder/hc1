@@ -3,8 +3,9 @@
 #ifndef __I_GUI_TEXT_SLIDER_H_INCLUDED__
 #define __I_GUI_TEXT_SLIDER_H_INCLUDED__
 
-#include "irrlicht.h"
 #include "EGUIElementTypesHC.h"
+
+#include <irrlicht.h>
 
 namespace irr
 {

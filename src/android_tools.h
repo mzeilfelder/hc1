@@ -21,7 +21,7 @@ struct SDisplayMetrics
 	irr::s32 densityDpi;
 	irr::f32 scaledDensity;
 	irr::f32 xdpi;
-	irr::f32 ydpi; 
+	irr::f32 ydpi;
 };
 
 // Access SDisplayMetrics

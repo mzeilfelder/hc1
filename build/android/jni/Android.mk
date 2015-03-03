@@ -71,6 +71,7 @@ LOCAL_SRC_FILES += CGUITextSlider.cpp font_manager.cpp gui.cpp gui_dialog.cpp CG
 LOCAL_SRC_FILES += sound_settings.cpp music_manager.cpp sound_openal.cpp ogg_stream.cpp ov_callbacks.cpp
 LOCAL_SRC_FILES += editor.cpp nn.cpp app_restrictions.cpp start_browser.cpp advert_admob.cpp billing_googleplay.cpp
 LOCAL_SRC_FILES += convert_utf.c
+LOCAL_SRC_FILES += gui_dialogs/gui_menu_keyboard.cpp
 LOCAL_SRC_FILES += gui_dialogs/gui_touch.cpp                       gui_dialogs/gui_menu_licenses.cpp
 LOCAL_SRC_FILES += gui_dialogs/gui_ai.cpp                          gui_dialogs/gui_menu_graphics.cpp
 LOCAL_SRC_FILES += gui_dialogs/gui_controller_display.cpp          gui_dialogs/gui_menu_highscores.cpp

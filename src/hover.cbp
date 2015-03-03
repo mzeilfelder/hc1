@@ -404,6 +404,7 @@
 		<Unit filename="compile_config.h" />
 		<Unit filename="config.cpp" />
 		<Unit filename="config.h" />
+		<Unit filename="config_enums.h" />
 		<Unit filename="controller.cpp" />
 		<Unit filename="controller.h" />
 		<Unit filename="convert_utf.c">
@@ -483,6 +484,8 @@
 		<Unit filename="gui_dialogs/gui_menu_highscores.h" />
 		<Unit filename="gui_dialogs/gui_menu_hover_unlocked.cpp" />
 		<Unit filename="gui_dialogs/gui_menu_hover_unlocked.h" />
+		<Unit filename="gui_dialogs/gui_menu_keyboard.cpp" />
+		<Unit filename="gui_dialogs/gui_menu_keyboard.h" />
 		<Unit filename="gui_dialogs/gui_menu_licenses.cpp" />
 		<Unit filename="gui_dialogs/gui_menu_licenses.h" />
 		<Unit filename="gui_dialogs/gui_menu_loadingscreen.cpp" />

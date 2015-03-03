@@ -59,6 +59,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H	// official way to include freetype.h correct according to freetype documenation
+
 #include <irrlicht.h>
 
 // TODO: Shouldn't be in irr namespace as long as it's not in the engine (but leaving it for now in the hope that will change)

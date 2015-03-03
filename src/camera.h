@@ -5,7 +5,7 @@
 
 // TODO: this class needs some refactoring by now (since it's no longer just used for game-camera)
 
-#include "irrlicht.h"
+#include <irrlicht.h>
 #include <vector>
 #include <string>
 

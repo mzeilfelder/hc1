@@ -3,11 +3,13 @@
 #ifndef GUI_HELPER_H
 #define GUI_HELPER_H
 
-#include <irrlicht.h>
-#include <string>
 #include "../level.h"
 #include "../game.h"
 #include "../IGUITextSlider.h"
+
+#include <irrlicht.h>
+#include <string>
+
 
 // Stuff in here could've been avoided by an additional layer in gui-dialogs,
 // but this has do now for this game

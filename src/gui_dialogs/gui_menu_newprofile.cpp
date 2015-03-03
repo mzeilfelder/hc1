@@ -6,6 +6,9 @@
 #include "../gui.h"
 #include "../main.h"
 #include "../profiles.h"
+#include "../config.h"
+#include "../string_table.h"
+#include "../tinyxml/tinyxml.h"
 
 using namespace irr;
 using namespace gui;
@@ -13,6 +16,7 @@ using namespace gui;
 GuiMenuNewProfile::GuiMenuNewProfile(const Config& config)
     : GuiDialog(config)
     , mFirstProfile(false)
+    , mSliderSelectKb(0)
     , mEditName(0)
 {
     SetSuppressSceneRendering(true);
@@ -39,6 +43,18 @@ bool GuiMenuNewProfile::Load(const char* filename_, bool reloadLast_)
 
         std::string errorMsg("GuiMenuNewProfile::Load");
 
+        if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			mSliderSelectKb = static_cast<IGUITextSlider*>(GetElementByName(root, "slider_kb", errorMsg));
+			if ( mSliderSelectKb )
+			{
+				mSliderSelectKb->clearTexts();
+				mSliderSelectKb->addText( APP.GetStringTable()->Get("id_kb_system").c_str() );
+				mSliderSelectKb->addText( APP.GetStringTable()->Get("id_kb_alternative").c_str() );
+				AddGuiEventFunctor( GetIdForName(std::string("slider_kb")), new EventFunctor<GuiMenuNewProfile>(this, &GuiMenuNewProfile::OnSliderSelectKb) );
+			}
+		}
+
         mEditName = static_cast<IGUIEditBox*>(GetElementByName(root, "profilename", errorMsg));
         if ( mEditName )
         {
@@ -54,6 +70,12 @@ void GuiMenuNewProfile::Show()
     {
         mEditName->setText(L"");
     }
+
+    if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH && mSliderSelectKb )
+	{
+		mSliderSelectKb->setCurrentTextId(GetConfig().GetVirtualKeyboard());
+	}
+
     GuiDialog::Show();
 }
 
@@ -64,6 +86,11 @@ void GuiMenuNewProfile::RemoveFunctors()
     RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("profilename")) );
+
+    if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+	{
+		RemoveGuiEventFunctor( GetIdForName(std::string("slider_kb")) );
+	}
 }
 
 bool GuiMenuNewProfile::OnButtonAccept(const irr::SEvent &event_)
@@ -136,4 +163,24 @@ bool GuiMenuNewProfile::OnEditName(const irr::SEvent &event_)
     }
 #endif
     return false;
+}
+
+bool GuiMenuNewProfile::OnSliderSelectKb(const irr::SEvent &event_)
+{
+    if ( event_.GUIEvent.EventType == (gui::EGUI_EVENT_TYPE)EGET_TEXTSLIDER_CHANGED && mSliderSelectKb )
+	{
+		TiXmlElement * ele = APP.GetConfig()->GetEtcSettings();
+		if ( ele )
+		{
+			ele->SetAttribute("keyboard", mSliderSelectKb->getCurrentTextId() );
+			APP.GetConfig()->Save();
+		}
+		gui::IGUIEnvironment* env = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getGUIEnvironment();
+		if ( env )
+		{
+			env->setFocus(mEditName);
+		}
+    }
+
+	return false;
 }

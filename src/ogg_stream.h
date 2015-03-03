@@ -12,8 +12,9 @@
 #include "ov_callbacks.h"
 #include <AL/al.h>
 
+#include <irrlicht.h>
+
 #include <string>
-#include "irrlicht.h"
 
 #define OGG_BUFFERS 3
 class OggStream

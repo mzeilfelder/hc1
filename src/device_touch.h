@@ -6,8 +6,8 @@
 #include "compile_config.h"
 #include "input_device.h"
 #include "device_touch_settings.h"
-#include "irrlicht.h"
 #include "config_enums.h"
+#include <irrlicht.h>
 #include <vector>
 
 class TiXmlElement;

@@ -36,8 +36,8 @@ Config::Config(void * systemData)
 #elif defined(HOVER_RELEASE)
 , mUseTouchInput(ETI_NO_TOUCH)
 #else
-//, mUseTouchInput(ETI_TOUCH_SIMULATION)
-, mUseTouchInput(ETI_NO_TOUCH)
+, mUseTouchInput(ETI_TOUCH_SIMULATION)
+//, mUseTouchInput(ETI_NO_TOUCH)
 #endif
 {
     mDriverType = irr::video::EDT_OPENGL;
@@ -750,6 +750,17 @@ TiXmlElement * Config::GetBillingProviderSettings() const
 	}
 
 	return 0;
+}
+
+int Config::GetVirtualKeyboard() const
+{
+	int keyboard = 0;
+	const TiXmlElement * ele = GetEtcSettings();
+	if ( ele )
+	{
+		ele->Attribute("keyboard", &keyboard);
+	}
+	return keyboard;
 }
 
 std::string Config::MakeLapRecordName(int levelId_, StringTable * stringTable_) const

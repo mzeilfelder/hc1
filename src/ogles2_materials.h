@@ -7,7 +7,7 @@
 
 #ifdef HC1_OGLES
 
-#include "irrlicht.h"
+#include <irrlicht.h>
 
 // NOTE: This stuff is basically copied from Irrlicht's COGLES2FixedPipelineRenderer (I just wanted minor modifications).
 // This is also why it uses the Irrlicht coding style here (easier to merge fixes keeping that)

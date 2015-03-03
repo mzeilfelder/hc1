@@ -133,6 +133,9 @@ public:
     float GetSparkleSpeedMin() const        { return mSparkleSpeedMin; }
     bool GetDisableSound() const            { return mDisableSound; }
 
+    // 0 = system keyboard, 1 = alternative
+    int GetVirtualKeyboard() const;
+
     bool GetKey(std::string &key_, irr::io::IFileSystem * fs_);
 
     // Write the whole config to a string

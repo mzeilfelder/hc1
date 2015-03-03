@@ -22,13 +22,14 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
-#include <ctype.h>
 #include "tinyxml.h"
 
-#include "irrlicht.h"
+#include <irrlicht.h>
 #ifdef _IRR_ANDROID_PLATFORM_
 #include <android/log.h>
 #endif
+
+#include <ctype.h>
 
 #ifdef TIXML_USE_STL
 #include <sstream>

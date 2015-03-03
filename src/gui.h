@@ -46,6 +46,7 @@ class GuiMenuGraphics;
 class GuiMenuLoadingScreen;
 class GuiMenuTutorial3;
 class GuiMenuHoverUnlocked;
+class GuiMenuKeyboard;
 class GuiDlgOkCancel;
 class FontManager;
 class Config;
@@ -165,6 +166,7 @@ public:
     GuiMenuLoadingScreen* GetGuiMenuLoadingScreen() { return mMenuLoadingScreen; }
     GuiMenuTutorial3* GetGuiMenuTutorial3()         { return mMenuTutorial3; }
     GuiMenuHoverUnlocked* GetGuiMenuHoverUnlocked() { return mMenuHoverUnlocked; }
+    GuiMenuKeyboard* GetGuiMenuKeyboard()			{ return mMenuKeyboard; }
     GuiDlgOkCancel* GetGuiDlgOkCancel()             { return mGuiDlgOkCancel; }
 
     // this will work as long as always only one dialog at a time is active
@@ -258,6 +260,7 @@ private:
     GuiMenuLoadingScreen*   mMenuLoadingScreen;
     GuiMenuTutorial3*       mMenuTutorial3;
     GuiMenuHoverUnlocked*   mMenuHoverUnlocked;
+    GuiMenuKeyboard* 		mMenuKeyboard;
     GuiDlgOkCancel*         mGuiDlgOkCancel;
 
     // Game Dialogs

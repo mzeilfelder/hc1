@@ -5,7 +5,6 @@
 
 #include "logging_priorities.h"
 #include <irrlicht.h>
-#include <IMeshCache.h>
 #include <vector>
 #include <map>
 
@@ -97,7 +96,7 @@ public:
     MeshTextureLoader* GetStaticMeshTextureLoader() const	{ return mStaticMeshTextureLoader; }
     MeshTextureLoader* GetDynamicMeshTextureLoader() const	{ return mDynamicMeshTextureLoader; }
 
-	void SendFakeKeyEvent( irr::EKEY_CODE key_, bool pressedDown_);
+	void SendKeyEvent( irr::EKEY_CODE key_, bool pressedDown_, wchar_t character_=0);
 
 protected:
 

@@ -22,9 +22,11 @@ protected:
     bool OnButtonAccept(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);
     bool OnEditName(const irr::SEvent &event_);
+    bool OnSliderSelectKb(const irr::SEvent &event_);
 
 private:
     bool mFirstProfile;
+    irr::gui::IGUITextSlider* mSliderSelectKb;
     irr::gui::IGUIEditBox *  mEditName;
 };
 

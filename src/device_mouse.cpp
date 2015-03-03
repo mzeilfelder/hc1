@@ -1,8 +1,8 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
 #include "device_mouse.h"
-#include <irrlicht.h>
 #include "tinyxml/tinyxml.h"
+#include <irrlicht.h>
 
 using namespace irr;
 using namespace core;
