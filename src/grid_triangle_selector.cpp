@@ -152,7 +152,7 @@ void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::
 			}
 		}
 	}
-	// Could use normal triangles as fallback, but probably better failling completely so users notices things have gone wrong
+	// Could use normal triangles as fallback, but probably better failing completely so users notice things have gone wrong
 }
 
 void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
