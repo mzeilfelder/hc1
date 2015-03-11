@@ -1,3 +1,6 @@
+Remove dependency on libts which is not needed. Thanks @majorlunac for reporting.
+This just needed another SLD compile flag. Only done for Linux - have to check later if it's the same on MinGW.
+
 -----------
 Changes for 1.3
 -----------

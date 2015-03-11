@@ -36,8 +36,8 @@ Config::Config(void * systemData)
 #elif defined(HOVER_RELEASE)
 , mUseTouchInput(ETI_NO_TOUCH)
 #else
-, mUseTouchInput(ETI_TOUCH_SIMULATION)
-//, mUseTouchInput(ETI_NO_TOUCH)
+//, mUseTouchInput(ETI_TOUCH_SIMULATION)
+, mUseTouchInput(ETI_NO_TOUCH)
 #endif
 {
     mDriverType = irr::video::EDT_OPENGL;
