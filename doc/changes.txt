@@ -1,3 +1,4 @@
+Update SDL to 1.2.15 (from 1.2.11) (so far only on Linux - Windows will follow). This might fix some problems with Joysticks.
 Remove dependency on libts which is not needed. Thanks @majorlunac for reporting.
 This just needed another SLD compile flag. Only done for Linux - have to check later if it's the same on MinGW.
 
