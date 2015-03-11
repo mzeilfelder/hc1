@@ -154,10 +154,11 @@ libs/sdl/linux
 libs/sdl/Win32-gcc
 libs/sdl/SDL-1.2.11/docs
 libs/sdl/SDL-1.2.11/test
-#libs/sdl/SDL-1.2.11/Makefile
-#libs/sdl/SDL-1.2.11/build-deps
-#libs/sdl/SDL-1.2.11/include/SDL_config.h
-#libs/sdl/SDL-1.2.11/sdl-config
+libs/sdl/SDL-1.2.15/docs
+libs/sdl/SDL-1.2.15/test
+libs/sdl/SDL-1.2.15/VisualC
+libs/sdl/SDL-1.2.15/VisualCE
+libs/sdl/SDL-1.2.15/XCode
 
 #openal
 libs/openal/linux

@@ -6,10 +6,10 @@ then
 fi
 
 export LIB_TARGET=${TOOL_FOLDER}/../libs/sdl/linux
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/sdl/SDL-1.2.11
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/sdl/SDL-1.2.15
 
 mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
-$LIB_SOURCE/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --enable-static=no --enable-audio=no --enable-video=no --enable-cdrom=no --enable-threads=no --enable-file=no --enable-loadso=no --disable-input-tslib
+$LIB_SOURCE/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --enable-static=no --enable-audio=no --enable-video=no --enable-events=no --enable-cdrom=no --enable-threads=no --enable-timers=no --enable-file=no --enable-loadso=no --enable-input-tslib=no
 make
 make install
