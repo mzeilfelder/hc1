@@ -7,4 +7,3 @@
 ./make-sdl-mingw.sh
 ./make-openal-mingw.sh
 ./make-oggvorbis-mingw.sh
-#./make-crypto-mingw.sh

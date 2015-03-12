@@ -13,10 +13,12 @@ then
 fi
 
 export LIB_TARGET=${TOOL_FOLDER}/../libs/sdl/Win32-gcc
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/sdl/SDL-1.2.11
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/sdl/SDL-1.2.15
 
 mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
-$LIB_SOURCE/configure --prefix=$LIB_TARGET --enable-joystick --disable-static --disable-timers --disable-audio --disable-video --disable-cdrom --disable-threads --disable-file --disable-loadso --disable-directx 
-make
+# Note: --disable-video not working in 1.2.15, otherwise I would set that additionally.
+$LIB_SOURCE/configure --prefix=$LIB_TARGET --disable-static --disable-audio --disable-cdrom --disable-threads --disable-timers --disable-file --disable-loadso --disable-input-tslib --disable-directx
+make 
 make install
+cp ${LIB_TARGET}/bin/SDL.dll ${TOOL_FOLDER}/..

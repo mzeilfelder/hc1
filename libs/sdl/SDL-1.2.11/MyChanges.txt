@@ -1,5 +1,0 @@
-src/joystick/win32/SDL_mmjoystick.c
-SDL_SYS_JoystickInit
-170:
-- result = joyGetPosEx(SYS_JoystickID[i], &joyinfo);
-+ result = joyGetPosEx(i, &joyinfo);
