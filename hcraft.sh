@@ -42,8 +42,18 @@ if [ -x "${HCRAFT_APP_PATH}/hcraft_bin" ]
 then
 	cd "${HCRAFT_APP_PATH}/"
 	exec "./hcraft_bin" $*
+elif [ -x "${HCRAFT_APP_PATH}/hovercraft64" ]
+then
+	cd "${HCRAFT_APP_PATH}/"
+	exec "./hovercraft64" $*
 fi
-echo "Couldn't run h-craft championship (hcraft_bin). Try to cd manually in the that path and start it from there."
+
+echo "Sorry, could not run H-Craft Championship."
+echo "Maybe the executable flag is not set for the file 'hcraft_bin'." 
+echo "Your file-browser might allow changing that flag."
+echo "Alternatively cd into the game folder in bash and type: chmod +x hcraft_bin"
+echo "If it still doesn't start try to cd into the game folder first and start it from there."
+
 exit 1
 
 

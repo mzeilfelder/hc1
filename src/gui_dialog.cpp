@@ -705,7 +705,7 @@ irr::gui::IGUIElement* GuiDialog::GetElementByName(irr::gui::IGUIElement* parent
     if ( id < 0 )
     {
         std::ostringstream str;
-        str << "Error: " << error_ << " GUI element not known: " << name_ << std::endl;
+        str << "Warning: " << error_ << " GUI element not known: " << name_ << std::endl;
         LOG.Warn( str.str() );
         return NULL;
     }
@@ -713,7 +713,7 @@ irr::gui::IGUIElement* GuiDialog::GetElementByName(irr::gui::IGUIElement* parent
     if ( !element )
     {
         std::ostringstream str;
-        str << "Error: " << error_ << " GUI element not found: " << name_ << std::endl;
+        str << "Warning: " << error_ << " GUI element not found: " << name_ << std::endl;
         LOG.Warn( str.str() );
     }
     return element;

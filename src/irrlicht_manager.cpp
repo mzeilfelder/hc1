@@ -121,6 +121,10 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
     creationParameters.OGLES2ShaderPath = io::path(config.GetPathShader().c_str());
 #endif
 
+#ifndef _DEBUG
+	creationParameters.LoggingLevel = ELL_WARNING;
+#endif
+
     LOG.Info(L"createDevice\n");
     LOG.LogLn(LP_INFO, "Resolution width:", (int)dimension.Width);
 	LOG.LogLn(LP_INFO, "Resolution height:", (int)dimension.Height);
@@ -748,7 +752,7 @@ scene::ISceneNode* IrrlichtManager::LoadModel(const Config& config, const c8* fi
         }
         else
         {
-        	LOG.LogLn(LP_WARN, "mesh had no triangle selector: ", fileModel);
+        	LOG.LogLn(LP_INFO, "mesh had no triangle selector: ", fileModel);
 
         	// We got no loopings, so we can be sure we never collide against triangles with normals pointing downwards.
         	// So we can kick them out and only collide against the rest.

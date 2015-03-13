@@ -6,6 +6,7 @@
 #include "recorder.h"
 #include "globals.h"
 #include "helper_irr.h"
+#include "logging.h"
 #include <math.h>
 #include <float.h>
 
@@ -230,7 +231,8 @@ int Physics::AddPhysicsObject(scene::ISceneNode * node_, float radius_)
     obj->mRadius = radius_;
     mPhysicsObjects[id] = obj;
 
-    printf("added physics object with id %d radius %f", id, obj->mRadius);
+    // printf("added physics object with id %d radius %f", id, obj->mRadius);
+
     return id;
 }
 
@@ -248,7 +250,7 @@ void Physics::AddCollisionMesh(scene::ITriangleSelector* selector_)
 {
     if ( selector_)
     {
-        printf("collision mesh added\n");
+    	LOG.LogLn(LP_DEBUG, "collision mesh added");
         selector_->grab();
         mCollisionSelectors.push_back(selector_);
     }
@@ -901,7 +903,7 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
             core::vector3df realStep(obj->mCurrentStepCollCenter - obj->mLastStepCollCenter);
             if ( realStep.getLengthSQ() > obj->mRadius * obj->mRadius )
             {
-                printf("WARNING: object moves too fast for physics stepsize\n");
+				LOG.LogLn(LP_WARN, "WARNING: object moves too fast for physics stepsize");
             }
 
 			// Hack to help players staying on the track

@@ -112,9 +112,11 @@ bool App::Init(int argc, char *argv[], void * systemData)
     LogPriority prioStderr = LP_NONE;
     LogPriority prioStdout = LP_DEBUG; // LP_WARN;
     LogPriority prioAndroid = LP_DEBUG;
-    LogPriority prioStream = LP_NONE;
-#if !defined(HOVER_RELEASE)
-	prioStream = LP_INFO;
+    LogPriority prioStream = LP_INFO;	// only matters when streaming log to a gui-dialog
+
+#if defined(HOVER_RELEASE)
+	prioStream = LP_NONE;
+	prioStdout = LP_WARN;
 #endif
 
     std::string testFile;
