@@ -95,7 +95,7 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDevicePC(const Config& confi
         if ( config.GetUseScreenResolution()
             && desktopRes.Width && desktopRes.Height && desktopDepth )
         {
-            LOG.Info("Use desktop setttings\n");
+            LOG.Info("Use desktop settings\n");
             dimension = desktopRes;
             bitdepth = desktopDepth;
         }
@@ -687,7 +687,7 @@ scene::IAnimatedMesh* IrrlichtManager::LoadMesh(const Config& config, const c8* 
 		if ( !animated )
 		{
 			// Reduce number of vertices by welding those which are identical.
-			// TODO: There might be a way to preprocess that, but probably difficult without changing the file-format.
+			// TODO: There might be a way to pre-process that, but probably difficult without changing the file-format.
 			// 		Because I have the suspicion those are create by the obj loader and are not caused by duplicates in the obj file itself (it also has some - but I don't think that many)
 			//		So maybe another solution would be fixing that in the obj loader (or maybe it's fixed there already just not in the lmo loader? Not tried.)
 			u32 weldTime = GetIrrlichtTimer()->getRealTime();
