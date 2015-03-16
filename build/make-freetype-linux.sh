@@ -6,7 +6,7 @@ then
 fi
 
 export LIB_TARGET=${TOOL_FOLDER}/../libs/libfreetype/linux
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/libfreetype/freetype-2.5.2
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/libfreetype/freetype-2.5.5
 
 mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
