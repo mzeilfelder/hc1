@@ -527,11 +527,7 @@ bool Physics::HasCollision( const core::line3d<f32>& ray_)
     {
         core::vector3df intersection;
         core::triangle3df tri;
-#if IRR_SVN <= 3231
-        const irr::scene::ISceneNode* collidingNode = 0;
-#else
 		irr::scene::ISceneNode* collidingNode = 0;
-#endif
 
         if (APP.GetIrrlichtManager()->GetSceneManager()->getSceneCollisionManager()->getCollisionPoint(
             ray_, GetTriangleSelector(i), intersection, tri, collidingNode))
@@ -558,11 +554,7 @@ bool Physics::CalcSphereAboveTrack(const core::vector3df &pos_, core::vector3df 
     {
         core::vector3df intersection;
         core::triangle3df tri;
-#if IRR_SVN <= 3231
-        const irr::scene::ISceneNode* collidingNode = 0;
-#else
 		irr::scene::ISceneNode* collidingNode = 0;
-#endif
 
         if (APP.GetIrrlichtManager()->GetSceneManager()->getSceneCollisionManager()->getCollisionPoint(
             line, GetTriangleSelector(i), intersection, tri, collidingNode))

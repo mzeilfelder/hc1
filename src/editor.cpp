@@ -433,11 +433,7 @@ bool Editor::CheckTrackCollision(const core::line3d<f32> &line_, core::vector3df
     float nearestDist = FLT_MAX;
     core::triangle3df tri;
     core::triangle3df nearestTriangle;
-#if IRR_SVN <= 3231
-	const scene::ISceneNode* outNode=0;
-#else
 	scene::ISceneNode* outNode=0;
-#endif
 
     // find nearest colliding geometry to the line start
     for ( size_t i=0; i < APP.GetPhysics()->GetNumTriangleSelectors(); ++i )

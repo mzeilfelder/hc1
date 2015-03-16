@@ -1439,11 +1439,8 @@ bool LevelManager::CheckEditCollision(scene::ISceneNode* node_, const core::line
         core::vector3df intersection;
         core::triangle3df tri;
         scene::ITriangleSelector* selector = node_->getTriangleSelector();
-#if IRR_SVN <= 3231
-        const irr::scene::ISceneNode* resultNode = 0;
-#else
 		irr::scene::ISceneNode* resultNode = 0;
-#endif
+
         if (collMan->getCollisionPoint(line_, selector, intersection, tri, resultNode))
         {
             float len = (intersection - line_.start).getLength();
