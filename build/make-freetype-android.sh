@@ -6,7 +6,7 @@ then
 fi
 
 export LIB_TARGET=${TOOL_FOLDER}/../libs/libfreetype/android
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/libfreetype/freetype-2.5.2
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/libfreetype/freetype-2.5.5
 
 # Need to set up a cross-platform environment
 if [ -z "$ANDROID_NDK" ]
