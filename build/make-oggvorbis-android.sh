@@ -7,7 +7,7 @@ fi
 
 #libogg
 export LIB_TARGET=${TOOL_FOLDER}/../libs/libogg/android
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/libogg/libogg-1.3.1
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/libogg/libogg-1.3.2
 
 cd ${LIB_SOURCE}/jni
 ndk-build
