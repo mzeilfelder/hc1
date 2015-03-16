@@ -40,6 +40,11 @@
 
 	// Enable editor.
 	#define HC1_ENABLE_EDITOR
+
+	#if defined(HOVER_RELEASE)
+		#undef HOVER_ADS	// those are only in PC version for testing
+	#endif
+
 #endif
 
 #if (IRR_REV >= 3)

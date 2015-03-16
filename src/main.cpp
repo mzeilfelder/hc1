@@ -856,12 +856,10 @@ void App::Quit()
 	if ( mIrrlichtManager )
 		mIrrlichtManager->ShutDownEventReceiver();
 
-#if defined(HOVER_ADS)
 	delete mAdvert;
 	mAdvert = NULL;
 	delete mInAppBilling;
 	mInAppBilling = NULL;
-#endif
     delete mAppTester;
     mAppTester = NULL;
     delete mRivalsMode;
