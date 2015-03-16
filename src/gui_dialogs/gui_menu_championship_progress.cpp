@@ -5,6 +5,7 @@
 #include "gui_menu_loadingscreen.h"
 #include "../gui.h"
 #include "../championship.h"
+#include "../config.h"
 #include "../profiles.h"
 #include "../main.h"
 #include "../level.h"
@@ -61,7 +62,7 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
         if ( !root )
             return false;
 
-        std::string errorMsg("*** GuiMenuChampionshipProgress::Load");
+        std::string errorMsg("GuiMenuChampionshipProgress::Load");
 
         mActiveProfile = static_cast<IGUIStaticText*>(GetElementByName(root, "act_profile2", errorMsg));
 
@@ -111,9 +112,12 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
             AddGuiEventFunctor( GetIdForName(strRetry), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonRetry) );
         }
 
-        mSeason1 = static_cast<IGUIStaticText*>(GetElementByName(root, "season1", errorMsg));
-        mSeason2 = static_cast<IGUIStaticText*>(GetElementByName(root, "season2", errorMsg));
-        mSeason3 = static_cast<IGUIStaticText*>(GetElementByName(root, "season3", errorMsg));
+        if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			mSeason1 = static_cast<IGUIStaticText*>(GetElementByName(root, "season1", errorMsg));
+			mSeason2 = static_cast<IGUIStaticText*>(GetElementByName(root, "season2", errorMsg));
+			mSeason3 = static_cast<IGUIStaticText*>(GetElementByName(root, "season3", errorMsg));
+		}
         if ( !mSeason1 || !mSeason2 || !mSeason3 )
 		{
 			mActiveSeason = 0;	// Backward compatibility to old dialog

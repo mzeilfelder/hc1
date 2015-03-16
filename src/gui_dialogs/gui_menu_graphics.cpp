@@ -44,8 +44,8 @@ bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
         AddGuiEventFunctor( GetIdForName(std::string("sld_resolution")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderResolution) );
         AddGuiEventFunctor( GetIdForName(std::string("sld_filter")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderFilter) );
         AddGuiEventFunctor( GetIdForName(std::string("sld_antialias")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderAntialias) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_lights")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderLights) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderTextureResolution) );
+		AddGuiEventFunctor( GetIdForName(std::string("sld_lights")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderLights) );
+		AddGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderTextureResolution) );
         AddGuiEventFunctor( GetIdForName(std::string("sld_particles")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderParticles) );
         AddGuiEventFunctor( GetIdForName(std::string("sld_vsync")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderVsync) );
         AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnButtonAccept) );
@@ -92,22 +92,25 @@ bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
             mSliderAntialias->addText( APP.GetStringTable()->Get("id_off").c_str() );
         }
 
-        mSliderLights = static_cast<IGUITextSlider*>(GetElementByName(root, "sld_lights", errorMsg));
-        if ( mSliderLights )
-        {
-            mSliderLights->clearTexts();
-            mSliderLights->addText( APP.GetStringTable()->Get("id_light_static").c_str() );
-            mSliderLights->addText( APP.GetStringTable()->Get("id_light_dynamic").c_str() );
-        }
+        if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
+		{
+			mSliderLights = static_cast<IGUITextSlider*>(GetElementByName(root, "sld_lights", errorMsg));
+			if ( mSliderLights )
+			{
+				mSliderLights->clearTexts();
+				mSliderLights->addText( APP.GetStringTable()->Get("id_light_static").c_str() );
+				mSliderLights->addText( APP.GetStringTable()->Get("id_light_dynamic").c_str() );
+			}
 
-        mSliderTextureResolution = static_cast<IGUITextSlider*>(GetElementByName(root, "sld_texture_resolution", errorMsg));
-        if ( mSliderTextureResolution )
-        {
-			mSliderTextureResolution->clearTexts();
-			mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_low").c_str() );
-			mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_medium").c_str() );
-			mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_high").c_str() );
-        }
+			mSliderTextureResolution = static_cast<IGUITextSlider*>(GetElementByName(root, "sld_texture_resolution", errorMsg));
+			if ( mSliderTextureResolution )
+			{
+				mSliderTextureResolution->clearTexts();
+				mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_low").c_str() );
+				mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_medium").c_str() );
+				mSliderTextureResolution->addText( APP.GetStringTable()->Get("id_tex_high").c_str() );
+			}
+		}
 
         mSliderParticles = static_cast<IGUITextSlider*>(GetElementByName(root, "sld_particles", errorMsg));
         if ( mSliderParticles )
@@ -141,8 +144,8 @@ void GuiMenuGraphics::RemoveFunctors()
     RemoveGuiEventFunctor( GetIdForName(std::string("sld_resolution")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("sld_filter")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("sld_antialias")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_lights")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")) );
+	RemoveGuiEventFunctor( GetIdForName(std::string("sld_lights")) );
+	RemoveGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("sld_particles")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("sld_vsync")) );
     RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
