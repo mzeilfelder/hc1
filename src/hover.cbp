@@ -42,17 +42,24 @@
 					<Add library="Xext" />
 					<Add library="X11" />
 					<Add library="pthread" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbisfile.a" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbisenc.a" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbis.a" />
-					<Add library="../libs/libogg/linux/lib/libogg.a" />
-					<Add library="../libs/libfreetype/linux/lib/libfreetype.a" />
-					<Add library="../libs/sdl/linux/lib/libSDL.so" />
+					<Add library="libvorbisfile.a" />
+					<Add library="libvorbisenc.a" />
+					<Add library="libvorbis.a" />
+					<Add library="libogg.a" />
+					<Add library="libfreetype.a" />
+					<Add library="libSDL-1.2.so.0" />
 					<Add library="../libs/openal/linux/lib/libopenal.so" />
 					<Add library="../libs/freealut/linux/lib/libalut.so" />
 					<Add library="Xrandr" />
 					<Add library="Xxf86vm" />
 					<Add directory="../libs/irrlicht/lib/Linux" />
+					<Add directory="../libs/libvorbis/linux/lib64" />
+					<Add directory="../libs/libvorbis/linux/lib" />
+					<Add directory="../libs/libogg/linux/lib64" />
+					<Add directory="../libs/libogg/linux/lib" />
+					<Add directory="../libs/libfreetype/linux/lib64" />
+					<Add directory="../libs/libfreetype/linux/lib" />
+					<Add directory="../libs/linux_shared" />
 				</Linker>
 			</Target>
 			<Target title="linux64 release">
@@ -92,17 +99,26 @@
 					<Add library="Xext" />
 					<Add library="X11" />
 					<Add library="pthread" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbisfile.a" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbisenc.a" />
-					<Add library="../libs/libvorbis/linux/lib/libvorbis.a" />
-					<Add library="../libs/libogg/linux/lib/libogg.a" />
-					<Add library="../libs/libfreetype/linux/lib/libfreetype.a" />
-					<Add library="../libs/sdl/linux/lib/libSDL.so" />
+					<Add library="libvorbisfile.a" />
+					<Add library="libvorbisenc.a" />
+					<Add library="libvorbis.a" />
+					<Add library="libogg.a" />
+					<Add library="libfreetype.a" />
+					<Add library="libSDL.so" />
 					<Add library="../libs/openal/linux/lib/libopenal.so" />
 					<Add library="../libs/freealut/linux/lib/libalut.so" />
 					<Add library="Xrandr" />
 					<Add library="Xxf86vm" />
 					<Add directory="../libs/irrlicht/lib/Linux" />
+					<Add directory="../libs/libvorbis/linux/lib64" />
+					<Add directory="../libs/libvorbis/linux/lib" />
+					<Add directory="../libs/libogg/linux/lib64" />
+					<Add directory="../libs/libogg/linux/lib" />
+					<Add directory="../libs/libfreetype/linux/lib64" />
+					<Add directory="../libs/libfreetype/linux/lib" />
+					<Add directory="../libs/sdl/linux/lib64" />
+					<Add directory="../libs/sdl/linux/lib" />
+					<Add directory="../libs/linux_shared" />
 				</Linker>
 			</Target>
 			<Target title="linux32 debug">
