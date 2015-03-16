@@ -216,23 +216,12 @@ void GuiMenuChampionshipProgress::Show()
 		        mRaceResults[r]->enableOverrideColor(false);
 		    }
 
-            if ( IS_DEMO_VERSION )
-            {
-                if ( r >= 3 && r != 18 )
-                {
-                    mRaceNames[r]->setText( APP.GetStringTable()->Get("id_demolocked").c_str() );
-                }
-            }
-
             mRetryButtons[r]->setEnabled( enableRetry );
             mRetryButtons[r]->setVisible( enableRetry );
             if ( profile )
             {
-                if ( !IS_DEMO_VERSION || r < 3 )
-                {
-                    mRetryButtons[r]->setEnabled( profile->mChampionship.IsQuarterPlayedComplete(r / 3) );
-                    mRetryButtons[r]->setVisible( profile->mChampionship.IsQuarterPlayedComplete(r / 3) );
-                }
+				mRetryButtons[r]->setEnabled( profile->mChampionship.IsQuarterPlayedComplete(r / 3) );
+				mRetryButtons[r]->setVisible( profile->mChampionship.IsQuarterPlayedComplete(r / 3) );
             }
 
 			core::stringw resultTxt(raceResult.mScore);

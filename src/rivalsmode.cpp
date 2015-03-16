@@ -104,20 +104,6 @@ bool RivalsMode::IsLevelAvailable(int levelIdx_, LevelDifficulty levelDifficulty
 //    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(levelIdx_, levelDifficulty_);
 //    return APP.GetProfileManager()->IsLevelUnlocked( levelSettings.mId );
 
-    if ( IS_DEMO_VERSION )
-    {
-        const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(levelIdx_, levelDifficulty_);
-        if (    levelSettings.mId != 28
-            &&  levelSettings.mId != 34
-            &&  levelSettings.mId != 26
-            &&  levelSettings.mId != 18
-    //        &&  levelSettings.mId != 15
-            )
-        {
-            return false;
-        }
-    }
-
     return true;
 }
 

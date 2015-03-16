@@ -77,30 +77,16 @@ bool GuiMenuRivals::Load(const char* filename_, bool reloadLast_)
         mSliderNumRaces->clearTexts();
         mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_single").c_str() );
 
-        if ( IS_DEMO_VERSION )
-        {
-            mSliderNumRaces->setCurrentTextId( NRS_SINGLE );
-        }
-        else
-        {
-            mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_three").c_str() );
-            mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_five").c_str() );
-            mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_seven").c_str() );
-            mSliderNumRaces->setCurrentTextId( NRS_THREE );
-        }
+		mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_three").c_str() );
+		mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_five").c_str() );
+		mSliderNumRaces->addText( APP.GetStringTable()->Get("id_races_seven").c_str() );
+		mSliderNumRaces->setCurrentTextId( NRS_THREE );
 
         mSliderTracks = static_cast<IGUITextSlider*>(GetElementByName(root, "track", errorMsg));
         if ( !mSliderTracks )
             return false;
         GuiHelper::FillTextSliderWithTrackNames(mSliderTracks, LD_ALL);
-        if ( IS_DEMO_VERSION )
-        {
-            mSliderTracks->setEnabled(true);
-        }
-        else
-        {
-            mSliderTracks->setEnabled(false);
-        }
+		mSliderTracks->setEnabled(false);
 
         mSliderPlayer[0] = static_cast<IGUITextSlider*>(GetElementByName(root, "player1", errorMsg));
         mSliderPlayer[1] = static_cast<IGUITextSlider*>(GetElementByName(root, "player2", errorMsg));

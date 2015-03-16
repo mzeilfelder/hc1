@@ -329,7 +329,7 @@ bool ChampionshipProgress::CanOpen( int checkRace_) const
 // Also we have special rules for the demo itself.
 void ChampionshipProgress::ReCheckNextRace()
 {
-    if ( !IS_DEMO_VERSION && mNextRaceNeeded > 0 && !mRaceResults[mNextRaceNeeded-1].mIsOpen )
+    if ( mNextRaceNeeded > 0 && !mRaceResults[mNextRaceNeeded-1].mIsOpen )
     {
         mRaceResults[mNextRaceNeeded].mIsOpen = false;
         mRaceResults[mNextRaceNeeded].mIsPlayed = false;
@@ -345,15 +345,6 @@ void ChampionshipProgress::ReCheckNextRace()
             ++mNextRaceNeeded;
         }
         CalcScores();
-    }
-    if ( IS_DEMO_VERSION )
-    {
-        if ( mNextRaceNeeded >= 3 )
-        {
-            mRaceResults[3].mIsOpen = false;
-            mRaceResults[18].mIsOpen = true;
-            mNextRaceNeeded = 18;
-        }
     }
 }
 

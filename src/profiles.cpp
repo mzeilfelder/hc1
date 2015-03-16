@@ -211,11 +211,6 @@ void PlayerProfile::WriteToXml(TiXmlElement * settings_) const
 
 bool PlayerProfile::IsHoverUnlocked(int hoverId_) const
 {
-    if ( IS_DEMO_VERSION )
-    {
-        if ( hoverId_ != 0 )
-            return false;
-    }
     for ( unsigned int i=0; i < mHoversUnlocked.size(); ++i )
     {
         if ( mHoversUnlocked[i] == hoverId_ )

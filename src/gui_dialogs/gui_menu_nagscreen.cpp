@@ -64,11 +64,7 @@ void GuiMenuNagscreen::Show()
 	mItemName.clear();
     if ( mButtonBuy )
     {
-		if (IS_DEMO_VERSION)
-		{
-			mButtonBuy->setVisible( GetUrlBuy() ? true : false );
-		}
-		else if (DO_DISPLAY_ADS)
+		if (DO_DISPLAY_ADS)
 		{
 			IBilling*  billing = APP.GetBilling();
 			if ( billing && billing->getNumAvailableItems() == 1 )
@@ -147,16 +143,7 @@ bool GuiMenuNagscreen::OnButtonBuy(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-		if (IS_DEMO_VERSION)
-		{
-			const char *url = GetUrlBuy();
-			if ( url )
-			{
-				OpenUrl(url);
-			}
-			APP.StopApp();
-		}
-		else if (DO_DISPLAY_ADS)
+		if (DO_DISPLAY_ADS)
 		{
 			IBilling*  billing = APP.GetBilling();
 			if ( billing )

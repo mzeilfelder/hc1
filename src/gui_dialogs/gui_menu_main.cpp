@@ -74,7 +74,7 @@ bool GuiMenuMain::Load(const char* filename_, bool reloadLast_)
         mButtonOptions = static_cast<IGUIButton*>(GetElementByName(root, "id_options", errorMsg));
         mButtonRivalsMode = static_cast<IGUIButton*>(GetElementByName(root, "id_partymode", errorMsg)); // partymode is now called rivalsmode. Can't change it here easily
         mActiveProfile = static_cast<IGUIStaticText*>(GetElementByName(root, "act_profile2", errorMsg));
-        mDemoText = static_cast<IGUIStaticText*>(GetElementByName(root, "demoversion", errorMsg));
+        // mDemoText = static_cast<IGUIStaticText*>(GetElementByName(root, "demoversion", errorMsg));
         mDebugText = static_cast<IGUIStaticText*>(GetElementByName(root, "debug", errorMsg));
     }
 
@@ -91,17 +91,12 @@ void GuiMenuMain::Show()
 
     bool hasProfile = APP.GetProfileManager()->GetSelectedProfile() != NULL ? true : false;
 
-    bool hasTutorial = false;
-    bool hasTrack = false;
-    if ( !IS_DEMO_VERSION )
+    bool hasTutorial = true;
+    bool hasTrack = true;
+	if ( mDemoText )
     {
-        hasTutorial = true;
-        hasTrack = true;
-        if ( mDemoText )
-        {
-            mDemoText->setVisible(false);
-        }
-    }
+		mDemoText->setVisible(false);
+	}
 
     TiXmlElement * ele = APP.GetConfig()->GetEtcSettings();
     if ( ele && !hasTutorial)
@@ -261,11 +256,11 @@ bool GuiMenuMain::OnButtonQuit(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        if (IS_DEMO_VERSION || DO_DISPLAY_ADS)
+        if (DO_DISPLAY_ADS)
         {
             APP.GetGui()->SetActiveDialog( APP.GetGui()->GetGuiMenuNagscreen() );
         }
-        else if ( !IS_DEMO_VERSION )
+        else
         {
             APP.StopApp();
         }
