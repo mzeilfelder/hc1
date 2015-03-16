@@ -36,6 +36,8 @@ private:
 	JNIEnv* getJNIEnv();
 	void dropJNIEnv();
 
+	bool m_initialized[E_ADVERT_TYPE_COUNT];
+
 	android_app& mAndroidApp;
 };
 

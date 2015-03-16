@@ -5,6 +5,7 @@
 
 #include "compile_config.h"
 #include "advert_admob.h"
+#include "logging.h"
 #include "tinyxml/tinyxml.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
@@ -21,6 +22,8 @@ AdvertAdmob::AdvertAdmob(android_app& androidApp)
 : IAdvert()
 , mAndroidApp(androidApp)
 {
+	for ( unsigned int i=0; i < (unsigned int)E_ADVERT_TYPE_COUNT; ++i )
+		m_initialized[i] = false;
 }
 
 AdvertAdmob::~AdvertAdmob()
@@ -43,7 +46,20 @@ void AdvertAdmob::init(const TiXmlElement * provider)
 				bottom = elementAdUnit->Attribute("bottom");
 				top = elementAdUnit->Attribute("top");
 				fullscreen = elementAdUnit->Attribute("fullscreen");
+
+				if (!fullscreen)
+				{
+					LOG.Warn(L"*** AdvertAdmob: no fullscreen attribute");
+				}
 			}
+			else
+			{
+				LOG.Warn(L"*** AdvertAdmob: no ad_unit element");
+			}
+		}
+		else
+		{
+			LOG.Warn(L"*** AdvertAdmob: no ad_unit node");
 		}
 
 		// Add all test-devices. You have to do that for each device which you use for testing ads.
@@ -61,6 +77,10 @@ void AdvertAdmob::init(const TiXmlElement * provider)
 			nodeTestDevice = nodeTestDevice->NextSibling();
 		}
 	}
+	else
+	{
+		LOG.Warn(L"*** AdvertAdmob: no provider xml element");
+	}
 
 	// For some reason the test-id only works for banner-ads, but not for full-screen (interstitial).
 	// Could not find a test-id for interstitial ads so far.
@@ -75,7 +95,7 @@ void AdvertAdmob::init(const TiXmlElement * provider)
 
 void AdvertAdmob::request(E_ADVERT_TYPE pType)
 {
-	if (pType != EAT_NONE )
+	if (pType != EAT_NONE && m_initialized[pType])
 	{
 		JNIEnv* jniEnv = getJNIEnv();
 		if (jniEnv)
@@ -104,7 +124,7 @@ void AdvertAdmob::request(E_ADVERT_TYPE pType)
 
 void AdvertAdmob::remove(E_ADVERT_TYPE pType)
 {
-	if ( pType != EAT_NONE )
+	if ( pType != EAT_NONE && m_initialized[pType] )
 	{
 		JNIEnv* jniEnv = getJNIEnv();
 		if (jniEnv)
@@ -133,7 +153,7 @@ void AdvertAdmob::remove(E_ADVERT_TYPE pType)
 
 bool AdvertAdmob::show(E_ADVERT_TYPE pType)
 {
-	if (pType != EAT_NONE)
+	if (pType != EAT_NONE && m_initialized[pType])
 	{
 		JNIEnv* jniEnv = getJNIEnv();
 
@@ -165,7 +185,7 @@ bool AdvertAdmob::show(E_ADVERT_TYPE pType)
 
 void AdvertAdmob::setAdUnitID(const char* id, E_ADVERT_TYPE pType)
 {
-	if ( pType != EAT_NONE )
+	if ( pType != EAT_NONE && id && id[0] )
 	{
 		JNIEnv* jniEnv = getJNIEnv();
 		if (jniEnv)
@@ -191,6 +211,8 @@ void AdvertAdmob::setAdUnitID(const char* id, E_ADVERT_TYPE pType)
 			jniEnv->DeleteLocalRef(tClassActivity);
 
 			dropJNIEnv();
+
+			m_initialized[pType] = true;
 		}
 	}
 }
