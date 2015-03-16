@@ -27,7 +27,7 @@
         <activity android:name="HC1NativeActivity" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 			android:label="H-Craft"
 			android:launchMode="singleTask"
-			android:configChanges="orientation|keyboardHidden"
+			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:windowSoftInputMode="stateUnchanged|adjustPan"
 			android:screenOrientation="sensorLandscape"
 			android:clearTaskOnLaunch="true">
