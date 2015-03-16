@@ -26,7 +26,7 @@ export LIB_SOURCE_ALUT=${TOOL_FOLDER}/../libs/freealut/freealut-1.1.0
 rm -rf ${LIB_TARGET_ALUT}/build
 mkdir -p ${LIB_TARGET_ALUT}/build
 cd ${LIB_TARGET_ALUT}/build
-cmake ${LIB_SOURCE_ALUT} -D"LIBRARY_OUTPUT_PATH=${LIB_TARGET_ALUT}/lib" -D"OPENAL_INCLUDE_DIR=${LIB_TARGET}/include" -D"OPENAL_LIBRARY=${LIB_TARGET}/lib"
+cmake ${LIB_SOURCE_ALUT} -D"LIBRARY_OUTPUT_PATH=${LIB_TARGET_ALUT}/lib" -D"OPENAL_INCLUDE_DIR=${LIB_TARGET}/include" -D"OPENAL_LIBRARY=${LIB_TARGET}/lib/libopenal.so"
 make
 mkdir -p ${LIB_TARGET_ALUT}/include
 cp -r ${LIB_SOURCE_ALUT}/include ${LIB_TARGET_ALUT}

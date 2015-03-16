@@ -149,7 +149,6 @@
 					<Add library="../libs/openal/linux/lib/libopenal.so" />
 					<Add library="../libs/freealut/linux/lib/libalut.so" />
 					<Add library="Xrandr" />
-					<Add library="../libs/libcrypto++/linux/lib/libcryptopp.a" />
 					<Add directory="/usr/local/lib" />
 					<Add directory="/usr/X11R6/lib" />
 				</Linker>
@@ -199,7 +198,6 @@
 					<Add library="../libs/openal/linux/lib/libopenal.so" />
 					<Add library="../libs/freealut/linux/lib/libalut.so" />
 					<Add library="Xrandr" />
-					<Add library="../libs/libcrypto++/linux/lib/libcryptopp.a" />
 					<Add directory="/usr/local/lib" />
 					<Add directory="/usr/X11R6/lib" />
 				</Linker>
