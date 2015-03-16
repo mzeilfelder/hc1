@@ -7,7 +7,7 @@ fi
 
 #libogg
 export LIB_TARGET=${TOOL_FOLDER}/../libs/libogg/linux
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/libogg/libogg-1.3.1
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/libogg/libogg-1.3.2
 
 rm -rf ${LIB_TARGET}/build
 mkdir -p ${LIB_TARGET}/build
@@ -20,7 +20,7 @@ make install
 export CPPFLAGS="-I${LIB_TARGET}/include"
 export LDFLAGS="-L${LIB_TARGET}/lib64 -L${LIB_TARGET}/lib"
 export LIB_TARGET=${TOOL_FOLDER}/../libs/libvorbis/linux
-export LIB_SOURCE=${TOOL_FOLDER}/../libs/libvorbis/libvorbis-1.3.4
+export LIB_SOURCE=${TOOL_FOLDER}/../libs/libvorbis/libvorbis-1.3.5
 
 rm -rf ${LIB_TARGET}/build
 mkdir -p ${LIB_TARGET}/build
