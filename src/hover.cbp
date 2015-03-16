@@ -47,9 +47,9 @@
 					<Add library="libvorbis.a" />
 					<Add library="libogg.a" />
 					<Add library="libfreetype.a" />
-					<Add library="libSDL-1.2.so.0" />
-					<Add library="../libs/openal/linux/lib/libopenal.so" />
-					<Add library="../libs/freealut/linux/lib/libalut.so" />
+					<Add library="SDL" />
+					<Add library="openal" />
+					<Add library="alut" />
 					<Add library="Xrandr" />
 					<Add library="Xxf86vm" />
 					<Add directory="../libs/irrlicht/lib/Linux" />
@@ -59,6 +59,12 @@
 					<Add directory="../libs/libogg/linux/lib" />
 					<Add directory="../libs/libfreetype/linux/lib64" />
 					<Add directory="../libs/libfreetype/linux/lib" />
+					<Add directory="../libs/sdl/linux/lib64" />
+					<Add directory="../libs/sdl/linux/lib" />
+					<Add directory="../libs/openal/linux/lib64" />
+					<Add directory="../libs/openal/linux/lib" />
+					<Add directory="../libs/freealut/linux/lib64" />
+					<Add directory="../libs/freealut/linux/lib" />
 					<Add directory="../libs/linux_shared" />
 				</Linker>
 			</Target>
@@ -104,9 +110,9 @@
 					<Add library="libvorbis.a" />
 					<Add library="libogg.a" />
 					<Add library="libfreetype.a" />
-					<Add library="libSDL.so" />
-					<Add library="../libs/openal/linux/lib/libopenal.so" />
-					<Add library="../libs/freealut/linux/lib/libalut.so" />
+					<Add library="SDL" />
+					<Add library="openal" />
+					<Add library="alut" />
 					<Add library="Xrandr" />
 					<Add library="Xxf86vm" />
 					<Add directory="../libs/irrlicht/lib/Linux" />
@@ -118,6 +124,10 @@
 					<Add directory="../libs/libfreetype/linux/lib" />
 					<Add directory="../libs/sdl/linux/lib64" />
 					<Add directory="../libs/sdl/linux/lib" />
+					<Add directory="../libs/openal/linux/lib64" />
+					<Add directory="../libs/openal/linux/lib" />
+					<Add directory="../libs/freealut/linux/lib64" />
+					<Add directory="../libs/freealut/linux/lib" />
 					<Add directory="../libs/linux_shared" />
 				</Linker>
 			</Target>
