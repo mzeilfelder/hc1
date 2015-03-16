@@ -571,15 +571,13 @@ irr::gui::IGUISkin* GuiDialog::AddSkin(TiXmlElement * xmlElement_)
                                 oldCol.setAlpha(col);
                             skin->setColor(colorType, oldCol);
 
-#if IRR_SVN >= 3433
-							// Those editbox colors didn't exist when this was written.
+							// Those editbox colors didn't exist yet in Irrlicht when this was written.
 							// Hacking it here for now as I don't want to modify all media files.
 							if ( colorType == irr::gui::EGDC_WINDOW )
 							{
 								skin->setColor(irr::gui::EGDC_FOCUSED_EDITABLE, oldCol);
 								skin->setColor(irr::gui::EGDC_EDITABLE, oldCol);
 							}
-#endif
                         }
                     }
                 }
