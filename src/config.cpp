@@ -344,7 +344,7 @@ std::string Config::GetConfigFilename(bool checkAssetsFs) const
 	}
 #else
 	// TODO: should probably move it somewhere else also on other platforms.
-	// But have to be careful to not break downward compatiblity for old releases.
+	// But have to be careful to not break downward compatibility for old releases.
 	// Also have to check first which _is_ the best place to put that stuff on different
 	// operating systems.
     return GetPathMedia() + "config.xml";
@@ -398,8 +398,10 @@ bool Config::Load(irr::io::IFileSystem * fs_)
 	mXmlProviderDocument = new TiXmlDocument(configFileName.c_str());
 
     mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_FAIL_ANDROID);
+#ifdef _IRR_ANDROID_PLATFORM_
     if (mXmlProviderDocument)
-		mXmlProviderDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_FAIL_ANDROID);
+		mXmlProviderDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);	// only use assets system
+#endif
 
 	if ( !mXmlDocument->LoadFile() )
 	{
@@ -407,32 +409,30 @@ bool Config::Load(irr::io::IFileSystem * fs_)
 		// get defaults from assets filesystem
 		configFileName = GetConfigFilename(true);
 		if ( !mXmlDocument->LoadFile(configFileName.c_str()) )
-		{
 #endif
+		{
 			LOG.DebugLn("TiXmlDocument::ErrorDesc: ", mXmlDocument->ErrorDesc());
 			delete mXmlDocument;
 			mXmlDocument = 0;
 
 			return false;
-#ifdef _IRR_ANDROID_PLATFORM_
 		}
-#endif
 	}
 
 	if (mXmlProviderDocument)
 	{
-		if ( !mXmlProviderDocument->LoadFile() )
-		{
 #ifdef _IRR_ANDROID_PLATFORM_
-			// get defaults from assets filesystem
-			providerFileName = GetProviderFilename(true);
-			if ( !mXmlProviderDocument->LoadFile(providerFileName.c_str()) )
-			{
-				LOG.Warn(L"Did not find the provider.xml");
-				delete mXmlProviderDocument;
-				mXmlProviderDocument = 0;
-			}
+		// This is only on the assets fs
+		providerFileName = GetProviderFilename(true);
+		if ( !mXmlProviderDocument->LoadFile(providerFileName.c_str()) )
+#else
+		if ( !mXmlProviderDocument->LoadFile() )
+
 #endif
+		{
+			LOG.Warn(L"*** Did not find the provider.xml");
+			delete mXmlProviderDocument;
+			mXmlProviderDocument = 0;
 		}
 	}
 
@@ -733,6 +733,14 @@ TiXmlElement * Config::GetAdProviderSettings() const
 		{
 			return node->ToElement();
 		}
+		else
+		{
+			LOG.Warn("*** GetAdProviderSettings missing node provider\n");
+		}
+	}
+	else
+	{
+		LOG.Warn("*** GetAdProviderSettings missing document\n");
 	}
 
 	return 0;
@@ -747,6 +755,14 @@ TiXmlElement * Config::GetBillingProviderSettings() const
 		{
 			return node->ToElement();
 		}
+		else
+		{
+			LOG.Warn("*** GetBillingProviderSettings missing node provider\n");
+		}
+	}
+	else
+	{
+		LOG.Warn("*** GetBillingProviderSettings missing document\n");
 	}
 
 	return 0;

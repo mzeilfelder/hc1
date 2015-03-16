@@ -34,17 +34,29 @@ int AppRestrictions::PollBillingServer()
 	Config* config = APP.GetConfig();
 
     if (!billing || !config)
+	{
+		LOG.LogLn(LP_DEBUG, "Ads: missing billing or config");
         return -1;
+	}
 
 	int syncroState = billing->getSynchronizeState();
 	if ( syncroState < 0 )
+	{
+		LOG.LogLn(LP_DEBUG, "Ads: syncroState is ", syncroState);
 		return -1;
+	}
 	if ( syncroState > 0 )
+	{
+		LOG.LogLn(LP_DEBUG, "Ads: syncroState is ", syncroState);
 		return 1;
+	}
 
 	TiXmlElement * billingElement = APP.GetConfig()->GetBillingSettings();
 	if (!billingElement)
+	{
+		LOG.LogLn(LP_DEBUG, "Ads: missing billingElement");
 		return -1;
+	}
 
 	int numPurchasedItems = billing->getNumPurchasedItems();
 
@@ -57,11 +69,15 @@ int AppRestrictions::PollBillingServer()
 		if ( new_adfree == 1 )
 		{
 			std::string purchasedItem(billing->getPurchasedItem(0));
-			LOG.LogLn(LP_INFO, "*** bought item: ", purchasedItem.c_str());
+			LOG.LogLn(LP_INFO, "Ads: *** bought item: ", purchasedItem.c_str());
+		}
+		else if ( old_adfree > 0 )
+		{
+			LOG.Info(L"Ads: *** sold previously bought item\n");
 		}
 		else
 		{
-			LOG.Info(L"*** sold previously bought item\n");
+			LOG.LogLn(LP_DEBUG, "Ads: first check, no buying so far");
 		}
 		billingElement->SetAttribute("adfree", new_adfree);
 		config->Save();

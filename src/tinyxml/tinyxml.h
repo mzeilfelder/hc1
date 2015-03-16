@@ -1377,7 +1377,7 @@ public:
 	enum E_IRR_FS
 	{
 		E_NO_IRR,				// don't try to use it
-		E_ON_READ_ANDROID,		// use it when reading documents on android
+		E_ON_READ_ANDROID,		// use it when reading documents on android - will use the assets system instead of files
 		E_ON_READ_FAIL_ANDROID,	// use it when normal reading has failed on android
 	};
 

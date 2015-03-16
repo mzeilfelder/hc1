@@ -48,6 +48,7 @@ public class BillingHelper
 	// This must be done before the call to requestServerConnection
 	public void registerExpectedProduct(String productId)
 	{
+		// Log.d("Irrlicht", "registerExpectedProduct:" + productId );		
 		String packageProductId = productId.replace(mPackagePrefix, "");
 		mExpectedObject.add(packageProductId);
 		
@@ -299,7 +300,7 @@ public class BillingHelper
 
 			if (resultCode == Activity.RESULT_OK)	// not to confuse with RESULT_OK from this class! (not even same value)
 			{
-				Log.d("Irrlicht", "onActivityResult, result is RESULT_OK");
+				// Log.d("Irrlicht", "onActivityResult, result is RESULT_OK");
 				
 				try
 				{
@@ -317,7 +318,7 @@ public class BillingHelper
 			}
 			else // Activity.RESULT_CANCELED 
 			{
-				Log.d("Irrlicht", "onActivityResult result RESULT_CANCELED ");
+				// Log.d("Irrlicht", "onActivityResult result RESULT_CANCELED ");
 			}
 			mSynchronizeState = STATE_SYNCHRONIZED;			
 		}

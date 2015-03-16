@@ -631,7 +631,14 @@ void App::AdvertismentCheck()
 #if defined(HOVER_ADS)
 	if ( DO_DISPLAY_ADS )
 	{
+		LOG.LogLn(LP_DEBUG, "Ads: displaying would be OK");
+
+#if defined(HOVER_RELEASE)
 		const unsigned int MIN_TIME_BETWEEN_ADS_MS = 1000*60*5;	// Only every few minutes, don't annoy people.
+#else
+		const unsigned int MIN_TIME_BETWEEN_ADS_MS = 1;			// more ads while debugging
+#endif
+
 	    unsigned int timeNow = UINT_MAX;
 		if ( GetIrrlichtManager() )
 		{
@@ -642,17 +649,27 @@ void App::AdvertismentCheck()
 			mLastAdTime = timeNow;
 		}
 		if ( timeNow < mLastAdTime+MIN_TIME_BETWEEN_ADS_MS )
+		{
+			LOG.LogLn(LP_DEBUG, "Ads: not the time yet");
 			return;
+		}
 
 		mLastAdTime = timeNow;
+		LOG.LogLn(LP_DEBUG, "Ads: time to show it");
 
 		if ( mAdvert && mAdvert->show(EAT_FULLSCREEN) )
 		{
+			LOG.LogLn(LP_DEBUG, "Ads: showing it");
+
 			ForceUpdates(true, false);
 
 			// request next one immediately
 			mAdvert->request(EAT_FULLSCREEN);
 		}
+	}
+	else
+	{
+		LOG.LogLn(LP_DEBUG, "Ads: no displaying allowed.");
 	}
 #endif
 }

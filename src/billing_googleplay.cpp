@@ -12,6 +12,7 @@
 
 #include "compile_config.h"
 #include "billing_googleplay.h"
+#include "logging.h"
 #include "tinyxml/tinyxml.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
@@ -49,8 +50,24 @@ void BillingGooglePlay::init(const TiXmlElement * provider)
 				{
 					registerExpectedProduct(name);
 				}
+				else
+				{
+					LOG.Warn(L"*** no name for billing");
+				}
+			}
+			else
+			{
+				LOG.Warn(L"*** no elementProduct");
 			}
 		}
+		else
+		{
+			LOG.Warn(L"*** no billing_product node");
+		}
+	}
+	else
+	{
+		LOG.Warn(L"*** no provider xml element");
 	}
 }
 

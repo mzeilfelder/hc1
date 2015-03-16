@@ -1089,7 +1089,7 @@ bool TiXmlDocument::LoadFileWithIrrFs(TiXmlEncoding encoding)
 	if (!file )
 	{
 #ifdef _IRR_ANDROID_PLATFORM_
-		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - opening file failed.\n");
+		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - file not yet on IrrFS: %s\n", value.c_str());
 #endif
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
 		return false;
