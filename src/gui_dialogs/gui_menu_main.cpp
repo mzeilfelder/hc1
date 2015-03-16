@@ -74,7 +74,7 @@ bool GuiMenuMain::Load(const char* filename_, bool reloadLast_)
         mButtonOptions = static_cast<IGUIButton*>(GetElementByName(root, "id_options", errorMsg));
         mButtonRivalsMode = static_cast<IGUIButton*>(GetElementByName(root, "id_partymode", errorMsg)); // partymode is now called rivalsmode. Can't change it here easily
         mActiveProfile = static_cast<IGUIStaticText*>(GetElementByName(root, "act_profile2", errorMsg));
-        // mDemoText = static_cast<IGUIStaticText*>(GetElementByName(root, "demoversion", errorMsg));
+        mDemoText = static_cast<IGUIStaticText*>(GetElementByName(root, "demoversion", errorMsg));
         mDebugText = static_cast<IGUIStaticText*>(GetElementByName(root, "debug", errorMsg));
     }
 
