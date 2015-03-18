@@ -215,6 +215,10 @@ void AdvertAdmob::setAdUnitID(const char* id, E_ADVERT_TYPE pType)
 			m_initialized[pType] = true;
 		}
 	}
+	else
+	{
+		LOG.Warn(L"*** AdvertAdmob setAdUnitID failed.");
+	}
 }
 
 void AdvertAdmob::addTestDevice(const char* device)

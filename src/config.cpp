@@ -397,17 +397,18 @@ bool Config::Load(irr::io::IFileSystem * fs_)
 	std::string providerFileName(GetProviderFilename());
 	mXmlProviderDocument = new TiXmlDocument(configFileName.c_str());
 
-    mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_FAIL_ANDROID);
+    mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_NO_IRR);	// don't try on assets as that uses another folder-name
 #ifdef _IRR_ANDROID_PLATFORM_
     if (mXmlProviderDocument)
-		mXmlProviderDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);	// only use assets system
+		mXmlProviderDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);	// only use assets system for provider document
 #endif
 
 	if ( !mXmlDocument->LoadFile() )
 	{
 #ifdef _IRR_ANDROID_PLATFORM_
-		// get defaults from assets filesystem
+		// get original config from assets filesystem
 		configFileName = GetConfigFilename(true);
+		mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);
 		if ( !mXmlDocument->LoadFile(configFileName.c_str()) )
 #endif
 		{
@@ -444,7 +445,7 @@ bool Config::Save()
 	if ( !mXmlDocument )
         return false;
 
-	return mXmlDocument->SaveFile(GetConfigFilename().c_str());
+	return mXmlDocument->SaveFile(GetConfigFilename().c_str());	// NOTE: setting name again important as loading can be from another place first time
 }
 
 void Config::WriteToString(std::string &str_)

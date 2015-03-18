@@ -74,19 +74,19 @@ public class AdHelper
 				@Override
 				public void onAdOpened()
 				{
-					Log.d("Irrlicht", "*** onAdOpened ***");
+					//Log.d("Irrlicht", "*** onAdOpened ***");
 				}
 
 				@Override
 				public void onAdClosed()
 				{
-					Log.d("Irrlicht", "*** onAdClosed ***");
+					//Log.d("Irrlicht", "*** onAdClosed ***");
 				}
 
 				@Override
 				public void onAdLeftApplication()
 				{
-					Log.d("Irrlicht", "*** onAdLeftApplication ***");
+					//Log.d("Irrlicht", "*** onAdLeftApplication ***");
 				}
 			};
 
@@ -185,18 +185,16 @@ public class AdHelper
 
 	public boolean show(final int type)
 	{
-		Log.d("Irrlicht", "AD show");
-		
 		boolean status = false;
 
 		if (mState[type] == 1)
 		{
-			Log.d("Irrlicht", "AD show state was 1");
+			//Log.d("Irrlicht", "AD show state was 1");
 			mState[type] = 2;
 
 			if (!isInterstitialType(type))
 			{
-				Log.d("Irrlicht", "AD show !isInterstitialType");
+				//Log.d("Irrlicht", "AD show !isInterstitialType");
 				mActivity.runOnUiThread(new Runnable()
 				{
 					@Override
@@ -221,7 +219,18 @@ public class AdHelper
 					public void run()
 					{
 						if (mInterstitial.isLoaded())
-							mInterstitial.show();
+						{
+							try
+							{
+								mInterstitial.show();
+							}
+							catch (java.lang.IllegalStateException e)
+							{
+								// TOOD: Not sure yet how I get this state. Most likely because the next ad is requested already
+								// before this thread is run and so ads are in an inconsistent state.
+								Log.d("Irrlicht", "*** Ad does not want to be shown - give up before it crashes.");
+							}
+						}
 					}
 				});
 			}
