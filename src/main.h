@@ -136,6 +136,7 @@ private:
     AppTester*			mAppTester;
 	android_app*		mAndroidApp;
 	unsigned int 		mLastAdTime;
+	bool				mNeedAd;
 	IAdvert*			mAdvert;
 	IBilling*			mInAppBilling;
 

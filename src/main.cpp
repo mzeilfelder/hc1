@@ -72,6 +72,7 @@ App::App()
 , mAppTester(0)
 , mAndroidApp(0)
 , mLastAdTime(0)
+, mNeedAd(false)
 , mAdvert(0)
 , mInAppBilling(0)
 {
@@ -662,10 +663,10 @@ void App::AdvertismentCheck()
 			LOG.LogLn(LP_DEBUG, "Ads: showing it");
 
 			ForceUpdates(true, false);
-
-			// request next one immediately
-			mAdvert->request(EAT_FULLSCREEN);
 		}
+
+			// Always request next one - if show failed it's usually because last loading didn't work for some reason (just happens sometimes)
+			mNeedAd = true;
 	}
 	else
 	{
@@ -792,6 +793,15 @@ void App::Run()
         oldTime = newTime;
 
 		PROFILE_START(100);
+
+		// Load a new ad. Doing that with a small delay because showing ad's is in an own thread
+		// and requesting new ones before last show is through can mess up things.
+		if ( mNeedAd && newTime > mLastAdTime + 1000 )
+		{
+			mNeedAd = false;
+			if ( mAdvert )
+				mAdvert->request(EAT_FULLSCREEN);
+		}
 
 		PROFILE_START(101);
 		// begin-scene early do allow drawing debug-output in the rest of updates

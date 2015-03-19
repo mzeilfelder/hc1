@@ -148,7 +148,15 @@ public class AdHelper
 							builder = builder.addTestDevice(device);
 						}
 						AdRequest request = builder.build();
-						mInterstitial.loadAd(request);
+						
+						try
+						{
+							mInterstitial.loadAd(request);
+						}
+						catch (java.lang.IllegalStateException e)
+						{
+							Log.d("Irrlicht", "*** loadAd caused IllegalStateException");
+						}
 					}
 				});
 			}
@@ -226,9 +234,9 @@ public class AdHelper
 							}
 							catch (java.lang.IllegalStateException e)
 							{
-								// TOOD: Not sure yet how I get this state. Most likely because the next ad is requested already
-								// before this thread is run and so ads are in an inconsistent state.
-								Log.d("Irrlicht", "*** Ad does not want to be shown - give up before it crashes.");
+								// According to documentation this shouldn't have an IllegalStateException, but 
+								// according to callstack I got it here. Whom to trust? 
+								Log.d("Irrlicht", "*** mInterstitial.show caused IllegalStateException");
 							}
 						}
 					}
