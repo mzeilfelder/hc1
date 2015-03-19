@@ -12,6 +12,6 @@ mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
 make clean
 # TODO: also --without-png ?
-${LIB_SOURCE}/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --without-zlib --enable-shared=no
+${LIB_SOURCE}/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --without-zlib --enable-shared=no --with-harfbuzz=no
 make
 make install
