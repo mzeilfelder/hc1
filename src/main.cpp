@@ -665,8 +665,8 @@ void App::AdvertismentCheck()
 			ForceUpdates(true, false);
 		}
 
-			// Always request next one - if show failed it's usually because last loading didn't work for some reason (just happens sometimes)
-			mNeedAd = true;
+		// Always request next one - if show failed it's usually because last loading didn't work for some reason (just happens sometimes)
+		mNeedAd = true;
 	}
 	else
 	{
