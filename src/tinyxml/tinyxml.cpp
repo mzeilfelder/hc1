@@ -1074,7 +1074,7 @@ bool TiXmlDocument::LoadFileWithIrrFs(TiXmlEncoding encoding)
 {
 	if ( !irrFileSystem )
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#if defined(_IRR_ANDROID_PLATFORM_) && !defined(HOVER_RELEASE)
 		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - irrFileSystem is NULL.\n");
 #endif
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
@@ -1088,7 +1088,7 @@ bool TiXmlDocument::LoadFileWithIrrFs(TiXmlEncoding encoding)
 	irr::io::IReadFile* file = irrFileSystem->createAndOpenFile(irr::io::path(value.c_str()));
 	if (!file )
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#if defined(_IRR_ANDROID_PLATFORM_) && !defined(HOVER_RELEASE)
 		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - file not yet on IrrFS: %s\n", value.c_str());
 #endif
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
