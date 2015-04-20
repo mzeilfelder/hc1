@@ -10,17 +10,19 @@ then
 	export HCRAFT_HOME=..
 fi
 
+if [ -z "$BUILD_TARGET" ]
+then 
+	export BUILD_TARGET="android-22"
+fi
+
+
 # Copy the google-play-services lib 
 cd $HCRAFT_HOME/build/android/libs
 cp -R $ANDROID_HOME/extras/google/google_play_services/libproject/google-play-services_lib .
-# something to update project files - not sure what that step does exactly, just followed documentation there
-cd $ANDROID_HOME/tools
-android update project --target 1 --name hcraft1 --path $HCRAFT_HOME/build/android --library $HCRAFT_HOME/build/android/libs/google-play-services_lib
-# We don't want a new (and also not absolute!) path in our project.properties. 
-cd $HCRAFT_HOME
-hg revert build/android/project.properties
-# Ensure to use android-13 as target
+# something to update project files - not quite sure what those steps do exactly
+cd $HCRAFT_HOME/build/android
+android update project --target $BUILD_TARGET --name hcraft1 --path . --subprojects
 cd $HCRAFT_HOME/build/android/libs/google-play-services_lib 
-android update project --path . --target android-13
+android update project --path . --target $BUILD_TARGET --subprojects
 # Copy android-support-v4.jar (probably not needed when only Android >= 4.x is targeted). 
 cp $ANDROID_HOME/extras/android/support/v4/android-support-v4.jar $HCRAFT_HOME/build/android/libs

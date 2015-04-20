@@ -140,13 +140,13 @@ Android development was done completely on a Linux-Debian system, no other OS ha
 The only compiler supported is gcc. Not sure which gcc versions will do, but gcc 4.7.2 works here.
 In theory Windows+Cygwin could also be used for Android development, but I never tried to get that running.
 
-The packages installed in the Android SDK Manager are:
+The packages installed in the Android SDK Manager (which you can start on console with "android sdk"):
 - Tools - Android SDK Tools
 - Tools - Android SDK Platform-tools
 - Tools - Android SDK Build-tools
-- Android 5.0 (API21) - Documentation for Android SDK
-- Android 5.0 (API21) - SDK Platform
-- Android 5.0 (API21) - Sources for Android SDK (likely not needed)
+- Android 5.1.1 (API22) - Documentation for Android SDK
+- Android 5.1.1 (API22) - SDK Platform
+- Android 5.1.1 (API21) - Sources for Android SDK (likely not needed)
 - Android 3.2 (API13) - SDK Platform
 - Android 3.2 (API13) - Samples for SDK (likely not needed)
 - Android 3.2 (API13) - Google API's
@@ -165,7 +165,7 @@ where <install_path> must be replaced by your corresponding path
 and versions numbers might differ (Google updates often):
 export ANDROID_HOME=<install_path>/android/adt-bundle-linux-x86_64-20131030/sdk
 export ANDROID_NDK=<install_path>/android/android-ndk-r10c
-export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/21.0.2
+export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/22.0.1
 And add those to your PATH: $ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_BUILD_TOOLS:$ANDROID_NDK
 
 Also add an export to your .bashrc for the folder where you have put hcraft:
