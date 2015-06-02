@@ -25,6 +25,6 @@ echo $PATH
 mkdir -p ${LIB_TARGET}/build
 cd ${LIB_TARGET}/build
 make clean
-${LIB_SOURCE}/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --without-zlib --without-png --host=arm-linux-androideabi
+${LIB_SOURCE}/configure CPPFLAGS=-O2 --prefix=$LIB_TARGET --without-zlib --without-png --with-harfbuzz=no --host=arm-linux-androideabi 
 make
 make install

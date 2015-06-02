@@ -143,7 +143,10 @@ libs/libvorbis/Win32-gcc/*
 libs/libfreetype/linux
 libs/libfreetype/android
 libs/libfreetype/Win32-gcc
-libs/libfreetype/freetype-2.2.1/builds/unix/freetype-config
+libs/libfreetype/freetype-2.5.2/config.mk
+libs/libfreetype/freetype-2.5.2/objs
+libs/libfreetype/freetype-2.5.5/config.mk
+libs/libfreetype/freetype-2.5.5/objs
 
 #crypto++
 libs/libcrypto++/linux
