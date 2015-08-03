@@ -690,43 +690,42 @@ void App::ForceUpdates(bool graphics_, bool sound_)
 
 void App::UpdateSound()
 {
-    if ( !mSound )
-        return;
-
-    unsigned int timeMs = 0;
-
-    if ( GetIrrlichtManager() )
+    if ( mSound && GetIrrlichtManager() )
     {
-        timeMs = GetIrrlichtManager()->GetIrrlichtTimer()->getRealTime();
-    }
+		unsigned int timeMs = GetIrrlichtManager()->GetIrrlichtTimer()->getRealTime();
 
-    core::vector3df listenerPos(0.0 ,0.0 ,0.0);
-    core::vector3df listenerAt(0.0, 0.0, 1.0);
-    core::vector3df listenerUp(0.0, 1.0, 0.0);
-    bool hasPlayerMatrix = false;
+		core::vector3df listenerPos(0.0 ,0.0 ,0.0);
+		core::vector3df listenerAt(0.0, 0.0, 1.0);
+		core::vector3df listenerUp(0.0, 1.0, 0.0);
+		bool hasPlayerMatrix = false;
 
-    if ( GetGame() && GetGame()->GetLocalPlayer() )
-    {
-        const Player * player = GetGame()->GetLocalPlayer();
-        scene::ISceneNode * hoverPlayer = player->GetHoverNode();
-        if ( hoverPlayer )
-        {
-            hasPlayerMatrix = true;
-            const core::matrix4 & matHover = hoverPlayer->getAbsoluteTransformation();
-            listenerPos = matHover.getTranslation();
-            matHover.rotateVect(listenerAt);
-            matHover.rotateVect(listenerUp);
-        }
-    }
+		if ( GetGame() )
+		{
+			const Player * player = GetGame()->GetLocalPlayer();
+			scene::ISceneNode * hoverPlayer = player ? player->GetHoverNode() : 0;
+			if ( hoverPlayer )
+			{
+				hasPlayerMatrix = true;
+				const core::matrix4 & matHover = hoverPlayer->getAbsoluteTransformation();
+				listenerPos = matHover.getTranslation();
+				matHover.rotateVect(listenerAt);
+				matHover.rotateVect(listenerUp);
+			}
+		}
 
-    if ( !hasPlayerMatrix && GetIrrlichtManager() && GetIrrlichtManager()->GetActiveCamera())
-    {
-        listenerPos = GetIrrlichtManager()->GetActiveCamera()->getPosition();
-        listenerAt = GetIrrlichtManager()->GetActiveCamera()->getTarget()  - GetIrrlichtManager()->GetActiveCamera()->getPosition();
-        listenerUp = GetIrrlichtManager()->GetActiveCamera()->getUpVector();
-    }
+		if ( !hasPlayerMatrix )
+		{
+			scene::ICameraSceneNode* activeCamera = GetIrrlichtManager()->GetActiveCamera();
+			if ( activeCamera )
+			{
+				listenerPos = activeCamera->getPosition();
+				listenerAt = activeCamera->getTarget() - activeCamera->getPosition();
+				listenerUp = activeCamera->getUpVector();
+			}
+		}
 
-    mSound->Update(listenerPos, listenerAt, listenerUp, timeMs);
+		mSound->Update(listenerPos, listenerAt, listenerUp, timeMs);
+	}
 }
 
 void App::Run()
