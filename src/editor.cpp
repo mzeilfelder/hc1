@@ -394,8 +394,6 @@ void Editor::CheckForSelection()
 
     if ( IsSelectionMode() && !wasSelected )
     {
-        scene::ISceneCollisionManager * collManager = APP.GetIrrlichtManager()->GetSceneManager()->getSceneCollisionManager();
-        assert(collManager);
         gui::ICursorControl* cursor = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getCursorControl();
         assert(cursor);
 
