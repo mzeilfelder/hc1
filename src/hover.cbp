@@ -590,7 +590,6 @@
 		<Unit filename="mobile/android_tools.h" />
 		<Unit filename="mobile/app_restrictions.cpp" />
 		<Unit filename="mobile/app_restrictions.h" />
-		<Unit filename="mobile/billing.cpp" />
 		<Unit filename="mobile/billing.h" />
 		<Unit filename="mobile/billing_googleplay.cpp" />
 		<Unit filename="mobile/billing_googleplay.h" />
