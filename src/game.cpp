@@ -279,8 +279,9 @@ bool Game::Init()
     PROFILE_ADD(205, PGROUP_GAME, "record");
     PROFILE_ADD(206, PGROUP_GAME, "pp 2");
     PROFILE_ADD(207, PGROUP_GAME, "pp 3");
-    PROFILE_ADD(208, PGROUP_GAME, "pp 4");
-    PROFILE_ADD(209, PGROUP_GAME, "updatestart");
+    PROFILE_ADD(208, PGROUP_GAME, "pp 3a");
+    PROFILE_ADD(209, PGROUP_GAME, "pp 3b");
+    PROFILE_ADD(210, PGROUP_GAME, "updatestart");
 
     return true;
 }
@@ -953,6 +954,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
     core::line3d<f32> moveLine(player_->GetHoverNode()->getAbsolutePosition(), player_->GetLastPos());
 
     // check collision with markers
+	PROFILE_START(208);
     int indexMarker = 0;
     if ( APP.GetLevelManager()->CheckMarkerCollision(moveLine, indexMarker) )
     {
@@ -962,6 +964,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
             player_->InfoLevelMarkerReached( indexMarker );
         }
     }
+	PROFILE_STOP(208);
 
     // check finish line collision
     if ( APP.GetLevelManager()->CheckFinishLineCollision(moveLine) )
@@ -994,8 +997,9 @@ void Game::CheckCollisions(Player* player_, u32 time_)
             mCameras[mActiveCameraIndex]->ResetGameCam(player_->GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
         }
     }
-    else    // ignore wall checks when a teleport was there
+    else    // no teleport - do wall checks
     {
+		PROFILE_START(209);
         // check wall (drop off from track) collision
         int indexWall = 0;
         bool droppingOutside = time_ - player_->GetLastTimeTouchedFloor() > 2000 ? true : false;
@@ -1024,6 +1028,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
                 mCameras[mActiveCameraIndex]->ResetGameCam(player_->GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
             }
         }
+        PROFILE_STOP(209);
     }
 }
 
@@ -1103,7 +1108,6 @@ void Game::Update()
             continue;
 
 #if defined(NEURAL_AI)
-        PROFILE_START(208);
         if ( mAiTraining )
         {
             if ( time - mPlayers[p]->GetRoundStartTime() > 5000
@@ -1118,7 +1122,6 @@ void Game::Update()
                 }
             }
         }
-        PROFILE_STOP(208);
 #endif
     }
     PROFILE_STOP(202);

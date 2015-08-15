@@ -584,12 +584,6 @@ int LevelManager::GetIndexForName( const std::wstring &levelName_ ) const
     return -1;
 }
 
-void LevelManager::SetMeshScale(const core::vector3df &scale_)
-{
-    if ( mLevelNode )
-        mLevelNode->setScale(scale_);
-}
-
 bool LevelManager::Load(LevelSettings * settings_)
 {
     LOG.Debug("LevelManager::Load\n");

@@ -198,12 +198,9 @@ public:
     int GetIndexForName( const std::wstring &levelName_ ) const;
 
     const LevelSettings& GetLevel(unsigned int index_, LevelDifficulty difficulty_ = LD_ALL) const;
-    const LevelSettings& GetCurrentLevel() const   { return GetLevel(mCurrentLevel); }
+    const LevelSettings& GetCurrentLevel() const { return GetLevel(mCurrentLevel); }
 
-    void SetMeshScale(const irr::core::vector3df &scale_);
-    irr::scene::ISceneNode* GetMesh()                { return mLevelNode; }
-    irr::scene::ITriangleSelector* GetSelector()     { return mSelector; }
-    irr::scene::ISceneNode* GetNodeCamera()          { return mNodeCamera; }
+    irr::scene::ISceneNode* GetNodeCamera() { return mNodeCamera; }
 
     void ShowEditData(bool enable_);
 
@@ -214,16 +211,16 @@ public:
 
     int GetTrackRelocatesBetween(int indexFront_, int indexBack_);
 
-    // remember: GetTrackMarker and GetNrOfModels return no references because they are part of a vector
+    // remember: GetTrackMarker and GetModel return no references because they are part of a vector which can change
     TrackStart& GetTrackStart(unsigned int index_);
     unsigned int GetNrOfTrackMarkers() const;
-    TrackMarker GetTrackMarker(unsigned int index_) const       { return mTrackMarkers[index_]; }
-    TrackMarker& GetFinishLine()                        { return mFinishLine; }
-    TrackMarker& GetTpSource()                          { return mTpSource; }
-    TrackMarker& GetTpTarget()                          { return mTpTarget; }
-    LevelModel GetModel(unsigned int index_) const      { return mModels[index_]; }
-    unsigned int GetNrOfModels() const                  { return mModels.size(); }
-    AiTrack& GetAiTrack()                               { return mAiTrack; }
+    TrackMarker GetTrackMarker(unsigned int index_) const { return mTrackMarkers[index_]; }
+    TrackMarker& GetFinishLine()                   { return mFinishLine; }
+    TrackMarker& GetTpSource()                     { return mTpSource; }
+    TrackMarker& GetTpTarget()                     { return mTpTarget; }
+    LevelModel GetModel(unsigned int index_) const { return mModels[index_]; }
+    unsigned int GetNrOfModels() const             { return mModels.size(); }
+    AiTrack& GetAiTrack()                          { return mAiTrack; }
 
     void SetTrackStart(const TrackStartSettings& ts_, int player_);
     void SetTrackMarker(const TrackMarkerSettings &marker_, int index_);
@@ -273,7 +270,7 @@ protected:
     bool SaveTrackData(const std::string &fileName_);
 
 private:
-    LevelSettings   mDefaultLevelSettings;
+    LevelSettings mDefaultLevelSettings;
     std::vector<LevelSettings> mLevelSettings;
     int mCurrentLevel;
 
