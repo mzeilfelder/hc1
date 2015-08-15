@@ -209,13 +209,6 @@ void Physics::ClearCollisionMeshes()
 void Physics::ClearPhysicsObjects()
 {
     mTimeRest = 0.f;
-
-    typedef PhysicsObjectMap::iterator ItMap;
-    for ( ItMap itObjects1 = mPhysicsObjects.begin(); itObjects1 != mPhysicsObjects.end(); ++itObjects1 )
-    {
-        PhysicsObject * obj = itObjects1->second;
-        delete obj;
-    }
     mPhysicsObjects.clear();
 }
 
@@ -226,24 +219,30 @@ int Physics::AddPhysicsObject(scene::ISceneNode * node_, float radius_)
 
     int id = mNextObjectId;
     ++mNextObjectId;
-    PhysicsObject * obj = new PhysicsObject();
-    obj->mSceneNode = node_;
-    obj->mRadius = radius_;
-    mPhysicsObjects[id] = obj;
+    PhysicsObject obj;
+    obj.mSceneNode = node_;
+    obj.mRadius = radius_;
+    mPhysicsObjects.push_back( std::make_pair(id, obj) );
 
-    // printf("added physics object with id %d radius %f", id, obj->mRadius);
+    // printf("added physics object with id %d radius %f", id, obj.mRadius);
 
     return id;
 }
 
-PhysicsObject* Physics::GetPhysicsObject(int id_) const
+PhysicsObject* Physics::GetPhysicsObject(int id_)
 {
-    if ( id_ < 0 )
-        return NULL;
-    PhysicsObjectMap::const_iterator it = mPhysicsObjects.find(id_);
-    if  (it != mPhysicsObjects.end() )
-        return it->second;
-    return NULL;
+    if ( id_ >= 0 )
+	{
+		// Note: we could do a binary search here. As added objects always increase their number the vector is sorted automatically.
+		// But for now not worth it as we only have 4 object - and so going over them linearly is likely faster.
+		const size_t num = mPhysicsObjects.size();
+		for ( size_t i=0; i<num; ++i)
+		{
+			if ( mPhysicsObjects[i].first == id_ )
+				return &(mPhysicsObjects[i].second);
+		}
+	}
+	return NULL;
 }
 
 void Physics::AddCollisionMesh(scene::ITriangleSelector* selector_)
@@ -588,35 +587,35 @@ void Physics::HandleObjObjCollision()
     // reset touched flag
     for ( ItMap itObjects1 = mPhysicsObjects.begin(); itObjects1 != mPhysicsObjects.end(); ++itObjects1 )
     {
-        PhysicsObject * obj = itObjects1->second;
-        obj->mHasTouchedObject = false;
+        PhysicsObject& obj = itObjects1->second;
+        obj.mHasTouchedObject = false;
     }
 
     // just add some force vector to push them in different directions
     for ( ItMap itObjects1 = mPhysicsObjects.begin(); itObjects1 != mPhysicsObjects.end(); ++itObjects1 )
     {
-        PhysicsObject * obj1 = itObjects1->second;
-        if ( obj1->mCollType != CT_COLL_ALL )
+        PhysicsObject& obj1 = itObjects1->second;
+        if ( obj1.mCollType != CT_COLL_ALL )
             continue;
 
         ItMap itObjects2 = itObjects1;
         ++itObjects2;
         for ( ; itObjects2 != mPhysicsObjects.end(); ++itObjects2 )
         {
-            PhysicsObject * obj2 = itObjects2->second;
-            if ( obj2->mCollType != CT_COLL_ALL )
+            PhysicsObject& obj2 = itObjects2->second;
+            if ( obj2.mCollType != CT_COLL_ALL )
                 continue;
 
-            core::vector3df collCenter1(obj1->mCurrentStepCollCenter);
-            core::vector3df collCenter2(obj2->mCurrentStepCollCenter);
+            core::vector3df collCenter1(obj1.mCurrentStepCollCenter);
+            core::vector3df collCenter2(obj2.mCurrentStepCollCenter);
 
             core::vector3df distVec (collCenter1 - collCenter2);
             float dist = distVec.getLength();
-            float distColl = (obj1->mRadius+obj2->mRadius) - dist;
+            float distColl = (obj1.mRadius+obj2.mRadius) - dist;
             if ( distColl > 0.f )
             {
-                if (    !obj1->mDelayObjectCollUntilSafe
-                    &&  !obj2->mDelayObjectCollUntilSafe)
+                if (    !obj1.mDelayObjectCollUntilSafe
+                    &&  !obj2.mDelayObjectCollUntilSafe)
                 {
                     core::vector3df push1(distVec);
                     core::vector3df push2(distVec*-1);
@@ -624,29 +623,29 @@ void Physics::HandleObjObjCollision()
 					// playability hack added in 1.3 - give humans more power
 					float humansAreSooStrong1 = 1.f;
 					float humansAreSooStrong2 = 1.f;
-					if ( obj1->IsHuman() && !obj2->IsHuman() )
+					if ( obj1.IsHuman() && !obj2.IsHuman() )
 					{
 						humansAreSooStrong1 = 0.75f;
 						humansAreSooStrong2 = 1.25f;
 					}
-					else if ( !obj1->IsHuman() && obj2->IsHuman() )
+					else if ( !obj1.IsHuman() && obj2.IsHuman() )
 					{
 						humansAreSooStrong1 = 1.25f;
 						humansAreSooStrong2 = 0.75f;
 					}
 
-                    push1.setLength( distColl * obj2->mSettings.mMass * mSettings.mCollPush * humansAreSooStrong1);
-                    push2.setLength( distColl * obj1->mSettings.mMass * mSettings.mCollPush * humansAreSooStrong2);
+                    push1.setLength( distColl * obj2.mSettings.mMass * mSettings.mCollPush * humansAreSooStrong1);
+                    push2.setLength( distColl * obj1.mSettings.mMass * mSettings.mCollPush * humansAreSooStrong2);
 
-                    obj1->mForceAccu += push1;
-                    obj2->mForceAccu += push2;
+                    obj1.mForceAccu += push1;
+                    obj2.mForceAccu += push2;
                 }
 
-                obj1->mHasTouchedObject = true;
-                obj1->mHasTouchedObjectLastUpdate = true;
+                obj1.mHasTouchedObject = true;
+                obj1.mHasTouchedObjectLastUpdate = true;
 
-                obj2->mHasTouchedObject = true;
-                obj2->mHasTouchedObjectLastUpdate = true;
+                obj2.mHasTouchedObject = true;
+                obj2.mHasTouchedObjectLastUpdate = true;
             }
         }
     }
@@ -654,23 +653,23 @@ void Physics::HandleObjObjCollision()
     // check mDelayObjectCollUntilSafe settings
     for ( ItMap itObjects1 = mPhysicsObjects.begin(); itObjects1 != mPhysicsObjects.end(); ++itObjects1 )
     {
-        PhysicsObject * obj = itObjects1->second;
-        if(     obj->mDelayObjectCollUntilSafe
-            && !obj->mHasTouchedObject
+        PhysicsObject& obj = itObjects1->second;
+        if(     obj.mDelayObjectCollUntilSafe
+            && !obj.mHasTouchedObject
          )
         {
-            obj->mDelayObjectCollUntilSafe = false;
+            obj.mDelayObjectCollUntilSafe = false;
         }
     }
 }
 
-void Physics::HandleCushions(PhysicsObject * obj, irr::core::vector3df& step)
+void Physics::HandleCushions(PhysicsObject& obj, irr::core::vector3df& step)
 {
 	// Trying to prevent player hovers from falling off the track so much by adding some cushions at the outside of the tracks.
 	// This was't planned originally, but introduced for the 1.3 (android) version.
 	// We don't have correct border walls, so we use some lines from the ai which are roughly in the right place.
 	// Those lines are not good enough to use directly for the collisions so we just use the information
-	// about those lines in obj->mTrackBorderInfo and try to figure out a solution which works "good enough".
+	// about those lines in obj.mTrackBorderInfo and try to figure out a solution which works "good enough".
 	// Unfortunately it's not completely deterministic and not even completely frame-rate independent (because
 	// the border-lines are not updated each calculation step).
 	// Also some problems with getting stuck to the border which looks funny.
@@ -683,21 +682,21 @@ void Physics::HandleCushions(PhysicsObject * obj, irr::core::vector3df& step)
 
 	if ( mSettings.mCushionFactor > 0.f )
 	{
-		const float radius = obj->mRadius * 1.25f;	// try&error - without scaling radius it was too often at the exact border where hovers started to fall off.
-		if ( obj->mTrackBorderInfo.mDistanceBorder < radius )
+		const float radius = obj.mRadius * 1.25f;	// try&error - without scaling radius it was too often at the exact border where hovers started to fall off.
+		if ( obj.mTrackBorderInfo.mDistanceBorder < radius )
 		{
 			// Find the line that shouldn't be crossed.
 			// (this part can be removed if we ever improve the border-lines so they can be used directly)
-			core::vector3df towardCenter(obj->mTrackBorderInfo.mNearestTrackCenter-obj->mTrackBorderInfo.mNearestBorder);
+			core::vector3df towardCenter(obj.mTrackBorderInfo.mNearestTrackCenter-obj.mTrackBorderInfo.mNearestBorder);
 			core::vector2df towardCenter2d(towardCenter.X, towardCenter.Z);
 			core::vector2df perpToCenter(-towardCenter2d.Y, towardCenter2d.X);
-			core::vector2df border2d(obj->mTrackBorderInfo.mNearestBorder.X, obj->mTrackBorderInfo.mNearestBorder.Z);
+			core::vector2df border2d(obj.mTrackBorderInfo.mNearestBorder.X, obj.mTrackBorderInfo.mNearestBorder.Z);
 			core::line2df borderLine( border2d, border2d + perpToCenter );
 			towardCenter2d.normalize();
 			borderLine += towardCenter2d*radius;	// subtract radius, so we can work with object-center
 
-			core::vector2df target2d(obj->mCurrentStepCollCenter.X, obj->mCurrentStepCollCenter.Z);
-			core::vector2df start2d(obj->mLastStepCollCenter.X, obj->mLastStepCollCenter.Z);
+			core::vector2df target2d(obj.mCurrentStepCollCenter.X, obj.mCurrentStepCollCenter.Z);
+			core::vector2df start2d(obj.mLastStepCollCenter.X, obj.mLastStepCollCenter.Z);
 
 			// find the closest point on border for current new position
 			core::vector2df onBorder(borderLine.getClosestPoint(target2d, false));
@@ -711,8 +710,8 @@ void Physics::HandleCushions(PhysicsObject * obj, irr::core::vector3df& step)
 			}
 
 			float factor = mSettings.mCushionFactor;
-			if ( obj->mCushionErosion > 0 )
-				factor *= (1.f-obj->mCushionErosion);
+			if ( obj.mCushionErosion > 0 )
+				factor *= (1.f-obj.mCushionErosion);
 
 			// Do we move toward the outside? And are we going to cushion things?
 			if ( !ExtIrr::IsSameDir(step, towardCenter) && factor > 0.f )
@@ -720,45 +719,45 @@ void Physics::HandleCushions(PhysicsObject * obj, irr::core::vector3df& step)
 				// We prevent (or reduce when mCushionFactor < 1) the movement opposite to the towardCenter vector
 				core::vector2df newTarget(start2d + ((target2d-start2d)*(1.f-factor) + (onBorder-start2d)*factor) );
 
-				core::vector2df diffVec(newTarget.X-obj->mCurrentStepCollCenter.X, newTarget.Y-obj->mCurrentStepCollCenter.Z);
-				obj->mCurrentStepCollCenter.X = newTarget.X;
-				obj->mCurrentStepCollCenter.Z = newTarget.Y;
+				core::vector2df diffVec(newTarget.X-obj.mCurrentStepCollCenter.X, newTarget.Y-obj.mCurrentStepCollCenter.Z);
+				obj.mCurrentStepCollCenter.X = newTarget.X;
+				obj.mCurrentStepCollCenter.Z = newTarget.Y;
 
 				if ( mSettings.mCushionSlowFall <= 0.f )
 				{
 					float oldLen = ExtIrr::GetLengthXZ(step);
-					step = obj->mCurrentStepCollCenter - obj->mLastStepCollCenter;
+					step = obj.mCurrentStepCollCenter - obj.mLastStepCollCenter;
 					float newLen = ExtIrr::GetLengthXZ(step);
-					if ( newLen < oldLen && obj->mLastStepCollCenter.Y > obj->mCurrentStepCollCenter.Y )
+					if ( newLen < oldLen && obj.mLastStepCollCenter.Y > obj.mCurrentStepCollCenter.Y )
 					{
 						// Prevent getting stuck in geometry if we are moved back on a slope going downwards to the outside.
 						// Still can be stuck a little because of bumps, but better than not doing it.
-						obj->mCurrentStepCollCenter.Y += (obj->mCurrentStepCollCenter.Y-obj->mLastStepCollCenter.Y)*(1.f-newLen/oldLen);
-						step = obj->mCurrentStepCollCenter - obj->mLastStepCollCenter;
+						obj.mCurrentStepCollCenter.Y += (obj.mCurrentStepCollCenter.Y-obj.mLastStepCollCenter.Y)*(1.f-newLen/oldLen);
+						step = obj.mCurrentStepCollCenter - obj.mLastStepCollCenter;
 					}
 				}
 
-				obj->mCushioning += diffVec.getLength();
+				obj.mCushioning += diffVec.getLength();
 
-				obj->mCushionErosion += INC_EROSION;
-				if ( obj->mCushionErosion > mSettings.mCushionFactor )
-					obj->mCushionErosion = mSettings.mCushionFactor;
+				obj.mCushionErosion += INC_EROSION;
+				if ( obj.mCushionErosion > mSettings.mCushionFactor )
+					obj.mCushionErosion = mSettings.mCushionFactor;
 			}
 
-			if ( mSettings.mCushionSlowFall >= 0.f && obj->mLastStepCollCenter.Y > obj->mCurrentStepCollCenter.Y )
+			if ( mSettings.mCushionSlowFall >= 0.f && obj.mLastStepCollCenter.Y > obj.mCurrentStepCollCenter.Y )
 			{
-				obj->mCurrentStepCollCenter.Y += (obj->mLastStepCollCenter.Y-obj->mCurrentStepCollCenter.Y)*mSettings.mCushionSlowFall;
-				step = obj->mCurrentStepCollCenter - obj->mLastStepCollCenter;
+				obj.mCurrentStepCollCenter.Y += (obj.mLastStepCollCenter.Y-obj.mCurrentStepCollCenter.Y)*mSettings.mCushionSlowFall;
+				step = obj.mCurrentStepCollCenter - obj.mLastStepCollCenter;
 			}
 
 			// update the values - it's not exact but our borders are not exact anyway so that's hopefully good enough
-			obj->mTrackBorderInfo.mDistanceBorder = (onBorder - target2d).getLength();
+			obj.mTrackBorderInfo.mDistanceBorder = (onBorder - target2d).getLength();
 		}
 		else
 		{
-			obj->mCushionErosion -= DEC_EROSION;
-			if ( obj->mCushionErosion < BASE_EROSION )
-				obj->mCushionErosion = BASE_EROSION;
+			obj.mCushionErosion -= DEC_EROSION;
+			if ( obj.mCushionErosion < BASE_EROSION )
+				obj.mCushionErosion = BASE_EROSION;
 		}
 	}
 }
@@ -770,20 +769,20 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 
     for ( ItMap itObjects = mPhysicsObjects.begin(); itObjects != mPhysicsObjects.end(); ++itObjects )
     {
-        PhysicsObject * obj = itObjects->second;
-        obj->mHasTouchedWorldGeometryLastUpdate = false;
-        obj->mHasTouchedWallLastUpdate = false;
-        obj->mHasTouchedObjectLastUpdate = false;
-        obj->mCushioning = 0.f;
+        PhysicsObject& obj = itObjects->second;
+        obj.mHasTouchedWorldGeometryLastUpdate = false;
+        obj.mHasTouchedWallLastUpdate = false;
+        obj.mHasTouchedObjectLastUpdate = false;
+        obj.mCushioning = 0.f;
 
-        obj->mSceneNode->updateAbsolutePosition();
-        obj->mModelCollCenter = obj->mSceneNode->getTransformedBoundingBox().getCenter();
+        obj.mSceneNode->updateAbsolutePosition();
+        obj.mModelCollCenter = obj.mSceneNode->getTransformedBoundingBox().getCenter();
 
         // We handle objects moved outside the physics, so that it seems like they had always been in that other position in the past.
         // Rewriting history, to make it fit to current needs, a very political algorithm ;-)
-        core::vector3df movedOutsidePhysics( obj->mModelCollCenter - obj->mInterpolatedCollCenter );
-        obj->mCurrentStepCollCenter += movedOutsidePhysics;
-        obj->mLastStepCollCenter += movedOutsidePhysics;
+        core::vector3df movedOutsidePhysics( obj.mModelCollCenter - obj.mInterpolatedCollCenter );
+        obj.mCurrentStepCollCenter += movedOutsidePhysics;
+        obj.mLastStepCollCenter += movedOutsidePhysics;
     }
 	PROFILE_STOP(300);
 
@@ -800,8 +799,8 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 
         for ( ItMap itObjects = mPhysicsObjects.begin(); itObjects != mPhysicsObjects.end(); ++itObjects )
         {
-            PhysicsObject * obj = itObjects->second;
-            obj->mLastStepCollCenter = obj->mCurrentStepCollCenter;
+            PhysicsObject& obj = itObjects->second;
+            obj.mLastStepCollCenter = obj.mCurrentStepCollCenter;
         }
 
         ++countSteps;
@@ -814,30 +813,30 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 
         for ( ItMap itObjects = mPhysicsObjects.begin(); itObjects != mPhysicsObjects.end(); ++itObjects )
         {
-            PhysicsObject * obj = itObjects->second;
+            PhysicsObject& obj = itObjects->second;
 
-            float mass = obj->mSettings.mMass;
-            float speed = obj->mVelocity.getLength();
-            core::vector3df forceSum = obj->mForceAccu;
+            float mass = obj.mSettings.mMass;
+            float speed = obj.mVelocity.getLength();
+            core::vector3df forceSum = obj.mForceAccu;
             //printf("forceSum1: %.1f %.1f %.1f\n", forceSum.X, forceSum.Y, forceSum.Z);
 
             // depending on radius is correct, but harder to use
-//            float airResistanceFactor = obj->mRadius / 1000.f;
+//            float airResistanceFactor = obj.mRadius / 1000.f;
 //            airResistanceFactor = airResistanceFactor*airResistanceFactor*mSettings.mAirConst*speed*speed;
             float airResistanceFactor = mSettings.mAirConst*speed*speed;
 
-            core::vector3df frictionForce(obj->mVelocity);
+            core::vector3df frictionForce(obj.mVelocity);
             if ( frictionForce.getLength() != 0.f )
                 frictionForce.normalize();
             core::vector3df airResistance(frictionForce);
-            frictionForce *= -(mSettings.mRollFriction + obj->mFrictionAccu);	// mFrictionAccu is about braking
+            frictionForce *= -(mSettings.mRollFriction + obj.mFrictionAccu);	// mFrictionAccu is about braking
             airResistance *= -airResistanceFactor;
-            //printf("force %.3f %.3f %.2f\n", obj->mForceAccu.X, obj->mForceAccu.Y, obj->mForceAccu.Z);
+            //printf("force %.3f %.3f %.2f\n", obj.mForceAccu.X, obj.mForceAccu.Y, obj.mForceAccu.Z);
 
             core::vector3df frictionSum;
-            if ( obj->mHasTouchedWorldGeometry )    // one step behind, but i don't think it's much of a difference
+            if ( obj.mHasTouchedWorldGeometry )    // one step behind, but i don't think it's much of a difference
             {
-                if ( obj->mHasTouchedWall )
+                if ( obj.mHasTouchedWall )
                 {
                     frictionForce *= mSettings.mWallFriction;
                 }
@@ -846,7 +845,7 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
             }
             //printf("forceSum2: %.1f %.1f %.1f\n", forceSum.X, forceSum.Y, forceSum.Z);
 
-            float maxFriction = obj->mVelocity.getLength() * 2 * mass / mSettings.mTimeStep;
+            float maxFriction = obj.mVelocity.getLength() * 2 * mass / mSettings.mTimeStep;
             if ( frictionSum.getLength() > maxFriction)
                 frictionSum.setLength(maxFriction);
 
@@ -857,43 +856,43 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
             core::vector3df acceleration = forceSum / mass;
             acceleration.Y -= mSettings.mGravity;
 
-            core::vector3df step(obj->mVelocity * mSettings.mTimeStep + acceleration * 0.5f * mSettings.mTimeStep * mSettings.mTimeStep);
+            core::vector3df step(obj.mVelocity * mSettings.mTimeStep + acceleration * 0.5f * mSettings.mTimeStep * mSettings.mTimeStep);
 
-            if ( step.getLength() > obj->mSettings.mMaxSpeed * mSettings.mTimeStep )
-                step.setLength(obj->mSettings.mMaxSpeed * mSettings.mTimeStep);
+            if ( step.getLength() > obj.mSettings.mMaxSpeed * mSettings.mTimeStep )
+                step.setLength(obj.mSettings.mMaxSpeed * mSettings.mTimeStep);
             //printf("step: %.2f %.2f %2.f", step.X, step.Y, step.Z);
 
-            obj->mCurrentStepCollCenter += step;
+            obj.mCurrentStepCollCenter += step;
             core::triangle3df collTriangle;
             core::vector3df repulsion;
-            obj->mHasTouchedWorldGeometry = HandleCollision(obj->mCurrentStepCollCenter, obj->mRadius, collTriangle, repulsion);
-            if ( obj->mHasTouchedWorldGeometry )
+            obj.mHasTouchedWorldGeometry = HandleCollision(obj.mCurrentStepCollCenter, obj.mRadius, collTriangle, repulsion);
+            if ( obj.mHasTouchedWorldGeometry )
             {
-                obj->mHasTouchedWorldGeometryLastUpdate = true;
-                obj->mHasTouchedWall = fabs(mWallNormal.Y) < mSettings.mWallBoundary ? true : false;
+                obj.mHasTouchedWorldGeometryLastUpdate = true;
+                obj.mHasTouchedWall = fabs(mWallNormal.Y) < mSettings.mWallBoundary ? true : false;
 
-                if( obj->mHasTouchedWall )
+                if( obj.mHasTouchedWall )
                 {
                     // check if we're above a floor
                     core::line3d<f32> ray;
-                    ray.start = obj->mCurrentStepCollCenter;
-                    ray.end = obj->mCurrentStepCollCenter + core::vector3df(0, -1000, 0); // below
+                    ray.start = obj.mCurrentStepCollCenter;
+                    ray.end = obj.mCurrentStepCollCenter + core::vector3df(0, -1000, 0); // below
                     if ( !HasCollision( ray ) )
                     {
-                        obj->mHasTouchedWall = false;
+                        obj.mHasTouchedWall = false;
                     }
                 }
 
-                if ( obj->mHasTouchedWall )
+                if ( obj.mHasTouchedWall )
                 {
-                    obj->mHasTouchedWallLastUpdate = true;
+                    obj.mHasTouchedWallLastUpdate = true;
                 }
             }
 
-//            obj->mNearestTriangle = collTriangle;
-            obj->mRepulsionNormal = repulsion;
-            core::vector3df realStep(obj->mCurrentStepCollCenter - obj->mLastStepCollCenter);
-            if ( realStep.getLengthSQ() > obj->mRadius * obj->mRadius )
+//            obj.mNearestTriangle = collTriangle;
+            obj.mRepulsionNormal = repulsion;
+            core::vector3df realStep(obj.mCurrentStepCollCenter - obj.mLastStepCollCenter);
+            if ( realStep.getLengthSQ() > obj.mRadius * obj.mRadius )
             {
 				LOG.LogLn(LP_WARN, "WARNING: object moves too fast for physics stepsize");
             }
@@ -901,7 +900,7 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 			// Hack to help players staying on the track
             HandleCushions(obj, realStep);
 
-            obj->mVelocity = realStep / mSettings.mTimeStep;
+            obj.mVelocity = realStep / mSettings.mTimeStep;
         }
 
         TickFunctorMap::iterator itFunctors = mTickFunctors.begin();
@@ -915,20 +914,20 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 	//PROFILE_START(307);	// it's cheap and I need little profile output.
     for ( ItMap itObjects = mPhysicsObjects.begin(); itObjects != mPhysicsObjects.end(); ++itObjects )
     {
-        PhysicsObject * obj = itObjects->second;
+        PhysicsObject& obj = itObjects->second;
 
         // reset forces
-        obj->mForceAccu.set(0,0,0);
-        obj->mFrictionAccu = 0.f;
+        obj.mForceAccu.set(0,0,0);
+        obj.mFrictionAccu = 0.f;
 
         // interpolate
         const float alpha = mTimeRest / mSettings.mTimeStep;
-        obj->mInterpolatedCollCenter = obj->mCurrentStepCollCenter*alpha + obj->mLastStepCollCenter*(1.0f-alpha);
+        obj.mInterpolatedCollCenter = obj.mCurrentStepCollCenter*alpha + obj.mLastStepCollCenter*(1.0f-alpha);
         mInterpolatedTick = mTicksSinceGameStart > 0 ? (mTicksSinceGameStart-1) + alpha : 0;
 
         // move model
-        core::vector3df moved( obj->mInterpolatedCollCenter - obj->mModelCollCenter );
-        obj->mSceneNode->setPosition(obj->mSceneNode->getPosition() + moved);
+        core::vector3df moved( obj.mInterpolatedCollCenter - obj.mModelCollCenter );
+        obj.mSceneNode->setPosition(obj.mSceneNode->getPosition() + moved);
     }
     //PROFILE_STOP(307);
 }

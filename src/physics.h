@@ -196,7 +196,10 @@ public:
     bool RemoveCollisionMesh(irr::scene::ITriangleSelector* selector_);
 
     int AddPhysicsObject(irr::scene::ISceneNode * node_, float radius_); // return physicsId
-    PhysicsObject* GetPhysicsObject(int id_) const;
+
+    // Get physics object by it's id. Returns 0 when no such object exists.
+    // Pointer is invalidated when physic objects are added or removed
+    PhysicsObject* GetPhysicsObject(int id_);
 
     // timeTick_: time in seconds for this game tick (since last Update)
     // enableObjObjCollision: when true hovers collide against each other, when false they don't
@@ -225,7 +228,7 @@ public:
 
 protected:
     bool HandleCollision(irr::core::vector3df &center_, float radius_, irr::core::triangle3df &nearestTriangle_, irr::core::vector3df &repulsionNormal_);
-    void HandleCushions(PhysicsObject * obj, irr::core::vector3df& step);
+    void HandleCushions(PhysicsObject& obj, irr::core::vector3df& step);
     void HandleObjObjCollision();
     void FindCollisionTriangles( const irr::core::aabbox3d<irr::f32> &box_);
 
@@ -238,7 +241,7 @@ private:
 
     irr::core::vector3df mWallNormal;
 
-    typedef std::map<int, PhysicsObject*> PhysicsObjectMap ;
+    typedef std::vector<std::pair<int, PhysicsObject> > PhysicsObjectMap;
     PhysicsObjectMap mPhysicsObjects;
 
     typedef std::vector<irr::scene::ITriangleSelector*> CollisionSelectorVector;
