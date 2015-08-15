@@ -1,21 +1,13 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
 #include "level_manager.h"
-#include "level.h"
-#include "irrlicht_manager.h"
-#include "main.h"
 #include "config.h"
-#include "physics.h"
-#include "editor.h"
-#include "mesh_texture_loader.h"
-#include "node_manager.h"
-#include "game.h"
-#include "logging.h"
 #include "helper_str.h"
-#include "globals.h"
+#include "irrlicht_manager.h"
+#include "level.h"
+#include "logging.h"
+#include "main.h"
 #include "tinyxml/tinyxml.h"
-#include <math.h>
-#include <float.h>
 
 using namespace irr;
 
