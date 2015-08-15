@@ -935,15 +935,19 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
 
 void Physics::AddTickFunctor(int id_, IPhysicsTickFunctor * functor_ )
 {
-    mTickFunctors[id_] = functor_;
+	RemoveTickFunctor(id_);
+    mTickFunctors.push_back( std::make_pair(id_, functor_) );
 }
 
 void Physics::RemoveTickFunctor(int id_)
 {
-    TickFunctorMap::iterator it = mTickFunctors.find(id_);
-    if ( it != mTickFunctors.end() )
+
+    for (TickFunctorMap::iterator it = mTickFunctors.begin(); it != mTickFunctors.end(); ++it )
     {
-        delete it->second;
-        mTickFunctors.erase(it);
-    }
+		if (it->first == id_ )
+		{
+			delete it->second;
+			mTickFunctors.erase(it);
+		}
+	}
 }

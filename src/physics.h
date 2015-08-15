@@ -246,7 +246,7 @@ private:
 
     PhysicsSettings  mSettings;
 
-    typedef std::map<int, IPhysicsTickFunctor*> TickFunctorMap;
+    typedef std::vector<std::pair<int, IPhysicsTickFunctor*> > TickFunctorMap;
     TickFunctorMap   mTickFunctors;
 
     irr::core::triangle3df mCollisionTriangles[PHYSICS_MAX_COLLISION_TRIANGLES];  // triangles used in collision checks
