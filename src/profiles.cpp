@@ -9,10 +9,9 @@
 #include "device_touch.h"
 #include "input_device_manager.h"
 #include "sound.h"
-#include "app_restrictions.h"
 #include "helper_str.h"
 #include "logging.h"
-#include "compile_config.h"
+#include "mobile/app_restrictions.h"
 #include "tinyxml/tinyxml.h"
 
 // --------------------------------------------------------

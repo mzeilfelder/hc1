@@ -3,17 +3,8 @@
 #include "main.h"
 #include "config.h"
 #include "app_tester.h"
-#include "app_restrictions.h"
-#include "advert.h"
-#include "billing.h"
 #include "level.h"
 #include "level_manager.h"
-#include "gui_dialogs/gui_controller_display.h"
-#include "gui_dialogs/gui_intro.h"
-#include "gui_dialogs/gui_game.h"
-#include "gui_dialogs/gui_hud.h"
-#include "gui_dialogs/gui_menu_main.h"
-#include "gui_dialogs/gui_menu_newprofile.h"
 #include "gui.h"
 #include "sound_openal.h"
 #include "input_device_manager.h"
@@ -33,13 +24,22 @@
 #include "highscores.h"
 #include "rivalsmode.h"
 #include "logging.h"
+#include "gui_dialogs/gui_controller_display.h"
+#include "gui_dialogs/gui_intro.h"
+#include "gui_dialogs/gui_game.h"
+#include "gui_dialogs/gui_hud.h"
+#include "gui_dialogs/gui_menu_main.h"
+#include "gui_dialogs/gui_menu_newprofile.h"
+#include "mobile/app_restrictions.h"
+#include "mobile/advert.h"
+#include "mobile/billing.h"
 #include "tinyxml/tinyxml.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
 #include <android_native_app_glue.h>
 #include <android/log.h>
-#include "advert_admob.h"
-#include "billing_googleplay.h"
+#include "mobile/advert_admob.h"
+#include "mobile/billing_googleplay.h"
 #endif
 
 #if defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(_IRR_ANDROID_PLATFORM_)

@@ -8,7 +8,7 @@
 #include "../championship.h"
 #include "../profiles.h"
 #include "../helper_str.h"
-#include "../app_restrictions.h"
+#include "../mobile/app_restrictions.h"
 #include "gui_menu_championship_progress.h"
 #include "gui_menu_championship_winner.h"
 #include "gui_menu_timeattack.h"

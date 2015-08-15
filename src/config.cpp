@@ -20,7 +20,7 @@
 #endif // __GNUWIN32__
 
 #ifdef _IRR_ANDROID_PLATFORM_
-#include "android_tools.h"
+#include "mobile/android_tools.h"
 #include <sys/stat.h>
 #endif
 

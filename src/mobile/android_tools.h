@@ -1,7 +1,7 @@
 #ifndef __IRR_ANDROID_TOOLS_H__
 #define __IRR_ANDROID_TOOLS_H__
 
-#include "compile_config.h"
+#include "../compile_config.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
 

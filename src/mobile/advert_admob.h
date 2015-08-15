@@ -3,6 +3,7 @@
 #ifndef ADVERT_ADMOB_H_
 #define ADVERT_ADMOB_H_
 
+#include "../compile_config.h"
 #include "advert.h"
 
 struct android_app;

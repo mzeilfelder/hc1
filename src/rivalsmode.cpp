@@ -5,7 +5,7 @@
 #include "random.h"
 #include "game.h"
 #include "main.h"
-#include "app_restrictions.h"
+#include "mobile/app_restrictions.h"
 
 using namespace irr;
 

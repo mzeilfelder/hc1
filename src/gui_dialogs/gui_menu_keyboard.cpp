@@ -9,7 +9,7 @@
 #include <sstream>
 
 #ifdef _IRR_ANDROID_PLATFORM_
-#include "android_tools.h"
+#include "mobile/android_tools.h"
 #endif
 
 using namespace irr;

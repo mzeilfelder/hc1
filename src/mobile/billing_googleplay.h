@@ -7,6 +7,7 @@
 #ifndef BILLING_GOOGLE_PLAY_HPP
 #define BILLING_GOOGLE_PLAY_HPP
 
+#include "../compile_config.h"
 #include "billing.h"
 
 struct android_app;

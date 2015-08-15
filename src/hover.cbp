@@ -420,20 +420,10 @@
 		<Unit filename="EGUIElementTypesHC.h" />
 		<Unit filename="EGUIEventTypesHC.h" />
 		<Unit filename="IGUITextSlider.h" />
-		<Unit filename="advert.h" />
-		<Unit filename="advert_admob.cpp" />
-		<Unit filename="advert_admob.h" />
 		<Unit filename="ai_track.cpp" />
 		<Unit filename="ai_track.h" />
-		<Unit filename="android_tools.cpp" />
-		<Unit filename="android_tools.h" />
-		<Unit filename="app_restrictions.cpp" />
-		<Unit filename="app_restrictions.h" />
 		<Unit filename="app_tester.cpp" />
 		<Unit filename="app_tester.h" />
-		<Unit filename="billing.h" />
-		<Unit filename="billing_googleplay.cpp" />
-		<Unit filename="billing_googleplay.h" />
 		<Unit filename="camera.cpp" />
 		<Unit filename="camera.h" />
 		<Unit filename="championship.cpp" />
@@ -584,6 +574,8 @@
 		<Unit filename="keycode_strings.h" />
 		<Unit filename="level.cpp" />
 		<Unit filename="level.h" />
+		<Unit filename="level_manager.cpp" />
+		<Unit filename="level_manager.h" />
 		<Unit filename="logging.cpp" />
 		<Unit filename="logging.h" />
 		<Unit filename="logging_priorities.h" />
@@ -591,6 +583,17 @@
 		<Unit filename="main.h" />
 		<Unit filename="mesh_texture_loader.cpp" />
 		<Unit filename="mesh_texture_loader.h" />
+		<Unit filename="mobile/advert.h" />
+		<Unit filename="mobile/advert_admob.cpp" />
+		<Unit filename="mobile/advert_admob.h" />
+		<Unit filename="mobile/android_tools.cpp" />
+		<Unit filename="mobile/android_tools.h" />
+		<Unit filename="mobile/app_restrictions.cpp" />
+		<Unit filename="mobile/app_restrictions.h" />
+		<Unit filename="mobile/billing.cpp" />
+		<Unit filename="mobile/billing.h" />
+		<Unit filename="mobile/billing_googleplay.cpp" />
+		<Unit filename="mobile/billing_googleplay.h" />
 		<Unit filename="music_manager.cpp" />
 		<Unit filename="music_manager.h" />
 		<Unit filename="nn.cpp" />
@@ -639,6 +642,8 @@
 		<Unit filename="tinyxml/tinyxml.h" />
 		<Unit filename="tinyxml/tinyxmlerror.cpp" />
 		<Unit filename="tinyxml/tinyxmlparser.cpp" />
+		<Unit filename="track_marker.cpp" />
+		<Unit filename="track_marker.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

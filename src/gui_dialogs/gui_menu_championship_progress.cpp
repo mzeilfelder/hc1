@@ -11,7 +11,7 @@
 #include "../level_manager.h"
 #include "../game.h"
 #include "../string_table.h"
-#include "../app_restrictions.h"
+#include "../mobile/app_restrictions.h"
 #include <assert.h>
 
 using namespace irr;

@@ -10,7 +10,7 @@
 #include "../game.h"
 #include "../profiles.h"
 #include "../rivalsmode.h"
-#include "../app_restrictions.h"
+#include "../mobile/app_restrictions.h"
 
 using namespace irr;
 using namespace gui;

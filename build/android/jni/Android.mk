@@ -61,7 +61,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../libs/openal/android/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../libs/freealut/android/include
 $(info $(LOCAL_C_INCLUDES))
 
-LOCAL_SRC_FILES := main.cpp android_tools.cpp config.cpp irrlicht_manager.cpp logging.cpp string_table.cpp keycode_strings.cpp random.cpp recorder.cpp 
+LOCAL_SRC_FILES := main.cpp config.cpp irrlicht_manager.cpp logging.cpp string_table.cpp keycode_strings.cpp random.cpp recorder.cpp 
+LOCAL_SRC_FILES += mobile/android_tools.cpp mobile/app_restrictions.cpp mobile/advert_admob.cpp mobile/billing_googleplay.cpp
 LOCAL_SRC_FILES += timer.cpp streaming.cpp physics.cpp helper_xml.cpp app_tester.cpp helper_str.cpp helper_irr.cpp helper_math.cpp helper_file.cpp 
 LOCAL_SRC_FILES += device_keyboard.cpp device_mouse.cpp device_joystick.cpp device_joystick_settings.cpp device_touch.cpp device_touch_settings.cpp 
 LOCAL_SRC_FILES += controller.cpp event_receiver_base.cpp input_device.cpp input_device_manager.cpp mesh_texture_loader.cpp
@@ -69,7 +70,7 @@ LOCAL_SRC_FILES += ai_track.cpp championship.cpp game.cpp highscores.cpp hover.c
 LOCAL_SRC_FILES += CLMOMeshFileLoader.cpp camera.cpp node_manager.cpp ogles2_materials.cpp grid_triangle_selector.cpp
 LOCAL_SRC_FILES += CGUITextSlider.cpp font_manager.cpp gui.cpp gui_dialog.cpp CGUITTFont.cpp
 LOCAL_SRC_FILES += sound_settings.cpp music_manager.cpp sound_openal.cpp ogg_stream.cpp ov_callbacks.cpp
-LOCAL_SRC_FILES += editor.cpp nn.cpp app_restrictions.cpp start_browser.cpp advert_admob.cpp billing_googleplay.cpp
+LOCAL_SRC_FILES += editor.cpp nn.cpp start_browser.cpp 
 LOCAL_SRC_FILES += convert_utf.c
 LOCAL_SRC_FILES += gui_dialogs/gui_menu_keyboard.cpp
 LOCAL_SRC_FILES += gui_dialogs/gui_touch.cpp                       gui_dialogs/gui_menu_licenses.cpp

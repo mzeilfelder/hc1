@@ -2,10 +2,10 @@
 
 #include "app_restrictions.h"
 #include "billing.h"
-#include "config.h"
-#include "main.h"
-#include "logging.h"
-#include "tinyxml/tinyxml.h"
+#include "../config.h"
+#include "../main.h"
+#include "../logging.h"
+#include "../tinyxml/tinyxml.h"
 
 bool AppRestrictions::DoDisplayAds()
 {

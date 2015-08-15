@@ -4,11 +4,11 @@
 #include "../gui.h"
 #include "../main.h"
 #include "../config.h"
-#include "../billing.h"
 #include "../string_table.h"
 #include "../start_browser.h"
-#include "../app_restrictions.h"
 #include "../helper_str.h"
+#include "../mobile/app_restrictions.h"
+#include "../mobile/billing.h"
 #include "../tinyxml/tinyxml.h"
 
 using namespace irr;

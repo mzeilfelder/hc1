@@ -1,7 +1,7 @@
-// Copyright by Michael Zeilfelder
+// Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 //
-// Code was originally based on work from Patryk Nadrowski's "Chernobyl Game Engine"
-// But I reduced it to the minimum nececcary for my project and then did some more changes.
+// Code is based on work from Patryk Nadrowski's "Chernobyl Game Engine"
+// But I reduced it to the minimum needed for my project and then did some more changes.
 // So not much left of the original code. That code was also under the zlib license.
 //
 // TODO: Don't know yet how the JNI and Android combination exactly works. It might be possible all the constant getting and releasing of classes and JNIEnv is not necessary.
@@ -10,36 +10,67 @@
 // 		 And yes - it all looks horrible. I just hope one day google wakes up and realizes that a multi-billion-dollar company forcing thousands of poor NDK developers to write
 //       shitty JNI wrappers for strategic reasons is very evil. I don't want to touch Android again after this, coding JNI makes me want to kill myself far too much.
 
-#include "billing.h"
+#include "billing_googleplay.h"
+#include "../logging.h"
+#include "../tinyxml/tinyxml.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
 #include <android_native_app_glue.h>
 #include <android/log.h>	// for the occasional debugging, style: __android_log_print(ANDROID_LOG_VERBOSE, "Irrlicht", "%s\n", "We do log");
 
-#if 1	// debug
+#ifndef HOVER_RELEASE
 	#define CHECK_JNI(obj) if (!obj) {__android_log_print(ANDROID_LOG_VERBOSE, "Irrlicht", "%s:%d\n", __FILE__, __LINE__); }
 #else	// release
 	#define CHECK_JNI(obj)
 #endif
 
-/* InAppBilling */
-
-InAppBilling::InAppBilling(android_app& androidApp)
-	: mAndroidApp(androidApp)
+BillingGooglePlay::BillingGooglePlay(android_app& androidApp)
+	: IBilling()
+	, mAndroidApp(androidApp)
 {
 }
 
-InAppBilling::~InAppBilling()
+BillingGooglePlay::~BillingGooglePlay()
 {
 }
 
-void InAppBilling::init()
+void BillingGooglePlay::init(const TiXmlElement * provider)
 {
-	// TODO: Use some config
-	registerExpectedProduct("full_test");
+	if (provider)
+	{
+		const TiXmlNode * nodeProduct = provider->FirstChild("billing_product");
+		if (nodeProduct)
+		{
+			const TiXmlElement* elementProduct = nodeProduct->ToElement();
+			if (elementProduct)
+			{
+				const char * name = elementProduct->Attribute("name");
+				if (name)
+				{
+					registerExpectedProduct(name);
+				}
+				else
+				{
+					LOG.Warn(L"*** no name for billing");
+				}
+			}
+			else
+			{
+				LOG.Warn(L"*** no elementProduct");
+			}
+		}
+		else
+		{
+			LOG.Warn(L"*** no billing_product node");
+		}
+	}
+	else
+	{
+		LOG.Warn(L"*** no provider xml element");
+	}
 }
 
-void InAppBilling::requestServerConnnection()
+void BillingGooglePlay::requestServerConnnection()
 {
 	JNIEnv* jniEnv = getJNIEnv();
 
@@ -66,7 +97,7 @@ void InAppBilling::requestServerConnnection()
 	dropJNIEnv();
 }
 
-void InAppBilling::requestPurchase(const std::string& articleName)
+void BillingGooglePlay::requestPurchase(const std::string& articleName)
 {
 	JNIEnv* jniEnv = getJNIEnv();
 
@@ -98,37 +129,37 @@ void InAppBilling::requestPurchase(const std::string& articleName)
 	dropJNIEnv();
 }
 
-int InAppBilling::getSynchronizeState()
+int BillingGooglePlay::getSynchronizeState()
 {
 	return getIntMethod("getSynchronizeState");
 }
 
-int InAppBilling::getNumAvailableItems()
+int BillingGooglePlay::getNumAvailableItems()
 {
 	return getIntMethod("getNumAvailableItems");
 }
 
-std::string InAppBilling::getItemName(int index)
+std::string BillingGooglePlay::getItemName(int index)
 {
 	return getIndexedStringMethod("getItemName", index);
 }
 
-std::string InAppBilling::getItemPrice(int index)
+std::string BillingGooglePlay::getItemPrice(int index)
 {
 	return getIndexedStringMethod("getItemPrice", index);
 }
 
-int InAppBilling::getNumPurchasedItems()
+int BillingGooglePlay::getNumPurchasedItems()
 {
 	return getIntMethod("getNumPurchasedItems");
 }
 
-std::string InAppBilling::getPurchasedItem(int index)
+std::string BillingGooglePlay::getPurchasedItem(int index)
 {
-	return getIndexedStringMethod("getItemPrice", index);
+	return getIndexedStringMethod("getPurchasedItem", index);
 }
 
-void InAppBilling::registerExpectedProduct(const char* articleName)
+void BillingGooglePlay::registerExpectedProduct(const char* articleName)
 {
 	if ( articleName && articleName[0] )
 	{
@@ -156,7 +187,7 @@ void InAppBilling::registerExpectedProduct(const char* articleName)
 	}
 }
 
-int InAppBilling::getIntMethod(const char *methodName)
+int BillingGooglePlay::getIntMethod(const char *methodName)
 {
 	int result = -1;
 	JNIEnv* jniEnv = getJNIEnv();
@@ -186,7 +217,7 @@ int InAppBilling::getIntMethod(const char *methodName)
 	return result;
 }
 
-std::string InAppBilling::getIndexedStringMethod(const char *methodName, int index)
+std::string BillingGooglePlay::getIndexedStringMethod(const char *methodName, int index)
 {
 	JNIEnv* jniEnv = getJNIEnv();
 
@@ -218,18 +249,15 @@ std::string InAppBilling::getIndexedStringMethod(const char *methodName, int ind
 	return result;
 }
 
-JNIEnv* InAppBilling::getJNIEnv()
+JNIEnv* BillingGooglePlay::getJNIEnv()
 {
 	JNIEnv* jni = 0;
 	mAndroidApp.activity->vm->AttachCurrentThread(&jni, NULL);
 	return jni;
 }
 
-void InAppBilling::dropJNIEnv()
+void BillingGooglePlay::dropJNIEnv()
 {
 	mAndroidApp.activity->vm->DetachCurrentThread();
 }
-
-#else	// _IRR_ANDROID_PLATFORM_
-
-#endif
+#endif	// _IRR_ANDROID_PLATFORM_

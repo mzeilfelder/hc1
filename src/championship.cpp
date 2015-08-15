@@ -6,7 +6,7 @@
 #include "main.h"
 #include "game.h"
 #include "logging.h"
-#include "app_restrictions.h"
+#include "mobile/app_restrictions.h"
 #include "tinyxml/tinyxml.h"
 
 // --------------------------------------------------------

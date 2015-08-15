@@ -11,14 +11,14 @@
 #include "gui_menu_options.h"
 #include "gui_menu_profiles.h"
 #include "gui_menu_nagscreen.h"
+#include "../config.h"
 #include "../gui.h"
+#include "../logging.h"
 #include "../main.h"
 #include "../profiles.h"
 #include "../string_table.h"
-#include "../config.h"
-#include "../app_restrictions.h"
+#include "../mobile/app_restrictions.h"
 #include "../tinyxml/tinyxml.h"
-#include "../logging.h"
 
 using namespace irr;
 using namespace gui;

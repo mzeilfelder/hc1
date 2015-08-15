@@ -3,10 +3,9 @@
 //
 // TODO(mz): I have no idea how often the AttachCurrentThread for the JNIEnv is necessary. Maybe only once and this can be rewritten. Needs testing.
 
-#include "compile_config.h"
 #include "advert_admob.h"
-#include "logging.h"
-#include "tinyxml/tinyxml.h"
+#include "../logging.h"
+#include "../tinyxml/tinyxml.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
 #include <android_native_app_glue.h>

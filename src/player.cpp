@@ -21,7 +21,7 @@
 #include "logging.h"
 
 #ifdef _IRR_ANDROID_PLATFORM_
-#include "android_tools.h"
+#include "mobile/android_tools.h"
 #endif
 
 #include <assert.h>

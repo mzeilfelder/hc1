@@ -3,7 +3,7 @@
 #ifndef RELEASE_MODE_H
 #define RELEASE_MODE_H
 
-#include "compile_config.h"
+#include "../compile_config.h"
 
 class AppRestrictions
 {

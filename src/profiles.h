@@ -3,14 +3,16 @@
 #ifndef PROFILES_H
 #define PROFILES_H
 
-#include <string>
-#include <vector>
+#include "compile_config.h"
 
 #include "championship.h"
 #include "controller.h"
 #include "device_joystick_settings.h"
 #include "device_touch_settings.h"
 #include "sound_settings.h"
+
+#include <string>
+#include <vector>
 
 // TODO: there's a general problem with profiles as they are now not working
 // as originally expected. Currently all the settings in config.xml are always used.
