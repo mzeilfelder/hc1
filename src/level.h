@@ -260,7 +260,7 @@ protected:
     void ClearTrackMarkerData(TrackMarker & marker_);
     void ClearModelData(LevelModel & model_);
     void SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMarker & marker_);
-    void SetCollisionWalls(TrackMarker & marker1_, TrackMarker & marker2_ );
+    void SetCollisionWalls(TrackMarker & marker1_, const TrackMarker & marker2_ );
     void RemoveCollisionWalls(TrackMarker & marker_);
     void CalcMarkerBorders(const TrackMarker & marker_, irr::core::vector3df & leftTop_, irr::core::vector3df & rightTop_, irr::core::vector3df & leftBottom_, irr::core::vector3df & rightBottom_, bool relative_=true);
     irr::scene::ISceneNode* AddQuadradicNode(irr::scene::ISceneNode* parent_, const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_);

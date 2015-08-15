@@ -1111,7 +1111,7 @@ void LevelManager::RemoveModel(int index_)
     mModels.erase( mModels.begin() + index_);
 }
 
-void LevelManager::SetCollisionWalls(TrackMarker & marker1_, TrackMarker & marker2_ )
+void LevelManager::SetCollisionWalls(TrackMarker & marker1_, const TrackMarker & marker2_ )
 {
     RemoveCollisionWalls(marker1_);
 
