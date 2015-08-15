@@ -20,148 +20,6 @@
 using namespace irr;
 
 // --------------------------------------------------------
-void TrackStartSettings::ReadFromXml(const TiXmlElement * settings_)
-{
-    assert(settings_);
-
-    int valid=0;
-    settings_->QueryIntAttribute("is_valid", &valid);
-    mIsValid = valid ? true : false;
-
-    settings_->QueryFloatAttribute("c_x", &mCenter.X);
-    settings_->QueryFloatAttribute("c_y", &mCenter.Y);
-    settings_->QueryFloatAttribute("c_z", &mCenter.Z);
-
-    settings_->QueryFloatAttribute("r_x", &mRotation.X);
-    settings_->QueryFloatAttribute("r_y", &mRotation.Y);
-    settings_->QueryFloatAttribute("r_z", &mRotation.Z);
-}
-
-void TrackStartSettings::WriteToXml(TiXmlElement * settings_) const
-{
-    assert(settings_);
-
-    settings_->SetAttribute("is_valid", mIsValid ? 1 : 0 );
-
-    settings_->SetDoubleAttribute("c_x", mCenter.X);
-    settings_->SetDoubleAttribute("c_y", mCenter.Y);
-    settings_->SetDoubleAttribute("c_z", mCenter.Z);
-
-    settings_->SetDoubleAttribute("r_x", mRotation.X);
-    settings_->SetDoubleAttribute("r_y", mRotation.Y);
-    settings_->SetDoubleAttribute("r_z", mRotation.Z);
-}
-
-// --------------------------------------------------------
-TrackMarkerSettings::TrackMarkerSettings()
-{
-    Reset();
-}
-
-void TrackMarkerSettings::Reset()
-{
-    mIsValid = false;
-    mUseDefaultSizes = true;
-    mHasLeftWall = false;
-    mHasRightWall = false;
-//    mHasTopWall = false;
-    mHasBottomWall = false;
-    mRelocate = true;
-}
-
-void TrackMarkerSettings::EnableWalls()
-{
-    mHasLeftWall = true;
-    mHasRightWall = true;
-//    mHasTopWall = true;
-    mHasBottomWall = true;
-}
-
-void TrackMarkerSettings::ReadFromXml(const TiXmlElement * settings_)
-{
-    assert(settings_);
-
-    int val=0;
-    settings_->QueryIntAttribute("is_valid", &val);
-    mIsValid = val ? true : false;
-
-    const char * valChar = settings_->Attribute("relocate");
-    if ( valChar )
-        mRelocate = atoi(valChar) ? true : false;
-
-    settings_->QueryFloatAttribute("c_x", &mCenter.X);
-    settings_->QueryFloatAttribute("c_y", &mCenter.Y);
-    settings_->QueryFloatAttribute("c_z", &mCenter.Z);
-
-    settings_->QueryFloatAttribute("u_x", &mUpVector.X);
-    settings_->QueryFloatAttribute("u_y", &mUpVector.Y);
-    settings_->QueryFloatAttribute("u_z", &mUpVector.Z);
-
-    settings_->QueryFloatAttribute("r_x", &mRotation.X);
-    settings_->QueryFloatAttribute("r_y", &mRotation.Y);
-    settings_->QueryFloatAttribute("r_z", &mRotation.Z);
-
-    valChar = settings_->Attribute("def_sizes");
-    if ( valChar )
-        mUseDefaultSizes = atoi(valChar) ? true : false;
-
-    settings_->QueryFloatAttribute("left", &mLeft);
-    settings_->QueryFloatAttribute("right", &mRight);
-    settings_->QueryFloatAttribute("top", &mTop);
-    settings_->QueryFloatAttribute("bottom", &mBottom);
-
-    settings_->QueryIntAttribute("wall_left", &val);
-    mHasLeftWall = val ? true : false;
-    settings_->QueryIntAttribute("wall_right", &val);
-    mHasRightWall = val ? true : false;
-//    settings_->QueryIntAttribute("wall_top", &val);
-//    mHasTopWall = val ? true : false;
-    settings_->QueryIntAttribute("wall_bottom", &val);
-    mHasBottomWall = val ? true : false;
-}
-
-void TrackMarkerSettings::WriteToXml(TiXmlElement * settings_) const
-{
-    assert(settings_);
-
-    settings_->SetAttribute("is_valid", mIsValid ? 1 : 0 );
-
-    settings_->SetAttribute("relocate", mRelocate ? 1 : 0 );
-
-    settings_->SetDoubleAttribute("c_x", mCenter.X);
-    settings_->SetDoubleAttribute("c_y", mCenter.Y);
-    settings_->SetDoubleAttribute("c_z", mCenter.Z);
-
-    settings_->SetDoubleAttribute("u_x", mUpVector.X);
-    settings_->SetDoubleAttribute("u_y", mUpVector.Y);
-    settings_->SetDoubleAttribute("u_z", mUpVector.Z);
-
-    settings_->SetDoubleAttribute("r_x", mRotation.X);
-    settings_->SetDoubleAttribute("r_y", mRotation.Y);
-    settings_->SetDoubleAttribute("r_z", mRotation.Z);
-
-    settings_->SetAttribute("def_sizes", mUseDefaultSizes ? 1 : 0 );
-    settings_->SetDoubleAttribute("left", mLeft);
-    settings_->SetDoubleAttribute("right", mRight);
-    settings_->SetDoubleAttribute("top", mTop);
-    settings_->SetDoubleAttribute("bottom", mBottom);
-
-    settings_->SetAttribute("wall_left", mHasLeftWall ? 1 : 0 );
-    settings_->SetAttribute("wall_right", mHasRightWall? 1 : 0 );
-//    settings_->SetAttribute("wall_top", mHasTopWall ? 1 : 0 );
-    settings_->SetAttribute("wall_bottom", mHasBottomWall ? 1 : 0 );
-}
-
-// --------------------------------------------------------
-bool TrackStart::GetCenter( core::vector3df &pos_)
-{
-    if ( !mSettings.mIsValid )
-        return false;
-    pos_ = mSettings.mCenter;
-    return true;
-}
-
-// --------------------------------------------------------
 LevelModelSettings::LevelModelSettings()
 {
     mScale.set(1.f, 1.f, 1.f);
@@ -235,116 +93,6 @@ bool LevelModel::GetCenter( core::vector3df &pos_)
 {
     pos_ = mSettings.mCenter;
     return true;
-}
-
-// --------------------------------------------------------
-TrackMarker::TrackMarker()
-: mEditNodeCenter(0)
-, mEditNodeLeftTop(0)
-, mEditNodeRightBottom(0)
-, mNodeCollision(0)
-, mNodeWallLeft(0)
-, mNodeWallRight(0)
-, mNodeWallTop(0)
-, mNodeWallBottom(0)
-{
-}
-
-bool TrackMarker::GetCenter( core::vector3df &pos_)
-{
-    if ( !mSettings.mIsValid )
-        return false;
-    pos_ = mSettings.mCenter;
-    return true;
-}
-
-void TrackMarker::SetCollisionWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode)
-{
-    RemoveCollisionWalls();
-
-    core::vector3df leftTopVec1, rightBottomVec1, rightTopVec1, leftBottomVec1;
-    CalcMarkerBorders(leftTopVec1, rightTopVec1, leftBottomVec1, rightBottomVec1, false);
-    core::vector3df leftTopVec2, rightBottomVec2, rightTopVec2, leftBottomVec2;
-    nextMarker.CalcMarkerBorders(leftTopVec2, rightTopVec2, leftBottomVec2, rightBottomVec2, false);
-
-    if ( mSettings.mHasLeftWall )
-    {
-        mNodeWallLeft = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftTopVec1, leftTopVec2, leftBottomVec1, leftBottomVec2 );
-    }
-    if ( mSettings.mHasRightWall )
-    {
-        mNodeWallRight = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, rightTopVec1, rightTopVec2, rightBottomVec1, rightBottomVec2 );
-    }
-    if ( mSettings.mHasBottomWall )
-    {
-        mNodeWallBottom = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftBottomVec1, rightBottomVec1, leftBottomVec2, rightBottomVec2 );
-    }
-}
-
-void TrackMarker::RemoveCollisionWalls()
-{
-    if ( mNodeWallLeft )
-    {
-        mNodeWallLeft->remove();
-        mNodeWallLeft = NULL;
-    }
-    if ( mNodeWallRight )
-    {
-        mNodeWallRight->remove();
-        mNodeWallRight = NULL;
-    }
-    if ( mNodeWallTop )
-    {
-        mNodeWallTop->remove();
-        mNodeWallTop = NULL;
-    }
-    if ( mNodeWallBottom )
-    {
-        mNodeWallBottom->remove();
-        mNodeWallBottom = NULL;
-    }
-}
-
-void TrackMarker::CalcMarkerBorders(core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_) const
-{
-    core::matrix4 rotMat;
-    rotMat.setRotationDegrees(mSettings.mRotation);
-    core::vector3df forward(0, 0, 1);
-    rotMat.rotateVect(forward);
-    float left, right, top, bottom;
-    if ( mSettings.mUseDefaultSizes )
-    {
-		const LevelSettings& defaultSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
-        left = defaultSettings.mDefaultMarkerLeft;
-        right = defaultSettings.mDefaultMarkerRight;
-        top = defaultSettings.mDefaultMarkerTop;
-        bottom = defaultSettings.mDefaultMarkerBottom;
-    }
-    else
-    {
-        left = mSettings.mLeft;
-        right = mSettings.mRight;
-        top = mSettings.mTop;
-        bottom = mSettings.mBottom;
-    }
-
-    core::vector3df leftVec(mSettings.mUpVector.crossProduct(forward));
-//    printf("up: %.3f %.3f %.3f\n", mSettings.mUpVector.X, mSettings.mUpVector.Y, mSettings.mUpVector.Z);
-//    printf("forward: %.3f %.3f %.3f\n", forward.X, forward.Y, forward.Z );
-//    printf("leftVec: %.3f %.3f %.3f\n", leftVec.X, leftVec.Y, leftVec.Z );
-
-    leftTop_ = (leftVec * left + mSettings.mUpVector * top);
-    rightBottom_ = (leftVec * right + mSettings.mUpVector * bottom);
-    rightTop_ = (leftVec * right + mSettings.mUpVector * top);
-    leftBottom_ = (leftVec * left + mSettings.mUpVector * bottom);
-
-    if ( !relative_ )
-    {
-        leftTop_ += mSettings.mCenter;
-        rightBottom_ += mSettings.mCenter;
-        rightTop_ += mSettings.mCenter;
-        leftBottom_ += mSettings.mCenter;
-    }
 }
 
 
@@ -506,44 +254,17 @@ void Level::ClearTrackData()
     }
     for ( int i=0; i < (int)mTrackMarkers.size(); ++i )
     {
-        ClearTrackMarkerData(mTrackMarkers[i]);
+        mTrackMarkers[i].Clear();
     }
     mTrackMarkers.clear();
-    ClearTrackMarkerData(mFinishLine);
-    ClearTrackMarkerData(mTpSource);
-    ClearTrackMarkerData(mTpTarget);
+    mFinishLine.Clear();
+    mTpSource.Clear();
+    mTpTarget.Clear();
     for ( int i=0; i < (int)mModels.size(); ++i )
     {
         ClearModelData(mModels[i]);
     }
     mModels.clear();
-}
-
-void Level::ClearTrackMarkerData(TrackMarker & marker_)
-{
-    if ( marker_.mEditNodeCenter )
-    {
-        marker_.mEditNodeCenter->remove();
-        marker_.mEditNodeCenter = NULL;
-    }
-    if ( marker_.mEditNodeLeftTop )
-    {
-        marker_.mEditNodeLeftTop->remove();
-        marker_.mEditNodeLeftTop = NULL;
-    }
-    if ( marker_.mEditNodeRightBottom )
-    {
-        marker_.mEditNodeRightBottom->remove();
-        marker_.mEditNodeRightBottom = NULL;
-    }
-    if ( marker_.mNodeCollision )
-    {
-        marker_.mNodeCollision->remove();
-        marker_.mNodeCollision = NULL;
-    }
-    marker_.RemoveCollisionWalls();
-
-    marker_.mSettings.Reset();
 }
 
 void Level::ClearModelData(LevelModel & model_)
@@ -623,7 +344,7 @@ unsigned int Level::GetNrOfTrackMarkers() const
 
 void Level::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
-    SetTrackMarkerSettings(markerSettings_, mTrackMarkers[index_]);
+    mTrackMarkers[index_].SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
     if ( index_ > 0 )
     {
         mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
@@ -641,7 +362,7 @@ void Level::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index
 void Level::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
     TrackMarker marker;
-    SetTrackMarkerSettings(markerSettings_, marker);
+    marker.SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
     mTrackMarkers.insert( mTrackMarkers.begin() + index_, marker);
     if ( index_ > 0 )
     {
@@ -660,7 +381,7 @@ void Level::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int in
 void Level::AppendTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
     TrackMarker marker;
-    SetTrackMarkerSettings(markerSettings_, marker);
+    marker.SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
     mTrackMarkers.push_back(marker);
     if ( mTrackMarkers.size() > 1 )
     {
@@ -793,7 +514,7 @@ void Level::ChangeTrackMarkerSizes(bool useDefault_, float changeLeft_, float ch
 void Level::RemoveTrackMarker(int index_)
 {
     assert ( index_ >= 0 && index_ < (int)mTrackMarkers.size() );
-    ClearTrackMarkerData(mTrackMarkers[index_]);
+    mTrackMarkers[index_].Clear();
     mTrackMarkers.erase( mTrackMarkers.begin() + index_);
     if ( index_ > 0 )
     {
@@ -818,17 +539,17 @@ void Level::RemoveTrackMarker(int index_)
 
 void Level::SetTeleportSource(const TrackMarkerSettings &markerSettings_)
 {
-    SetTrackMarkerSettings(markerSettings_, mTpSource);
+    mTpSource.SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
 }
 
 void Level::SetTeleportTarget(const TrackMarkerSettings &markerSettings_)
 {
-    SetTrackMarkerSettings(markerSettings_, mTpTarget);
+    mTpTarget.SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
 }
 
 void Level::SetFinishLine(const TrackMarkerSettings &markerSettings_)
 {
-    SetTrackMarkerSettings(markerSettings_, mFinishLine);
+    mFinishLine.SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
 }
 
 void Level::AddModel(const std::string &name_)
@@ -894,84 +615,6 @@ void Level::RemoveModel(int index_)
         return;
     ClearModelData(mModels[index_]);
     mModels.erase( mModels.begin() + index_);
-}
-
-void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMarker & marker_)
-{
-    if ( settings_.mIsValid )
-    {
-        marker_.mSettings = settings_;
-
-        core::vector3df leftTopVec, rightBottomVec, rightTopVec, leftBottomVec;
-        marker_.CalcMarkerBorders(leftTopVec, rightTopVec, leftBottomVec, rightBottomVec );
-
-        scene::ISceneNode * nodeCollision = marker_.mNodeCollision;
-#ifdef HC1_ENABLE_EDITOR
-        scene::ISceneNode * nodeCenter = marker_.mEditNodeCenter;
-        scene::ISceneNode * nodeLeftTop = marker_.mEditNodeLeftTop;
-        scene::ISceneNode * nodeRightBottom = marker_.mEditNodeRightBottom;
-        if ( !nodeCenter )
-        {
-            scene::SMesh * mesh = APP.GetEditor()->GetDefaultArrowMesh();
-            nodeCenter = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, mEditDataNode);
-            assert(nodeCenter);
-
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeCenter);
-            nodeCenter->setTriangleSelector(selector);
-            selector->drop();
-
-            marker_.mEditNodeCenter = nodeCenter;
-        }
-        if ( !nodeLeftTop )
-        {
-            scene::SMesh * mesh = APP.GetEditor()->GetDefaultBoxMesh();
-            nodeLeftTop = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, mEditDataNode);
-            assert(nodeLeftTop);
-
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeLeftTop);
-            nodeLeftTop->setTriangleSelector(selector);
-            selector->drop();
-
-            marker_.mEditNodeLeftTop = nodeLeftTop;
-        }
-        if ( !nodeRightBottom )
-        {
-            scene::SMesh * mesh = APP.GetEditor()->GetDefaultBoxMesh();
-            nodeRightBottom = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, mEditDataNode);
-            assert(nodeRightBottom);
-
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeRightBottom);
-            nodeRightBottom->setTriangleSelector(selector);
-            selector->drop();
-
-            marker_.mEditNodeRightBottom = nodeRightBottom;
-        }
-
-        nodeCenter->setPosition(settings_.mCenter);
-        nodeCenter->setRotation(settings_.mRotation);
-        nodeCenter->updateAbsolutePosition();
-
-        nodeLeftTop->setPosition(settings_.mCenter + leftTopVec);
-        nodeLeftTop->updateAbsolutePosition();
-        nodeRightBottom->setPosition(settings_.mCenter + rightBottomVec);
-        nodeRightBottom->updateAbsolutePosition();
-#endif // HC1_ENABLE_EDITOR
-
-        if ( nodeCollision )
-        {
-            nodeCollision->remove();
-            nodeCollision = NULL;
-        }
-        nodeCollision = APP.GetIrrlichtManager()->AddQuadradicNode(mTrackDataNode, leftTopVec,rightTopVec, leftBottomVec, rightBottomVec);
-        nodeCollision->setPosition(settings_.mCenter);
-        nodeCollision->updateAbsolutePosition();
-
-        marker_.mNodeCollision = nodeCollision;
-    }
-    else    // !marker_.mIsValid
-    {
-        marker_.mSettings.Reset();
-    }
 }
 
 bool Level::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISceneNode* node_, core::vector3df &outIntersection_) const
