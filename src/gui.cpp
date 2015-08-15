@@ -724,7 +724,7 @@ void Gui::Update(irr::u32 timeTick)
     const Player* player = APP.GetGame()->GetPlayer(0);
     if ( player )
     {
-        PhysicsObject* hoverPhys = APP.GetPhysics()->GetPhysicsObject(player->GetPhysicsId());
+        const PhysicsObject* hoverPhys = APP.GetPhysics()->GetPhysicsObject(player->GetPhysicsId());
         if ( hoverPhys )
         {
             std::wstringstream wss;

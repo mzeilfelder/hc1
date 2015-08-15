@@ -488,7 +488,7 @@ void Player::UpdateAiInputData(u32 time_)
     if ( !physics )
         return;
 
-    PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
+    const PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
     if ( !hoverPhysics )
         return;
 
@@ -984,7 +984,7 @@ void Player::PostPhysicsUpdate(u32 time_)
     Physics * physics = APP.GetPhysics();
     assert(physics);
 
-    PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
+    const PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
 
     PROFILE_START(401);
     const Controller* controller = GetActiveController();
@@ -1258,7 +1258,7 @@ void Player::UpdateDriftMarkers()
 {
     return; // TODO
 
-    PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
+    const PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
     if ( !hoverPhysics )
         return;
 
@@ -1327,7 +1327,7 @@ void Player::UpdateDriftMarkers()
 void Player::CalcRollMatrices(float additionalRoll_)
 {
     Physics * physics = APP.GetPhysics();
-    PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
+    const PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
     if ( !hoverPhysics )
         return;
 
@@ -1686,7 +1686,7 @@ void Player::Recording(IArchive * ar_)
 
     PlayerStreamData data;
 
-    PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
+    const PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
     if ( hoverPhysics )
     {
         data.mPos = hoverPhysics->GetCurrentStepCollCenter();

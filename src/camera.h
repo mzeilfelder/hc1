@@ -64,11 +64,11 @@ public:
     void ReloadSettings(const TiXmlElement * settings_);
     const CameraSettings& GetSettings() const  { return mCameraSettings; }
 
-    void UpdateGameCam(float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, irr::u32 timeInAir_);
-    void UpdateGameIntroCam( float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, irr::u32 timeLeft_ );
-    void UpdateGameOutroCam( float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, irr::u32 timeLeft_ );
+    void UpdateGameCam(float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, irr::u32 timeInAir_);
+    void UpdateGameIntroCam( float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, irr::u32 timeLeft_ );
+    void UpdateGameOutroCam( float time_, const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, irr::u32 timeLeft_ );
     static void UpdateEditCam(float time_, irr::scene::ICameraSceneNode* editCam_, bool mouseRotation_=true);
-    void ResetGameCam(const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_);
+    void ResetGameCam(const irr::core::matrix4 &target_, irr::scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_);
 
 
 private:

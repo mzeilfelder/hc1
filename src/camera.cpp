@@ -166,13 +166,13 @@ void Camera::ReloadSettings(const TiXmlElement * settings_)
     mCameraAdditionalHeight = 0.f;
 }
 
-void Camera::ResetGameCam(const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_)
+void Camera::ResetGameCam(const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_)
 {
     mCameraAdditionalHeight = 0.f;
     UpdateGameCam( 100.f, target_, gameCam_, physicsObject_, 0);
 }
 
-void Camera::UpdateGameIntroCam( float time_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, u32 timeLeft_ )
+void Camera::UpdateGameIntroCam( float time_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, u32 timeLeft_ )
 {
     core::matrix4 transform( target_ );
     float restTime = timeLeft_;
@@ -189,7 +189,7 @@ void Camera::UpdateGameIntroCam( float time_, const core::matrix4 &target_, scen
     UpdateGameCam(time_, transform, gameCam_, physicsObject_, 0);
 }
 
-void Camera::UpdateGameOutroCam( float time_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, u32 timeLeft_ )
+void Camera::UpdateGameOutroCam( float time_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, u32 timeLeft_ )
 {
     core::matrix4 transform( target_ );
     float restTime = timeLeft_;
@@ -205,7 +205,7 @@ void Camera::UpdateGameOutroCam( float time_, const core::matrix4 &target_, scen
     UpdateGameCam(time_, transform, gameCam_, physicsObject_, 0);
 }
 
-void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, PhysicsObject * physicsObject_, u32 timeInAir_)
+void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene::ICameraSceneNode* gameCam_, const PhysicsObject * physicsObject_, u32 timeInAir_)
 {
     assert(gameCam_);
 

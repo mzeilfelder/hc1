@@ -67,6 +67,7 @@ struct PhysicsObject
     ~PhysicsObject();
 
     inline PhysicsObjectSettings& GetSettings()                     { return mSettings; }
+    inline const PhysicsObjectSettings& GetSettings() const         { return mSettings; }
     inline void SetCollisionType(CollisionTypes type_)              { mCollType = type_; }
     inline const irr::core::vector3df& GetRepulsionNormal() const   { return mRepulsionNormal; }
 

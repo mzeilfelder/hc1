@@ -486,8 +486,8 @@ void Game::PrepareStart()
 
     // set camera to start position
     scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
-    scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
-    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
+    const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
+    const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
     mCameras[mActiveCameraIndex]->UpdateGameIntroCam( 1000, hover->getAbsoluteTransformation(), gameCam, physicsObj, TIME_START_COUNTDOWN );
 
     mIsStartPrepared = true;
@@ -659,8 +659,8 @@ void Game::UpdateStart(GuiHud & guiHud)
 
     // camera approaching player
     scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
-    scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
-    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
+    const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
+    const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
     u32 timeRest = TIME_START_COUNTDOWN - (time - mGameStartTime);
     mCameras[mActiveCameraIndex]->UpdateGameIntroCam( timeTickSec, hover->getAbsoluteTransformation(), gameCam, physicsObj, timeRest );
 
@@ -707,8 +707,8 @@ void Game::UpdateResume()
     // camera approaching player
     f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
     scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
-    scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
-    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
+    const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
+    const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
     int timeRest = mResumeGameTime - APP.GetIrrlichtManager()->GetIrrlichtTimer()->getTime();
     if ( timeRest > 0 )
     {
@@ -750,10 +750,9 @@ void Game::UpdateFinished()
         CheckCollisions(mPlayers[p], time);
     }
 
-    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
+    const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
     scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGuiCamera();
-    scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
-//    mCameras[mActiveCameraIndex]->UpdateGameCam(timeTickSec, hover->getAbsoluteTransformation(), gameCam, physicsObj, 0);
+    const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
     mCameras[mActiveCameraIndex]->UpdateGameOutroCam(timeTickSec, hover->getAbsoluteTransformation(), gameCam, physicsObj, time-mGameFinishedTimer->GetLastStartTime());
 }
 
@@ -869,7 +868,7 @@ void Game::OnCrossedFinishLine(Player * player_, u32 time_)
     }
 }
 
-void Game::UpdateHud(Player * player_, PhysicsObject* physicsObj_, u32 time_)
+void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u32 time_)
 {
     GuiHud * hud = APP.GetGui()->GetGuiHud();
     if ( !hud )
@@ -1130,7 +1129,7 @@ void Game::Update()
     PROFILE_START(203);
     if ( mPlayers.size() > mLocalPlayerIndex && mPlayers[mLocalPlayerIndex]->GetType() == PT_LOCAL) // is there a local player?
     {
-        PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
+        const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
         UpdateHud(mPlayers[mLocalPlayerIndex], physicsObj, time);
 
         if ( !mAiTraining )
@@ -1141,7 +1140,7 @@ void Game::Update()
         // camera
         scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
         Controller* controller = APP.GetController();
-        scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
+        const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
 
         if ( controller->GetSwitchCamera() == 1)
         {
