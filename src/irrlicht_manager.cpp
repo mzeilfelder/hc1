@@ -1086,6 +1086,24 @@ scene::SMeshBuffer* IrrlichtManager::CreateArrowMeshBuffer(float length_, float 
     return CreateExtrudedPolyLineMeshBuffer(7, vertices, core::vector3df(0, height_, 0));
 }
 
+scene::ISceneNode* IrrlichtManager::AddQuadradicNode(scene::ISceneNode* parent_, const core::vector3df &leftTop_, const core::vector3df &rightTop_, const core::vector3df &leftBottom_, const core::vector3df &rightBottom_)
+{
+    scene::SMeshBuffer * buffer = CreateQuadradMeshBuffer(leftTop_,rightTop_, leftBottom_, rightBottom_);
+    assert(buffer);
+    scene::SMesh * mesh = new scene::SMesh();
+    assert(mesh);
+    mesh->addMeshBuffer(buffer);
+    buffer->drop();
+    mesh->recalculateBoundingBox();
+    scene::ISceneNode* node = GetSceneManager()->addMeshSceneNode(mesh, parent_);
+    mesh->drop();
+    assert(node);
+    scene::ITriangleSelector* selector = GetSceneManager()->createTriangleSelector(mesh, node);
+    node->setTriangleSelector(selector);
+    selector->drop();
+
+    return node;
+}
 
 scene::SMeshBuffer* IrrlichtManager::CreateQuadradMeshBuffer(const core::vector3df &leftTop_, const core::vector3df &rightTop_, const core::vector3df &leftBottom_, const core::vector3df &rightBottom_)
 {

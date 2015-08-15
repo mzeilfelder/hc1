@@ -61,6 +61,7 @@ public:
     irr::scene::SMeshBuffer* CreateExtrudedPolyLineMeshBuffer(int numVertices_, const irr::core::vector3df * vertices_, const irr::core::vector3df &extrude_);
     irr::scene::SMeshBuffer* CreateArrowMeshBuffer(float length_, float width_, float height_);
     irr::scene::SMeshBuffer* CreateQuadradMeshBuffer(const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_);
+	irr::scene::ISceneNode* AddQuadradicNode(irr::scene::ISceneNode* parent_, const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_);
 
     // Set the material ambient color for this node and it's children.
     // Don't change the color of a material if one of it's ambient color values is set to ignore_

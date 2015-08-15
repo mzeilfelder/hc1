@@ -258,6 +258,96 @@ bool TrackMarker::GetCenter( core::vector3df &pos_)
     return true;
 }
 
+void TrackMarker::SetCollisionWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode)
+{
+    RemoveCollisionWalls();
+
+    core::vector3df leftTopVec1, rightBottomVec1, rightTopVec1, leftBottomVec1;
+    CalcMarkerBorders(leftTopVec1, rightTopVec1, leftBottomVec1, rightBottomVec1, false);
+    core::vector3df leftTopVec2, rightBottomVec2, rightTopVec2, leftBottomVec2;
+    nextMarker.CalcMarkerBorders(leftTopVec2, rightTopVec2, leftBottomVec2, rightBottomVec2, false);
+
+    if ( mSettings.mHasLeftWall )
+    {
+        mNodeWallLeft = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftTopVec1, leftTopVec2, leftBottomVec1, leftBottomVec2 );
+    }
+    if ( mSettings.mHasRightWall )
+    {
+        mNodeWallRight = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, rightTopVec1, rightTopVec2, rightBottomVec1, rightBottomVec2 );
+    }
+    if ( mSettings.mHasBottomWall )
+    {
+        mNodeWallBottom = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftBottomVec1, rightBottomVec1, leftBottomVec2, rightBottomVec2 );
+    }
+}
+
+void TrackMarker::RemoveCollisionWalls()
+{
+    if ( mNodeWallLeft )
+    {
+        mNodeWallLeft->remove();
+        mNodeWallLeft = NULL;
+    }
+    if ( mNodeWallRight )
+    {
+        mNodeWallRight->remove();
+        mNodeWallRight = NULL;
+    }
+    if ( mNodeWallTop )
+    {
+        mNodeWallTop->remove();
+        mNodeWallTop = NULL;
+    }
+    if ( mNodeWallBottom )
+    {
+        mNodeWallBottom->remove();
+        mNodeWallBottom = NULL;
+    }
+}
+
+void TrackMarker::CalcMarkerBorders(core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_) const
+{
+    core::matrix4 rotMat;
+    rotMat.setRotationDegrees(mSettings.mRotation);
+    core::vector3df forward(0, 0, 1);
+    rotMat.rotateVect(forward);
+    float left, right, top, bottom;
+    if ( mSettings.mUseDefaultSizes )
+    {
+		const LevelSettings& defaultSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
+        left = defaultSettings.mDefaultMarkerLeft;
+        right = defaultSettings.mDefaultMarkerRight;
+        top = defaultSettings.mDefaultMarkerTop;
+        bottom = defaultSettings.mDefaultMarkerBottom;
+    }
+    else
+    {
+        left = mSettings.mLeft;
+        right = mSettings.mRight;
+        top = mSettings.mTop;
+        bottom = mSettings.mBottom;
+    }
+
+    core::vector3df leftVec(mSettings.mUpVector.crossProduct(forward));
+//    printf("up: %.3f %.3f %.3f\n", mSettings.mUpVector.X, mSettings.mUpVector.Y, mSettings.mUpVector.Z);
+//    printf("forward: %.3f %.3f %.3f\n", forward.X, forward.Y, forward.Z );
+//    printf("leftVec: %.3f %.3f %.3f\n", leftVec.X, leftVec.Y, leftVec.Z );
+
+    leftTop_ = (leftVec * left + mSettings.mUpVector * top);
+    rightBottom_ = (leftVec * right + mSettings.mUpVector * bottom);
+    rightTop_ = (leftVec * right + mSettings.mUpVector * top);
+    leftBottom_ = (leftVec * left + mSettings.mUpVector * bottom);
+
+    if ( !relative_ )
+    {
+        leftTop_ += mSettings.mCenter;
+        rightBottom_ += mSettings.mCenter;
+        rightTop_ += mSettings.mCenter;
+        leftBottom_ += mSettings.mCenter;
+    }
+}
+
+
 // --------------------------------------------------------
 Level::Level()
 {
@@ -451,7 +541,7 @@ void Level::ClearTrackMarkerData(TrackMarker & marker_)
         marker_.mNodeCollision->remove();
         marker_.mNodeCollision = NULL;
     }
-    RemoveCollisionWalls(marker_);
+    marker_.RemoveCollisionWalls();
 
     marker_.mSettings.Reset();
 }
@@ -536,15 +626,15 @@ void Level::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index
     SetTrackMarkerSettings(markerSettings_, mTrackMarkers[index_]);
     if ( index_ > 0 )
     {
-        SetCollisionWalls(mTrackMarkers[index_-1], mTrackMarkers[index_]);
+        mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
     }
-    if ( index_ < (int)mTrackMarkers.size() -1 )
+    if ( index_+1 < (int)mTrackMarkers.size() )
     {
-        SetCollisionWalls(mTrackMarkers[index_], mTrackMarkers[index_+1]);
+        mTrackMarkers[index_].SetCollisionWalls(mTrackMarkers[index_+1], mTrackDataNode);
     }
-    if( mTrackMarkers.size() > 1 && (index_ == 0 || index_ == (int)mTrackMarkers.size()-1) )
+    if( mTrackMarkers.size() > 1 && (index_ == 0 || (index_+1 == (int)mTrackMarkers.size())) )
     {
-        SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackMarkers[0]);
+        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -555,15 +645,15 @@ void Level::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int in
     mTrackMarkers.insert( mTrackMarkers.begin() + index_, marker);
     if ( index_ > 0 )
     {
-        SetCollisionWalls(mTrackMarkers[index_-1], mTrackMarkers[index_]);
+        mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
     }
-    if ( index_ < (int)mTrackMarkers.size() -1 )
+    if ( index_+1 < (int)mTrackMarkers.size() )
     {
-        SetCollisionWalls(mTrackMarkers[index_], mTrackMarkers[index_+1]);
+        mTrackMarkers[index_].SetCollisionWalls(mTrackMarkers[index_+1], mTrackDataNode);
     }
     if( mTrackMarkers.size() > 1 && index_ == 0 )
     {
-        SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackMarkers[0]);
+        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -574,8 +664,8 @@ void Level::AppendTrackMarker(const TrackMarkerSettings &markerSettings_, int in
     mTrackMarkers.push_back(marker);
     if ( mTrackMarkers.size() > 1 )
     {
-        SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-2], mTrackMarkers[mTrackMarkers.size()-1]);
-        SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackMarkers[0]);
+        mTrackMarkers[mTrackMarkers.size()-2].SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -709,20 +799,20 @@ void Level::RemoveTrackMarker(int index_)
     {
         if ( index_ < (int)mTrackMarkers.size() )
         {
-            SetCollisionWalls(mTrackMarkers[index_-1], mTrackMarkers[index_]);
+            mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
         }
         else
         {
-            RemoveCollisionWalls(mTrackMarkers[index_-1]);
+            mTrackMarkers[index_-1].RemoveCollisionWalls();
         }
     }
     if( mTrackMarkers.size() > 1 && (index_ == 0 || index_ >= (int)mTrackMarkers.size()) )
     {
-        SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackMarkers[0]);
+        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
     }
     else if ( mTrackMarkers.size() == 1 )
     {
-        RemoveCollisionWalls(mTrackMarkers[0]);
+        mTrackMarkers[0].RemoveCollisionWalls();
     }
 }
 
@@ -806,95 +896,6 @@ void Level::RemoveModel(int index_)
     mModels.erase( mModels.begin() + index_);
 }
 
-void Level::SetCollisionWalls(TrackMarker & marker1_, const TrackMarker & marker2_ )
-{
-    RemoveCollisionWalls(marker1_);
-
-    core::vector3df leftTopVec1, rightBottomVec1, rightTopVec1, leftBottomVec1;
-    CalcMarkerBorders(marker1_, leftTopVec1, rightTopVec1, leftBottomVec1, rightBottomVec1, false);
-    core::vector3df leftTopVec2, rightBottomVec2, rightTopVec2, leftBottomVec2;
-    CalcMarkerBorders(marker2_, leftTopVec2, rightTopVec2, leftBottomVec2, rightBottomVec2, false);
-
-    if ( marker1_.mSettings.mHasLeftWall )
-    {
-        marker1_.mNodeWallLeft = AddQuadradicNode(mTrackDataNode, leftTopVec1, leftTopVec2, leftBottomVec1, leftBottomVec2 );
-    }
-    if ( marker1_.mSettings.mHasRightWall )
-    {
-        marker1_.mNodeWallRight = AddQuadradicNode(mTrackDataNode, rightTopVec1, rightTopVec2, rightBottomVec1, rightBottomVec2 );
-    }
-    if ( marker1_.mSettings.mHasBottomWall )
-    {
-        marker1_.mNodeWallBottom = AddQuadradicNode(mTrackDataNode, leftBottomVec1, rightBottomVec1, leftBottomVec2, rightBottomVec2 );
-    }
-}
-
-void Level::RemoveCollisionWalls(TrackMarker & marker_)
-{
-    if ( marker_.mNodeWallLeft )
-    {
-        marker_.mNodeWallLeft->remove();
-        marker_.mNodeWallLeft = NULL;
-    }
-    if ( marker_.mNodeWallRight )
-    {
-        marker_.mNodeWallRight->remove();
-        marker_.mNodeWallRight = NULL;
-    }
-    if ( marker_.mNodeWallTop )
-    {
-        marker_.mNodeWallTop->remove();
-        marker_.mNodeWallTop = NULL;
-    }
-    if ( marker_.mNodeWallBottom )
-    {
-        marker_.mNodeWallBottom->remove();
-        marker_.mNodeWallBottom = NULL;
-    }
-}
-
-void Level::CalcMarkerBorders(const TrackMarker & marker_, core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_)
-{
-    core::matrix4 rotMat;
-    rotMat.setRotationDegrees(marker_.mSettings.mRotation);
-    core::vector3df forward(0, 0, 1);
-    rotMat.rotateVect(forward);
-    float left, right, top, bottom;
-    if ( marker_.mSettings.mUseDefaultSizes )
-    {
-		const LevelSettings& defaultSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
-        left = defaultSettings.mDefaultMarkerLeft;
-        right = defaultSettings.mDefaultMarkerRight;
-        top = defaultSettings.mDefaultMarkerTop;
-        bottom = defaultSettings.mDefaultMarkerBottom;
-    }
-    else
-    {
-        left = marker_.mSettings.mLeft;
-        right = marker_.mSettings.mRight;
-        top = marker_.mSettings.mTop;
-        bottom = marker_.mSettings.mBottom;
-    }
-
-    core::vector3df leftVec(marker_.mSettings.mUpVector.crossProduct(forward));
-//    printf("up: %.3f %.3f %.3f\n", marker_.mSettings.mUpVector.X, marker_.mSettings.mUpVector.Y, marker_.mSettings.mUpVector.Z);
-//    printf("forward: %.3f %.3f %.3f\n", forward.X, forward.Y, forward.Z );
-//    printf("leftVec: %.3f %.3f %.3f\n", leftVec.X, leftVec.Y, leftVec.Z );
-
-    leftTop_ = (leftVec * left + marker_.mSettings.mUpVector * top);
-    rightBottom_ = (leftVec * right + marker_.mSettings.mUpVector * bottom);
-    rightTop_ = (leftVec * right + marker_.mSettings.mUpVector * top);
-    leftBottom_ = (leftVec * left + marker_.mSettings.mUpVector * bottom);
-
-    if ( !relative_ )
-    {
-        leftTop_ += marker_.mSettings.mCenter;
-        rightBottom_ += marker_.mSettings.mCenter;
-        rightTop_ += marker_.mSettings.mCenter;
-        leftBottom_ += marker_.mSettings.mCenter;
-    }
-}
-
 void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMarker & marker_)
 {
     if ( settings_.mIsValid )
@@ -902,7 +903,7 @@ void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMa
         marker_.mSettings = settings_;
 
         core::vector3df leftTopVec, rightBottomVec, rightTopVec, leftBottomVec;
-        CalcMarkerBorders(marker_, leftTopVec, rightTopVec, leftBottomVec, rightBottomVec );
+        marker_.CalcMarkerBorders(leftTopVec, rightTopVec, leftBottomVec, rightBottomVec );
 
         scene::ISceneNode * nodeCollision = marker_.mNodeCollision;
 #ifdef HC1_ENABLE_EDITOR
@@ -961,7 +962,7 @@ void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMa
             nodeCollision->remove();
             nodeCollision = NULL;
         }
-        nodeCollision = AddQuadradicNode(mTrackDataNode, leftTopVec,rightTopVec, leftBottomVec, rightBottomVec);
+        nodeCollision = APP.GetIrrlichtManager()->AddQuadradicNode(mTrackDataNode, leftTopVec,rightTopVec, leftBottomVec, rightBottomVec);
         nodeCollision->setPosition(settings_.mCenter);
         nodeCollision->updateAbsolutePosition();
 
@@ -971,26 +972,6 @@ void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMa
     {
         marker_.mSettings.Reset();
     }
-}
-
-scene::ISceneNode* Level::AddQuadradicNode(scene::ISceneNode* parent_, const core::vector3df &leftTop_, const core::vector3df &rightTop_, const core::vector3df &leftBottom_, const core::vector3df &rightBottom_)
-{
-    scene::ISceneNode* node = NULL;
-    scene::SMeshBuffer * buffer = APP.GetIrrlichtManager()->CreateQuadradMeshBuffer(leftTop_,rightTop_, leftBottom_, rightBottom_);
-    assert(buffer);
-    scene::SMesh * mesh = new scene::SMesh();
-    assert(mesh);
-    mesh->addMeshBuffer(buffer);
-    buffer->drop();
-    mesh->recalculateBoundingBox();
-    node = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, parent_);
-    mesh->drop();
-    assert(node);
-    scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, node);
-    node->setTriangleSelector(selector);
-    selector->drop();
-
-    return node;
 }
 
 bool Level::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISceneNode* node_, core::vector3df &outIntersection_) const
