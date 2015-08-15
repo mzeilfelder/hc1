@@ -8,6 +8,7 @@
 #include "input_device_manager.h"
 #include "music_manager.h"
 #include "level.h"
+#include "level_manager.h"
 #include "controller.h"
 #include "sound.h"
 #include "player.h"
@@ -315,7 +316,7 @@ void Game::PrepareStart()
         return;
     }
 
-    const LevelSettings &level = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
 
     // reset players
     std::vector<int> oldRecordingIds;
@@ -760,7 +761,7 @@ void Game::UpdateFinished()
 void Game::OnCrossedFinishLine(Player * player_, u32 time_)
 {
     if (    player_->GetCurrentRound() == 0
-        ||  APP.GetLevelManager()->GetTrackRelocatesBetween(APP.GetLevelManager()->GetNrOfTrackMarkers()-1, player_->GetLastMarkerReached()) < 3 )
+        ||  APP.GetLevel()->GetTrackRelocatesBetween(APP.GetLevel()->GetNrOfTrackMarkers()-1, player_->GetLastMarkerReached()) < 3 )
     {
         player_->InfoRoundFinished(time_);
 
@@ -956,10 +957,10 @@ void Game::CheckCollisions(Player* player_, u32 time_)
     // check collision with markers
 	PROFILE_START(208);
     int indexMarker = 0;
-    if ( APP.GetLevelManager()->CheckMarkerCollision(moveLine, indexMarker) )
+    if ( APP.GetLevel()->CheckMarkerCollision(moveLine, indexMarker) )
     {
         if (    indexMarker > player_->GetLastMarkerReached()
-            &&  APP.GetLevelManager()->GetTrackRelocatesBetween(indexMarker, player_->GetLastMarkerReached()) < 5 )
+            &&  APP.GetLevel()->GetTrackRelocatesBetween(indexMarker, player_->GetLastMarkerReached()) < 5 )
         {
             player_->InfoLevelMarkerReached( indexMarker );
         }
@@ -967,7 +968,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
 	PROFILE_STOP(208);
 
     // check finish line collision
-    if ( APP.GetLevelManager()->CheckFinishLineCollision(moveLine) )
+    if ( APP.GetLevel()->CheckFinishLineCollision(moveLine) )
     {
         OnCrossedFinishLine(player_, time_);
         if ( mMode == GM_FINISHED )
@@ -982,7 +983,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
     core::vector3df tpTarget;
     core::vector3df tpRotation;
     core::vector3df tpVelocity( physicsObj->GetVelocity() );
-    if ( APP.GetLevelManager()->CheckTeleportLineCollision(moveLine, tpTarget, tpRotation, tpVelocity) )
+    if ( APP.GetLevel()->CheckTeleportLineCollision(moveLine, tpTarget, tpRotation, tpVelocity) )
     {
         physicsObj->mSceneNode->setPosition(tpTarget);
         physicsObj->mSceneNode->setRotation(tpRotation);
@@ -1005,7 +1006,7 @@ void Game::CheckCollisions(Player* player_, u32 time_)
         bool droppingOutside = time_ - player_->GetLastTimeTouchedFloor() > 2000 ? true : false;
         if ( player_->GetLastTimeTouchedFloor() == 0 )
             droppingOutside = false;
-        if ( droppingOutside || APP.GetLevelManager()->CheckWallCollision(moveLine, indexWall) )
+        if ( droppingOutside || APP.GetLevel()->CheckWallCollision(moveLine, indexWall) )
         {
             if ( droppingOutside )
             {
@@ -1280,9 +1281,9 @@ float Game::GetRelativeTrackDistanceToPlayer(int sourcePlayer_, int targetPlayer
 	}
 
     timeDiff_ = 0;
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetCurrentLevel();
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
 
-    int maxMarkers = APP.GetLevelManager()->GetAiTrack().GetNumTrackInfos();
+    int maxMarkers = APP.GetLevel()->GetAiTrack().GetNumTrackInfos();
 
     bool hasLapGhost = mPlayers[sourcePlayer_]->GetType() == PT_GHOST_LAP
                     ||  mPlayers[targetPlayer_]->GetType() == PT_GHOST_LAP;
@@ -1468,7 +1469,7 @@ void Game::TrainAi()
         core::vector3df rotation;
         core::vector3df center;
 
-        int indexMarker = randGen.GetNumberInRange(0, APP.GetLevelManager()->GetNrOfTrackMarkers()-1);
+        int indexMarker = randGen.GetNumberInRange(0, APP.GetLevel()->GetNrOfTrackMarkers()-1);
         fprintf(stderr, "**reset to %d\n", indexMarker);
         GetRelocationPos(indexMarker, center, rotation);
 
@@ -1492,7 +1493,7 @@ void Game::GetRelocationPos(int wallIndex_, core::vector3df &pos_, core::vector3
 {
     while ( wallIndex_ >= 0 )
     {
-        TrackMarker marker = APP.GetLevelManager()->GetTrackMarker(wallIndex_);
+        TrackMarker marker = APP.GetLevel()->GetTrackMarker(wallIndex_);
         if ( marker.mSettings.mRelocate )
         {
             pos_ = marker.mSettings.mCenter;
@@ -1501,8 +1502,8 @@ void Game::GetRelocationPos(int wallIndex_, core::vector3df &pos_, core::vector3
         }
         --wallIndex_;
     }
-    pos_ = APP.GetLevelManager()->GetTrackStart(0).mSettings.mCenter;
-    rotation_ = APP.GetLevelManager()->GetTrackStart(0).mSettings.mRotation;
+    pos_ = APP.GetLevel()->GetTrackStart(0).mSettings.mCenter;
+    rotation_ = APP.GetLevel()->GetTrackStart(0).mSettings.mRotation;
 }
 
 void Game::Pause()
@@ -1529,7 +1530,7 @@ void Game::Pause()
 
     // save recording for best lap
     int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-    const LevelSettings &level = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
     std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
     mRecordBestLap->Save(filenameLapRecord);
 
@@ -1559,7 +1560,7 @@ void Game::Finish(bool finishByPlaying_)
 
     // save recording for best lap
     int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-    const LevelSettings &level = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
     std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
     mRecordBestLap->Save(filenameLapRecord);
 
@@ -1595,7 +1596,7 @@ void Game::Finish(bool finishByPlaying_)
                 {
                     // save recording for new track record
                     int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-                    const LevelSettings &level = APP.GetLevelManager()->GetLevel(levelIndex);
+                    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
                     std::string filenameTrackRecord( APP.GetConfig()->MakeTrackRecordName(level.mId, APP.GetStringTable()) );
                     GhostRecordSettings trackGhostRecordSettings;
                     if ( profile )
@@ -1780,7 +1781,7 @@ void Game::SaveLastRecording()
 {
     if ( mPlayers[mLocalPlayerIndex]->GetRecordingId() >= 0 && mLocalPlayerPreviousStartTrack >= 0)
     {
-        const LevelSettings & levelSettings = APP.GetLevelManager()->GetCurrentLevel();
+        const LevelSettings & levelSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
         std::ostringstream filename;
         filename << APP.GetConfig()->GetPathRecordings() << "L" << levelSettings.mId << "P" << mLocalPlayerPreviousStartTrack;
 

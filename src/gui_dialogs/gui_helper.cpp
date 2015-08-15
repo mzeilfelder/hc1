@@ -33,7 +33,7 @@ void GuiHelper::FillTextSliderWithTrackNames(irr::gui::IGUITextSlider *slider_, 
 
     for ( int i=0; i < APP.GetLevelManager()->GetNumLevels(difficulty_); ++i )
     {
-        const LevelSettings &settings = APP.GetLevelManager()->GetLevel(i, difficulty_);
+        const LevelSettings &settings = APP.GetLevelManager()->GetLevelSettings(i, difficulty_);
 
 #if defined(HOVER_RELEASE)	// allow playing all levels in debug (an if you forget to set HOVER_RELEASE, but that's a bug anyway)
         if( !onlyEnabled_ || APP.GetProfileManager()->IsLevelUnlocked(settings.mId) )

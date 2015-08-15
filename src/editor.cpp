@@ -242,47 +242,47 @@ void Editor::UpdateEditAction()
                     trackStart.mCenter = target;
                     trackStart.mRotation = rotation;
 
-                    APP.GetLevelManager()->SetTrackStart(trackStart, mEditIndex);
+                    APP.GetLevel()->SetTrackStart(trackStart, mEditIndex);
                 }
             }
             break;
             case EM_SET_FINISH_LINE:
             case EM_SELECTED_FINISH_LINE:
             {
-                TrackMarkerSettings & marker = APP.GetLevelManager()->GetFinishLine().mSettings;
+                TrackMarkerSettings & marker = APP.GetLevel()->GetFinishLine().mSettings;
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
-                    APP.GetLevelManager()->SetFinishLine(marker);
+                    APP.GetLevel()->SetFinishLine(marker);
                 }
             }
             break;
             case EM_SET_TP_SOURCE:
             case EM_SELECTED_TP_SOURCE:
             {
-                TrackMarkerSettings & marker = APP.GetLevelManager()->GetTpSource().mSettings;
+                TrackMarkerSettings & marker = APP.GetLevel()->GetTpSource().mSettings;
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
-                    APP.GetLevelManager()->SetTeleportSource(marker);
+                    APP.GetLevel()->SetTeleportSource(marker);
                 }
             }
             break;
             case EM_SET_TP_TARGET:
             case EM_SELECTED_TP_TARGET:
             {
-                TrackMarkerSettings marker = APP.GetLevelManager()->GetTpTarget().mSettings;;
+                TrackMarkerSettings marker = APP.GetLevel()->GetTpTarget().mSettings;;
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
-                    APP.GetLevelManager()->SetTeleportTarget(marker);
+                    APP.GetLevel()->SetTeleportTarget(marker);
                 }
             }
             break;
             case EM_SET_TRACKMARKER:
             case EM_SELECTED_TRACKMARKER:
             {
-                TrackMarkerSettings marker = APP.GetLevelManager()->GetTrackMarker(mEditIndex).mSettings;
+                TrackMarkerSettings marker = APP.GetLevel()->GetTrackMarker(mEditIndex).mSettings;
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
-                    APP.GetLevelManager()->SetTrackMarker(marker, mEditIndex);
+                    APP.GetLevel()->SetTrackMarker(marker, mEditIndex);
                     APP.GetGui()->GetGuiEditor()->UpdateTrackMarker();
                 }
             }
@@ -293,7 +293,7 @@ void Editor::UpdateEditAction()
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
                     marker.EnableWalls();
-                    APP.GetLevelManager()->InsertTrackMarker(marker, mEditIndex);
+                    APP.GetLevel()->InsertTrackMarker(marker, mEditIndex);
                     APP.GetGui()->GetGuiEditor()->UpdateTrackMarker();
                 }
             }
@@ -304,7 +304,7 @@ void Editor::UpdateEditAction()
                 if ( CalcTrackMarkerSettingsAtCursor(marker, rotation) )
                 {
                     marker.EnableWalls();
-                    APP.GetLevelManager()->AppendTrackMarker(marker, mEditIndex);
+                    APP.GetLevel()->AppendTrackMarker(marker, mEditIndex);
                     ++mEditIndex;
                     APP.GetGui()->GetGuiEditor()->UpdateTrackMarker();
                 }
@@ -317,7 +317,7 @@ void Editor::UpdateEditAction()
                 if ( !mIsCursorPosCurrent )
                     break;
 
-                LevelModelSettings modelSettings = APP.GetLevelManager()->GetModel(mEditIndex).mSettings;
+                LevelModelSettings modelSettings = APP.GetLevel()->GetModel(mEditIndex).mSettings;
                 core::vector3df target;
                 core::vector3df repulsion;
                 float radius = 0.f;
@@ -326,7 +326,7 @@ void Editor::UpdateEditAction()
                     modelSettings.mCenter = target;
 //                    modelSettings.mRotation = rotation;   // should stay the same here
                 }
-                APP.GetLevelManager()->SetModel(modelSettings, mEditIndex);
+                APP.GetLevel()->SetModel(modelSettings, mEditIndex);
                 APP.GetGui()->GetGuiEditor()->UpdateObjects();
             }
             break;
@@ -361,34 +361,34 @@ void Editor::CheckForSelection()
 
     int index = 0;
     float dist = FLT_MAX;
-    if ( APP.GetLevelManager()->CheckTrackStartEditCollision(line, index, dist) )
+    if ( APP.GetLevel()->CheckTrackStartEditCollision(line, index, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetTrackStart(index).mEditNode );
+        SetSelectedNode( APP.GetLevel()->GetTrackStart(index).mEditNode );
         SetMode(EM_SELECTED_PLAYER_START, index);
     }
-    if ( APP.GetLevelManager()->CheckFinishLineEditCollision(line, index, dist) )
+    if ( APP.GetLevel()->CheckFinishLineEditCollision(line, index, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetFinishLine().mEditNodeCenter );
+        SetSelectedNode( APP.GetLevel()->GetFinishLine().mEditNodeCenter );
         SetMode(EM_SELECTED_FINISH_LINE, index);
     }
-    if ( APP.GetLevelManager()->CheckTpSourceEditCollision(line, dist) )
+    if ( APP.GetLevel()->CheckTpSourceEditCollision(line, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetTpSource().mEditNodeCenter );
+        SetSelectedNode( APP.GetLevel()->GetTpSource().mEditNodeCenter );
         SetMode(EM_SELECTED_TP_SOURCE, index);
     }
-    if ( APP.GetLevelManager()->CheckTpTargetEditCollision(line, dist) )
+    if ( APP.GetLevel()->CheckTpTargetEditCollision(line, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetTpTarget().mEditNodeCenter );
+        SetSelectedNode( APP.GetLevel()->GetTpTarget().mEditNodeCenter );
         SetMode(EM_SELECTED_TP_TARGET, index);
     }
-    if ( APP.GetLevelManager()->CheckTrackMarkerEditCollision(line, index, dist) )
+    if ( APP.GetLevel()->CheckTrackMarkerEditCollision(line, index, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetTrackMarker(index).mEditNodeCenter );
+        SetSelectedNode( APP.GetLevel()->GetTrackMarker(index).mEditNodeCenter );
         SetMode(EM_SELECTED_TRACKMARKER, index);
     }
-    if ( APP.GetLevelManager()->CheckModelEditCollision(line, index, dist) )
+    if ( APP.GetLevel()->CheckModelEditCollision(line, index, dist) )
     {
-        SetSelectedNode( APP.GetLevelManager()->GetModel(index).mNodeModel );
+        SetSelectedNode( APP.GetLevel()->GetModel(index).mNodeModel );
         SetMode(EM_SELECTED_MODEL, index);
     }
 

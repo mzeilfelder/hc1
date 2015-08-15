@@ -6,6 +6,7 @@
 #include "../gui.h"
 #include "../game.h"
 #include "../championship.h"
+#include "../level_manager.h"
 #include "../main.h"
 #include "../string_table.h"
 #include "../rivalsmode.h"
@@ -235,7 +236,7 @@ void GuiMenuLoadingScreen::Show()
         mButtonStart->setVisible(false);
         mStaticLoading->setVisible(true);
         APP.GetIrrlichtManager()->ForceIrrlichtUpdate();
-        APP.GetLevelManager()->LoadLevel(gameSettings.mLevelName);
+        APP.GetLevelManager()->LoadLevel(gameSettings.mLevelName, *APP.GetLevel());
     }
     else
     {

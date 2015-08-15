@@ -163,7 +163,7 @@ void GuiMenuTimeAttack::Show()
 
     if ( mStaticTextTargetTime && mStaticTimeTargetTime )
     {
-        const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(idxLevel);
+        const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(idxLevel);
         if ( GT_TIMERACE == GetGameType() )
         {
             std::wstring wstr( GuiHelper::MakeTimeString((s32)(levelSettings.mTargetTime*1000.f)) );
@@ -225,7 +225,7 @@ void GuiMenuTimeAttack::Show()
                 if ( scoreTrack.IsUserScore() )
                     canExportGhost = true;
 
-                const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(idxLevel);
+                const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(idxLevel);
                 if ( scoreTrack.mTime <= levelSettings.mTargetTime*1000 && mStaticTextTargetTime )
                 {
                     std::wstring wstr( mStaticTimeTargetTime->getText() );
@@ -243,7 +243,7 @@ void GuiMenuTimeAttack::Show()
 
     if ( mSliderGhost )
     {
-        const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(idxLevel);
+        const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(idxLevel);
         s32 oldTextId = mSliderGhost->getCurrentTextId();
         mSliderGhost->clearTexts();
         mSliderGhost->addText( APP.GetStringTable()->Get("id_on").c_str() );
@@ -329,7 +329,7 @@ bool GuiMenuTimeAttack::OnExportAcknowledged(const irr::SEvent &event_)
     if ( levelIndex < 0 )
         return false;
 
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(levelIndex);
     Record recordDummy;
     GhostRecordSettings recordSettings;
 
@@ -437,7 +437,7 @@ bool GuiMenuTimeAttack::OnButtonStart(const irr::SEvent &event_)
 
     APP.GetGui()->PlayOverrideClickSound(GS_CLICK_OK);
 
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(levelIndex);
 
     GameSettings gameSettings;
 
@@ -671,7 +671,7 @@ bool GuiMenuTimeAttack::GetSelectedGhostRecordSettings(GhostRecordSettings &sett
     int idxLevel = APP.GetLevelManager()->GetIndexForName( mSliderTracks->getCurrentText() );
     if ( idxLevel < 0 )
         return false;
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(idxLevel);
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(idxLevel);
 
     if ( GetGameType() == GT_HOTLAP )
     {

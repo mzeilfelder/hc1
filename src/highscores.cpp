@@ -3,7 +3,7 @@
 #include "highscores.h"
 #include "main.h"
 #include "game.h"
-#include "level.h"
+#include "level_manager.h"
 #include "championship.h"
 #include "config.h"
 #include "streaming.h"

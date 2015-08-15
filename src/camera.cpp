@@ -352,9 +352,9 @@ void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene:
 
     // TODO: unclean addition done in Masterphase. We just update another node here (for particles)
     // Clean solution would be to add this somehow to camera.. i think.
-    if ( APP.GetLevelManager()->GetNodeCamera() )
+    if ( APP.GetLevel()->GetNodeCamera() )
     {
-        APP.GetLevelManager()->GetNodeCamera()->setPosition( gameCam_->getPosition() );
+        APP.GetLevel()->GetNodeCamera()->setPosition( gameCam_->getPosition() );
     }
 }
 

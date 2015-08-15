@@ -4,7 +4,7 @@
 #define GUI_MENU_TIMEATTACK_H
 
 #include "../gui_dialog.h"
-#include "../level.h"
+#include "../level_manager.h"
 #include "../game.h"
 
 class GuiMenuTimeAttack : public GuiDialog

@@ -3,47 +3,13 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-// TODO: this file has more grown than planned and it starts showing
-
 #include "globals.h"
 #include "ai_track.h"
 #include <string>
 #include <vector>
 
 class TiXmlElement;
-
-enum LevelDifficulty
-{
-    LD_EASY = 0,
-    LD_MEDIUM,
-    LD_HARD,
-    LD_ALL,
-};
-
-struct AiBotSettings
-{
-    AiBotSettings();
-    void ReadFromXml(const TiXmlElement * settings_);
-
-    std::string mName;
-    std::string mModel;
-    float mLowPower;  // lower border for range of random power modifier
-    float mUppPower;  // upper border for range of random power modifier
-    float mSlowBorder; // if the speed is below mSlowBorder*maxspeed the slow modifiers are used
-    float mLowSlow;   // lower border for range of random power modifier for slow speeds
-    float mUppSlow;   // upper border for range of random power modifier for slow speeds
-    float mLowEnergy;   // lower border for range of energy modifier (energy pushing object along a path)
-    float mUppEnergy;   // upper border for range of energy modifier (energy pushing object along a path)
-    float mLowIdeal;    // lower border for range or random modifier towards ideal line (instead of line throught track center)
-    float mUppIdeal;    // upper border for range or random modifier towards ideal line (instead of line throught track center)
-    int mCollTime;    // milliseconds after collision where bot's don't cheat
-    int mCollTimeReturn;      // milliseconds it takes to get the bot back on track
-    int mStartTime;   // first milliseconds in which startsettings are used
-    float mLowPowerStart;  // lower border for random power first seconds
-    float mUppPowerStart;  // upper border for random power first seconds
-    float mPreviewDist1;
-    float mPreviewDist2;
-};
+struct LevelSettings;
 
 struct TrackStartSettings
 {
@@ -80,48 +46,6 @@ struct TrackMarkerSettings
     bool            mHasRightWall;
     bool            mHasBottomWall;
 //    bool            mHasTopWall;
-};
-
-struct LevelCameraSettings
-{
-    void ReadFromXml(const TiXmlElement * settings_);
-
-    std::string     mModel;
-};
-
-// settings used in levels.xml
-struct LevelSettings
-{
-    LevelSettings();
-    void ReadFromXml(const TiXmlElement * settings_);
-
-    int             mId;
-    std::wstring    mName;
-    AiBotSettings   mBotSettings[MAX_BOT_SETTINGS];
-    LevelCameraSettings mCameraSettings;
-    std::string     mMeshFile;
-    std::string     mDataFile;
-    std::string     mLightmapFile;
-
-    LevelDifficulty mDifficulty;
-    int             mLaps;
-    float           mTargetTime;
-
-    int             mAmbientAlpha;
-    int             mAmbientRed;
-    int             mAmbientGreen;
-    int             mAmbientBlue;
-
-    int             mAmbHoverRed;
-    int             mAmbHoverGreen;
-    int             mAmbHoverBlue;
-
-    float           mDefaultMarkerLeft;
-    float           mDefaultMarkerRight;
-    float           mDefaultMarkerTop;
-    float           mDefaultMarkerBottom;
-
-    float           mHudPosScaling;
 };
 
 struct TrackStart
@@ -181,24 +105,14 @@ struct LevelModel
     LevelModelSettings  mSettings;
 };
 
-class LevelManager
+class Level
 {
 public:
-    LevelManager();
-    ~LevelManager();
+    Level();
+    ~Level();
 
-    void LoadSettings();    // metadata for all levels
-    bool LoadLevel(const std::wstring &levelName_);
-    bool SaveCurrentTrackData();
-
-    int GetNumLevels(LevelDifficulty difficulty_ = LD_ALL) const;
-    int GetCurrentLevelIndex()  const { return mCurrentLevel; }
-    unsigned int GetRealIndex( unsigned int index_, LevelDifficulty difficulty_ = LD_ALL) const;
-    int GetIndexForId(int id_) const;
-    int GetIndexForName( const std::wstring &levelName_ ) const;
-
-    const LevelSettings& GetLevel(unsigned int index_, LevelDifficulty difficulty_ = LD_ALL) const;
-    const LevelSettings& GetCurrentLevel() const { return GetLevel(mCurrentLevel); }
+	bool Load(LevelSettings * settings_);
+    bool SaveTrackData();
 
     irr::scene::ISceneNode* GetNodeCamera() { return mNodeCamera; }
 
@@ -265,15 +179,9 @@ protected:
     void CalcMarkerBorders(const TrackMarker & marker_, irr::core::vector3df & leftTop_, irr::core::vector3df & rightTop_, irr::core::vector3df & leftBottom_, irr::core::vector3df & rightBottom_, bool relative_=true);
     irr::scene::ISceneNode* AddQuadradicNode(irr::scene::ISceneNode* parent_, const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_);
 
-    bool Load(LevelSettings * settings_);
     bool LoadTrackData(const std::string &fileName_);
-    bool SaveTrackData(const std::string &fileName_);
 
 private:
-    LevelSettings mDefaultLevelSettings;
-    std::vector<LevelSettings> mLevelSettings;
-    int mCurrentLevel;
-
     std::string mLevelFileName;
     irr::scene::ISceneNode* mLevelNode;
     irr::scene::ITriangleSelector* mSelector;
@@ -282,6 +190,7 @@ private:
     irr::scene::ISceneNode* mEditDataNode;   // parent for all edit nodes
     irr::scene::ISceneNode* mTrackDataNode;  // parent for all track data nodes
 
+    std::string					mTrackDataFilename;
     TrackStart                  mTrackStarts[MAX_SPAWNS];
     std::vector<TrackMarker>    mTrackMarkers;
     TrackMarker                 mFinishLine;

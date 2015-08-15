@@ -11,6 +11,7 @@
 #include "../gui_ids.h"
 #include "../main.h"
 #include "../level.h"
+#include "../level_manager.h"
 #include "../editor.h"
 #include "../config.h"
 #include "../gui.h"
@@ -535,7 +536,7 @@ bool GuiEditor::OnEventPlayerStart(const SEvent &event)
 
                     core::vector3df pos;
                     int selected = listBox->getSelected();
-                    if ( selected >= 0 && APP.GetLevelManager()->GetTrackStart(selected).GetCenter(pos) )
+                    if ( selected >= 0 && APP.GetLevel()->GetTrackStart(selected).GetCenter(pos) )
                     {
                         APP.GetEditor()->MoveCamToTarget(pos);
                     }
@@ -620,63 +621,63 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 case BTN_LEFT_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, -mChangeMarkerSize, 0.f, 0.f, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, -mChangeMarkerSize, 0.f, 0.f, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_LEFT_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, mChangeMarkerSize, 0.f, 0.f, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, mChangeMarkerSize, 0.f, 0.f, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_RIGHT_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, mChangeMarkerSize, 0.f, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, mChangeMarkerSize, 0.f, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_RIGHT_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, -mChangeMarkerSize, 0.f, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, -mChangeMarkerSize, 0.f, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_TOP_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, 0.f, mChangeMarkerSize, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, 0.f, mChangeMarkerSize, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_TOP_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, 0.f, -mChangeMarkerSize, 0.f, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, 0.f, -mChangeMarkerSize, 0.f, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_BOTTOM_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, 0.f, 0.f, -mChangeMarkerSize, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, 0.f, 0.f, -mChangeMarkerSize, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_BOTTOM_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeTrackMarkerSizes(false, 0.f, 0.f, 0.f, mChangeMarkerSize, selected);
+                        APP.GetLevel()->ChangeTrackMarkerSizes(false, 0.f, 0.f, 0.f, mChangeMarkerSize, selected);
                         UpdateTrackMarker();
                     }
                 break;
                 case BTN_GO_TRACKMARKER:
                 {
                     core::vector3df pos;
-                    if ( selected >= 0 && APP.GetLevelManager()->GetTrackMarker(selected).GetCenter(pos) )
+                    if ( selected >= 0 && APP.GetLevel()->GetTrackMarker(selected).GetCenter(pos) )
                     {
                         APP.GetEditor()->MoveCamToTarget(pos);
                     }
@@ -686,7 +687,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 {
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->RemoveTrackMarker(selected);
+                        APP.GetLevel()->RemoveTrackMarker(selected);
                         APP.GetEditor()->SetMode(EM_NONE, selected-1);
                         UpdateTrackMarker();
                     }
@@ -695,7 +696,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 {
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->AutoAlignTrackMarker(selected);
+                        APP.GetLevel()->AutoAlignTrackMarker(selected);
                     }
                 }
                 break;
@@ -703,7 +704,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 {
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->RotateTrackMarker(180.f, selected);
+                        APP.GetLevel()->RotateTrackMarker(180.f, selected);
                     }
                 }
                 break;
@@ -792,7 +793,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 {
                     if ( selected < 0 )
                         break;
-                    TrackMarkerSettings settings = APP.GetLevelManager()->GetTrackMarker(selected).mSettings;
+                    TrackMarkerSettings settings = APP.GetLevel()->GetTrackMarker(selected).mSettings;
                     if ( cb->isChecked() )
                     {
                         settings.mHasLeftWall = true;
@@ -801,14 +802,14 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                     {
                         settings.mHasLeftWall = false;
                     }
-                    APP.GetLevelManager()->SetTrackMarker(settings, selected);
+                    APP.GetLevel()->SetTrackMarker(settings, selected);
                 }
                 break;
                 case CHECKBOX_WALL_RIGHT:
                 {
                     if ( selected < 0 )
                         break;
-                    TrackMarkerSettings settings = APP.GetLevelManager()->GetTrackMarker(selected).mSettings;
+                    TrackMarkerSettings settings = APP.GetLevel()->GetTrackMarker(selected).mSettings;
                     if ( cb->isChecked() )
                     {
                         settings.mHasRightWall = true;
@@ -817,14 +818,14 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                     {
                         settings.mHasRightWall = false;
                     }
-                    APP.GetLevelManager()->SetTrackMarker(settings, selected);
+                    APP.GetLevel()->SetTrackMarker(settings, selected);
                 }
                 break;
                 case CHECKBOX_WALL_BOTTOM:
                 {
                     if ( selected < 0 )
                         break;
-                    TrackMarkerSettings settings = APP.GetLevelManager()->GetTrackMarker(selected).mSettings;
+                    TrackMarkerSettings settings = APP.GetLevel()->GetTrackMarker(selected).mSettings;
                     if ( cb->isChecked() )
                     {
                         settings.mHasBottomWall = true;
@@ -833,7 +834,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                     {
                         settings.mHasBottomWall = false;
                     }
-                    APP.GetLevelManager()->SetTrackMarker(settings, selected);
+                    APP.GetLevel()->SetTrackMarker(settings, selected);
                 }
                 break;
                 case CHECKBOX_RELOCATE:
@@ -841,7 +842,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                     if ( selected < 0 )
                         break;
 					// TODO: compiler warning makes sense - code doesn't. Will have to check some day what this was about.
-                    TrackMarkerSettings settings = APP.GetLevelManager()->GetTrackMarker(selected).mSettings;
+                    TrackMarkerSettings settings = APP.GetLevel()->GetTrackMarker(selected).mSettings;
                     if ( cb->isChecked() )
                     {
                         settings.mRelocate = true;
@@ -856,7 +857,7 @@ bool GuiEditor::OnEventTrackMarker(const SEvent &event)
                 {
                     if ( selected < 0 )
                         break;
-                    APP.GetLevelManager()->ChangeTrackMarkerSizes(true, 0.f, 0.f, 0.f, 0.f, selected);
+                    APP.GetLevel()->ChangeTrackMarkerSizes(true, 0.f, 0.f, 0.f, 0.f, selected);
                     UpdateTrackMarker();
                 }
 
@@ -920,7 +921,7 @@ bool GuiEditor::OnEventTeleportSource(const SEvent &event)
         &&  id == BTN_GO_TP_START )
     {
         core::vector3df pos;
-        if ( APP.GetLevelManager()->GetTpSource().GetCenter(pos) )
+        if ( APP.GetLevel()->GetTpSource().GetCenter(pos) )
         {
             APP.GetEditor()->MoveCamToTarget(pos);
         }
@@ -952,7 +953,7 @@ bool GuiEditor::OnEventTeleportTarget(const SEvent &event)
         &&  id == BTN_GO_TP_TARGET )
     {
         core::vector3df pos;
-        if ( APP.GetLevelManager()->GetTpTarget().GetCenter(pos) )
+        if ( APP.GetLevel()->GetTpTarget().GetCenter(pos) )
         {
             APP.GetEditor()->MoveCamToTarget(pos);
         }
@@ -989,7 +990,7 @@ bool GuiEditor::OnEventFinishLine(const SEvent &event)
                 case BTN_GO_FINISH_LINE:
                 {
                     core::vector3df pos;
-                    if ( APP.GetLevelManager()->GetFinishLine().GetCenter(pos) )
+                    if ( APP.GetLevel()->GetFinishLine().GetCenter(pos) )
                     {
                         APP.GetEditor()->MoveCamToTarget(pos);
                     }
@@ -1080,7 +1081,7 @@ bool GuiEditor::OnEventObjects(const SEvent &event)
                     if ( selected < 0 )
                         break;
                     core::vector3df pos;
-                    if ( APP.GetLevelManager()->GetModel(selected).GetCenter(pos) )
+                    if ( APP.GetLevel()->GetModel(selected).GetCenter(pos) )
                     {
                         APP.GetEditor()->MoveCamToTarget(pos);
                     }
@@ -1094,91 +1095,91 @@ bool GuiEditor::OnEventObjects(const SEvent &event)
                 case BTN_REMOVE_LEVELMODEL:
                     if ( selected < 0 )
                         break;
-                    APP.GetLevelManager()->RemoveModel(selected);
+                    APP.GetLevel()->RemoveModel(selected);
                     UpdateObjects();
                 break;
 
                 case BTN_POS_X_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(mChangeModelPos, 0, 0, selected);
+                        APP.GetLevel()->ChangeModelPosition(mChangeModelPos, 0, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_POS_X_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(-mChangeModelPos, 0, 0, selected);
+                        APP.GetLevel()->ChangeModelPosition(-mChangeModelPos, 0, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_POS_Y_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(0, mChangeModelPos, 0, selected);
+                        APP.GetLevel()->ChangeModelPosition(0, mChangeModelPos, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_POS_Y_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(0, -mChangeModelPos, 0, selected);
+                        APP.GetLevel()->ChangeModelPosition(0, -mChangeModelPos, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_POS_Z_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(0, 0, mChangeModelPos, selected);
+                        APP.GetLevel()->ChangeModelPosition(0, 0, mChangeModelPos, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_POS_Z_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelPosition(0, 0, -mChangeModelPos, selected);
+                        APP.GetLevel()->ChangeModelPosition(0, 0, -mChangeModelPos, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_X_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(mChangeModelRot, 0, 0, selected);
+                        APP.GetLevel()->ChangeModelRotation(mChangeModelRot, 0, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_X_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(-mChangeModelRot, 0, 0, selected);
+                        APP.GetLevel()->ChangeModelRotation(-mChangeModelRot, 0, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_Y_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(0, mChangeModelRot, 0, selected);
+                        APP.GetLevel()->ChangeModelRotation(0, mChangeModelRot, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_Y_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(0, -mChangeModelRot, 0, selected);
+                        APP.GetLevel()->ChangeModelRotation(0, -mChangeModelRot, 0, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_Z_ADD:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(0, 0, mChangeModelRot, selected);
+                        APP.GetLevel()->ChangeModelRotation(0, 0, mChangeModelRot, selected);
                         UpdateObjects();
                     }
                 break;
                 case BTN_ROT_Z_SUB:
                     if ( selected >= 0 )
                     {
-                        APP.GetLevelManager()->ChangeModelRotation(0, 0, -mChangeModelRot, selected);
+                        APP.GetLevel()->ChangeModelRotation(0, 0, -mChangeModelRot, selected);
                         UpdateObjects();
                     }
                 break;
@@ -1206,7 +1207,7 @@ bool GuiEditor::OnEventObjects(const SEvent &event)
                     IGUISpinBox * spinAmbB = static_cast<IGUISpinBox*>(mWndObjects->getElementFromId(SPIN_MODEL_AMB_B, false));
                     if ( selected >= 0 && spinAmbR && spinAmbG && spinAmbB)
                     {
-                        APP.GetLevelManager()->SetModelAmbient((int)spinAmbR->getValue(), (int)spinAmbG->getValue(), (int)spinAmbB->getValue(), selected);
+                        APP.GetLevel()->SetModelAmbient((int)spinAmbR->getValue(), (int)spinAmbG->getValue(), (int)spinAmbB->getValue(), selected);
                         UpdateObjects();
                     }
                 }
@@ -1232,49 +1233,49 @@ bool GuiEditor::OnEventObjects(const SEvent &event)
             {
                 case EDIT_POS_X:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mCenter.X = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
                 case EDIT_POS_Y:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mCenter.Y = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
                 case EDIT_POS_Z:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mCenter.Z = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
                 case EDIT_ROT_X:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mRotation.X = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
                 case EDIT_ROT_Y:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mRotation.Y = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
                 case EDIT_ROT_Z:
                 {
-                    LevelModel model = APP.GetLevelManager()->GetModel(selected);
+                    LevelModel model = APP.GetLevel()->GetModel(selected);
                     model.mSettings.mRotation.Z = wcstof(edit->getText(), NULL);
-                    APP.GetLevelManager()->SetModel(model.mSettings, selected);
+                    APP.GetLevel()->SetModel(model.mSettings, selected);
                     UpdateObjects();
                 }
                 break;
@@ -1350,7 +1351,7 @@ void GuiEditor::OnModelSelected(std::wstring name_)
     // load the model file, selected in the file open dialog
     std::string str(name_.begin(), name_.end());
 
-    APP.GetLevelManager()->AddModel(str.c_str());
+    APP.GetLevel()->AddModel(str.c_str());
     UpdateObjects();
 }
 
@@ -1456,7 +1457,7 @@ bool GuiEditor::OnEvent(const SEvent &event)
                             OnObjects();
                             return true;
                         case BTN_SAVE_LEVEL:
-                            APP.GetLevelManager()->SaveCurrentTrackData();
+                            APP.GetLevel()->SaveTrackData();
                             return true;
 
                         default:
@@ -1491,7 +1492,7 @@ void GuiEditor::UpdatePlayerStart()
     wchar_t editText[editSize+1];
     for ( int i=0; i < MAX_SPAWNS; ++i )
     {
-        TrackStart & trackStart = APP.GetLevelManager()->GetTrackStart(i);
+        TrackStart & trackStart = APP.GetLevel()->GetTrackStart(i);
         if ( !trackStart.mSettings.mIsValid )
             swprintf_hc(editText, editSize, L"undefined");
         else
@@ -1553,9 +1554,9 @@ void GuiEditor::UpdateTrackMarker()
     listBox->clear();
     int editSize=1024;
     wchar_t editText[editSize+1];
-    for ( unsigned int i=0; i < APP.GetLevelManager()->GetNrOfTrackMarkers(); ++i )
+    for ( unsigned int i=0; i < APP.GetLevel()->GetNrOfTrackMarkers(); ++i )
     {
-        TrackMarker marker = APP.GetLevelManager()->GetTrackMarker(i);
+        TrackMarker marker = APP.GetLevel()->GetTrackMarker(i);
         if ( !marker.mSettings.mIsValid )
             swprintf_hc(editText, editSize, L"undefined");
         else
@@ -1576,7 +1577,7 @@ void GuiEditor::UpdateTrackMarker()
         if ( !cbLeft || !cbRight || !cbBottom )
             return;
 
-        TrackMarker marker = APP.GetLevelManager()->GetTrackMarker(selected);
+        TrackMarker marker = APP.GetLevel()->GetTrackMarker(selected);
         if ( marker.mSettings.mHasLeftWall )
             cbLeft->setChecked(true);
         else
@@ -1630,7 +1631,7 @@ void GuiEditor::UpdateTeleportSource()
     int editSize=1024;
     wchar_t editText[editSize+1];
 
-    TrackMarker & marker = APP.GetLevelManager()->GetTpSource();
+    TrackMarker & marker = APP.GetLevel()->GetTpSource();
     swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
@@ -1661,7 +1662,7 @@ void GuiEditor::UpdateTeleportTarget()
     int editSize=1024;
     wchar_t editText[editSize+1];
 
-    TrackMarker & marker = APP.GetLevelManager()->GetTpTarget();
+    TrackMarker & marker = APP.GetLevel()->GetTpTarget();
     swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
@@ -1692,7 +1693,7 @@ void GuiEditor::UpdateFinishLine()
     int editSize=1024;
     wchar_t editText[editSize+1];
 
-    TrackMarker& marker = APP.GetLevelManager()->GetFinishLine();
+    TrackMarker& marker = APP.GetLevel()->GetFinishLine();
     swprintf_hc(editText, editSize, L"%.0f %.0f %.0f", marker.mSettings.mCenter.X, marker.mSettings.mCenter.Y, marker.mSettings.mCenter.Z);
     std::wstring str( editText );
     staticText->setText(str.c_str());
@@ -1725,9 +1726,9 @@ void GuiEditor::UpdateObjects()
     listBox->clear();
     int editSize=1024;
     wchar_t editText[editSize+1];
-    for ( unsigned int i=0; i < APP.GetLevelManager()->GetNrOfModels(); ++i )
+    for ( unsigned int i=0; i < APP.GetLevel()->GetNrOfModels(); ++i )
     {
-        LevelModel model = APP.GetLevelManager()->GetModel(i);
+        LevelModel model = APP.GetLevel()->GetModel(i);
         std::wstring str(model.mSettings.mName.begin(), model.mSettings.mName.end());
         listBox->addItem(str.c_str());
     }
@@ -1750,7 +1751,7 @@ void GuiEditor::UpdateObjects()
     int selected = listBox->getSelected();
     if ( selected >= 0 )
     {
-        LevelModel model = APP.GetLevelManager()->GetModel(selected);
+        LevelModel model = APP.GetLevel()->GetModel(selected);
 
         IGUIEditBox * editPosX = static_cast<IGUIEditBox*>(mWndObjects->getElementFromId(EDIT_POS_X, false));
         IGUIEditBox * editPosY = static_cast<IGUIEditBox*>(mWndObjects->getElementFromId(EDIT_POS_Y, false));

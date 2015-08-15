@@ -5,7 +5,7 @@
 
 #include "../gui_dialog.h"
 #include "../globals.h"
-#include "../level.h"
+#include "../level_manager.h"
 
 // the mode is by now called rivals in the game.
 

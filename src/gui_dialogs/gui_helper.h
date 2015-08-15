@@ -3,7 +3,7 @@
 #ifndef GUI_HELPER_H
 #define GUI_HELPER_H
 
-#include "../level.h"
+#include "../level_manager.h"
 #include "../game.h"
 #include "../IGUITextSlider.h"
 

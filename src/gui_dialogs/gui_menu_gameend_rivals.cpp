@@ -3,6 +3,7 @@
 #include "gui_menu_gameend_rivals.h"
 #include "gui_helper.h"
 #include "../gui.h"
+#include "../level_manager.h"
 #include "../main.h"
 #include "../rivalsmode.h"
 #include "../profiles.h"
@@ -215,7 +216,7 @@ void GuiMenuGameEndRivals::Show()
 
     if ( mStaticTrackName )
     {
-        const LevelSettings& levelSetting = APP.GetLevelManager()->GetLevel(race.mLevelIndex);
+        const LevelSettings& levelSetting = APP.GetLevelManager()->GetLevelSettings(race.mLevelIndex);
         mStaticTrackName->setText(levelSetting.mName.c_str());
     }
 }

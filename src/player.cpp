@@ -14,6 +14,7 @@
 #include "node_manager.h"
 #include "irrlicht_manager.h"
 #include "level.h"
+#include "level_manager.h"
 #include "nn.h"
 #include "random.h"
 #include "globals.h"
@@ -412,7 +413,7 @@ void Player::UpdateAiManual(u32 time_)
     rotation = -ApproximateRotationForAngle(angle, approximationTime, *hoverPhysics, steeringSettings);
 
     float speed = hoverPhysics->GetSpeedAbsolute();
-    const AiTrack& aiTrack = APP.GetLevelManager()->GetAiTrack();
+    const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
     const AiTrackInfo& info = aiTrack.GetTrackInfo(mTrackMarkerReached);
     float targetSpeed = info.mSettings.mMaxSpeed;
     // printf("targetSpeed %f power %f\n", targetSpeed, power);
@@ -523,7 +524,7 @@ void Player::UpdateAiInputData(u32 time_)
     mAiInputData.mVelToDirAngleScaled = CalcScaledAngleToVector(normVelocityXZ, currDirXZ);
 
     static int highestTrainingRecordIndex = 0;
-    AiTrack& aiTrack = APP.GetLevelManager()->GetAiTrack();
+    AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
     if ( mHighestValidTrackMarker > highestTrainingRecordIndex )
     {
@@ -662,7 +663,7 @@ float Player::CalculateAiTrainingAward(u32 time_)
     const float MALUS_NO_IMPROVE = 0.0f;
     const float BONUS_NO_DROP = 1.f;
     const float BONUS_TRACK = 2.f;
-    int numAiTrackInfos = APP.GetLevelManager()->GetAiTrack().GetNumTrackInfos();
+    int numAiTrackInfos = APP.GetLevel()->GetAiTrack().GetNumTrackInfos();
 
     if ( mLastTrainingTime == 0)
     {
@@ -848,7 +849,7 @@ void Player::PrePhysicsUpdate(u32 time_)
 			video::IVideoDriver * driver = 0; // APP.GetIrrlichtManager()->GetVideoDriver();
 //			APP.GetIrrlichtManager()->SetDriverDrawMode();
 
-			AiTrack& aiTrack = APP.GetLevelManager()->GetAiTrack();
+			AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
 			trackBorderInfo.mDistanceBorder = aiTrack.GetNearestPosOnBorder(mLastPos, mTrackMarkerCurrent, trackBorderInfo.mNearestBorder, true, driver);
 			float deltaDummy = 0.f;
@@ -922,7 +923,7 @@ void Player::ResetMarkersReached(u32 time_, bool createTimers_)
 
     if ( createTimers_ )
     {
-        AiTrack& aiTrack = APP.GetLevelManager()->GetAiTrack();
+        AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
         mTrackMarkerReachedTimes.resize(aiTrack.GetNumTrackInfos(), time_);
     }
 }
@@ -932,7 +933,7 @@ void Player::ResetMarkersReached(u32 time_, bool createTimers_)
 void Player::UpdateMarkersReached(u32 time_, bool searchAll_ )
 {
     core::vector3df objCenter(mMeshHover->getTransformedBoundingBox().getCenter());
-    AiTrack& aiTrack = APP.GetLevelManager()->GetAiTrack();
+    AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
     float dist = 0.f;
     mTrackMarkerCurrent = aiTrack.GetIndexForNearestCenter(mTrackMarkerReached, objCenter, dist, searchAll_);
     if ( dist > 1000.f && !searchAll_ )
@@ -1415,7 +1416,7 @@ void Player::InfoPrepareForRace()
     }
     else
     {
-        TrackStart & spawn = APP.GetLevelManager()->GetTrackStart(GetTrackStart());
+        TrackStart & spawn = APP.GetLevel()->GetTrackStart(GetTrackStart());
         mMeshHover->setPosition(spawn.mSettings.mCenter);
         mMeshHover->setRotation(spawn.mSettings.mRotation);
         mMeshHover->updateAbsolutePosition();

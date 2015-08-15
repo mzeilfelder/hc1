@@ -46,6 +46,7 @@
 #include "controller.h"
 #include "font_manager.h"
 #include "physics.h"
+#include "level_manager.h"
 #include "game.h"
 #include "main.h"
 #include "player.h"
@@ -714,7 +715,7 @@ void Gui::Update(irr::u32 timeTick)
         int levIdx = APP.GetLevelManager()->GetCurrentLevelIndex();
         if ( levIdx >= 0 )
         {
-            const LevelSettings &levelSettings = APP.GetLevelManager()->GetLevel(levIdx);
+            const LevelSettings &levelSettings = APP.GetLevelManager()->GetLevelSettings(levIdx);
             std::wstring str(levelSettings.mName);
             if ( str.size() )
                 mLevelText->setText(str.c_str());

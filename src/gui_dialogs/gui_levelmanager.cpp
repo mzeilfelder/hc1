@@ -3,6 +3,7 @@
 #include "gui_levelmanager.h"
 #include "../gui_ids.h"
 #include "../level.h"
+#include "../level_manager.h"
 #include "../main.h"
 
 using namespace irr;
@@ -44,7 +45,7 @@ void GuiLevelManager::ShowLevelSelection()
     mListLevels = mEnvironment->addListBox(levelsRect, wnd, GUI_LIST_LEVELS );
     for ( int i=0; i < APP.GetLevelManager()->GetNumLevels(); ++i )
     {
-        const LevelSettings &levelSettings = APP.GetLevelManager()->GetLevel(i);
+        const LevelSettings &levelSettings = APP.GetLevelManager()->GetLevelSettings(i);
         mListLevels->addItem( levelSettings.mName.c_str() );
     }
 }
@@ -69,7 +70,7 @@ bool GuiLevelManager::OnEvent(const SEvent &event)
                             if ( selected < 0 )
                                 break;
                             std::wstring name(mListLevels->getListItem(selected));
-                            APP.GetLevelManager()->LoadLevel(name);
+                            APP.GetLevelManager()->LoadLevel(name, *APP.GetLevel());
                             CloseLevelSelection();
                             return true;
                         }

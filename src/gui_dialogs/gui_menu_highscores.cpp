@@ -6,7 +6,7 @@
 #include "../gui.h"
 #include "../profiles.h"
 #include "../string_table.h"
-#include "../level.h"
+#include "../level_manager.h"
 
 using namespace irr;
 using namespace gui;

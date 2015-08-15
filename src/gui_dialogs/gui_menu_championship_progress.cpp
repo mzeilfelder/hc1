@@ -8,7 +8,7 @@
 #include "../config.h"
 #include "../profiles.h"
 #include "../main.h"
-#include "../level.h"
+#include "../level_manager.h"
 #include "../game.h"
 #include "../string_table.h"
 #include "../app_restrictions.h"
@@ -448,7 +448,7 @@ bool GuiMenuChampionshipProgress::OnButtonQuit(const irr::SEvent &event_)
 void GuiMenuChampionshipProgress::StartSelected()
 {
     const CS_Race &race = APP.GetChampionship()->GetRace( APP.GetChampionship()->GetRaceSelected() );
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel( APP.GetLevelManager()->GetIndexForId(race.mLevelId) );
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings( APP.GetLevelManager()->GetIndexForId(race.mLevelId) );
 
     GameSettings gameSettings;
     gameSettings.mGameType = GT_CHAMPIONSHIP;

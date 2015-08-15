@@ -207,7 +207,7 @@ void GuiMenuRivalsScore::Show()
             mStaticCurrentPlayerName->setText(currentProfile->mName.c_str());
         }
 
-        const LevelSettings& levelSetting = APP.GetLevelManager()->GetLevel(race.mLevelIndex);
+        const LevelSettings& levelSetting = APP.GetLevelManager()->GetLevelSettings(race.mLevelIndex);
         mStaticCurrentTrackName->setText(levelSetting.mName.c_str());
     }
     else

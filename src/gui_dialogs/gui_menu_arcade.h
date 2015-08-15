@@ -4,7 +4,7 @@
 #define GUI_MENU_ARCADE
 
 #include "../gui_dialog.h"
-#include "../level.h"
+#include "../level_manager.h"
 #include "../IGUITextSlider.h"
 
 class GuiMenuArcade : public GuiDialog

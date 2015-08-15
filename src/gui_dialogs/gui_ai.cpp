@@ -8,6 +8,7 @@
 #include "../gui.h"
 #include "../config.h"
 #include "../level.h"
+#include "../level_manager.h"
 #include "../recorder.h"
 #include "../main.h"
 #include "../game.h"
@@ -95,7 +96,7 @@ bool GuiAi::GetLevelRecord(Record& record_)
     int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
     if ( levelIndex < 0 )
         return false;
-    const LevelSettings & levelSettings = APP.GetLevelManager()->GetLevel(levelIndex);
+    const LevelSettings & levelSettings = APP.GetLevelManager()->GetLevelSettings(levelIndex);
 
     std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(levelSettings.mId, APP.GetStringTable()) );
     bool loaded = record_.Load(filenameLapRecord);
@@ -125,7 +126,7 @@ bool GuiAi::OnButtonRecordToTrack(const irr::SEvent &event_)
         if ( !GetLevelRecord(record) )
             return false;
 
-        APP.GetLevelManager()->GetAiTrack().RecordCenters(record);
+        APP.GetLevel()->GetAiTrack().RecordCenters(record);
 
         return true;
     }
@@ -136,7 +137,7 @@ bool GuiAi::OnButtonFixedSteps(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().MakeFixedStepSize();
+        APP.GetLevel()->GetAiTrack().MakeFixedStepSize();
         return true;
     }
     return false;
@@ -146,7 +147,7 @@ bool GuiAi::OnButtonSmoothCenters(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().SmoothTrack(false);
+        APP.GetLevel()->GetAiTrack().SmoothTrack(false);
         return true;
     }
     return false;
@@ -156,7 +157,7 @@ bool GuiAi::OnButtonMakeBorders(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().MakeBorders(100.f);
+        APP.GetLevel()->GetAiTrack().MakeBorders(100.f);
         return true;
     }
     return false;
@@ -167,7 +168,7 @@ bool GuiAi::OnButtonRealBorders(const irr::SEvent &event_)
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
         float radius = APP.GetConfig()->GetHoverRadius();
-        APP.GetLevelManager()->GetAiTrack().FindRealBorders(radius);
+        APP.GetLevel()->GetAiTrack().FindRealBorders(radius);
         return true;
     }
     return false;
@@ -177,7 +178,7 @@ bool GuiAi::OnButtonCenterCenters(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().CalculateCenters();
+        APP.GetLevel()->GetAiTrack().CalculateCenters();
         return true;
     }
     return false;
@@ -187,7 +188,7 @@ bool GuiAi::OnButtonSmoothAll(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().SmoothTrack(true);
+        APP.GetLevel()->GetAiTrack().SmoothTrack(true);
         return true;
     }
     return false;
@@ -197,7 +198,7 @@ bool GuiAi::OnButtonSmoothLeft(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().SmoothBorders(/*left_*/ true, /*right_*/ false);
+        APP.GetLevel()->GetAiTrack().SmoothBorders(/*left_*/ true, /*right_*/ false);
         return true;
     }
     return false;
@@ -207,7 +208,7 @@ bool GuiAi::OnButtonSmoothRight(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().SmoothBorders(/*left_*/ false, /*right_*/ true);
+        APP.GetLevel()->GetAiTrack().SmoothBorders(/*left_*/ false, /*right_*/ true);
         return true;
     }
     return false;
@@ -221,7 +222,7 @@ bool GuiAi::OnButtonRecordSpeed(const irr::SEvent &event_)
         if ( !GetLevelRecord(record) )
             return false;
 
-        APP.GetLevelManager()->GetAiTrack().RecordSpeed(record);
+        APP.GetLevel()->GetAiTrack().RecordSpeed(record);
         return true;
     }
     return false;
@@ -235,7 +236,7 @@ bool GuiAi::OnButtonRecordLine(const irr::SEvent &event_)
         if ( !GetLevelRecord(record) )
             return false;
 
-        APP.GetLevelManager()->GetAiTrack().RecordIdealLine(record);
+        APP.GetLevel()->GetAiTrack().RecordIdealLine(record);
         return true;
     }
     return false;
@@ -245,7 +246,7 @@ bool GuiAi::OnButtonSmoothIdealLine(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        APP.GetLevelManager()->GetAiTrack().SmoothIdealLine();
+        APP.GetLevel()->GetAiTrack().SmoothIdealLine();
         return true;
     }
     return false;
@@ -255,8 +256,8 @@ bool GuiAi::OnButtonFixTp(const irr::SEvent &event_)
 {
     if ( event_.GUIEvent.EventType == EGET_BUTTON_CLICKED )
     {
-        TrackMarker& tpTarget = APP.GetLevelManager()->GetTpSource();
-        APP.GetLevelManager()->GetAiTrack().AddTrackBehindTp(&tpTarget);
+        TrackMarker& tpTarget = APP.GetLevel()->GetTpSource();
+        APP.GetLevel()->GetAiTrack().AddTrackBehindTp(&tpTarget);
         return true;
     }
     return false;

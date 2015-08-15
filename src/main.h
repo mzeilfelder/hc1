@@ -14,6 +14,7 @@ class Physics;
 class Gui;
 class InputDeviceManager;
 class LevelManager;
+class Level;
 class IrrlichtManager;
 class NodeManager;
 class Game;
@@ -58,6 +59,7 @@ public:
     InputDeviceManager* GetInputDeviceManager() { return mInputDeviceManager; }
     Controller* GetController()             { return mController; }
     LevelManager* GetLevelManager()         { return mLevelManager; }
+	Level* GetLevel()						{ return mActiveLevel; }
     NodeManager* GetNodeManager()           { return mNodeManager; }
     Game* GetGame()                         { return mGame; }
     Editor* GetEditor()                     { return mEditor; }
@@ -120,6 +122,7 @@ private:
     Gui*                mGui;
     Config*             mConfig;
     LevelManager*       mLevelManager;
+    Level*				mActiveLevel;
     Game*               mGame;
     // Scores*          mScores
     Editor*             mEditor;

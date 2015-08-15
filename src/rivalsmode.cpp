@@ -89,7 +89,7 @@ void RivalsMode::CreateRaces(unsigned int numRaces_)
 
 void RivalsMode::GetGameSettingsForRace( unsigned int raceIdx_, GameSettings & gameSettings_)
 {
-    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(mRaces[raceIdx_].mLevelIndex, LD_ALL);
+    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(mRaces[raceIdx_].mLevelIndex, LD_ALL);
 
     gameSettings_.mGameType = GT_RIVALS;
     gameSettings_.mLevelName = levelSettings.mName;
@@ -101,7 +101,7 @@ void RivalsMode::GetGameSettingsForRace( unsigned int raceIdx_, GameSettings & g
 
 bool RivalsMode::IsLevelAvailable(int levelIdx_, LevelDifficulty levelDifficulty_)
 {
-//    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevel(levelIdx_, levelDifficulty_);
+//    const LevelSettings& levelSettings = APP.GetLevelManager()->GetLevelSettings(levelIdx_, levelDifficulty_);
 //    return APP.GetProfileManager()->IsLevelUnlocked( levelSettings.mId );
 
     return true;

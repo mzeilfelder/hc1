@@ -1,6 +1,7 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
 #include "level.h"
+#include "level_manager.h"
 #include "irrlicht_manager.h"
 #include "main.h"
 #include "config.h"
@@ -17,70 +18,6 @@
 #include <float.h>
 
 using namespace irr;
-
-// --------------------------------------------------------
-AiBotSettings::AiBotSettings()
-{
-    mName = "unknown bot";
-    mModel = "hover_player";
-    mLowPower = 1.f;
-    mUppPower = 1.f;
-    mSlowBorder = 0.9f;
-    mLowSlow = 1.f;
-    mUppSlow = 1.f;
-    mLowEnergy = 1.f;
-    mUppEnergy = 1.f;
-    mLowIdeal = 1.f;
-    mUppIdeal = 1.f;
-    mCollTime = 1000;
-    mCollTimeReturn = 2000;
-    mStartTime = 1000;
-    mLowPowerStart = 1.f;
-    mUppPowerStart = 1.f;
-    mPreviewDist1 = 150.f;
-    mPreviewDist2 = 800.f;
-}
-
-void AiBotSettings::ReadFromXml(const TiXmlElement * settings_)
-{
-    if ( !settings_ )
-        return;
-
-    const char * val = settings_->Attribute("name");
-    if ( val )
-        mName = val;
-    val = settings_->Attribute("model");
-    if ( val )
-        mModel = val;
-
-    settings_->QueryFloatAttribute("pow_min", &mLowPower);
-    settings_->QueryFloatAttribute("pow_max", &mUppPower);
-    settings_->QueryFloatAttribute("slow_val", &mSlowBorder);
-    settings_->QueryFloatAttribute("slow_min", &mLowSlow);
-    settings_->QueryFloatAttribute("slow_max", &mUppSlow);
-    settings_->QueryFloatAttribute("change_min", &mLowEnergy);
-    settings_->QueryFloatAttribute("change_max", &mUppEnergy);
-    settings_->QueryFloatAttribute("ideal_min", &mLowIdeal);
-    settings_->QueryFloatAttribute("ideal_max", &mUppIdeal);
-    settings_->QueryIntAttribute("coll_time", &mCollTime);
-    settings_->QueryIntAttribute("coll_time_return", &mCollTimeReturn);
-    settings_->QueryIntAttribute("start_time", &mStartTime);
-    settings_->QueryFloatAttribute("start_min", &mLowPowerStart);
-    settings_->QueryFloatAttribute("start_max", &mUppPowerStart);
-    settings_->QueryFloatAttribute("preview_1", &mPreviewDist1);
-    settings_->QueryFloatAttribute("preview_2", &mPreviewDist2);
-}
-
-// --------------------------------------------------------
-void LevelCameraSettings::ReadFromXml(const TiXmlElement * settings_)
-{
-    if ( !settings_ )
-        return;
-
-    const char * val = settings_->Attribute("model");
-    if ( val )
-        mModel = val;
-}
 
 // --------------------------------------------------------
 void TrackStartSettings::ReadFromXml(const TiXmlElement * settings_)
@@ -322,124 +259,16 @@ bool TrackMarker::GetCenter( core::vector3df &pos_)
 }
 
 // --------------------------------------------------------
-LevelSettings::LevelSettings()
-{
-    mId = 0;
-
-    mLaps = 3;
-    mTargetTime = 600.f;
-    mDifficulty = LD_EASY;
-
-    mAmbientAlpha = 150;
-    mAmbientRed = 150;
-    mAmbientGreen = 150;
-    mAmbientBlue = 150;
-
-    mAmbHoverRed = 255;
-    mAmbHoverGreen = 255;
-    mAmbHoverBlue = 255;
-
-    mDefaultMarkerLeft = -500.f;
-    mDefaultMarkerRight = 500.f;
-    mDefaultMarkerTop = 300.f;
-    mDefaultMarkerBottom = -300.f;
-
-    mHudPosScaling = 1.f;
-}
-
-void LevelSettings::ReadFromXml(const TiXmlElement * settings_)
-{
-    if ( !settings_ )
-        return;
-
-    settings_->Attribute("id", &mId);
-    const char * val = settings_->Attribute("name");
-    if ( val )
-    {
-        std::string str(val);
-        mName = ExtStr::FromUtf8(str);
-    }
-    val = settings_->Attribute("obj_file");
-    if ( val )
-        mMeshFile = val;
-    val = settings_->Attribute("dat_file");
-    if ( val )
-        mDataFile = val;
-    val = settings_->Attribute("lm_file");
-    if ( val )
-        mLightmapFile = val;
-    val = settings_->Attribute("amb_alpha");
-    if ( val )
-        mAmbientAlpha = atoi(val);
-    val = settings_->Attribute("amb_red");
-    if ( val )
-        mAmbientRed = atoi(val);
-    val = settings_->Attribute("amb_green");
-    if ( val )
-        mAmbientGreen = atoi(val);
-    val = settings_->Attribute("amb_blue");
-    if ( val )
-        mAmbientBlue = atoi(val);
-
-    val = settings_->Attribute("hover_red");
-    if ( val )
-        mAmbHoverRed = atoi(val);
-    val = settings_->Attribute("hover_green");
-    if ( val )
-        mAmbHoverGreen = atoi(val);
-    val = settings_->Attribute("hover_blue");
-    if ( val )
-        mAmbHoverBlue = atoi(val);
-
-    val = settings_->Attribute("laps");
-    if ( val )
-        mLaps = atoi(val);
-    settings_->QueryFloatAttribute("targettime", &mTargetTime);
-
-    val = settings_->Attribute("difficulty");
-    if ( val )
-    {
-        int d = atoi(val);
-        if (d >= LD_EASY && d <= LD_HARD )
-            mDifficulty  = (LevelDifficulty)d;
-        else
-            mDifficulty = LD_EASY;
-    }
-
-    settings_->QueryFloatAttribute("hud_pos_scaling", &mHudPosScaling);
-    settings_->QueryFloatAttribute("marker_left", &mDefaultMarkerLeft);
-    settings_->QueryFloatAttribute("marker_right", &mDefaultMarkerRight);
-    settings_->QueryFloatAttribute("marker_top", &mDefaultMarkerTop);
-    settings_->QueryFloatAttribute("marker_bottom", &mDefaultMarkerBottom);
-
-    int botId = 0;
-    const TiXmlNode * nodeAiBot = settings_->IterateChildren("ai_bot", NULL);
-    while ( nodeAiBot && botId < MAX_BOT_SETTINGS)
-    {
-        mBotSettings[botId].ReadFromXml(nodeAiBot->ToElement());
-        ++botId;
-        nodeAiBot = settings_->IterateChildren("ai_bot", nodeAiBot);
-    }
-
-    const TiXmlNode * nodeCam = settings_->IterateChildren("cam_node", NULL);
-    if ( nodeCam )
-    {
-        mCameraSettings.ReadFromXml( nodeCam->ToElement() );
-    }
-}
-
-// --------------------------------------------------------
-LevelManager::LevelManager()
+Level::Level()
 {
     mLevelNode = NULL;
     mSelector = NULL;
-    mCurrentLevel = -1;
     mEditDataNode = NULL;
     mTrackDataNode = NULL;
     mNodeCamera = NULL;
 }
 
-LevelManager::~LevelManager()
+Level::~Level()
 {
     if ( APP.GetIrrlichtManager()->GetIrrlichtDevice() )
     {
@@ -450,143 +279,9 @@ LevelManager::~LevelManager()
     }
 }
 
-void LevelManager::LoadSettings()
+bool Level::Load(LevelSettings * settings_)
 {
-	HC1_PROFILE(CProfileScope ps1(L"LvlMan:LoadSet", L"STARTUP");)
-
-    std::string xmlName ( APP.GetConfig()->GetPathLevels() + "levels.xml" );
-    TiXmlDocument xmlDoc(xmlName.c_str());
-    xmlDoc.SetIrrFs(APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem(), TiXmlDocument::E_ON_READ_ANDROID);
-
-    if ( !xmlDoc.LoadFile() )
-    {
-		LOG.DebugLn("TiXmlDocument::ErrorDesc: ", xmlDoc.ErrorDesc());
-		LOG.WarnLn("LevelManager::LoadSettings: could not load xml ", xmlName.c_str());
-        return;
-    }
-
-    TiXmlNode * levelsNode = xmlDoc.FirstChild("levellist");
-	if (!levelsNode)
-		return;
-
-    TiXmlNode * defaultNode = levelsNode->FirstChild("default");
-    if ( defaultNode )
-    {
-        mDefaultLevelSettings.ReadFromXml(defaultNode->ToElement());
-    }
-
-    mLevelSettings.clear();
-    TiXmlNode* nodeLevel = levelsNode->IterateChildren("level", NULL);
-    while ( nodeLevel )
-    {
-        LevelSettings settings;
-        settings = mDefaultLevelSettings;
-        settings.ReadFromXml(nodeLevel->ToElement());
-        mLevelSettings.push_back(settings);
-
-        nodeLevel = levelsNode->IterateChildren("level", nodeLevel);
-    }
-}
-
-bool LevelManager::LoadLevel(const std::wstring &levelName_)
-{
-    int index = -1;
-    for ( unsigned int i=0; i<mLevelSettings.size(); ++i)
-    {
-        if ( mLevelSettings[i].mName == levelName_ )
-        {
-            index = (int)i;
-            break;
-        }
-    }
-
-    if ( index < 0 )
-        return false;
-
-    mCurrentLevel = index;
-
-    return Load(&(mLevelSettings[index]));
-}
-
-int LevelManager::GetNumLevels(LevelDifficulty difficulty_) const
-{
-    if ( LD_ALL == difficulty_ )
-        return mLevelSettings.size();
-
-    int count = 0;
-    for ( unsigned int i=0; i < mLevelSettings.size(); ++i )
-    {
-        if ( mLevelSettings[i].mDifficulty == difficulty_ )
-        {
-            ++count;
-        }
-    }
-    return count;
-}
-
-unsigned int LevelManager::GetRealIndex( unsigned int index_, LevelDifficulty difficulty_) const
-{
-    if ( index_ >= mLevelSettings.size() || difficulty_ == LD_ALL )
-        return index_;
-
-    unsigned int count = 0;
-    for ( unsigned int i=0; i < mLevelSettings.size(); ++i )
-    {
-        if ( mLevelSettings[i].mDifficulty == difficulty_ )
-        {
-            if ( count == index_ )
-            {
-                return i;
-            }
-            ++count;
-        }
-    }
-    return index_;
-}
-
-const LevelSettings& LevelManager::GetLevel(unsigned int index_, LevelDifficulty difficulty_) const
-{
-    index_ = GetRealIndex( index_, difficulty_ );
-    if ( index_ >= mLevelSettings.size() )
-    {
-        return mDefaultLevelSettings;
-    }
-
-    return mLevelSettings[index_];
-}
-
-int LevelManager::GetIndexForId(int id_) const
-{
-    for ( unsigned int i=0; i < mLevelSettings.size(); ++i )
-    {
-        if ( mLevelSettings[i].mId == id_ )
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-int LevelManager::GetIndexForName( const std::wstring &levelName_ ) const
-{
-    LOG.Log(LP_DEBUG, "GetIndexForName - levelName: ");
-    LOG.Log(LP_DEBUG, levelName_);
-    LOG.Log(LP_DEBUG, "\n");
-    for ( unsigned int i=0; i < mLevelSettings.size(); ++i )
-    {
-        if ( mLevelSettings[i].mName == levelName_ )
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-bool LevelManager::Load(LevelSettings * settings_)
-{
-    LOG.Debug("LevelManager::Load\n");
+    LOG.Debug("Level::Load\n");
 
     if ( !settings_ )
     {
@@ -683,7 +378,7 @@ bool LevelManager::Load(LevelSettings * settings_)
     return true;
 }
 
-void LevelManager::BuildTrackData(LevelSettings * settings_)
+void Level::BuildTrackData(LevelSettings * settings_)
 {
     assert(settings_);
     for ( int i=0; i < MAX_SPAWNS; ++i )
@@ -708,7 +403,7 @@ void LevelManager::BuildTrackData(LevelSettings * settings_)
     mAiTrack.CalculateCushions();
 }
 
-void LevelManager::ClearTrackData()
+void Level::ClearTrackData()
 {
     for ( int i=0; i < MAX_SPAWNS; ++i )
     {
@@ -734,7 +429,7 @@ void LevelManager::ClearTrackData()
     mModels.clear();
 }
 
-void LevelManager::ClearTrackMarkerData(TrackMarker & marker_)
+void Level::ClearTrackMarkerData(TrackMarker & marker_)
 {
     if ( marker_.mEditNodeCenter )
     {
@@ -761,7 +456,7 @@ void LevelManager::ClearTrackMarkerData(TrackMarker & marker_)
     marker_.mSettings.Reset();
 }
 
-void LevelManager::ClearModelData(LevelModel & model_)
+void Level::ClearModelData(LevelModel & model_)
 {
     if ( model_.mNodeModel )
     {
@@ -777,7 +472,7 @@ void LevelManager::ClearModelData(LevelModel & model_)
     }
 }
 
-void LevelManager::ShowEditData(bool enable_)
+void Level::ShowEditData(bool enable_)
 {
     if ( enable_)
     {
@@ -795,7 +490,7 @@ void LevelManager::ShowEditData(bool enable_)
     }
 }
 
-void LevelManager::SetTrackStart(const TrackStartSettings& ts_, int player_)
+void Level::SetTrackStart(const TrackStartSettings& ts_, int player_)
 {
     if ( ts_.mIsValid )
     {
@@ -825,18 +520,18 @@ void LevelManager::SetTrackStart(const TrackStartSettings& ts_, int player_)
     }
 }
 
-TrackStart& LevelManager::GetTrackStart(unsigned int index_)
+TrackStart& Level::GetTrackStart(unsigned int index_)
 {
     assert( index_ < MAX_SPAWNS );
     return mTrackStarts[index_];
 }
 
-unsigned int LevelManager::GetNrOfTrackMarkers() const
+unsigned int Level::GetNrOfTrackMarkers() const
 {
     return mTrackMarkers.size();
 }
 
-void LevelManager::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
+void Level::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
     SetTrackMarkerSettings(markerSettings_, mTrackMarkers[index_]);
     if ( index_ > 0 )
@@ -853,7 +548,7 @@ void LevelManager::SetTrackMarker(const TrackMarkerSettings &markerSettings_, in
     }
 }
 
-void LevelManager::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
+void Level::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
     TrackMarker marker;
     SetTrackMarkerSettings(markerSettings_, marker);
@@ -872,7 +567,7 @@ void LevelManager::InsertTrackMarker(const TrackMarkerSettings &markerSettings_,
     }
 }
 
-void LevelManager::AppendTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
+void Level::AppendTrackMarker(const TrackMarkerSettings &markerSettings_, int index_)
 {
     TrackMarker marker;
     SetTrackMarkerSettings(markerSettings_, marker);
@@ -884,7 +579,7 @@ void LevelManager::AppendTrackMarker(const TrackMarkerSettings &markerSettings_,
     }
 }
 
-void LevelManager::RotateTrackMarker(float angle_, int index_)
+void Level::RotateTrackMarker(float angle_, int index_)
 {
     if ( index_ < 0 || index_ >= (int)mTrackMarkers.size() )
         return;
@@ -893,7 +588,7 @@ void LevelManager::RotateTrackMarker(float angle_, int index_)
     SetTrackMarker(mTrackMarkers[index_].mSettings, index_);
 }
 
-void LevelManager::AutoAlignTrackMarker(int index_)
+void Level::AutoAlignTrackMarker(int index_)
 {
 #ifdef HC1_ENABLE_EDITOR
     if ( index_ < 0 || index_ >= (int)mTrackMarkers.size() )
@@ -978,7 +673,7 @@ void LevelManager::AutoAlignTrackMarker(int index_)
 #endif // HC1_ENABLE_EDITOR
 }
 
-void LevelManager::ChangeTrackMarkerSizes(bool useDefault_, float changeLeft_, float changeRight_, float changeTop_, float changeBottom_, int index_)
+void Level::ChangeTrackMarkerSizes(bool useDefault_, float changeLeft_, float changeRight_, float changeTop_, float changeBottom_, int index_)
 {
     assert ( index_ >= 0 && index_ < (int)mTrackMarkers.size() );
     TrackMarkerSettings & settings = mTrackMarkers[index_].mSettings;
@@ -990,11 +685,11 @@ void LevelManager::ChangeTrackMarkerSizes(bool useDefault_, float changeLeft_, f
     {
         if ( settings.mUseDefaultSizes )
         {
-            assert( mCurrentLevel >= 0 );
-            settings.mLeft = mLevelSettings[mCurrentLevel].mDefaultMarkerLeft;
-            settings.mRight = mLevelSettings[mCurrentLevel].mDefaultMarkerRight;
-            settings.mTop = mLevelSettings[mCurrentLevel].mDefaultMarkerTop;
-            settings.mBottom = mLevelSettings[mCurrentLevel].mDefaultMarkerBottom;
+			const LevelSettings& defaultSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
+            settings.mLeft = defaultSettings.mDefaultMarkerLeft;
+            settings.mRight = defaultSettings.mDefaultMarkerRight;
+            settings.mTop = defaultSettings.mDefaultMarkerTop;
+            settings.mBottom = defaultSettings.mDefaultMarkerBottom;
         }
         settings.mUseDefaultSizes = false;
         settings.mLeft += changeLeft_;
@@ -1005,7 +700,7 @@ void LevelManager::ChangeTrackMarkerSizes(bool useDefault_, float changeLeft_, f
     SetTrackMarker(settings, index_);
 }
 
-void LevelManager::RemoveTrackMarker(int index_)
+void Level::RemoveTrackMarker(int index_)
 {
     assert ( index_ >= 0 && index_ < (int)mTrackMarkers.size() );
     ClearTrackMarkerData(mTrackMarkers[index_]);
@@ -1031,22 +726,22 @@ void LevelManager::RemoveTrackMarker(int index_)
     }
 }
 
-void LevelManager::SetTeleportSource(const TrackMarkerSettings &markerSettings_)
+void Level::SetTeleportSource(const TrackMarkerSettings &markerSettings_)
 {
     SetTrackMarkerSettings(markerSettings_, mTpSource);
 }
 
-void LevelManager::SetTeleportTarget(const TrackMarkerSettings &markerSettings_)
+void Level::SetTeleportTarget(const TrackMarkerSettings &markerSettings_)
 {
     SetTrackMarkerSettings(markerSettings_, mTpTarget);
 }
 
-void LevelManager::SetFinishLine(const TrackMarkerSettings &markerSettings_)
+void Level::SetFinishLine(const TrackMarkerSettings &markerSettings_)
 {
     SetTrackMarkerSettings(markerSettings_, mFinishLine);
 }
 
-void LevelManager::AddModel(const std::string &name_)
+void Level::AddModel(const std::string &name_)
 {
     LevelModel model;
     model.mSettings.mName = name_;
@@ -1056,7 +751,7 @@ void LevelManager::AddModel(const std::string &name_)
     mModels.push_back(model);
 }
 
-void LevelManager::SetModel(const LevelModelSettings &settings_, int index_)
+void Level::SetModel(const LevelModelSettings &settings_, int index_)
 {
     LevelModel & model = mModels[index_];
     model.mSettings = settings_;
@@ -1076,7 +771,7 @@ void LevelManager::SetModel(const LevelModelSettings &settings_, int index_)
     }
 }
 
-void LevelManager::ChangeModelRotation(float rotX_, float rotY_, float rotZ_, int index_)
+void Level::ChangeModelRotation(float rotX_, float rotY_, float rotZ_, int index_)
 {
     LevelModel & model = mModels[index_];
     model.mSettings.mRotation.X += rotX_;
@@ -1085,7 +780,7 @@ void LevelManager::ChangeModelRotation(float rotX_, float rotY_, float rotZ_, in
     SetModel(model.mSettings, index_);
 }
 
-void LevelManager::ChangeModelPosition(float posX_, float posY_, float posZ_, int index_)
+void Level::ChangeModelPosition(float posX_, float posY_, float posZ_, int index_)
 {
     LevelModel & model = mModels[index_];
     model.mSettings.mCenter.X += posX_;
@@ -1094,7 +789,7 @@ void LevelManager::ChangeModelPosition(float posX_, float posY_, float posZ_, in
     SetModel(model.mSettings, index_);
 }
 
-void LevelManager::SetModelAmbient(int ambR_, int ambG_, int ambB_, int index_)
+void Level::SetModelAmbient(int ambR_, int ambG_, int ambB_, int index_)
 {
     LevelModel & model = mModels[index_];
     model.mSettings.mAmbientRed = ambR_;
@@ -1103,7 +798,7 @@ void LevelManager::SetModelAmbient(int ambR_, int ambG_, int ambB_, int index_)
     SetModel(model.mSettings, index_);
 }
 
-void LevelManager::RemoveModel(int index_)
+void Level::RemoveModel(int index_)
 {
     if ( index_ < 0 || index_ >= (int)mModels.size() )
         return;
@@ -1111,7 +806,7 @@ void LevelManager::RemoveModel(int index_)
     mModels.erase( mModels.begin() + index_);
 }
 
-void LevelManager::SetCollisionWalls(TrackMarker & marker1_, const TrackMarker & marker2_ )
+void Level::SetCollisionWalls(TrackMarker & marker1_, const TrackMarker & marker2_ )
 {
     RemoveCollisionWalls(marker1_);
 
@@ -1134,7 +829,7 @@ void LevelManager::SetCollisionWalls(TrackMarker & marker1_, const TrackMarker &
     }
 }
 
-void LevelManager::RemoveCollisionWalls(TrackMarker & marker_)
+void Level::RemoveCollisionWalls(TrackMarker & marker_)
 {
     if ( marker_.mNodeWallLeft )
     {
@@ -1158,7 +853,7 @@ void LevelManager::RemoveCollisionWalls(TrackMarker & marker_)
     }
 }
 
-void LevelManager::CalcMarkerBorders(const TrackMarker & marker_, core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_)
+void Level::CalcMarkerBorders(const TrackMarker & marker_, core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_)
 {
     core::matrix4 rotMat;
     rotMat.setRotationDegrees(marker_.mSettings.mRotation);
@@ -1167,11 +862,11 @@ void LevelManager::CalcMarkerBorders(const TrackMarker & marker_, core::vector3d
     float left, right, top, bottom;
     if ( marker_.mSettings.mUseDefaultSizes )
     {
-        assert(mCurrentLevel >= 0 && mCurrentLevel < (int)mLevelSettings.size());
-        left = mLevelSettings[mCurrentLevel].mDefaultMarkerLeft;
-        right = mLevelSettings[mCurrentLevel].mDefaultMarkerRight;
-        top = mLevelSettings[mCurrentLevel].mDefaultMarkerTop;
-        bottom = mLevelSettings[mCurrentLevel].mDefaultMarkerBottom;
+		const LevelSettings& defaultSettings = APP.GetLevelManager()->GetCurrentLevelSettings();
+        left = defaultSettings.mDefaultMarkerLeft;
+        right = defaultSettings.mDefaultMarkerRight;
+        top = defaultSettings.mDefaultMarkerTop;
+        bottom = defaultSettings.mDefaultMarkerBottom;
     }
     else
     {
@@ -1200,7 +895,7 @@ void LevelManager::CalcMarkerBorders(const TrackMarker & marker_, core::vector3d
     }
 }
 
-void LevelManager::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMarker & marker_)
+void Level::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, TrackMarker & marker_)
 {
     if ( settings_.mIsValid )
     {
@@ -1278,7 +973,7 @@ void LevelManager::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, 
     }
 }
 
-scene::ISceneNode* LevelManager::AddQuadradicNode(scene::ISceneNode* parent_, const core::vector3df &leftTop_, const core::vector3df &rightTop_, const core::vector3df &leftBottom_, const core::vector3df &rightBottom_)
+scene::ISceneNode* Level::AddQuadradicNode(scene::ISceneNode* parent_, const core::vector3df &leftTop_, const core::vector3df &rightTop_, const core::vector3df &leftBottom_, const core::vector3df &rightBottom_)
 {
     scene::ISceneNode* node = NULL;
     scene::SMeshBuffer * buffer = APP.GetIrrlichtManager()->CreateQuadradMeshBuffer(leftTop_,rightTop_, leftBottom_, rightBottom_);
@@ -1298,7 +993,7 @@ scene::ISceneNode* LevelManager::AddQuadradicNode(scene::ISceneNode* parent_, co
     return node;
 }
 
-bool LevelManager::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISceneNode* node_, core::vector3df &outIntersection_) const
+bool Level::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISceneNode* node_, core::vector3df &outIntersection_) const
 {
     if ( !node_ )
         return false;
@@ -1328,7 +1023,7 @@ bool LevelManager::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scen
     return false;
 }
 
-bool LevelManager::CheckFinishLineCollision(const core::line3d<f32> &moveLine_) const
+bool Level::CheckFinishLineCollision(const core::line3d<f32> &moveLine_) const
 {
     if ( !mFinishLine.mNodeCollision )
         return false;
@@ -1337,7 +1032,7 @@ bool LevelManager::CheckFinishLineCollision(const core::line3d<f32> &moveLine_) 
     return CheckLineNodeCollision2T(moveLine_, mFinishLine.mNodeCollision, outIntersection);
 }
 
-bool LevelManager::CheckWallCollision(const core::line3d<f32> &moveLine_, int &index_) const
+bool Level::CheckWallCollision(const core::line3d<f32> &moveLine_, int &index_) const
 {
     for ( int i=0; i < (int)mTrackMarkers.size(); ++i)
     {
@@ -1373,7 +1068,7 @@ bool LevelManager::CheckWallCollision(const core::line3d<f32> &moveLine_, int &i
     return false;
 }
 
-bool LevelManager::CheckMarkerCollision(const core::line3d<f32> &moveLine_, int &index_) const
+bool Level::CheckMarkerCollision(const core::line3d<f32> &moveLine_, int &index_) const
 {
     for ( int i=0; i < (int)mTrackMarkers.size(); ++i)
     {
@@ -1393,7 +1088,7 @@ bool LevelManager::CheckMarkerCollision(const core::line3d<f32> &moveLine_, int 
     return false;
 }
 
-bool LevelManager::CheckTeleportLineCollision(const core::line3d<f32> &moveLine_, core::vector3df &targetPos_, core::vector3df &rotation_, core::vector3df &velocity_) const
+bool Level::CheckTeleportLineCollision(const core::line3d<f32> &moveLine_, core::vector3df &targetPos_, core::vector3df &rotation_, core::vector3df &velocity_) const
 {
     if ( !mTpSource.mNodeCollision || !mTpTarget.mNodeCollision )
         return false;
@@ -1424,7 +1119,7 @@ bool LevelManager::CheckTeleportLineCollision(const core::line3d<f32> &moveLine_
     return false;
 }
 
-bool LevelManager::CheckEditCollision(scene::ISceneNode* node_, const core::line3d<f32> line_, float &dist_) const
+bool Level::CheckEditCollision(scene::ISceneNode* node_, const core::line3d<f32> line_, float &dist_) const
 {
     scene::ISceneCollisionManager * collMan = APP.GetIrrlichtManager()->GetSceneManager()->getSceneCollisionManager();
 
@@ -1448,7 +1143,7 @@ bool LevelManager::CheckEditCollision(scene::ISceneNode* node_, const core::line
     return false;
 }
 
-bool LevelManager::CheckTrackStartEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
+bool Level::CheckTrackStartEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
 {
     bool hasColl = false;
     for ( int i=0; i < MAX_SPAWNS; ++i )
@@ -1463,7 +1158,7 @@ bool LevelManager::CheckTrackStartEditCollision(const core::line3d<f32> line_, i
     return hasColl;
 }
 
-bool LevelManager::CheckTrackMarkerEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
+bool Level::CheckTrackMarkerEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
 {
     bool hasColl = false;
 
@@ -1479,17 +1174,17 @@ bool LevelManager::CheckTrackMarkerEditCollision(const core::line3d<f32> line_, 
     return hasColl;
 }
 
-bool LevelManager::CheckTpSourceEditCollision(const core::line3d<f32> line_, float &dist_)
+bool Level::CheckTpSourceEditCollision(const core::line3d<f32> line_, float &dist_)
 {
     return CheckEditCollision(mTpSource.mEditNodeCenter, line_, dist_);
 }
 
-bool LevelManager::CheckTpTargetEditCollision(const core::line3d<f32> line_, float &dist_)
+bool Level::CheckTpTargetEditCollision(const core::line3d<f32> line_, float &dist_)
 {
     return CheckEditCollision(mTpTarget.mEditNodeCenter, line_, dist_);
 }
 
-bool LevelManager::CheckFinishLineEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
+bool Level::CheckFinishLineEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
 {
     if ( CheckEditCollision(mFinishLine.mEditNodeCenter, line_, dist_) )
     {
@@ -1500,7 +1195,7 @@ bool LevelManager::CheckFinishLineEditCollision(const core::line3d<f32> line_, i
     return false;
 }
 
-bool LevelManager::CheckModelEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
+bool Level::CheckModelEditCollision(const core::line3d<f32> line_, int &index_, float &dist_)
 {
     bool hasColl = false;
 
@@ -1517,8 +1212,9 @@ bool LevelManager::CheckModelEditCollision(const core::line3d<f32> line_, int &i
 }
 
 
-bool LevelManager::LoadTrackData(const std::string &fileName_)
+bool Level::LoadTrackData(const std::string &fileName_)
 {
+	mTrackDataFilename = fileName_;
     std::string dataFileName = APP.GetConfig()->MakeFilenameLevel(fileName_);
     TiXmlDocument doc(dataFileName.c_str());
     doc.SetIrrFs(APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem(), TiXmlDocument::E_ON_READ_ANDROID);
@@ -1595,16 +1291,9 @@ bool LevelManager::LoadTrackData(const std::string &fileName_)
     return result;
 }
 
-bool LevelManager::SaveCurrentTrackData()
+bool Level::SaveTrackData()
 {
-    if ( mCurrentLevel < 0 )
-        return false;
-    return SaveTrackData(mLevelSettings[mCurrentLevel].mDataFile);
-}
-
-bool LevelManager::SaveTrackData(const std::string &fileName_)
-{
-    std::string dataFileName = APP.GetConfig()->MakeFilenameLevel(fileName_);
+    std::string dataFileName = APP.GetConfig()->MakeFilenameLevel(mTrackDataFilename);
     TiXmlDocument doc(dataFileName.c_str());
     doc.SetIrrFs(APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem(), TiXmlDocument::E_ON_READ_FAIL_ANDROID);
 
@@ -1706,7 +1395,7 @@ bool LevelManager::SaveTrackData(const std::string &fileName_)
     return result;
 }
 
-int LevelManager::GetTrackRelocatesBetween(int indexFront_, int indexBack_)
+int Level::GetTrackRelocatesBetween(int indexFront_, int indexBack_)
 {
     if ( !mTrackMarkers.size() )
         return -1;

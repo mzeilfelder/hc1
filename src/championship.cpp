@@ -2,7 +2,7 @@
 
 #include "championship.h"
 #include "config.h"
-#include "level.h"
+#include "level_manager.h"
 #include "main.h"
 #include "game.h"
 #include "logging.h"
@@ -33,7 +33,7 @@ void CS_Race::ReadFromXml(const TiXmlElement * settings_)
 
     if ( TIXML_SUCCESS != settings_->QueryIntAttribute("laps", &mLaps )  )
     {
-        const LevelSettings & levSettings = APP.GetLevelManager()->GetLevel( APP.GetLevelManager()->GetIndexForId(mLevelId) );
+        const LevelSettings & levSettings = APP.GetLevelManager()->GetLevelSettings( APP.GetLevelManager()->GetIndexForId(mLevelId) );
         mLaps = levSettings.mLaps;
     }
 

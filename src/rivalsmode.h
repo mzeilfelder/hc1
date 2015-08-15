@@ -3,7 +3,7 @@
 #ifndef RIVALSMODE_H
 #define RIVALSMODE_H
 
-#include "level.h"
+#include "level_manager.h"
 #include "globals.h"
 #include <vector>
 

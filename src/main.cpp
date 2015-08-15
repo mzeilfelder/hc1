@@ -7,6 +7,7 @@
 #include "advert.h"
 #include "billing.h"
 #include "level.h"
+#include "level_manager.h"
 #include "gui_dialogs/gui_controller_display.h"
 #include "gui_dialogs/gui_intro.h"
 #include "gui_dialogs/gui_game.h"
@@ -57,6 +58,7 @@ App::App()
 , mGui(0)
 , mConfig(0)
 , mLevelManager(0)
+, mActiveLevel(0)
 , mGame(0)
 , mEditor(0)
 , mPhysics(0)
@@ -177,6 +179,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
     mInputDeviceManager = new InputDeviceManager(*mConfig);
     mController = new Controller();
     mLevelManager = new LevelManager();
+    mActiveLevel = new Level();
     mNodeManager = new NodeManager();
     mGame = new Game();
 #ifdef HC1_ENABLE_EDITOR
@@ -476,9 +479,9 @@ void App::EndOldMode()
         case MODE_EDITOR:
         {
 #ifdef HC1_ENABLE_EDITOR
-            if ( mEditGui && mLevelManager && mEditor )
+            if ( mEditGui && mActiveLevel && mEditor )
             {
-                mLevelManager->ShowEditData(false);
+                mActiveLevel->ShowEditData(false);
                 mEditor->Stop();
             }
 #endif
@@ -563,11 +566,11 @@ void App::SetNewMode(APP_MODES mode_)
         case MODE_EDITOR:
         {
 #ifdef HC1_ENABLE_EDITOR
-            if ( mEditGui && mEditor && mIrrlichtManager && mLevelManager )
+            if ( mEditGui && mEditor && mIrrlichtManager && mActiveLevel )
             {
                 mEditor->Start();
                 mIrrlichtManager->SetCameraEditor();
-                mLevelManager->ShowEditData(true);
+                mActiveLevel->ShowEditData(true);
             }
 #endif
         }
@@ -850,7 +853,7 @@ void App::Run()
 
 		if ( mDrawAiTrack )
 		{
-			APP.GetLevelManager()->GetAiTrack().Draw();
+			APP.GetLevel()->GetAiTrack().Draw();
 		}
 
 		PROFILE_START(109);
@@ -915,6 +918,8 @@ void App::Quit()
     mGame = NULL;
     delete mNodeManager;
     mNodeManager = NULL;
+    delete mActiveLevel;
+    mActiveLevel = NULL;
     delete mLevelManager;
     mLevelManager = NULL;
     delete mController;
