@@ -30,8 +30,8 @@ public:
 	bool IsVisible() const { return mIsVisible; }
 
     virtual void Enable();
-    virtual void Disable()
-    ;
+    virtual void Disable();
+
     virtual void SetActiveFocus();  // mostly default focus, but can be another in special cases (like default disabled)
     virtual void OnUpdate(irr::u32 timeTick) {}	// only called when SetCallOnUpdate is set to true
 
