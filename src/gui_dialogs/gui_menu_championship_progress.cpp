@@ -47,14 +47,8 @@ GuiMenuChampionshipProgress::GuiMenuChampionshipProgress(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuChampionshipProgress::~GuiMenuChampionshipProgress()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
@@ -109,7 +103,8 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
             std::string strRetry("retry");
             strRetry += numStr;
             mRetryButtons.push_back( static_cast<IGUIButton*>(GetElementByName(root, strRetry, errorMsg)) );
-            AddGuiEventFunctor( GetIdForName(strRetry), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonRetry) );
+
+            ADD_EVENT_HANDLER( strRetry, GuiMenuChampionshipProgress, OnButtonRetry );
         }
 
         if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
@@ -135,15 +130,15 @@ bool GuiMenuChampionshipProgress::Load(const char* filename_, bool reloadLast_)
 
         SetAlternateDefaultFocus(mButtonQuit);
 
-        AddGuiEventFunctor( GetIdForName(std::string("id_quit")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonQuit) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonContinue) );
+        ADD_EVENT_HANDLER( "id_quit", GuiMenuChampionshipProgress, OnButtonQuit );
+        ADD_EVENT_HANDLER( "id_continue", GuiMenuChampionshipProgress, OnButtonContinue );
 
         if ( mButtonSeason1 )
-			AddGuiEventFunctor( GetIdForName(std::string("1ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason1) );
+			ADD_EVENT_HANDLER( "1ch_title", GuiMenuChampionshipProgress, OnButtonSeason1 );
 		if ( mButtonSeason2 )
-			AddGuiEventFunctor( GetIdForName(std::string("2ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason2) );
+			ADD_EVENT_HANDLER( "2ch_title", GuiMenuChampionshipProgress, OnButtonSeason2 );
 		if ( mButtonSeason3 )
-			AddGuiEventFunctor( GetIdForName(std::string("3ch_title")), new EventFunctor<GuiMenuChampionshipProgress>(this, &GuiMenuChampionshipProgress::OnButtonSeason3) );
+			ADD_EVENT_HANDLER( "3ch_title", GuiMenuChampionshipProgress, OnButtonSeason3 );
     }
     return ok;
 }
@@ -344,27 +339,6 @@ void GuiMenuChampionshipProgress::SetRetryRace( int selected_ )
 		mRaceResults[mRetryRace]->setOverrideColor( COLOR_SELECTED );
 		mRaceNames[mRetryRace]->setOverrideColor( COLOR_SELECTED );
 	}
-}
-
-void GuiMenuChampionshipProgress::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    for ( unsigned int r = 0; r < mRetryButtons.size(); ++r )
-    {
-        char numStr[8];
-        sprintf( numStr, "%d", r+1 );
-        std::string strRetry("retry");
-        strRetry += numStr;
-        RemoveGuiEventFunctor( GetIdForName(strRetry) );
-    }
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_quit")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_continue")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("1ch_title")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("2ch_title")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("3ch_title")) );
 }
 
 bool GuiMenuChampionshipProgress::OnButtonRetry(const irr::SEvent &event_)

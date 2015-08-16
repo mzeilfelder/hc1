@@ -22,13 +22,11 @@ class GuiMenuRivals : public GuiDialog
 {
 public:
     GuiMenuRivals(const Config& config);
-    ~GuiMenuRivals();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
     LevelDifficulty GetLevelDifficulty() const;
     bool OnSliderLevelDifficulty(const irr::SEvent &event_);
     bool OnSliderNumRaces(const irr::SEvent &event_);

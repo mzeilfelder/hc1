@@ -9,7 +9,6 @@ class GuiIntro : public GuiDialog
 {
 public:
     GuiIntro(const Config& config);
-    virtual ~GuiIntro();
-};
+  };
 
 #endif // GUI_INTRO_H

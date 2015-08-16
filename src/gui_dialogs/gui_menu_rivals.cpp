@@ -30,25 +30,19 @@ GuiMenuRivals::GuiMenuRivals(const Config& config)
     }
 }
 
-GuiMenuRivals::~GuiMenuRivals()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuRivals::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_start")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnButtonStart) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_mainmenu")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnButtonMain) );
-        AddGuiEventFunctor( GetIdForName(std::string("difficulty")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderLevelDifficulty) );
-        AddGuiEventFunctor( GetIdForName(std::string("slider_num_races")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderNumRaces) );
-        AddGuiEventFunctor( GetIdForName(std::string("player1")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderPlayer) );
-        AddGuiEventFunctor( GetIdForName(std::string("player2")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderPlayer) );
-        AddGuiEventFunctor( GetIdForName(std::string("player3")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderPlayer) );
-        AddGuiEventFunctor( GetIdForName(std::string("player4")), new EventFunctor<GuiMenuRivals>(this, &GuiMenuRivals::OnSliderPlayer) );
+		ADD_EVENT_HANDLER( "id_start", GuiMenuRivals, OnButtonStart );
+        ADD_EVENT_HANDLER( "id_mainmenu", GuiMenuRivals, OnButtonMain );
+        ADD_EVENT_HANDLER( "difficulty", GuiMenuRivals, OnSliderLevelDifficulty );
+        ADD_EVENT_HANDLER( "slider_num_races", GuiMenuRivals, OnSliderNumRaces );
+        ADD_EVENT_HANDLER( "player1", GuiMenuRivals, OnSliderPlayer );
+        ADD_EVENT_HANDLER( "player2", GuiMenuRivals, OnSliderPlayer );
+        ADD_EVENT_HANDLER( "player3", GuiMenuRivals, OnSliderPlayer );
+        ADD_EVENT_HANDLER( "player4", GuiMenuRivals, OnSliderPlayer );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -102,22 +96,6 @@ bool GuiMenuRivals::Load(const char* filename_, bool reloadLast_)
         }
     }
     return ok;
-}
-
-void GuiMenuRivals::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-    {
-        return;
-    }
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_start")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_mainmenu")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("difficulty")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("slider_num_races")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("player1")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("player2")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("player3")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("player4")) );
 }
 
 void GuiMenuRivals::Show()

@@ -7,7 +7,3 @@ GuiIntro::GuiIntro(const Config& config)
 {
     SetSuppressSceneRendering(true);
 }
-
-GuiIntro::~GuiIntro()
-{
-}

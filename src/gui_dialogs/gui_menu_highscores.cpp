@@ -28,22 +28,15 @@ GuiMenuHighscores::GuiMenuHighscores(const Config& config)
         mStaticScore[i] = 0;
 }
 
-GuiMenuHighscores::~GuiMenuHighscores()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuHighscores::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuHighscores>(this, &GuiMenuHighscores::OnButtonBack) );
-
-        AddGuiEventFunctor( GetIdForName(std::string("scoretype")), new EventFunctor<GuiMenuHighscores>(this, &GuiMenuHighscores::OnSliderRacemode) );
-        AddGuiEventFunctor( GetIdForName(std::string("trackdifficulty")), new EventFunctor<GuiMenuHighscores>(this, &GuiMenuHighscores::OnSliderDifficulty) );
-        AddGuiEventFunctor( GetIdForName(std::string("track")), new EventFunctor<GuiMenuHighscores>(this, &GuiMenuHighscores::OnSliderTrack) );
+		ADD_EVENT_HANDLER( "id_back", GuiMenuHighscores, OnButtonBack );
+        ADD_EVENT_HANDLER( "scoretype", GuiMenuHighscores, OnSliderRacemode );
+        ADD_EVENT_HANDLER( "trackdifficulty", GuiMenuHighscores, OnSliderDifficulty );
+        ADD_EVENT_HANDLER( "track", GuiMenuHighscores, OnSliderTrack );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -192,16 +185,6 @@ void GuiMenuHighscores::Show()
     }
 
     GuiDialog::Show();
-}
-
-void GuiMenuHighscores::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("scoretype")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("trackdifficulty")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("track")) );
 }
 
 bool GuiMenuHighscores::OnButtonBack(const irr::SEvent &event_)

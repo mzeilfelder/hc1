@@ -9,13 +9,11 @@ class GuiMenuChampionship : public GuiDialog
 {
 public:
     GuiMenuChampionship(const Config& config);
-    ~GuiMenuChampionship();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
     bool OnButtonContinue(const irr::SEvent &event_);
     bool OnButtonNew(const irr::SEvent &event_);
     bool OnNewAcknowledged(const irr::SEvent &event_);

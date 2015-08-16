@@ -30,26 +30,20 @@ GuiMenuGraphics::GuiMenuGraphics(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuGraphics::~GuiMenuGraphics()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("sld_resolution")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderResolution) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_filter")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderFilter) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_antialias")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderAntialias) );
-		AddGuiEventFunctor( GetIdForName(std::string("sld_lights")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderLights) );
-		AddGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderTextureResolution) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_particles")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderParticles) );
-        AddGuiEventFunctor( GetIdForName(std::string("sld_vsync")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnSliderVsync) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuGraphics>(this, &GuiMenuGraphics::OnButtonCancel) );
+		ADD_EVENT_HANDLER( "sld_resolution", GuiMenuGraphics, OnSliderResolution );
+        ADD_EVENT_HANDLER( "sld_filter", GuiMenuGraphics, OnSliderFilter );
+        ADD_EVENT_HANDLER( "sld_antialias", GuiMenuGraphics, OnSliderAntialias );
+		ADD_EVENT_HANDLER( "sld_lights", GuiMenuGraphics, OnSliderLights );
+		ADD_EVENT_HANDLER( "sld_texture_resolution", GuiMenuGraphics, OnSliderTextureResolution );
+        ADD_EVENT_HANDLER( "sld_particles", GuiMenuGraphics, OnSliderParticles );
+        ADD_EVENT_HANDLER( "sld_vsync", GuiMenuGraphics, OnSliderVsync );
+        ADD_EVENT_HANDLER( "id_accept", GuiMenuGraphics, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuGraphics, OnButtonCancel );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -134,22 +128,6 @@ bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
         mStaticRestartInfo = static_cast<IGUIStaticText*>(GetElementByName(root, "id_gpxinfo", errorMsg));
     }
     return ok;
-}
-
-void GuiMenuGraphics::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_resolution")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_filter")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_antialias")) );
-	RemoveGuiEventFunctor( GetIdForName(std::string("sld_lights")) );
-	RemoveGuiEventFunctor( GetIdForName(std::string("sld_texture_resolution")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_particles")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sld_vsync")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
 }
 
 void GuiMenuGraphics::AddNeedRestartCheck(irr::gui::IGUITextSlider* slider)

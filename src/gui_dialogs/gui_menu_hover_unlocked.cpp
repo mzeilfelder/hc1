@@ -15,19 +15,12 @@ GuiMenuHoverUnlocked::GuiMenuHoverUnlocked(const Config& config)
 {
 }
 
-GuiMenuHoverUnlocked::~GuiMenuHoverUnlocked()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuHoverUnlocked::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuHoverUnlocked>(this, &GuiMenuHoverUnlocked::OnButtonContinue) );
-
+		ADD_EVENT_HANDLER( "id_continue", GuiMenuHoverUnlocked, OnButtonContinue );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -51,13 +44,6 @@ void GuiMenuHoverUnlocked::SetHover(unsigned int idx_)
     {
         mImageHover->setImage(texture);
     }
-}
-
-void GuiMenuHoverUnlocked::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_continue")) );
 }
 
 bool GuiMenuHoverUnlocked::OnButtonContinue(const irr::SEvent &event_)

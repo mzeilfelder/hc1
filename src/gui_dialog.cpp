@@ -43,6 +43,8 @@ GuiDialog::~GuiDialog()
 
 void GuiDialog::Clear()
 {
+	AutoRemoveFunctors();
+
     mDefaultFocus = NULL;
     mAlternateDefaultFocus = NULL;
 
@@ -1222,12 +1224,31 @@ void GuiDialog::AddGuiEventFunctor(int elementId_, IEventFunctor * functor_ )
     }
 }
 
+void GuiDialog::AddGuiEventFunctor(const std::string& name, IEventFunctor * functor, bool autoRemove)
+{
+	int id = GetIdForName(name);
+	if ( id >= 0 )
+	{
+		mEventFunctorIds.push_back(id);
+		AddGuiEventFunctor(id, functor);
+	}
+}
+
 void GuiDialog::RemoveGuiEventFunctor(int elementId_)
 {
     if ( APP.GetGui() )
     {
         APP.GetGui()->RemoveGuiEventFunctor(elementId_);
     }
+}
+
+void GuiDialog::AutoRemoveFunctors()
+{
+	for ( size_t i=0; i < mEventFunctorIds.size(); ++i )
+	{
+		RemoveGuiEventFunctor(mEventFunctorIds[i]);
+	}
+	mEventFunctorIds.clear();
 }
 
 void GuiDialog::BringElementsToFront()

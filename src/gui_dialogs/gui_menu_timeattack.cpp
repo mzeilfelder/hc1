@@ -38,26 +38,20 @@ GuiMenuTimeAttack::GuiMenuTimeAttack(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuTimeAttack::~GuiMenuTimeAttack()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuTimeAttack::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
         GetAllGhostRecordsFromDisk();
 
-        AddGuiEventFunctor( GetIdForName(std::string("id_ghostexport")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnButtonExportGhost) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_start")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnButtonStart) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnButtonBack) );
-        AddGuiEventFunctor( GetIdForName(std::string("track")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnSliderTracks) );
-        AddGuiEventFunctor( GetIdForName(std::string("difficulty")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnSliderDifficulty) );
-        AddGuiEventFunctor( GetIdForName(std::string("racemode")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnSliderRaceMode) );
-        AddGuiEventFunctor( GetIdForName(std::string("ghost")), new EventFunctor<GuiMenuTimeAttack>(this, &GuiMenuTimeAttack::OnSliderGhost) );
+        ADD_EVENT_HANDLER( "id_ghostexport", GuiMenuTimeAttack, OnButtonExportGhost );
+        ADD_EVENT_HANDLER( "id_start", GuiMenuTimeAttack, OnButtonStart );
+        ADD_EVENT_HANDLER( "id_back", GuiMenuTimeAttack, OnButtonBack );
+        ADD_EVENT_HANDLER( "track", GuiMenuTimeAttack, OnSliderTracks );
+        ADD_EVENT_HANDLER( "difficulty", GuiMenuTimeAttack, OnSliderDifficulty );
+        ADD_EVENT_HANDLER( "racemode", GuiMenuTimeAttack, OnSliderRaceMode );
+        ADD_EVENT_HANDLER( "ghost", GuiMenuTimeAttack, OnSliderGhost );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -107,21 +101,6 @@ bool GuiMenuTimeAttack::Load(const char* filename_, bool reloadLast_)
     }
     return ok;
 }
-
-void GuiMenuTimeAttack::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_ghostexport")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_start")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("track")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("difficulty")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("racemode")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("ghost")) );
-}
-
 
 void GuiMenuTimeAttack::Show()
 {

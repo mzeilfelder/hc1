@@ -9,12 +9,10 @@ class GuiMenuCredits : public GuiDialog
 {
 public:
     GuiMenuCredits(const Config& config);
-    ~GuiMenuCredits();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
 
 protected:
-    void RemoveFunctors();
     bool OnButtonLicenses(const irr::SEvent &event_);
     bool OnButtonBack(const irr::SEvent &event_);
 };

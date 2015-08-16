@@ -19,7 +19,6 @@ public:
     void SetFocusOkButton();
 
 protected:
-    void RemoveFunctors();
     bool OnButtonOk(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);
 

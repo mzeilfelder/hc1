@@ -9,14 +9,11 @@ class GuiMenuGameEndChampionship : public GuiDialog
 {
 public:
     GuiMenuGameEndChampionship(const Config& config);
-    ~GuiMenuGameEndChampionship();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-
-    void RemoveFunctors();
 
     bool OnButtonContinue(const irr::SEvent &event_);
     bool OnButtonRestart(const irr::SEvent &event_);
@@ -25,8 +22,8 @@ protected:
     bool OnButtonQuit(const irr::SEvent &event_);
 
 private:
-    irr::gui::IGUIStaticText*  mStaticResult;
-    irr::gui::IGUIStaticText*  mStaticPoints;
+    irr::gui::IGUIStaticText *  mStaticResult;
+    irr::gui::IGUIStaticText *  mStaticPoints;
     irr::gui::IGUIStaticText *  mStaticTrackName;
     irr::gui::IGUIStaticText *  mStaticTimeCurrentLap;
     irr::gui::IGUIStaticText *  mStaticBestLap;

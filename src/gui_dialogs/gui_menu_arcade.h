@@ -11,13 +11,11 @@ class GuiMenuArcade : public GuiDialog
 {
 public:
     GuiMenuArcade(const Config& config);
-    ~GuiMenuArcade();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
     bool OnButtonStart(const irr::SEvent &event_);
     bool OnButtonBack(const irr::SEvent &event_);
     bool OnSliderTracks(const irr::SEvent &event_);

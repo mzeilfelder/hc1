@@ -23,8 +23,6 @@ public:
 
 protected:
 
-    void RemoveFunctors();
-
     bool OnCheckBoxShowTrack(const irr::SEvent &event_);
     bool OnButtonRecordToTrack(const irr::SEvent &event_);
     bool OnButtonFixedSteps(const irr::SEvent &event_);

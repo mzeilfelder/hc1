@@ -16,25 +16,16 @@ GuiMenuTutorial3::GuiMenuTutorial3(const Config& config)
 
 GuiMenuTutorial3::~GuiMenuTutorial3()
 {
-    RemoveFunctors();
 }
 
 bool GuiMenuTutorial3::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuTutorial3>(this, &GuiMenuTutorial3::OnButtonContinue) );
+		ADD_EVENT_HANDLER( "id_continue", GuiMenuTutorial3, OnButtonContinue );
     }
     return ok;
-}
-
-void GuiMenuTutorial3::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_continue")) );
 }
 
 bool GuiMenuTutorial3::OnButtonContinue(const irr::SEvent &event_)

@@ -8,14 +8,11 @@ class GuiMenuGameEnd : public GuiDialog
 {
 public:
     GuiMenuGameEnd(const Config& config);
-    ~GuiMenuGameEnd();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-
-    void RemoveFunctors();
 
     bool OnButtonRestart(const irr::SEvent &event_);
     bool OnButtonWatchReplay(const irr::SEvent &event_);

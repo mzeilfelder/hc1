@@ -24,22 +24,16 @@ GuiMenuAnalog::GuiMenuAnalog(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuAnalog::~GuiMenuAnalog()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuAnalog::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuAnalog>(this, &GuiMenuAnalog::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuAnalog>(this, &GuiMenuAnalog::OnButtonCancel) );
-        AddGuiEventFunctor( GetIdForName(std::string("calibrate")), new EventFunctor<GuiMenuAnalog>(this, &GuiMenuAnalog::OnButtonCalibrate) );
-        AddGuiEventFunctor( GetIdForName(std::string("range")), new EventFunctor<GuiMenuAnalog>(this, &GuiMenuAnalog::OnSliderRange) );
-        AddGuiEventFunctor( GetIdForName(std::string("deadzone")), new EventFunctor<GuiMenuAnalog>(this, &GuiMenuAnalog::OnSliderDead) );
+		ADD_EVENT_HANDLER( "id_accept", GuiMenuAnalog, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuAnalog, OnButtonCancel );
+        ADD_EVENT_HANDLER( "calibrate", GuiMenuAnalog, OnButtonCalibrate );
+        ADD_EVENT_HANDLER( "range", GuiMenuAnalog, OnSliderRange );
+        ADD_EVENT_HANDLER( "deadzone", GuiMenuAnalog, OnSliderDead );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -102,17 +96,6 @@ void GuiMenuAnalog::Show()
     }
 
     GuiDialog::Show();
-}
-
-void GuiMenuAnalog::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("calibrate")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("range")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("deadzone")) );
 }
 
 bool GuiMenuAnalog::OnSliderRange(const irr::SEvent &event_)

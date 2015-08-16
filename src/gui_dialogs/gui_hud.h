@@ -20,7 +20,6 @@ class GuiHud : public GuiDialog
 {
 public:
     GuiHud(const Config& config);
-    ~GuiHud();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();

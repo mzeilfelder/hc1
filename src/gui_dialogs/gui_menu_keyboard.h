@@ -31,7 +31,6 @@ class GuiMenuKeyboard : public GuiDialog
 {
 public:
     GuiMenuKeyboard(const Config& config);
-    ~GuiMenuKeyboard();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();

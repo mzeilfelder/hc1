@@ -26,19 +26,13 @@ GuiMenuNagscreen::GuiMenuNagscreen(const Config& config)
     SetCallOnUpdate(true);
 }
 
-GuiMenuNagscreen::~GuiMenuNagscreen()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuNagscreen::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_quit")), new EventFunctor<GuiMenuNagscreen>(this, &GuiMenuNagscreen::OnButtonQuit) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_buy")), new EventFunctor<GuiMenuNagscreen>(this, &GuiMenuNagscreen::OnButtonBuy) );
+		ADD_EVENT_HANDLER( "id_quit", GuiMenuNagscreen, OnButtonQuit );
+        ADD_EVENT_HANDLER( "id_buy", GuiMenuNagscreen, OnButtonBuy );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -47,14 +41,6 @@ bool GuiMenuNagscreen::Load(const char* filename_, bool reloadLast_)
         mButtonBuy = static_cast<IGUIButton*>(GetElementByName(root, "id_buy", errorMsg));
     }
     return ok;
-}
-
-void GuiMenuNagscreen::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_quit")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_buy")) );
 }
 
 void GuiMenuNagscreen::Show()

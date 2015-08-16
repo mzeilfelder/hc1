@@ -9,7 +9,6 @@ class GuiMenuHoverUnlocked : public GuiDialog
 {
 public:
     GuiMenuHoverUnlocked(const Config& config);
-    ~GuiMenuHoverUnlocked();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     void SetHover(unsigned int idx_);

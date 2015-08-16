@@ -39,27 +39,21 @@ GuiMenuMain::GuiMenuMain(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuMain::~GuiMenuMain()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuMain::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_partymode")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonRivals) ); // partymode is now called rivalsmode. Can't change it here easily
-        AddGuiEventFunctor( GetIdForName(std::string("id_championship")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonChampionship) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_arcade")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonArcade) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_timeattack")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonTimeAttack) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_selecth")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonSelectHover) );
-        //AddGuiEventFunctor( GetIdForName(std::string("id_replay")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonReplayTheatre) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_highscores")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonHighscores) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_options")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonOptions) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_profiles")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonProfiles) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_quit")), new EventFunctor<GuiMenuMain>(this, &GuiMenuMain::OnButtonQuit) );
+		ADD_EVENT_HANDLER( "id_partymode", GuiMenuMain, OnButtonRivals ); // partymode is now called rivalsmode. Can't change it here easily
+        ADD_EVENT_HANDLER( "id_championship", GuiMenuMain, OnButtonChampionship );
+        ADD_EVENT_HANDLER( "id_arcade", GuiMenuMain, OnButtonArcade );
+        ADD_EVENT_HANDLER( "id_timeattack", GuiMenuMain, OnButtonTimeAttack );
+        ADD_EVENT_HANDLER( "id_selecth", GuiMenuMain, OnButtonSelectHover );
+        //ADD_EVENT_HANDLER( "id_replay", GuiMenuMain, OnButtonReplayTheatre );
+        ADD_EVENT_HANDLER( "id_highscores", GuiMenuMain, OnButtonHighscores );
+        ADD_EVENT_HANDLER( "id_options", GuiMenuMain, OnButtonOptions );
+        ADD_EVENT_HANDLER( "id_profiles", GuiMenuMain, OnButtonProfiles );
+        ADD_EVENT_HANDLER( "id_quit", GuiMenuMain, OnButtonQuit );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -143,23 +137,6 @@ void GuiMenuMain::Show()
 //		mDebugText->setText( LOG.GetStream().str().c_str() );
 	}
 #endif
-}
-
-void GuiMenuMain::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_partymode")) ); // partymode is now called rivalsmode. Can't change it here easily
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_championship")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_arcade")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_timeattack")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_selecth")) );
-    //RemoveGuiEventFunctor( GetIdForName(std::string("id_replay")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_highscores")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_options")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_profiles")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_quit")) );
 }
 
 bool GuiMenuMain::OnButtonRivals(const irr::SEvent &event_)

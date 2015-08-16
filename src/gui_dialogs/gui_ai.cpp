@@ -25,31 +25,30 @@ GuiAi::GuiAi(const Config& config)
 
 GuiAi::~GuiAi()
 {
-    RemoveFunctors();
 }
 
 bool GuiAi::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("cbShowTrack")), new EventFunctor<GuiAi>(this, &GuiAi::OnCheckBoxShowTrack) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnRecordToTrack")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonRecordToTrack) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnFixedSteps")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonFixedSteps) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnSmoothCenters")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonSmoothCenters) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnMakeBorders")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonMakeBorders) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnRealBorders")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonRealBorders) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnCenters")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonCenterCenters) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnSmoothAll")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonSmoothAll) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnSmoothLeft")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonSmoothLeft) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnSmoothRight")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonSmoothRight) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnRecordSpeed")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonRecordSpeed) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnRecordLine")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonRecordLine) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnSmoothIdealLine")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonSmoothIdealLine) );
-        AddGuiEventFunctor( GetIdForName(std::string("btnFixTp")), new EventFunctor<GuiAi>(this, &GuiAi::OnButtonFixTp) );
-        AddGuiEventFunctor( GetIdForName(std::string("cbAiTraining")), new EventFunctor<GuiAi>(this, &GuiAi::OnCheckBoxAiTraining) );
-        AddGuiEventFunctor( GetIdForName(std::string("aidialog")), new EventFunctor<GuiAi>(this, &GuiAi::OnWindowEvent) );
+		ADD_EVENT_HANDLER( "cbShowTrack", GuiAi, OnCheckBoxShowTrack );
+        ADD_EVENT_HANDLER( "cbShowTrack", GuiAi, OnCheckBoxShowTrack);
+        ADD_EVENT_HANDLER( "btnRecordToTrack", GuiAi, OnButtonRecordToTrack );
+        ADD_EVENT_HANDLER( "btnFixedSteps", GuiAi, OnButtonFixedSteps );
+        ADD_EVENT_HANDLER( "btnSmoothCenters", GuiAi, OnButtonSmoothCenters );
+        ADD_EVENT_HANDLER( "btnMakeBorders", GuiAi, OnButtonMakeBorders );
+        ADD_EVENT_HANDLER( "btnRealBorders", GuiAi, OnButtonRealBorders );
+        ADD_EVENT_HANDLER( "btnCenters", GuiAi, OnButtonCenterCenters );
+        ADD_EVENT_HANDLER( "btnSmoothAll", GuiAi, OnButtonSmoothAll );
+        ADD_EVENT_HANDLER( "btnSmoothLeft", GuiAi, OnButtonSmoothLeft );
+        ADD_EVENT_HANDLER( "btnSmoothRight", GuiAi, OnButtonSmoothRight );
+        ADD_EVENT_HANDLER( "btnRecordSpeed", GuiAi, OnButtonRecordSpeed );
+        ADD_EVENT_HANDLER( "btnRecordLine", GuiAi, OnButtonRecordLine );
+        ADD_EVENT_HANDLER( "btnSmoothIdealLine", GuiAi, OnButtonSmoothIdealLine );
+        ADD_EVENT_HANDLER( "btnFixTp", GuiAi, OnButtonFixTp );
+        ADD_EVENT_HANDLER( "cbAiTraining", GuiAi, OnCheckBoxAiTraining );
+        ADD_EVENT_HANDLER( "aidialog", GuiAi, OnWindowEvent );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -65,30 +64,6 @@ bool GuiAi::Load(const char* filename_, bool reloadLast_)
         }
     }
     return ok;
-}
-
-void GuiAi::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-    {
-        return;
-    }
-    RemoveGuiEventFunctor( GetIdForName(std::string("cbShowTrack")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnRecordToTrack")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnFixedSteps")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnSmoothCenters")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnMakeBorders")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnRealBorders")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnCenters")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnSmoothAll")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnSmoothLeft")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnSmoothRight")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnRecordSpeed")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnRecordLine")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnSmoothIdealLine")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btnFixTp")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("cbAiTraining")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("aidialog")) );
 }
 
 bool GuiAi::GetLevelRecord(Record& record_)

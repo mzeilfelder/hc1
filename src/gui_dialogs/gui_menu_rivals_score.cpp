@@ -38,19 +38,13 @@ GuiMenuRivalsScore::GuiMenuRivalsScore(const Config& config)
     }
 }
 
-GuiMenuRivalsScore::~GuiMenuRivalsScore()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuRivalsScore::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_start")), new EventFunctor<GuiMenuRivalsScore>(this, &GuiMenuRivalsScore::OnButtonStart) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_exit")), new EventFunctor<GuiMenuRivalsScore>(this, &GuiMenuRivalsScore::OnButtonExit) );
+		ADD_EVENT_HANDLER( "id_start", GuiMenuRivalsScore, OnButtonStart );
+        ADD_EVENT_HANDLER( "id_exit", GuiMenuRivalsScore, OnButtonExit );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -91,16 +85,6 @@ bool GuiMenuRivalsScore::Load(const char* filename_, bool reloadLast_)
         SetAlternateDefaultFocus( mButtonExit );
     }
     return ok;
-}
-
-void GuiMenuRivalsScore::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-    {
-        return;
-    }
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_start")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_exit")) );
 }
 
 void GuiMenuRivalsScore::Show()

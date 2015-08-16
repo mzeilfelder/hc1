@@ -13,27 +13,14 @@ GuiMenuChampWinner::GuiMenuChampWinner(const Config& config)
 {
 }
 
-GuiMenuChampWinner::~GuiMenuChampWinner()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuChampWinner::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuChampWinner>(this, &GuiMenuChampWinner::OnButtonContinue) );
+		ADD_EVENT_HANDLER( "id_continue", GuiMenuChampWinner, OnButtonContinue );
     }
     return ok;
-}
-
-void GuiMenuChampWinner::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_continue")) );
 }
 
 bool GuiMenuChampWinner::OnButtonContinue(const irr::SEvent &event_)

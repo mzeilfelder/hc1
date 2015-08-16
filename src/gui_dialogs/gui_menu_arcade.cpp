@@ -25,21 +25,15 @@ GuiMenuArcade::GuiMenuArcade(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuArcade::~GuiMenuArcade()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuArcade::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_start")), new EventFunctor<GuiMenuArcade>(this, &GuiMenuArcade::OnButtonStart) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuArcade>(this, &GuiMenuArcade::OnButtonBack) );
-        AddGuiEventFunctor( GetIdForName(std::string("difficulty")), new EventFunctor<GuiMenuArcade>(this, &GuiMenuArcade::OnSliderLevelDifficulty) );
-        AddGuiEventFunctor( GetIdForName(std::string("track")), new EventFunctor<GuiMenuArcade>(this, &GuiMenuArcade::OnSliderTracks) );
+		ADD_EVENT_HANDLER( "id_start", GuiMenuArcade, OnButtonStart );
+        ADD_EVENT_HANDLER( "id_back", GuiMenuArcade, OnButtonBack );
+        ADD_EVENT_HANDLER( "difficulty", GuiMenuArcade, OnSliderLevelDifficulty );
+        ADD_EVENT_HANDLER( "track", GuiMenuArcade, OnSliderTracks );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -141,18 +135,6 @@ void GuiMenuArcade::Show()
             mActiveProfile->setText( APP.GetStringTable()->Get("id_showactiveprofile").c_str() );
         }
     }
-}
-
-void GuiMenuArcade::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-    {
-        return;
-    }
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_start")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("difficulty")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("track")) );
 }
 
 bool GuiMenuArcade::OnButtonStart(const irr::SEvent &event_)

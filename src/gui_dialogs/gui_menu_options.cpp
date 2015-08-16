@@ -32,32 +32,26 @@ GuiMenuOptions::GuiMenuOptions(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuOptions::~GuiMenuOptions()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuOptions::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
 		if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
 		{
-			AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonTouchControls) );
+			ADD_EVENT_HANDLER( "id_touch_controls", GuiMenuOptions, OnButtonTouchControls );
 		}
 		else
 		{
-			AddGuiEventFunctor( GetIdForName(std::string("id_controls")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonController) );
-			AddGuiEventFunctor( GetIdForName(std::string("id_analog")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonAnalog) );
+			ADD_EVENT_HANDLER( "id_controls", GuiMenuOptions, OnButtonController );
+			ADD_EVENT_HANDLER( "id_analog", GuiMenuOptions, OnButtonAnalog );
 		}
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonCancel) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_watchcredits")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonCredits) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_graphics")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnButtonGraphics) );
-        AddGuiEventFunctor( GetIdForName(std::string("sfxvolume")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnSliderSfx) );
-        AddGuiEventFunctor( GetIdForName(std::string("musicvolume")), new EventFunctor<GuiMenuOptions>(this, &GuiMenuOptions::OnSliderMusic) );
+        ADD_EVENT_HANDLER( "id_accept", GuiMenuOptions, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuOptions, OnButtonCancel );
+        ADD_EVENT_HANDLER( "id_watchcredits", GuiMenuOptions, OnButtonCredits );
+        ADD_EVENT_HANDLER( "id_graphics", GuiMenuOptions, OnButtonGraphics );
+        ADD_EVENT_HANDLER( "sfxvolume", GuiMenuOptions, OnSliderSfx );
+        ADD_EVENT_HANDLER( "musicvolume", GuiMenuOptions, OnSliderMusic );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -153,28 +147,6 @@ void GuiMenuOptions::Show()
 			}
 		}
 	}
-}
-
-void GuiMenuOptions::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
-	{
-		RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
-	}
-	else
-	{
-		RemoveGuiEventFunctor( GetIdForName(std::string("id_controls")) );
-		RemoveGuiEventFunctor( GetIdForName(std::string("id_analog")) );
-	}
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_watchcredits")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_graphics")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sfxvolume")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("musicvolume")) );
 }
 
 bool GuiMenuOptions::OnSliderSfx(const irr::SEvent &event_)

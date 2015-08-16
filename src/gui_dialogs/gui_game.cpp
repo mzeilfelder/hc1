@@ -57,22 +57,16 @@ void GuiGame::HideGameGui()
     if ( mStaticGameTime)
     {
         mStaticGameTime->setVisible(false);
-//        mStaticGameTime->remove();
-//        mStaticGameTime = NULL;
     }
 
     if ( mStaticTrackTime )
     {
         mStaticTrackTime->setVisible(false);
-//        mStaticTrackTime->remove();
-//        mStaticTrackTime = NULL;
     }
 
     if ( mStaticBestTrackTime )
     {
         mStaticBestTrackTime->setVisible(false);
-//        mStaticBestTrackTime->remove();
-//        mStaticBestTrackTime = NULL;
     }
 }
 

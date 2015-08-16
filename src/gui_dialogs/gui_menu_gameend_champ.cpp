@@ -34,22 +34,16 @@ GuiMenuGameEndChampionship::GuiMenuGameEndChampionship(const Config& config)
 {
 }
 
-GuiMenuGameEndChampionship::~GuiMenuGameEndChampionship()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuGameEndChampionship::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdcontinue")), new EventFunctor<GuiMenuGameEndChampionship>(this, &GuiMenuGameEndChampionship::OnButtonContinue) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdrestart")), new EventFunctor<GuiMenuGameEndChampionship>(this, &GuiMenuGameEndChampionship::OnButtonRestart) );
-//        AddGuiEventFunctor( GetIdForName(std::string("id_hdwatchreplay")), new EventFunctor<GuiMenuGameEndChampionship>(this, &GuiMenuGameEndChampionship::OnButtonWatchReplay) );
-//        AddGuiEventFunctor( GetIdForName(std::string("id_hdsavereplay")), new EventFunctor<GuiMenuGameEndChampionship>(this, &GuiMenuGameEndChampionship::OnButtonSaveReplay) );
-//        AddGuiEventFunctor( GetIdForName(std::string("id_hdquit")), new EventFunctor<GuiMenuGameEndChampionship>(this, &GuiMenuGameEndChampionship::OnButtonQuit) );
+		ADD_EVENT_HANDLER( "id_hdcontinue", GuiMenuGameEndChampionship, OnButtonContinue );
+        ADD_EVENT_HANDLER( "id_hdrestart", GuiMenuGameEndChampionship, OnButtonRestart );
+//        ADD_EVENT_HANDLER( "id_hdwatchreplay", GuiMenuGameEndChampionship, OnButtonWatchReplay );
+//        ADD_EVENT_HANDLER( "id_hdsavereplay", GuiMenuGameEndChampionship, OnButtonSaveReplay );
+//        ADD_EVENT_HANDLER( "id_hdquit", GuiMenuGameEndChampionship, OnButtonQuit );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -216,18 +210,6 @@ void GuiMenuGameEndChampionship::Show()
             mStaticTimeTrackRecord->setVisible(false);
         }
     }
-}
-
-void GuiMenuGameEndChampionship::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdcontinue")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdrestart")) );
-//    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdwatchreplay")) );
-//    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdsavereplay")) );
-//    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdquit")) );
 }
 
 bool GuiMenuGameEndChampionship::OnButtonContinue(const irr::SEvent &event_)

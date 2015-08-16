@@ -9,7 +9,6 @@ class GuiMenuNewProfile : public GuiDialog
 {
 public:
     GuiMenuNewProfile(const Config& config);
-    ~GuiMenuNewProfile();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
@@ -18,7 +17,6 @@ public:
 
 protected:
 
-    void RemoveFunctors();
     bool OnButtonAccept(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);
     bool OnEditName(const irr::SEvent &event_);

@@ -35,30 +35,24 @@ GuiMenuControls::GuiMenuControls(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuControls::~GuiMenuControls()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuControls::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
         mSoundClick = APP.GetConfig()->MakeFilenameSound("hc_menu_click01.wav");
 
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonCancel) );
-        AddGuiEventFunctor( GetIdForName(std::string("analogsteer")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonAnalogSteer) );
-        AddGuiEventFunctor( GetIdForName(std::string("analogacc")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonAnalogAccelerate) );
-        AddGuiEventFunctor( GetIdForName(std::string("analogbrake")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonAnalogBrake) );
-        AddGuiEventFunctor( GetIdForName(std::string("steerleft")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonDigiLeft) );
-        AddGuiEventFunctor( GetIdForName(std::string("steerright")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonDigiRight) );
-        AddGuiEventFunctor( GetIdForName(std::string("accelerate")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonDigiAccelerate) );
-        AddGuiEventFunctor( GetIdForName(std::string("brake")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonDigiBrake) );
-        AddGuiEventFunctor( GetIdForName(std::string("pause")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonPause) );
-        AddGuiEventFunctor( GetIdForName(std::string("camera")), new EventFunctor<GuiMenuControls>(this, &GuiMenuControls::OnButtonCamera) );
+        ADD_EVENT_HANDLER( "id_accept", GuiMenuControls, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuControls, OnButtonCancel );
+        ADD_EVENT_HANDLER( "analogsteer", GuiMenuControls, OnButtonAnalogSteer );
+        ADD_EVENT_HANDLER( "analogacc", GuiMenuControls, OnButtonAnalogAccelerate );
+        ADD_EVENT_HANDLER( "analogbrake", GuiMenuControls, OnButtonAnalogBrake );
+        ADD_EVENT_HANDLER( "steerleft", GuiMenuControls, OnButtonDigiLeft );
+        ADD_EVENT_HANDLER( "steerright", GuiMenuControls, OnButtonDigiRight );
+        ADD_EVENT_HANDLER( "accelerate", GuiMenuControls, OnButtonDigiAccelerate );
+        ADD_EVENT_HANDLER( "brake", GuiMenuControls, OnButtonDigiBrake );
+        ADD_EVENT_HANDLER( "pause", GuiMenuControls, OnButtonPause );
+        ADD_EVENT_HANDLER( "camera", GuiMenuControls, OnButtonCamera );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -154,24 +148,6 @@ void GuiMenuControls::Show()
         APP.GetInputDeviceManager()->GetNameForButton(controllerSettings.mButtonCamera, name);
         mButtonCamera->setText( name.c_str() );
     }
-}
-
-void GuiMenuControls::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("analogsteer")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("analogacc")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("analogbrake")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("steerleft")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("steerright")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("accelerate")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("brake")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("pause")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("camera")) );
 }
 
 bool GuiMenuControls::OnButtonAccept(const irr::SEvent &event_)

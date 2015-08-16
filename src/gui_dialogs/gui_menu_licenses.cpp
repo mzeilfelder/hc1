@@ -15,27 +15,14 @@ GuiMenuLicenses::GuiMenuLicenses(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuLicenses::~GuiMenuLicenses()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuLicenses::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuLicenses>(this, &GuiMenuLicenses::OnButtonBack) );
+		ADD_EVENT_HANDLER( "id_back", GuiMenuLicenses, OnButtonBack );
     }
     return ok;
-}
-
-void GuiMenuLicenses::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
 }
 
 bool GuiMenuLicenses::OnButtonBack(const irr::SEvent &event_)

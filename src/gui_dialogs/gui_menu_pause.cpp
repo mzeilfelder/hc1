@@ -28,26 +28,20 @@ GuiMenuPause::GuiMenuPause(const Config& config)
 {
 }
 
-GuiMenuPause::~GuiMenuPause()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuPause::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdresume")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonResume) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdrestart")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonRestart) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdquit")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonQuit) );
-        AddGuiEventFunctor( GetIdForName(std::string("sfxvolume")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnSliderSfx) );
-        AddGuiEventFunctor( GetIdForName(std::string("musicvolume")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnSliderMusic) );
+		ADD_EVENT_HANDLER( "id_hdresume", GuiMenuPause, OnButtonResume );
+        ADD_EVENT_HANDLER( "id_hdrestart", GuiMenuPause, OnButtonRestart );
+        ADD_EVENT_HANDLER( "id_hdquit", GuiMenuPause, OnButtonQuit );
+        ADD_EVENT_HANDLER( "sfxvolume", GuiMenuPause, OnSliderSfx );
+        ADD_EVENT_HANDLER( "musicvolume", GuiMenuPause, OnSliderMusic );
 
         if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
 		{
-			AddGuiEventFunctor( GetIdForName(std::string("id_touch_controls")), new EventFunctor<GuiMenuPause>(this, &GuiMenuPause::OnButtonTouchControls) );
+			ADD_EVENT_HANDLER( "id_touch_controls", GuiMenuPause, OnButtonTouchControls );
 		}
 
         IGUIElement * root = GetDialogParent();
@@ -68,21 +62,6 @@ bool GuiMenuPause::Load(const char* filename_, bool reloadLast_)
         mStaticTrackName = static_cast<IGUIStaticText*>(GetElementByName(root, "id_trackname", errorMsg));
 	}
     return ok;
-}
-
-void GuiMenuPause::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdresume")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdrestart")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdquit")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("sfxvolume")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("musicvolume")) );
-	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
-	{
-		RemoveGuiEventFunctor( GetIdForName(std::string("id_touch_controls")) );
-	}
 }
 
 void GuiMenuPause::Show()

@@ -16,10 +16,6 @@ GuiLevelManager::GuiLevelManager(irr::gui::IGUIEnvironment* env_)
 {
 }
 
-GuiLevelManager::~GuiLevelManager()
-{
-}
-
 void GuiLevelManager::CloseLevelSelection()
 {
 	IGUIElement* root = mEnvironment->getRootGUIElement();

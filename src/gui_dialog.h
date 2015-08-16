@@ -22,6 +22,7 @@ public:
     GuiDialog(const Config& config);
     virtual ~GuiDialog();
 
+    // Note: When overloading call base class Load first.
     virtual bool Load(const char* filename_, bool reloadLast_=false);
 
     virtual void Show();
@@ -60,7 +61,15 @@ protected:
 
     //! Add a functor which is called for the given elementID for irr::EET_GUI_EVENT events
     //! This class will control the memory for the functor_ from now on.
-    //! For now only a single functor can be used for each elementId_
+    //! For now only a single functor can be used for all events for one elementId_ - no specification by event-type,
+    //\param autoRemove: When true the cleanup happens automatically in Clear() - aka in destructor and in Load
+    void AddGuiEventFunctor(const std::string& name, IEventFunctor * functor, bool autoRemove = true);
+
+	//! Macro for the most common case: adding an memberfunction of the derived class with autoRemove enabled
+	//! Usage example: ADD_EVENT_HANLDER( "buttonOK", GuiDlgDeviceOptions, OnOK);
+	#define ADD_EVENT_HANDLER( namestring, thisclass, function ) AddGuiEventFunctor( namestring, new EventFunctor<thisclass>(this, &thisclass::function) )
+
+    // For adding/removing manually
     void AddGuiEventFunctor(int elementId_, IEventFunctor * functor_ );
     void RemoveGuiEventFunctor(int elementId_);
 
@@ -112,6 +121,9 @@ protected:
     const Config& GetConfig() const { return mConfig; }
 
 private:
+
+	void AutoRemoveFunctors();
+
 	const Config& mConfig;
 
     static int mHighestId;
@@ -133,6 +145,7 @@ private:
     bool	mDoCallOnUpdate;
     typedef std::map<std::string, const TiXmlElement*> StyleXmlMap;
     StyleXmlMap mStyleMap;
+    std::vector<int> mEventFunctorIds;
 };
 
 class TestDialog : public GuiDialog

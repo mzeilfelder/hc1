@@ -12,13 +12,11 @@ class GuiMenuChampionshipProgress : public GuiDialog
 {
 public:
     GuiMenuChampionshipProgress(const Config& config);
-    ~GuiMenuChampionshipProgress();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnButtonRetry(const irr::SEvent &event_);
     bool OnButtonQuit(const irr::SEvent &event_);

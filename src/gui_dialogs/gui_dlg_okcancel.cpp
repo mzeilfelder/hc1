@@ -18,19 +18,17 @@ GuiDlgOkCancel::GuiDlgOkCancel(const Config& config)
 
 GuiDlgOkCancel::~GuiDlgOkCancel()
 {
-    RemoveFunctors();
     delete mFunctorOk;
     delete mFunctorCancel;
 }
 
 bool GuiDlgOkCancel::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_ok")), new EventFunctor<GuiDlgOkCancel>(this, &GuiDlgOkCancel::OnButtonOk) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiDlgOkCancel>(this, &GuiDlgOkCancel::OnButtonCancel) );
+		ADD_EVENT_HANDLER( "id_ok", GuiDlgOkCancel, OnButtonOk );
+        ADD_EVENT_HANDLER( "id_cancel", GuiDlgOkCancel, OnButtonCancel );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -61,15 +59,6 @@ void GuiDlgOkCancel::SetCancelFunctor(IEventFunctor * functor_ )
 {
     delete mFunctorCancel;
     mFunctorCancel = functor_;
-}
-
-void GuiDlgOkCancel::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_ok")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
 }
 
 bool GuiDlgOkCancel::OnButtonOk(const irr::SEvent &event_)

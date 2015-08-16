@@ -9,14 +9,12 @@ class GuiMenuAnalog : public GuiDialog
 {
 public:
     GuiMenuAnalog(const Config& config);
-    ~GuiMenuAnalog();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
 
-    void RemoveFunctors();
     bool OnButtonAccept(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);
     bool OnButtonCalibrate(const irr::SEvent &event_);

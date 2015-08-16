@@ -36,18 +36,12 @@ GuiMenuGameEndRivals::GuiMenuGameEndRivals(const Config& config)
     }
 }
 
-GuiMenuGameEndRivals::~GuiMenuGameEndRivals()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuGameEndRivals::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdcontinue")), new EventFunctor<GuiMenuGameEndRivals>(this, &GuiMenuGameEndRivals::OnButtonContinue) );
+		ADD_EVENT_HANDLER( "id_hdcontinue", GuiMenuGameEndRivals, OnButtonContinue );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -219,14 +213,6 @@ void GuiMenuGameEndRivals::Show()
         const LevelSettings& levelSetting = APP.GetLevelManager()->GetLevelSettings(race.mLevelIndex);
         mStaticTrackName->setText(levelSetting.mName.c_str());
     }
-}
-
-void GuiMenuGameEndRivals::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdcontinue")) );
 }
 
 bool GuiMenuGameEndRivals::OnButtonContinue(const irr::SEvent &event_)

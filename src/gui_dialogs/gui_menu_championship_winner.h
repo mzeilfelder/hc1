@@ -9,12 +9,10 @@ class GuiMenuChampWinner : public GuiDialog
 {
 public:
     GuiMenuChampWinner(const Config& config);
-    ~GuiMenuChampWinner();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
 
 protected:
-    void RemoveFunctors();
     bool OnButtonContinue(const irr::SEvent &event_);
 };
 

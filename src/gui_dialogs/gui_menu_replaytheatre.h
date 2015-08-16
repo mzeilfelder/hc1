@@ -9,13 +9,11 @@ class GuiMenuReplayTheatre : public GuiDialog
 {
 public:
     GuiMenuReplayTheatre(const Config& config);
-    ~GuiMenuReplayTheatre();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
     bool OnButtonReplay(const irr::SEvent &event_);
     bool OnButtonBack(const irr::SEvent &event_);
 

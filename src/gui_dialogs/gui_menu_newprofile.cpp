@@ -22,20 +22,14 @@ GuiMenuNewProfile::GuiMenuNewProfile(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuNewProfile::~GuiMenuNewProfile()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuNewProfile::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuNewProfile>(this, &GuiMenuNewProfile::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuNewProfile>(this, &GuiMenuNewProfile::OnButtonCancel) );
-        AddGuiEventFunctor( GetIdForName(std::string("profilename")), new EventFunctor<GuiMenuNewProfile>(this, &GuiMenuNewProfile::OnEditName) );
+		ADD_EVENT_HANDLER( "id_accept", GuiMenuNewProfile, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuNewProfile, OnButtonCancel );
+        ADD_EVENT_HANDLER( "profilename", GuiMenuNewProfile, OnEditName );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -51,7 +45,7 @@ bool GuiMenuNewProfile::Load(const char* filename_, bool reloadLast_)
 				mSliderSelectKb->clearTexts();
 				mSliderSelectKb->addText( APP.GetStringTable()->Get("id_kb_system").c_str() );
 				mSliderSelectKb->addText( APP.GetStringTable()->Get("id_kb_alternative").c_str() );
-				AddGuiEventFunctor( GetIdForName(std::string("slider_kb")), new EventFunctor<GuiMenuNewProfile>(this, &GuiMenuNewProfile::OnSliderSelectKb) );
+				ADD_EVENT_HANDLER( "slider_kb", GuiMenuNewProfile, OnSliderSelectKb );
 			}
 		}
 
@@ -77,20 +71,6 @@ void GuiMenuNewProfile::Show()
 	}
 
     GuiDialog::Show();
-}
-
-void GuiMenuNewProfile::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("profilename")) );
-
-    if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
-	{
-		RemoveGuiEventFunctor( GetIdForName(std::string("slider_kb")) );
-	}
 }
 
 bool GuiMenuNewProfile::OnButtonAccept(const irr::SEvent &event_)

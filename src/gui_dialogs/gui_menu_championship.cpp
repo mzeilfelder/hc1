@@ -23,21 +23,14 @@ GuiMenuChampionship::GuiMenuChampionship(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuChampionship::~GuiMenuChampionship()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuChampionship::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_continue")), new EventFunctor<GuiMenuChampionship>(this, &GuiMenuChampionship::OnButtonContinue) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_newchamp")), new EventFunctor<GuiMenuChampionship>(this, &GuiMenuChampionship::OnButtonNew) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuChampionship>(this, &GuiMenuChampionship::OnButtonBack) );
-
+		ADD_EVENT_HANDLER( "id_continue", GuiMenuChampionship, OnButtonContinue );
+        ADD_EVENT_HANDLER( "id_newchamp", GuiMenuChampionship, OnButtonNew );
+        ADD_EVENT_HANDLER( "id_back", GuiMenuChampionship, OnButtonBack );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -81,16 +74,6 @@ void GuiMenuChampionship::Show()
     }
 
     GuiDialog::Show();
-}
-
-void GuiMenuChampionship::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_continue")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_newchamp")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
 }
 
 bool GuiMenuChampionship::OnButtonContinue(const irr::SEvent &event_)

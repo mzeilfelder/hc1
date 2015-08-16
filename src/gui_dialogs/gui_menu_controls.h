@@ -12,13 +12,11 @@ class GuiMenuControls : public GuiDialog
 {
 public:
     GuiMenuControls(const Config& config);
-    ~GuiMenuControls();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnButtonAccept(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);

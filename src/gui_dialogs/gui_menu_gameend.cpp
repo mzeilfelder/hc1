@@ -40,21 +40,15 @@ GuiMenuGameEnd::GuiMenuGameEnd(const Config& config)
 {
 }
 
-GuiMenuGameEnd::~GuiMenuGameEnd()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuGameEnd::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdrestart")), new EventFunctor<GuiMenuGameEnd>(this, &GuiMenuGameEnd::OnButtonRestart) );
-//        AddGuiEventFunctor( GetIdForName(std::string("id_hdwatchreplay")), new EventFunctor<GuiMenuGameEnd>(this, &GuiMenuGameEnd::OnButtonWatchReplay) );
-//        AddGuiEventFunctor( GetIdForName(std::string("id_hdsavereplay")), new EventFunctor<GuiMenuGameEnd>(this, &GuiMenuGameEnd::OnButtonSaveReplay) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_hdquit")), new EventFunctor<GuiMenuGameEnd>(this, &GuiMenuGameEnd::OnButtonQuit) );
+		ADD_EVENT_HANDLER( "id_hdrestart", GuiMenuGameEnd, OnButtonRestart );
+//        ADD_EVENT_HANDLER( "id_hdwatchreplay", GuiMenuGameEnd, OnButtonWatchReplay );
+//        ADD_EVENT_HANDLER( "id_hdsavereplay", GuiMenuGameEnd, OnButtonSaveReplay );
+        ADD_EVENT_HANDLER( "id_hdquit", GuiMenuGameEnd, OnButtonQuit );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -339,17 +333,6 @@ void GuiMenuGameEnd::Show()
             mStaticGhostGap->setText( strTimeGap.c_str() );
         }
     }
-}
-
-void GuiMenuGameEnd::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdrestart")) );
-//    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdwatchreplay")) );
-//    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdsavereplay")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_hdquit")) );
 }
 
 bool GuiMenuGameEnd::OnButtonRestart(const irr::SEvent &event_)

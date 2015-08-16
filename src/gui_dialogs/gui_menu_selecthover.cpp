@@ -25,20 +25,14 @@ GuiMenuSelectHover::GuiMenuSelectHover(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuSelectHover::~GuiMenuSelectHover()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuSelectHover::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_accept")), new EventFunctor<GuiMenuSelectHover>(this, &GuiMenuSelectHover::OnButtonAccept) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_cancel")), new EventFunctor<GuiMenuSelectHover>(this, &GuiMenuSelectHover::OnButtonCancel) );
-        AddGuiEventFunctor( GetIdForName(std::string("select")), new EventFunctor<GuiMenuSelectHover>(this, &GuiMenuSelectHover::OnSliderHover) );
+		ADD_EVENT_HANDLER( "id_accept", GuiMenuSelectHover, OnButtonAccept );
+        ADD_EVENT_HANDLER( "id_cancel", GuiMenuSelectHover, OnButtonCancel );
+        ADD_EVENT_HANDLER( "select", GuiMenuSelectHover, OnSliderHover );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -111,15 +105,6 @@ void GuiMenuSelectHover::SelectHover()
         mUnlock->setVisible( !profile->IsHoverUnlocked(id) );
         mButtonAccept->setEnabled( profile->IsHoverUnlocked(id) );
     }
-}
-
-void GuiMenuSelectHover::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_accept")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_cancel")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("select")) );
 }
 
 bool GuiMenuSelectHover::OnSliderHover(const irr::SEvent &event_)

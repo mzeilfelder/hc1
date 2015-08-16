@@ -65,10 +65,6 @@ GuiHud::GuiHud(const Config& config)
 {
 }
 
-GuiHud::~GuiHud()
-{
-}
-
 bool GuiHud::Load(const char* filename_, bool reloadLast_)
 {
     bool ok = GuiDialog::Load(filename_, reloadLast_);

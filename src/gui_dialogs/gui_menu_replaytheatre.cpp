@@ -19,19 +19,13 @@ GuiMenuReplayTheatre::GuiMenuReplayTheatre(const Config& config)
 {
 }
 
-GuiMenuReplayTheatre::~GuiMenuReplayTheatre()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuReplayTheatre::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_showreplay")), new EventFunctor<GuiMenuReplayTheatre>(this, &GuiMenuReplayTheatre::OnButtonReplay) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuReplayTheatre>(this, &GuiMenuReplayTheatre::OnButtonBack) );
+		ADD_EVENT_HANDLER( "id_showreplay", GuiMenuReplayTheatre, OnButtonReplay);
+        ADD_EVENT_HANDLER( "id_back", GuiMenuReplayTheatre, OnButtonBack );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -83,14 +77,6 @@ void GuiMenuReplayTheatre::Show()
     }
 
     GuiDialog::Show();
-}
-
-void GuiMenuReplayTheatre::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_showreplay")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
 }
 
 bool GuiMenuReplayTheatre::OnButtonReplay(const irr::SEvent &event_)

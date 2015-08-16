@@ -11,13 +11,11 @@ class GuiMenuHighscores : public GuiDialog
 {
 public:
     GuiMenuHighscores(const Config& config);
-    ~GuiMenuHighscores();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnButtonBack(const irr::SEvent &event_);
     bool OnSliderRacemode(const irr::SEvent &event_);

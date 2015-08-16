@@ -71,8 +71,6 @@ protected:
 
 private:
 
-	void RemoveFunctors();
-
 	E_TOUCH_DLG_STATE mDialogState;
 	ETOUCH_LAYOUT mTouchLayout;
 

@@ -16,14 +16,12 @@ class GuiMenuLoadingScreen : public GuiDialog
 {
 public:
     GuiMenuLoadingScreen(const Config& config);
-    ~GuiMenuLoadingScreen();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
     bool OnButtonStart(const irr::SEvent &event_);
-    void RemoveFunctors();
     void ShowLoadingMode();
 
 private:
@@ -37,8 +35,8 @@ private:
     irr::gui::IGUIStaticText* mPlayerInfo;
     irr::gui::IGUIButton* mButtonStart;
 
-    irr::gui::IGUIImage*    mImageDefault;
-    irr::gui::IGUIImage*    mImageTutorial;
+    irr::gui::IGUIImage* mImageDefault;
+    irr::gui::IGUIImage* mImageTutorial;
 
     irr::gui::IGUIStaticText* mStaticTutorialOne1;
     irr::gui::IGUIStaticText* mStaticTutorialOne2;

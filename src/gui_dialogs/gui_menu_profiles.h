@@ -9,13 +9,11 @@ class GuiMenuProfiles : public GuiDialog
 {
 public:
     GuiMenuProfiles(const Config& config);
-    ~GuiMenuProfiles();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnButtonNewProfile(const irr::SEvent &event_);
     bool OnButtonDeleteProfile(const irr::SEvent &event_);

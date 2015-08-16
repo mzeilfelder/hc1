@@ -9,7 +9,6 @@ class GuiLevelManager
 {
 public:
     GuiLevelManager(irr::gui::IGUIEnvironment* env_);
-    ~GuiLevelManager();
 
     void ShowLevelSelection();
     void CloseLevelSelection();

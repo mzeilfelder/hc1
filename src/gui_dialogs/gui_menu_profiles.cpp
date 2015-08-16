@@ -21,21 +21,15 @@ GuiMenuProfiles::GuiMenuProfiles(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuProfiles::~GuiMenuProfiles()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuProfiles::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_newprofile")), new EventFunctor<GuiMenuProfiles>(this, &GuiMenuProfiles::OnButtonNewProfile) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_deleteprofile")), new EventFunctor<GuiMenuProfiles>(this, &GuiMenuProfiles::OnButtonDeleteProfile) );
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuProfiles>(this, &GuiMenuProfiles::OnButtonBack) );
-        AddGuiEventFunctor( GetIdForName(std::string("profile")), new EventFunctor<GuiMenuProfiles>(this, &GuiMenuProfiles::OnSliderSelectProfile) );
+		ADD_EVENT_HANDLER( "id_newprofile", GuiMenuProfiles, OnButtonNewProfile);
+        ADD_EVENT_HANDLER( "id_deleteprofile", GuiMenuProfiles, OnButtonDeleteProfile );
+        ADD_EVENT_HANDLER( "id_back", GuiMenuProfiles, OnButtonBack );
+        ADD_EVENT_HANDLER( "profile", GuiMenuProfiles, OnSliderSelectProfile );
 
         IGUIElement * root = GetDialogParent();
         if ( !root )
@@ -106,16 +100,6 @@ void GuiMenuProfiles::Show()
 {
     UpdateProfiles();
     GuiDialog::Show();
-}
-
-void GuiMenuProfiles::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_newprofile")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_deleteprofile")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("profile")) );
 }
 
 bool GuiMenuProfiles::OnButtonNewProfile(const irr::SEvent &event_)

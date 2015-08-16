@@ -37,12 +37,10 @@ GuiTouch::GuiTouch(const Config& config)
 
 GuiTouch::~GuiTouch()
 {
-	RemoveFunctors();
 }
 
 bool GuiTouch::Load(const char* filename_, bool reloadLast_)
 {
-	RemoveFunctors();
 	mButtons.clear();
 	mAxes.clear();
 
@@ -53,9 +51,9 @@ bool GuiTouch::Load(const char* filename_, bool reloadLast_)
         if ( !env )
             return false;
 
-        AddGuiEventFunctor( GetIdForName(std::string("touchcontrol")), new EventFunctor<GuiTouch>(this, &GuiTouch::OnSliderAndroidControl) );
-        AddGuiEventFunctor( GetIdForName(std::string("controlspos_slider")), new EventFunctor<GuiTouch>(this, &GuiTouch::OnSliderControlsPos) );
-		AddGuiEventFunctor( GetIdForName(std::string("btn_back")), new EventFunctor<GuiTouch>(this, &GuiTouch::OnButtonBack) );
+		ADD_EVENT_HANDLER( "touchcontrol", GuiTouch, OnSliderAndroidControl );
+        ADD_EVENT_HANDLER( "controlspos_slider", GuiTouch, OnSliderControlsPos );
+		ADD_EVENT_HANDLER( "btn_back", GuiTouch, OnButtonBack );
 
         IGUIElement * root = env->getRootGUIElement();
         if ( !root )
@@ -151,15 +149,6 @@ bool GuiTouch::Load(const char* filename_, bool reloadLast_)
 		mRightControls = GetElementByName(root, "right_controls", errorMsg);
     }
     return ok;
-}
-
-void GuiTouch::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("touchcontrol")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("controlspos_slider")) );
-    RemoveGuiEventFunctor( GetIdForName(std::string("btn_back")) );
 }
 
 DeviceTouch * GuiTouch::GetDeviceTouch() const

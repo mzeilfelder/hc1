@@ -17,35 +17,18 @@ GuiMenuCredits::GuiMenuCredits(const Config& config)
     SetSuppressSceneRendering(true);
 }
 
-GuiMenuCredits::~GuiMenuCredits()
-{
-    RemoveFunctors();
-}
-
 bool GuiMenuCredits::Load(const char* filename_, bool reloadLast_)
 {
-    RemoveFunctors();
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        AddGuiEventFunctor( GetIdForName(std::string("id_back")), new EventFunctor<GuiMenuCredits>(this, &GuiMenuCredits::OnButtonBack) );
+		ADD_EVENT_HANDLER( "id_back", GuiMenuCredits, OnButtonBack );
 		if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
 		{
-			AddGuiEventFunctor( GetIdForName(std::string("id_licenses")), new EventFunctor<GuiMenuCredits>(this, &GuiMenuCredits::OnButtonLicenses) );
+			ADD_EVENT_HANDLER( "id_licenses", GuiMenuCredits, OnButtonLicenses );
 		}
     }
     return ok;
-}
-
-void GuiMenuCredits::RemoveFunctors()
-{
-    if ( !IsLoaded() )
-        return;
-    RemoveGuiEventFunctor( GetIdForName(std::string("id_back")) );
-	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH )
-	{
-		RemoveGuiEventFunctor( GetIdForName(std::string("id_licenses")) );
-	}
 }
 
 bool GuiMenuCredits::OnButtonLicenses(const irr::SEvent &event_)

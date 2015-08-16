@@ -10,13 +10,11 @@ class GuiMenuGraphics : public GuiDialog
 {
 public:
     GuiMenuGraphics(const Config& config);
-    ~GuiMenuGraphics();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnSliderResolution(const irr::SEvent &event_);
     bool OnSliderFilter(const irr::SEvent &event_);

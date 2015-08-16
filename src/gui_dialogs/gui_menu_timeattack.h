@@ -11,14 +11,12 @@ class GuiMenuTimeAttack : public GuiDialog
 {
 public:
     GuiMenuTimeAttack(const Config& config);
-    ~GuiMenuTimeAttack();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
 
-    void RemoveFunctors();
     bool OnButtonExportGhost(const irr::SEvent &event_);
     bool OnButtonStart(const irr::SEvent &event_);
     bool OnButtonBack(const irr::SEvent &event_);

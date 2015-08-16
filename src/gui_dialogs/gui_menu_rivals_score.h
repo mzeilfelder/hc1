@@ -12,13 +12,11 @@ class GuiMenuRivalsScore : public GuiDialog
 {
 public:
     GuiMenuRivalsScore(const Config& config);
-    ~GuiMenuRivalsScore();
 
     virtual bool Load(const char* filename_, bool reloadLast_=false);
     virtual void Show();
 
 protected:
-    void RemoveFunctors();
 
     bool OnButtonStart(const irr::SEvent &event_);
     bool OnButtonExit(const irr::SEvent &event_);

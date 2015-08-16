@@ -23,10 +23,6 @@ GuiMenuKeyboard::GuiMenuKeyboard(const Config& config)
 	MakeKbUS();
 }
 
-GuiMenuKeyboard::~GuiMenuKeyboard()
-{
-}
-
 bool GuiMenuKeyboard::Load(const char* filename_, bool reloadLast_)
 {
 	mButtons.clear();
