@@ -40,8 +40,6 @@ bool GuiMenuControls::Load(const char* filename_, bool reloadLast_)
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-        mSoundClick = APP.GetConfig()->MakeFilenameSound("hc_menu_click01.wav");
-
         ADD_EVENT_HANDLER( "id_accept", GuiMenuControls, OnButtonAccept );
         ADD_EVENT_HANDLER( "id_cancel", GuiMenuControls, OnButtonCancel );
         ADD_EVENT_HANDLER( "analogsteer", GuiMenuControls, OnButtonAnalogSteer );

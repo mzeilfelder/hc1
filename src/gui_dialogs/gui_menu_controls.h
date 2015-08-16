@@ -51,8 +51,6 @@ private:
     irr::gui::IGUIStaticText* mStaticWaiting;
     irr::gui::IGUIStaticText* mStaticAbort;
     irr::gui::IGUIImage*      mImageInsert;
-
-    std::string             mSoundClick;
 };
 
 
