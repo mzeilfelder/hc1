@@ -987,7 +987,8 @@ void Player::PostPhysicsUpdate(u32 time_)
     float rotation = 0.f;
     if ( controller )
         rotation = -controller->GetRotation();
-    CalcRollMatrices(rotation);
+	if ( hoverPhysics )
+		CalcRollMatrices(*hoverPhysics, rotation);
     core::matrix4 matRot( mYawMat );
     matRot *= mAlignmentMat;
     matRot *= mRollingMat;
@@ -1317,29 +1318,24 @@ void Player::UpdateDriftMarkers()
     }
 }
 
-void Player::CalcRollMatrices(float additionalRoll_)
+void Player::CalcRollMatrices(const PhysicsObject& hoverPhysics, float additionalRoll_)
 {
-    Physics * physics = APP.GetPhysics();
-    const PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
-    if ( !hoverPhysics )
-        return;
-
-//    float speed = hoverPhysics->GetSpeedAbsolute();
+//    float speed = hoverPhysics.GetSpeedAbsolute();
 //    float speedFactor = 1.f;
-//    if ( hoverPhysics->mSettings.mMaxSpeed )
-//        speedFactor = speed / hoverPhysics->mSettings.mMaxSpeed;
+//    if ( hoverPhysics.mSettings.mMaxSpeed )
+//        speedFactor = speed / hoverPhysics.mSettings.mMaxSpeed;
 
     const SteeringSettings& steeringSettings = mGame.GetSteeringSettings();
     float time = mGame.GetGameTimer()->GetLastTickInSeconds();
 
     // rotate the alignment matrix so that it's aligned to the sliding plane
-    core::vector3df repulsion(hoverPhysics->GetRepulsionNormal());
+    core::vector3df repulsion(hoverPhysics.GetRepulsionNormal());
     //core::matrix4 transformAbs(mMeshHover->getAbsoluteTransformation());
     //transformAbs.inverseRotateVect(repulsion);
     mYawMat.inverseRotateVect(repulsion);
     float scaleRotation = time * steeringSettings.mScaleAlignment;
     core::matrix4 oldMat( mAlignmentMat );
-    if ( !hoverPhysics->mHasTouchedWorldGeometry )
+    if ( !hoverPhysics.mHasTouchedWorldGeometry )
     {
         core::matrix4 matRotXZ;
         ExtIrr::AlignToUpVector(matRotXZ, oldMat, core::vector3df(0,1,0), 1.f);

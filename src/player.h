@@ -145,7 +145,7 @@ public:
 #endif
 
 protected:
-    void CalcRollMatrices(float additionalRoll_=0.f);
+    void CalcRollMatrices(const PhysicsObject& hoverPhysics, float additionalRoll_=0.f);
     void UpdateAi(irr::u32 time_, PhysicsObject* hoverPhysics);
     void UpdateAiManual(irr::u32 time_, PhysicsObject& hoverPhysics);
     void UpdateAiInputData(const PhysicsObject& hoverPhysics);
