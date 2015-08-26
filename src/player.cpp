@@ -385,7 +385,7 @@ Controller* Player::GetActiveController()
 }
 
 // hardcoded rules
-void Player::UpdateAiManual(u32 time_)
+void Player::UpdateAiManual(u32 time_, PhysicsObject& hoverPhysics)
 {
     RandomGenerator randGen;
     float power = mAiController->GetPower();
@@ -395,9 +395,6 @@ void Player::UpdateAiManual(u32 time_)
     if ( !mAiBotSettings )
         return;
 
-    PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
-    if ( !hoverPhysics )
-        return;
     const SteeringSettings& steeringSettings = mGame.GetSteeringSettings();
 
     // mVelToPreviewAngleScaled: value between 0 and 1 where: 0 is for 0 deg, 0.5 for 90 deg. 1 or -1 for 180 deg and -0.5 for 270 deg
@@ -410,14 +407,14 @@ void Player::UpdateAiManual(u32 time_)
 
     //float approximationTime = 0.01f;
     float approximationTime = mGame.GetGameTimer()->GetLastTickInSeconds();
-    rotation = -ApproximateRotationForAngle(angle, approximationTime, *hoverPhysics, steeringSettings);
+    rotation = -ApproximateRotationForAngle(angle, approximationTime, hoverPhysics, steeringSettings);
 
-    float speed = hoverPhysics->GetSpeedAbsolute();
+    float speed = hoverPhysics.GetSpeedAbsolute();
     const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
     const AiTrackInfo& info = aiTrack.GetTrackInfo(mTrackMarkerReached);
     float targetSpeed = info.mSettings.mMaxSpeed;
     // printf("targetSpeed %f power %f\n", targetSpeed, power);
-    if ( info.mSettings.mMaxSpeed < mAiBotSettings->mSlowBorder*hoverPhysics->mSettings.mMaxSpeed )
+    if ( info.mSettings.mMaxSpeed < mAiBotSettings->mSlowBorder * hoverPhysics.mSettings.mMaxSpeed )
     {
         targetSpeed *= randGen.GetNumberInRange(mAiBotSettings->mLowSlow, mAiBotSettings->mUppSlow);
     }
@@ -461,7 +458,7 @@ void Player::UpdateAiManual(u32 time_)
         }
 
 
-        core::vector2df oldVelocity(hoverPhysics->GetVelocity().X, hoverPhysics->GetVelocity().Z);
+        core::vector2df oldVelocity(hoverPhysics.GetVelocity().X, hoverPhysics.GetVelocity().Z);
         float velLength = oldVelocity.getLength();
         oldVelocity.normalize();
 
@@ -479,23 +476,15 @@ void Player::UpdateAiManual(u32 time_)
         newVelocity.normalize();
         newVelocity *= velLength;
 
-        hoverPhysics->SetVelocity( core::vector3df( newVelocity.X, hoverPhysics->GetVelocity().Y, newVelocity.Y ) );
+        hoverPhysics.SetVelocity( core::vector3df( newVelocity.X, hoverPhysics.GetVelocity().Y, newVelocity.Y ) );
     }
 }
 
-void Player::UpdateAiInputData(u32 time_)
+void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 {
-    Physics * physics = APP.GetPhysics();
-    if ( !physics )
-        return;
-
-    const PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
-    if ( !hoverPhysics )
-        return;
-
     mAiLastInputData = mAiInputData;
-    float speed = hoverPhysics->GetSpeedAbsolute();
-    mAiInputData.mSpeedScaled = speed / hoverPhysics->mSettings.mMaxSpeed;   // 0 to 1mVelToPreviewAngleScaled
+    float speed = hoverPhysics.GetSpeedAbsolute();
+    mAiInputData.mSpeedScaled = speed / hoverPhysics.mSettings.mMaxSpeed;   // 0 to 1mVelToPreviewAngleScaled
 
     core::vector3df objCenter(mMeshHover->getTransformedBoundingBox().getCenter());
 //    // debug draw
@@ -515,7 +504,7 @@ void Player::UpdateAiInputData(u32 time_)
 //    APP.GetIrrlichtManager()->SetDriverDrawMode();
 //    driver->draw3DLine (objCenter, objCenter+currDirXZ*100.f, video::SColor(255, 255, 255, 255));
 
-    core::vector3df normVelocity(speed > 1.f ? hoverPhysics->GetVelocity() : currentDir);
+    core::vector3df normVelocity(speed > 1.f ? hoverPhysics.GetVelocity() : currentDir);
     core::vector3df normVelocityXZ(normVelocity);
     normVelocityXZ.Y = 0.f;
     normVelocityXZ.normalize();
@@ -629,14 +618,17 @@ float Player::CalcScaledAngleToVector(const core::vector3df &normDirXZ_, const c
     return result;
 }
 
-void Player::UpdateAi(u32 time_)
+void Player::UpdateAi(u32 time_, PhysicsObject* hoverPhysics)
 {
     if ( !mAiController )
         return;
 
-    UpdateAiInputData(time_);
+    if ( hoverPhysics )
+	{
+		UpdateAiInputData(*hoverPhysics);
+		UpdateAiManual(time_, *hoverPhysics);
+	}
 
-    UpdateAiManual(time_);
     return;
 
 //    float timeLastFrame = mGame.GetGameTimer()->GetLastTickInSeconds();
@@ -758,15 +750,15 @@ void Player::PrePhysicsUpdate(u32 time_)
     if ( mPhysicsId < 0 )
         return;
 
-    if ( mPlayerType == PT_AI )
-    {
-        UpdateAi(time_);
-    }
-
     Physics * physics = APP.GetPhysics();
     assert(physics);
-
     PhysicsObject* hoverPhysics = physics->GetPhysicsObject(mPhysicsId);
+
+    if ( mPlayerType == PT_AI )
+    {
+        UpdateAi(time_, hoverPhysics);
+    }
+
     if ( !hoverPhysics )
         return;
 
@@ -880,7 +872,7 @@ void Player::PrePhysicsUpdate(u32 time_)
 #if defined(NEURAL_AI)
     if ( mAiTrainingDataFile )
     {
-        UpdateAiInputData(time_);
+        UpdateAiInputData(*hoverPhysics);
         mAiInputData.PrintToFile(mAiTrainingDataFile);
         fprintf(mAiTrainingDataFile, "\n");
         if ( controller )

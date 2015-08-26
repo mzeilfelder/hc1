@@ -146,9 +146,9 @@ public:
 
 protected:
     void CalcRollMatrices(float additionalRoll_=0.f);
-    void UpdateAi(irr::u32 time_);
-    void UpdateAiManual(irr::u32 time_);
-    void UpdateAiInputData(irr::u32 time_);
+    void UpdateAi(irr::u32 time_, PhysicsObject* hoverPhysics);
+    void UpdateAiManual(irr::u32 time_, PhysicsObject& hoverPhysics);
+    void UpdateAiInputData(const PhysicsObject& hoverPhysics);
 
     void UpdateShadow();
     void UpdateDriftMarkers();
