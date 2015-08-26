@@ -202,9 +202,9 @@ protected:
     void UpdateStart(GuiHud & guiHud);
     void UpdateResume();
     void UpdateFinished();
-    void OnCrossedFinishLine(Player * player_, irr::u32 time_);
-    void UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, irr::u32 time_);
-    void CheckCollisions(Player* player_, irr::u32 time_);
+    void OnCrossedFinishLine(Player& player_, irr::u32 time_);
+    void UpdateHud(const Player& player_, const PhysicsObject& physicsObj_, irr::u32 time_);
+    void CheckCollisions(Player& player_, irr::u32 time_);
 
     void ResetResult();
     void CalcGameResult(bool finishByPlaying_);

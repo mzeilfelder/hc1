@@ -749,7 +749,7 @@ void Game::UpdateFinished()
 
         mPlayers[p]->PostPhysicsUpdate(time);
 
-        CheckCollisions(mPlayers[p], time);
+        CheckCollisions(*mPlayers[p], time);
     }
 
     const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
@@ -758,12 +758,12 @@ void Game::UpdateFinished()
     mCameras[mActiveCameraIndex]->UpdateGameOutroCam(timeTickSec, hover->getAbsoluteTransformation(), gameCam, physicsObj, time-mGameFinishedTimer->GetLastStartTime());
 }
 
-void Game::OnCrossedFinishLine(Player * player_, u32 time_)
+void Game::OnCrossedFinishLine(Player& player_, u32 time_)
 {
-    if (    player_->GetCurrentRound() == 0
-        ||  APP.GetLevel()->GetTrackRelocatesBetween(APP.GetLevel()->GetNrOfTrackMarkers()-1, player_->GetLastMarkerReached()) < 3 )
+    if (    player_.GetCurrentRound() == 0
+        ||  APP.GetLevel()->GetTrackRelocatesBetween(APP.GetLevel()->GetNrOfTrackMarkers()-1, player_.GetLastMarkerReached()) < 3 )
     {
-        player_->InfoRoundFinished(time_);
+        player_.InfoRoundFinished(time_);
 
         int lapRecord = TIME_UNUSED;
         if ( GetCurrentLapHighscores() )
@@ -771,15 +771,15 @@ void Game::OnCrossedFinishLine(Player * player_, u32 time_)
             lapRecord = GetCurrentLapHighscores()->GetScore(0).mTime;
         }
 
-        if ( PT_LOCAL == player_->GetType() && !mAiTraining )
+        if ( PT_LOCAL == player_.GetType() && !mAiTraining )
         {
             PlayerProfile* profile = APP.GetProfileManager()->GetSelectedProfile();
             bool playPingSample = false;
 
              // check for a new lap record
-            if ( player_->GetCurrentRound() > 1 )
+            if ( player_.GetCurrentRound() > 1 )
             {
-                int curLapTime = player_->GetLastRoundTime();
+                int curLapTime = player_.GetLastRoundTime();
 
                 // show gap to (old) record
                 if ( GT_HOTLAP == mSettings.mGameType && lapRecord != (int)TIME_UNUSED)
@@ -829,13 +829,13 @@ void Game::OnCrossedFinishLine(Player * player_, u32 time_)
 
                 // check for race finished
                 if (    mSettings.mNrOfLaps > 0
-                    &&  (int)player_->GetCurrentRound() > mSettings.mNrOfLaps )
+                    &&  (int)player_.GetCurrentRound() > mSettings.mNrOfLaps )
                 {
                     Finish(true);
                     return;
                 }
                 else if (   mSettings.mNrOfLaps > 0
-                        &&  (int)player_->GetCurrentRound() == mSettings.mNrOfLaps )
+                        &&  (int)player_.GetCurrentRound() == mSettings.mNrOfLaps )
                 {
                     // last round
                     playPingSample = true;
@@ -870,7 +870,7 @@ void Game::OnCrossedFinishLine(Player * player_, u32 time_)
     }
 }
 
-void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u32 time_)
+void Game::UpdateHud(const Player& player_, const PhysicsObject& physicsObj_, u32 time_)
 {
     GuiHud * hud = APP.GetGui()->GetGuiHud();
     if ( !hud )
@@ -878,9 +878,9 @@ void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u
 
     bool freezeTime = false;
 
-    if ( 0 == player_->GetCurrentRound() ||
-        (   time_ - player_->GetRoundStartTime() < 5000
-        &&  player_->GetCurrentRound() != 1 )
+    if ( 0 == player_.GetCurrentRound() ||
+        (   time_ - player_.GetRoundStartTime() < 5000
+        &&  player_.GetCurrentRound() != 1 )
         )
     {
         freezeTime = true;
@@ -889,21 +889,21 @@ void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u
     // update HUD
     if ( !freezeTime )
     {
-        hud->SetTimeLap(time_ - player_->GetRoundStartTime());
+        hud->SetTimeLap(time_ - player_.GetRoundStartTime());
     }
     else
     {
-        hud->SetTimeLap( player_->GetLastRoundTime() );
+        hud->SetTimeLap( player_.GetLastRoundTime() );
     }
 
     if ( !APP.GetEditGui() )
     {
-        hud->SetSpeed(physicsObj_->GetSpeedScaled());
+        hud->SetSpeed(physicsObj_.GetSpeedScaled());
 
-        hud->SetLapCount(player_->GetCurrentRound(), mSettings.mNrOfLaps);
+        hud->SetLapCount(player_.GetCurrentRound(), mSettings.mNrOfLaps);
 
         if ( mSettings.mTargetTime == 0 )
-            hud->SetPosition(player_->GetPlacing(), mSettings.mNrOfBots+1);
+            hud->SetPosition(player_.GetPlacing(), mSettings.mNrOfBots+1);
         else
         {
             s32 trackTime = time_-mRaceStartTime;
@@ -932,7 +932,7 @@ void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u
                     s32 timeDiff = 0;
                     float trackDist = GetRelativeTrackDistanceToPlayer(mLocalPlayerIndex, p, timeDiff );
                     hud->SetPosMarker(i, trackDist);
-                    if ( 0 != player_->GetCurrentRound() )
+                    if ( 0 != player_.GetCurrentRound() )
                     {
                         hud->SetTimeGhostGap(timeDiff);
                         hud->SetTimeSessionGap(timeDiff);
@@ -944,25 +944,22 @@ void Game::UpdateHud(const Player * player_, const PhysicsObject* physicsObj_, u
     }
 }
 
-void Game::CheckCollisions(Player* player_, u32 time_)
+void Game::CheckCollisions(Player& player_, u32 time_)
 {
-    if ( !player_ )
-        return;
-
 	HC1_PROFILE(CProfileScope ps1(207);)
 
-    player_->GetHoverNode()->updateAbsolutePosition();
-    core::line3d<f32> moveLine(player_->GetHoverNode()->getAbsolutePosition(), player_->GetLastPos());
+    player_.GetHoverNode()->updateAbsolutePosition();
+    const core::line3d<f32> moveLine(player_.GetHoverNode()->getAbsolutePosition(), player_.GetLastPos());
 
     // check collision with markers
 	PROFILE_START(208);
     int indexMarker = 0;
     if ( APP.GetLevel()->CheckMarkerCollision(moveLine, indexMarker) )
     {
-        if (    indexMarker > player_->GetLastMarkerReached()
-            &&  APP.GetLevel()->GetTrackRelocatesBetween(indexMarker, player_->GetLastMarkerReached()) < 5 )
+        if (    indexMarker > player_.GetLastMarkerReached()
+            &&  APP.GetLevel()->GetTrackRelocatesBetween(indexMarker, player_.GetLastMarkerReached()) < 5 )
         {
-            player_->InfoLevelMarkerReached( indexMarker );
+            player_.InfoLevelMarkerReached( indexMarker );
         }
     }
 	PROFILE_STOP(208);
@@ -975,11 +972,11 @@ void Game::CheckCollisions(Player* player_, u32 time_)
             return;
     }
 
-    if ( !player_->IsActiveType() )
+    if ( !player_.IsActiveType() )
         return;
 
     // check teleport collision
-    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(player_->GetPhysicsId());
+    PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(player_.GetPhysicsId());
     core::vector3df tpTarget;
     core::vector3df tpRotation;
     core::vector3df tpVelocity( physicsObj->GetVelocity() );
@@ -991,11 +988,11 @@ void Game::CheckCollisions(Player* player_, u32 time_)
         physicsObj->SetVelocity(tpVelocity);
         physicsObj->ForcePositionUpdate();
 
-        player_->InfoTeleport(time_);
-        if ( player_->GetType() == PT_LOCAL )
+        player_.InfoTeleport(time_);
+        if ( player_.GetType() == PT_LOCAL )
         {
             scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
-            mCameras[mActiveCameraIndex]->ResetGameCam(player_->GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
+            mCameras[mActiveCameraIndex]->ResetGameCam(player_.GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
         }
     }
     else    // no teleport - do wall checks
@@ -1003,14 +1000,14 @@ void Game::CheckCollisions(Player* player_, u32 time_)
 		PROFILE_START(209);
         // check wall (drop off from track) collision
         int indexWall = 0;
-        bool droppingOutside = time_ - player_->GetLastTimeTouchedFloor() > 2000 ? true : false;
-        if ( player_->GetLastTimeTouchedFloor() == 0 )
+        bool droppingOutside = time_ - player_.GetLastTimeTouchedFloor() > 2000 ? true : false;
+        if ( player_.GetLastTimeTouchedFloor() == 0 )
             droppingOutside = false;
         if ( droppingOutside || APP.GetLevel()->CheckWallCollision(moveLine, indexWall) )
         {
             if ( droppingOutside )
             {
-                indexWall = player_->GetLastMarkerReached();
+                indexWall = player_.GetLastMarkerReached();
             }
             core::vector3df center;
             core::vector3df rotation;
@@ -1021,12 +1018,12 @@ void Game::CheckCollisions(Player* player_, u32 time_)
             physicsObj->SetVelocity(core::vector3df(0,0,0));
             physicsObj->ForcePositionUpdate();
 
-            player_->InfoDroppedFromTrack(time_);
+            player_.InfoDroppedFromTrack(time_);
 
-            if ( player_->GetType() == PT_LOCAL )
+            if ( player_.GetType() == PT_LOCAL )
             {
                 scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
-                mCameras[mActiveCameraIndex]->ResetGameCam(player_->GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
+                mCameras[mActiveCameraIndex]->ResetGameCam(player_.GetHoverNode()->getAbsoluteTransformation(), gameCam, physicsObj);
             }
         }
         PROFILE_STOP(209);
@@ -1095,31 +1092,30 @@ void Game::Update()
     PROFILE_START(202);
     for ( unsigned int p=0; p<mPlayers.size(); ++p)
     {
-        if ( mPlayers[p]->GetType() == PT_UNKNOWN )
+		Player& player = *mPlayers[p];
+        if ( player.GetType() == PT_UNKNOWN )
             continue;
 
         PROFILE_START(206);
-        mPlayers[p]->PostPhysicsUpdate(time);
+        player.PostPhysicsUpdate(time);
         PROFILE_STOP(206);
 
-        CheckCollisions(mPlayers[p], time);
+        CheckCollisions(player, time);
         if ( mMode == GM_FINISHED )
             return;
-        if ( !mPlayers[p]->IsActiveType() )
-            continue;
 
 #if defined(NEURAL_AI)
-        if ( mAiTraining )
+        if ( mAiTraining && player.IsActiveType() )
         {
-            if ( time - mPlayers[p]->GetRoundStartTime() > 5000
-                ||  mPlayers[p]->GetCurrentRound() == 1
+            if ( time - player.GetRoundStartTime() > 5000
+                ||  player.GetCurrentRound() == 1
                 )
             {
-                if ( mPlayers[p]->GetBestRoundTime() < guiHud.GetTimeBestLap() )
+                if ( player.GetBestRoundTime() < guiHud.GetTimeBestLap() )
                 {
                     std::string fileNN( APP.GetConfig()->MakeFilenameLevel("easy.nn") );
-                    mPlayers[p]->GetNeuralNet()->Save(fileNN.c_str());
-                    guiHud.SetTimeBestLap( mPlayers[p]->GetBestRoundTime() );
+                    player.GetNeuralNet()->Save(fileNN.c_str());
+                    guiHud.SetTimeBestLap( player.GetBestRoundTime() );
                 }
             }
         }
@@ -1134,7 +1130,8 @@ void Game::Update()
     if ( mPlayers.size() > mLocalPlayerIndex && mPlayers[mLocalPlayerIndex]->GetType() == PT_LOCAL) // is there a local player?
     {
         const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
-        UpdateHud(mPlayers[mLocalPlayerIndex], physicsObj, time);
+        if ( physicsObj )
+			UpdateHud(*mPlayers[mLocalPlayerIndex], *physicsObj, time);
 
         if ( !mAiTraining )
         {
@@ -1185,8 +1182,8 @@ void Game::OnPhysicsTick(unsigned int ticksSinceGameStart_)
         return;
     }
 
-    unsigned int physicsTicks = APP.GetPhysics()->GetTicksSinceGameStart();
-    unsigned int physicsTicksThisRound = physicsTicks - mPlayers[mLocalPlayerIndex]->GetRoundStartPhysicsTicks();
+    const unsigned int physicsTicks = APP.GetPhysics()->GetTicksSinceGameStart();
+    const unsigned int physicsTicksThisRound = physicsTicks - mPlayers[mLocalPlayerIndex]->GetRoundStartPhysicsTicks();
 
     // recording
     mRecorder->UpdateRecording( physicsTicks );
@@ -1203,8 +1200,8 @@ void Game::PlayRecords()
 {
     PROFILE_START(205);
 
-    float interpolatedPhysicsTick = APP.GetPhysics()->GetInterpolatedTick();
-    float interpolatedPhysicsTickThisRound = interpolatedPhysicsTick - mPlayers[mLocalPlayerIndex]->GetRoundStartPhysicsTicks();
+    const float interpolatedPhysicsTick = APP.GetPhysics()->GetInterpolatedTick();
+    const float interpolatedPhysicsTickThisRound = interpolatedPhysicsTick - mPlayers[mLocalPlayerIndex]->GetRoundStartPhysicsTicks();
 
     // playing
     mRecorder->UpdatePlaying( interpolatedPhysicsTick );
@@ -1703,7 +1700,7 @@ void Game::SetActiveCameraIndex(size_t index_)
     if ( mCameras[mActiveCameraIndex] )
     {
 		const CameraSettings& camSettings = mCameras[mActiveCameraIndex]->GetSettings();
-        std::wstring wName( camSettings.mName );
+        const std::wstring wName( camSettings.mName );
         u32 targetTime = mGameTimer->GetTime() + 3000;
         APP.GetGui()->GetGuiHud()->SetCameraName( wName.c_str(), targetTime );
 
@@ -1741,8 +1738,8 @@ void Game::SetControllerSettings(const TiXmlElement * settings_)
 
 void Game::ReloadSettingsCamera()
 {
-    TiXmlElement * camerasNode = APP.GetConfig()->GetCamerasSettings();
-    TiXmlNode* nodeCamera = camerasNode ? camerasNode->IterateChildren(NULL) : NULL;
+    const TiXmlElement * camerasNode = APP.GetConfig()->GetCamerasSettings();
+    const TiXmlNode* nodeCamera = camerasNode ? camerasNode->IterateChildren(NULL) : NULL;
     for ( unsigned int i=0; i< mCameras.size(); ++i )
     {
         if ( camerasNode && nodeCamera )
