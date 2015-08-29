@@ -309,7 +309,6 @@ bool IrrlichtManager::Init(const Config& config)
 	mVideoDriver->setTextureCreationFlag(video::ETCF_OPTIMIZED_FOR_SPEED, config.GetUseTexSpeed());
 	mVideoDriver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, config.GetUseMipMaps());
 
-//	IGUIEnvironment* env = mIrrlichtDevice->getGUIEnvironment();
     mSceneManager = mIrrlichtDevice->getSceneManager();
     mSceneManager->setShadowColor(video::SColor(220,0,0,0));
 
@@ -1250,7 +1249,6 @@ void IrrlichtManager::LogAllTexturesInformation(LogPriority priority)
         video::ITexture * tex = mVideoDriver->getTextureByIndex(i);
         if ( tex )
         {
-//            const core::dimension2d<s32>& origSize = tex->getOriginalSize();
             const core::dimension2d<u32>& size = tex->getSize();
             video::ECOLOR_FORMAT format = tex->getColorFormat();
             bool hasMips = tex->hasMipMaps();

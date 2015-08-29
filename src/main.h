@@ -97,8 +97,6 @@ public:
     // Depending on settings an advert is displayed
     void AdvertismentCheck();
 
-protected:
-
 public:
     bool Init(int argc, char *argv[], void * systemData = 0);
     void Run();
@@ -124,7 +122,6 @@ private:
     LevelManager*       mLevelManager;
     Level*				mActiveLevel;
     Game*               mGame;
-    // Scores*          mScores
     Editor*             mEditor;
     Physics*            mPhysics;
     ISound*             mSound;
