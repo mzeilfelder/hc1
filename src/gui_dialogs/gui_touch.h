@@ -110,10 +110,10 @@ private:
 	irr::core::dimension2di mDimTouchPosVOrig;
 
 	irr::gui::IGUIElement * mSetupElements;
-    irr::gui::IGUITextSlider* mAndroidControlSlider;
-    irr::gui::IGUITextSlider* mControlsPosSlider;
-    irr::gui::IGUITextSlider* mCushionStrengthSlider; // helper element for physics fine-tuning
-    irr::gui::IGUITextSlider* mSlowFallSlider;        // helper element for physics fine-tuning
+    IGUITextSlider* mAndroidControlSlider;
+    IGUITextSlider* mControlsPosSlider;
+    IGUITextSlider* mCushionStrengthSlider; // helper element for physics fine-tuning
+    IGUITextSlider* mSlowFallSlider;        // helper element for physics fine-tuning
 
     irr::gui::IGUIElement* mPosRangeY;		// range in which controls can be moved
     irr::gui::IGUIElement* mLeftControls;	// grouping all input controls on the left

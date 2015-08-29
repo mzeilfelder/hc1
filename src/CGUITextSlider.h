@@ -7,96 +7,96 @@
 
 namespace irr
 {
-namespace gui
-{
-    class IGUIButton;
-    class IGUIStaticText;
-
-	class CGUITextSlider : public IGUITextSlider
+	namespace gui
 	{
-	public:
+		class IGUIButton;
+		class IGUIStaticText;
+	}
+}
 
-		//! constructor
-		CGUITextSlider(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle, f32 buttonAspectRatio);
+class CGUITextSlider : public IGUITextSlider
+{
+public:
 
-		//! destructor
-		~CGUITextSlider();
+	//! constructor
+	CGUITextSlider(irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent, irr::s32 id, irr::core::rect<irr::s32> rectangle, irr::f32 buttonAspectRatio);
 
-		virtual s32 getCurrentTextId() const;
-		virtual void setCurrentTextId(s32 id_);
+	//! destructor
+	~CGUITextSlider();
 
-		virtual void addText(const wchar_t* text);
-		virtual void addText(const irr::core::stringw& text);
-		virtual const wchar_t* getCurrentText() const;
-		virtual s32 getNumTexts() const;
-        virtual void clearTexts();
+	virtual irr::s32 getCurrentTextId() const;
+	virtual void setCurrentTextId(irr::s32 id_);
 
-        virtual void setOverrideFont(IGUIFont* font=0);
-        virtual void setLeftImage(video::ITexture* image);
-        virtual void setLeftImagePressed(video::ITexture* image);
-        virtual void setRightImage(video::ITexture* image);
-        virtual void setRightImagePressed(video::ITexture* image);
-        virtual void setFocusedImage(video::ITexture* image);
+	virtual void addText(const wchar_t* text);
+	virtual void addText(const irr::core::stringw& text);
+	virtual const wchar_t* getCurrentText() const;
+	virtual irr::s32 getNumTexts() const;
+	virtual void clearTexts();
 
-        //! Sets if the alpha channel should be used for drawing images on the button (default is false)
-		virtual void setUseAlphaChannel(bool useAlphaChannel);
+	virtual void setOverrideFont(irr::gui::IGUIFont* font=0);
+	virtual void setLeftImage(irr::video::ITexture* image);
+	virtual void setLeftImagePressed(irr::video::ITexture* image);
+	virtual void setRightImage(irr::video::ITexture* image);
+	virtual void setRightImagePressed(irr::video::ITexture* image);
+	virtual void setFocusedImage(irr::video::ITexture* image);
 
-		//! Returns if the alpha channel should be used for drawing images on the button
-		virtual bool getUseAlphaChannel() const;
+	//! Sets if the alpha channel should be used for drawing images on the button (default is false)
+	virtual void setUseAlphaChannel(bool useAlphaChannel);
 
-        //! Sets the enabled state of this element.
-        virtual void setEnabled(bool enabled);
+	//! Returns if the alpha channel should be used for drawing images on the button
+	virtual bool getUseAlphaChannel() const;
 
-        //! draws the element and its children
-        virtual void draw();
+	//! Sets the enabled state of this element.
+	virtual void setEnabled(bool enabled);
 
-        //! called if an event happened.
-		virtual bool OnEvent(const SEvent& event);
+	//! draws the element and its children
+	virtual void draw();
 
-        //! when the last/first text is reached, wrap around to first/last text
-		virtual void setWrapAround(bool wrap_);
-		virtual bool getWrapAround(bool wrap_) const;
+	//! called if an event happened.
+	virtual bool OnEvent(const irr::SEvent& event);
 
-        //! only element returned is textslider itself. No children.
-        virtual IGUIElement* getElementFromPoint(const core::position2d<s32>& point)
-        {
-            if (!IsVisible)
-                return 0;
+	//! when the last/first text is reached, wrap around to first/last text
+	virtual void setWrapAround(bool wrap_);
+	virtual bool getWrapAround(bool wrap_) const;
 
-            if (AbsoluteClippingRect.isPointInside(point) )
-                return this;
+	//! only element returned is textslider itself. No children.
+	virtual IGUIElement* getElementFromPoint(const irr::core::position2d<irr::s32>& point)
+	{
+		if (!IsVisible)
+			return 0;
 
-            return 0;
-        }
+		if (AbsoluteClippingRect.isPointInside(point) )
+			return this;
 
-        // Workaround for mobile-phones with small screens
-        virtual void makeLargeButtons();
+		return 0;
+	}
 
-    protected:
-        // that text is most likely not the one any other class wants to use as it's not the one displayed
-        virtual const wchar_t* getText() const  { return IGUITextSlider::getText(); }
+	// Workaround for mobile-phones with small screens
+	virtual void makeLargeButtons();
 
-        bool hasFocus();
-        void changeSlider(bool increase_);
+protected:
+	// that text is most likely not the one any other class wants to use as it's not the one displayed
+	virtual const wchar_t* getText() const  { return IGUITextSlider::getText(); }
 
-    private:
-        s32                         mCurrentTextId;
-        core::array<core::stringw>  mTexts;
+	bool hasFocus();
+	void changeSlider(bool increase_);
 
-        IGUIStaticText *    StaticText;
-        IGUIButton *        ButtonLeft;
-        IGUIButton *        ButtonRight;
-        video::ITexture*    FocusedImage;
-        video::ITexture*    LeftButtonImage;	// Irrlicht has no getter functions yet for images so we have to keep them for the large-button hack
-        video::ITexture*    LeftButtonPressedImage;
-        video::ITexture*    RightButtonImage;
-        video::ITexture*    RightButtonPressedImage;
-        bool                UseAlphaChannel;
-        bool                WrapAround;
-        bool				HasLargeButtons;
-	};
-} // end namespace gui
-} // end namespace irr
+private:
+	irr::s32  mCurrentTextId;
+	irr::core::array<irr::core::stringw>  mTexts;
+
+	irr::gui::IGUIStaticText * StaticText;
+	irr::gui::IGUIButton *     ButtonLeft;
+	irr::gui::IGUIButton *     ButtonRight;
+	irr::video::ITexture* FocusedImage;
+	irr::video::ITexture* LeftButtonImage;	// Irrlicht has no getter functions yet for images so we have to keep them for the large-button hack
+	irr::video::ITexture* LeftButtonPressedImage;
+	irr::video::ITexture* RightButtonImage;
+	irr::video::ITexture* RightButtonPressedImage;
+	bool UseAlphaChannel;
+	bool WrapAround;
+	bool HasLargeButtons;
+};
 
 #endif // __C_GUI_TEXT_SLIDER_H_INCLUDED__
 

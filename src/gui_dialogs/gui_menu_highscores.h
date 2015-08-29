@@ -30,9 +30,9 @@ protected:
 private:
     irr::gui::IGUIStaticText* mActiveProfile;
     irr::gui::IGUIStaticText* mStaticScore[MAX_HIGHSCORES];
-    irr::gui::IGUITextSlider* mSliderScoreMode;
-    irr::gui::IGUITextSlider* mSliderDifficulty;
-    irr::gui::IGUITextSlider* mSliderTrack;
+    IGUITextSlider* mSliderScoreMode;
+    IGUITextSlider* mSliderDifficulty;
+    IGUITextSlider* mSliderTrack;
 
     int     mLevelIndex;
     int     mTrackIndex;

@@ -25,8 +25,8 @@ protected:
     bool OnSliderMusic(const irr::SEvent &event_);
 
 private:
-    irr::gui::IGUITextSlider* mSfxVolumeSlider;
-    irr::gui::IGUITextSlider* mMusicVolumeSlider;
+    IGUITextSlider* mSfxVolumeSlider;
+    IGUITextSlider* mMusicVolumeSlider;
     irr::gui::IGUIStaticText* mActiveProfile;
 };
 

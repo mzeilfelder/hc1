@@ -130,7 +130,7 @@ bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
     return ok;
 }
 
-void GuiMenuGraphics::AddNeedRestartCheck(irr::gui::IGUITextSlider* slider)
+void GuiMenuGraphics::AddNeedRestartCheck(IGUITextSlider* slider)
 {
 	if (slider)
 	{

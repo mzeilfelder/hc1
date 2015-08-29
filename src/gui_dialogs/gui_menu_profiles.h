@@ -25,7 +25,7 @@ protected:
     void UpdateSelectedProfile();
 
 private:
-    irr::gui::IGUITextSlider* mSliderProfiles;
+    IGUITextSlider* mSliderProfiles;
     irr::gui::IGUIStaticText* mActiveProfile;
     irr::gui::IGUIStaticText* mLevel;
 };

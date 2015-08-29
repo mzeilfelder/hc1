@@ -23,7 +23,7 @@
 
 using namespace irr;
 
-void GuiHelper::FillTextSliderWithTrackNames(irr::gui::IGUITextSlider *slider_, LevelDifficulty difficulty_, bool onlyEnabled_)
+void GuiHelper::FillTextSliderWithTrackNames(IGUITextSlider *slider_, LevelDifficulty difficulty_, bool onlyEnabled_)
 {
     if  (!slider_ )
         return;
@@ -49,7 +49,7 @@ void GuiHelper::FillTextSliderWithTrackNames(irr::gui::IGUITextSlider *slider_, 
     }
 }
 
-void GuiHelper::FillTextSliderWithLevelNames(irr::gui::IGUITextSlider *slider_, CS_Season season_)
+void GuiHelper::FillTextSliderWithLevelNames(IGUITextSlider *slider_, CS_Season season_)
 {
     if  (!slider_ )
         return;
@@ -72,7 +72,7 @@ void GuiHelper::FillTextSliderWithLevelNames(irr::gui::IGUITextSlider *slider_, 
     }
 }
 
-void GuiHelper::FillTextSliderWithNumbers(irr::gui::IGUITextSlider *slider_, int from_, int to_, int stepSize_, bool useOffStringForZero_)
+void GuiHelper::FillTextSliderWithNumbers(IGUITextSlider *slider_, int from_, int to_, int stepSize_, bool useOffStringForZero_)
 {
     if  (!slider_ )
         return;

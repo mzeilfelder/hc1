@@ -3,10 +3,9 @@
 #include "CGUITextSlider.h"
 #include "EGUIEventTypesHC.h"
 
-namespace irr
-{
-namespace gui
-{
+using namespace irr;
+using namespace gui;
+
 
 //! constructor
 CGUITextSlider::CGUITextSlider(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle, f32 buttonAspectRatio)
@@ -403,6 +402,3 @@ void CGUITextSlider::makeLargeButtons()
 
 	}
 }
-
-} // end namespace gui
-} // end namespace irr

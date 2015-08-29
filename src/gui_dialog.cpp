@@ -1146,7 +1146,7 @@ irr::gui::IGUIElement* GuiDialog::AddTextSlider(TiXmlElement * xmlElement_, irr:
     float buttonAspectRatio = 1.f;
     xmlElement_->QueryFloatAttribute("btn_aspect_ratio", &buttonAspectRatio);
 
-    irr::gui::CGUITextSlider* slider = new irr::gui::CGUITextSlider(env, guiParent_ ? guiParent_ : env->getRootGUIElement(), id, rect, buttonAspectRatio);
+    CGUITextSlider* slider = new CGUITextSlider(env, guiParent_ ? guiParent_ : env->getRootGUIElement(), id, rect, buttonAspectRatio);
     if ( !slider )
         return NULL;
 	slider->drop(); // should be ok here because we know it's still kept by the parent and we don't want to manage it ourself.

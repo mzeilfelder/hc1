@@ -37,10 +37,10 @@ protected:
 
 private:
     irr::gui::IGUIStaticText* mActiveProfile;
-    irr::gui::IGUITextSlider* mSliderTracks;
-    irr::gui::IGUITextSlider* mSliderDifficulty;
-    irr::gui::IGUITextSlider* mSliderRaceMode;
-    irr::gui::IGUITextSlider* mSliderGhost;
+    IGUITextSlider* mSliderTracks;
+    IGUITextSlider* mSliderDifficulty;
+    IGUITextSlider* mSliderRaceMode;
+    IGUITextSlider* mSliderGhost;
     irr::gui::IGUIStaticText* mStaticHighscore;
     irr::gui::IGUIStaticText* mStaticScoreGhost;
     irr::gui::IGUIStaticText* mStaticTextTargetTime;

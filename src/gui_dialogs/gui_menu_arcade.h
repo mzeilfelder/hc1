@@ -24,9 +24,9 @@ protected:
 
 private:
     irr::gui::IGUIStaticText* mActiveProfile;
-    irr::gui::IGUITextSlider* mSliderTracks;
-    irr::gui::IGUITextSlider* mSliderLevelDifficulty;
-    irr::gui::IGUITextSlider* mSliderBotDifficulty;
+    IGUITextSlider* mSliderTracks;
+    IGUITextSlider* mSliderLevelDifficulty;
+    IGUITextSlider* mSliderBotDifficulty;
     irr::gui::IGUIButton* mButtonStart;
     irr::gui::IGUIButton* mButtonBack;
 };

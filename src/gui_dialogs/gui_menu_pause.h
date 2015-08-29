@@ -28,8 +28,8 @@ private:
     irr::gui::IGUIButton*       mButtonRestart;
     irr::gui::IGUIButton*       mButtonQuit;
     irr::gui::IGUIStaticText*   mStaticTrackName;
-    irr::gui::IGUITextSlider*   mSfxVolumeSlider;
-    irr::gui::IGUITextSlider*   mMusicVolumeSlider;
+    IGUITextSlider*  mSfxVolumeSlider;
+    IGUITextSlider*  mMusicVolumeSlider;
 };
 
 #endif // GUI_MENU_PAUSE_H

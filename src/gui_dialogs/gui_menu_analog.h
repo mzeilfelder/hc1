@@ -22,8 +22,8 @@ protected:
     bool OnSliderDead(const irr::SEvent &event_);
 
 private:
-    irr::gui::IGUITextSlider* mSliderRange;
-    irr::gui::IGUITextSlider* mSliderDead;
+    IGUITextSlider* mSliderRange;
+    IGUITextSlider* mSliderDead;
     irr::gui::IGUIStaticText* mActiveProfile;
 };
 

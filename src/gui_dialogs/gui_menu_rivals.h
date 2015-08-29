@@ -39,10 +39,10 @@ protected:
 private:
     irr::gui::IGUIButton* mButtonStart;
     irr::gui::IGUIButton* mButtonBack;
-    irr::gui::IGUITextSlider* mSliderTrackDifficulty;
-    irr::gui::IGUITextSlider* mSliderNumRaces;
-    irr::gui::IGUITextSlider* mSliderTracks;
-    irr::gui::IGUITextSlider* mSliderPlayer[MAX_RIVALS];
+    IGUITextSlider* mSliderTrackDifficulty;
+    IGUITextSlider* mSliderNumRaces;
+    IGUITextSlider* mSliderTracks;
+    IGUITextSlider* mSliderPlayer[MAX_RIVALS];
 };
 
 

@@ -22,7 +22,7 @@ protected:
 
 private:
     irr::gui::IGUIImage*        mImageHover;
-    irr::gui::IGUITextSlider*   mSliderHover;
+    IGUITextSlider*   mSliderHover;
     irr::gui::IGUIStaticText*   mUnlock;
     irr::gui::IGUIButton*       mButtonAccept;
     irr::gui::IGUIStaticText*   mActiveProfile;

@@ -26,24 +26,24 @@ protected:
     bool OnButtonAccept(const irr::SEvent &event_);
     bool OnButtonCancel(const irr::SEvent &event_);
 
-	void AddNeedRestartCheck(irr::gui::IGUITextSlider* slider);
+	void AddNeedRestartCheck(IGUITextSlider* slider);
 	bool CheckRestartNeeded(bool updateText = true);
 
 private:
-    irr::gui::IGUITextSlider* mSliderResolution;
-    irr::gui::IGUITextSlider* mSliderFilter;
-    irr::gui::IGUITextSlider* mSliderAntialias;
-    irr::gui::IGUITextSlider* mSliderLights;
-    irr::gui::IGUITextSlider* mSliderTextureResolution;
-    irr::gui::IGUITextSlider* mSliderParticles;
-    irr::gui::IGUITextSlider* mSliderVsync;
+    IGUITextSlider* mSliderResolution;
+    IGUITextSlider* mSliderFilter;
+    IGUITextSlider* mSliderAntialias;
+    IGUITextSlider* mSliderLights;
+    IGUITextSlider* mSliderTextureResolution;
+    IGUITextSlider* mSliderParticles;
+    IGUITextSlider* mSliderVsync;
     irr::gui::IGUIStaticText* mActiveProfile;
     irr::gui::IGUIStaticText* mStaticInfo;
     irr::gui::IGUIStaticText* mStaticRestartInfo;
 
     struct NeedsRestart
     {
-		irr::gui::IGUITextSlider* mTextSlider;
+		IGUITextSlider* mTextSlider;
 		irr::s32 mOldTextId;
     };
 	std::vector<NeedsRestart> mNeedsRestart;

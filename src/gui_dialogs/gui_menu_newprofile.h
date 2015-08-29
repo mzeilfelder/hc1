@@ -24,7 +24,7 @@ protected:
 
 private:
     bool mFirstProfile;
-    irr::gui::IGUITextSlider* mSliderSelectKb;
+    IGUITextSlider* mSliderSelectKb;
     irr::gui::IGUIEditBox *  mEditName;
 };
 
