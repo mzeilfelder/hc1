@@ -277,22 +277,17 @@ scene::ITriangleSelector* Physics::GetTriangleSelector(size_t index_) const
 bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vector3df &searchPos_, core::vector3df & result_)
 {
     PROFILE_START(301);
-    core::aabbox3d<f32> box;
-    box.reset(line_.start);
+    core::aabbox3d<f32> box(line_.start);
     box.addInternalPoint(line_.end);
 
     FindCollisionTriangles( box );
 
     double nearestDist = FLT_MAX;
-    core::vector3df nearestPoint;
 
     // find nearest collision
     bool found = false;
     for ( int i=0; i < mCollisionTrianglesSize; i++ )
     {
-//        if ( !useTriangles[i] )
-//            continue;
-
         core::vector3df pointOnPlane;
         if ( mCollisionTriangles[i].getIntersectionWithLimitedLine (line_, pointOnPlane) )
         {
@@ -326,9 +321,6 @@ bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vecto
 
 void Physics::FindCollisionTriangles( const core::aabbox3d<f32> &box_)
 {
-    // get all triangles in this area
-//    static bool useTriangles[PHYSICS_MAX_COLLISION_TRIANGLES];
-
     mCollisionTrianglesSize = 0;
     for ( size_t i=0; i<mCollisionSelectors.size(); ++i )
     {
@@ -338,21 +330,6 @@ void Physics::FindCollisionTriangles( const core::aabbox3d<f32> &box_)
         selector->getTriangles( &mCollisionTriangles[mCollisionTrianglesSize], PHYSICS_MAX_COLLISION_TRIANGLES-mCollisionTrianglesSize, trianglesReceived, box_, /*transform*/ 0 );
         mCollisionTrianglesSize += trianglesReceived;
     }
-
-    // FIXED: with my own octree-selector it's faster now
-//    // octree returns a lot triangles outside which we can already ignore here
-//    PROFILE_START(304);
-//    core::aabbox3d<f32> boxTriangle;
-//    // find nearest collision
-//    for ( int i=0; i < mCollisionTrianglesSize; ++i )
-//    {
-//        boxTriangle.reset(mCollisionTriangles[i].pointA);
-//        boxTriangle.addInternalPoint(mCollisionTriangles[i].pointB);
-//        boxTriangle.addInternalPoint(mCollisionTriangles[i].pointC);
-//        useTriangles[i] = boxTriangle.intersectsWithBox(box);
-//    }
-//    PROFILE_STOP(304);
-
 }
 
 bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::triangle3df &nearestTriangle_, core::vector3df &repulsionNormal_)
@@ -390,9 +367,6 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
         // find nearest collision
         for ( int i=0; i < mCollisionTrianglesSize; i++ )
         {
-//            if ( !useTriangles[i] )
-//                continue;
-
             // debug
             if ( mDebuggingEnabled )
             {
