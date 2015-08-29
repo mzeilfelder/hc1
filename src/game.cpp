@@ -450,30 +450,31 @@ void Game::PrepareStart()
             ++players;
         }
 
-        // record tracks from any start-position (for testing)
-//        if ( !mHasGhost && mAutoloadRecording )
-//        {
-//            // ghost for each trackstart where a saved game is available
-//            for ( int g=0; g < 4; ++g )
-//            {
-//                std::ostringstream filename;
-//                filename << APP.GetConfig()->GetPathRecordings() << "L" << level.mId << "P" << g;
-//                int ghostRecordId = mRecorder->AddRecord();
-//                if ( mRecorder->GetRecord(ghostRecordId)->Load(filename.str()) )
-//                {
-//                    mHasGhost = true;
-//                    mPlayers[players]->SetType(PT_GHOST_TRACK);
-//                    mPlayers[players]->SetRecordPlayId(ghostRecordId);
-//                    mPlayers[players]->SetTrackStart(g);
-//                    mRecorder->AddPlayingObject(mPlayers[players], ghostRecordId);
-//                    ++players;
-//                }
-//                else
-//                {
-//                    mRecorder->RemoveRecord(ghostRecordId);
-//                }
-//            }
-//         }
+#if 0	  // record tracks from any start-position (for testing)
+        if ( !mHasGhost && mAutoloadRecording )
+        {
+            // ghost for each trackstart where a saved game is available
+            for ( int g=0; g < 4; ++g )
+            {
+                std::ostringstream filename;
+                filename << APP.GetConfig()->GetPathRecordings() << "L" << level.mId << "P" << g;
+                int ghostRecordId = mRecorder->AddRecord();
+                if ( mRecorder->GetRecord(ghostRecordId)->Load(filename.str()) )
+                {
+                    mHasGhost = true;
+                    mPlayers[players]->SetType(PT_GHOST_TRACK);
+                    mPlayers[players]->SetRecordPlayId(ghostRecordId);
+                    mPlayers[players]->SetTrackStart(g);
+                    mRecorder->AddPlayingObject(mPlayers[players], ghostRecordId);
+                    ++players;
+                }
+                else
+                {
+                    mRecorder->RemoveRecord(ghostRecordId);
+                }
+            }
+         }
+#endif
     }
     mRecorder->RemoveAllUnusedRecords();
     UpdateHoverAmbience(level);
@@ -654,8 +655,8 @@ void Game::UpdateStart(GuiHud & guiHud)
 {
     PROFILE_START(209);
     mGameTimer->Tick();
-    u32 time = mGameTimer->GetTime();
-    f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
+    const u32 time = mGameTimer->GetTime();
+    const f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
     guiHud.Update(time);
     APP.GetPhysics()->Update(0.1f, false);
 
@@ -707,7 +708,7 @@ void Game::UpdateStart(GuiHud & guiHud)
 void Game::UpdateResume()
 {
     // camera approaching player
-    f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
+    const f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
     scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
     const scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
     const PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[mLocalPlayerIndex]->GetPhysicsId());
@@ -734,8 +735,8 @@ void Game::UpdateResume()
 void Game::UpdateFinished()
 {
     mGameFinishedTimer->Tick();
-    f32 timeTickSec = mGameFinishedTimer->GetLastTickInSeconds();
-    u32 time = mGameFinishedTimer->GetTime();
+    const f32 timeTickSec = mGameFinishedTimer->GetLastTickInSeconds();
+    const u32 time = mGameFinishedTimer->GetTime();
 
     for ( unsigned int p=0; p<mPlayers.size(); ++p)
     {
@@ -1054,8 +1055,8 @@ void Game::Update()
         mGameTimer->Tick();
     }
 
-	u32 time = mGameTimer->GetTime();
-    f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
+	const u32 time = mGameTimer->GetTime();
+    const f32 timeTickSec = mGameTimer->GetLastTickInSeconds();
 
     GuiTouch * guiTouch = APP.GetGui()->GetGuiTouch();
     if ( guiTouch )
@@ -1526,9 +1527,8 @@ void Game::Pause()
     mGameTimer->Stop();
 
     // save recording for best lap
-    int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
-    std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
+    const LevelSettings &level = APP.GetLevelManager()->GetCurrentLevelSettings();
+    const std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
     mRecordBestLap->Save(filenameLapRecord);
 
     APP.GetHighscoreManager()->Save();
@@ -1556,9 +1556,8 @@ void Game::Finish(bool finishByPlaying_)
     mGameFinishedTimer->Start();
 
     // save recording for best lap
-    int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
-    std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
+    const LevelSettings &level = APP.GetLevelManager()->GetCurrentLevelSettings();
+    const std::string filenameLapRecord( APP.GetConfig()->MakeLapRecordName(level.mId, APP.GetStringTable()) );
     mRecordBestLap->Save(filenameLapRecord);
 
 //    if ( mAutosaveRecording  )
@@ -1592,8 +1591,7 @@ void Game::Finish(bool finishByPlaying_)
                 if ( pos == 0 && (GT_TIMERACE == mSettings.mGameType || GT_RIVALS == mSettings.mGameType) )
                 {
                     // save recording for new track record
-                    int levelIndex = APP.GetLevelManager()->GetCurrentLevelIndex();
-                    const LevelSettings &level = APP.GetLevelManager()->GetLevelSettings(levelIndex);
+                    const LevelSettings &level = APP.GetLevelManager()->GetCurrentLevelSettings();
                     std::string filenameTrackRecord( APP.GetConfig()->MakeTrackRecordName(level.mId, APP.GetStringTable()) );
                     GhostRecordSettings trackGhostRecordSettings;
                     if ( profile )
@@ -1701,7 +1699,7 @@ void Game::SetActiveCameraIndex(size_t index_)
     {
 		const CameraSettings& camSettings = mCameras[mActiveCameraIndex]->GetSettings();
         const std::wstring wName( camSettings.mName );
-        u32 targetTime = mGameTimer->GetTime() + 3000;
+        const u32 targetTime = mGameTimer->GetTime() + 3000;
         APP.GetGui()->GetGuiHud()->SetCameraName( wName.c_str(), targetTime );
 
 		scene::ISceneNode * hover = mPlayers[mLocalPlayerIndex]->GetHoverNode();
