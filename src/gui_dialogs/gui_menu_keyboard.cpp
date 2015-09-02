@@ -30,7 +30,7 @@ bool GuiMenuKeyboard::Load(const char* filename_, bool reloadLast_)
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
 	{
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

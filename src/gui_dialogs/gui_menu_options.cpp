@@ -53,7 +53,7 @@ bool GuiMenuOptions::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "sfxvolume", GuiMenuOptions, OnSliderSfx );
         ADD_EVENT_HANDLER( "musicvolume", GuiMenuOptions, OnSliderMusic );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 
@@ -107,7 +107,7 @@ void GuiMenuOptions::Show()
 
     GuiDialog::Show();
 
-	IGUIElement * root = GetDialogParent();
+	const IGUIElement * root = GetDialogRoot();
 	if ( root )
 	{
 		std::string errorMsg("");

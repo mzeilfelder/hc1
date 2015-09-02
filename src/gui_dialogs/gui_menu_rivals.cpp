@@ -44,7 +44,7 @@ bool GuiMenuRivals::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "player3", GuiMenuRivals, OnSliderPlayer );
         ADD_EVENT_HANDLER( "player4", GuiMenuRivals, OnSliderPlayer );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
         std::string errorMsg("GuiMenuRivals::Load");

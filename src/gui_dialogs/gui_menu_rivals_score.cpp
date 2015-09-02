@@ -46,7 +46,7 @@ bool GuiMenuRivalsScore::Load(const char* filename_, bool reloadLast_)
 		ADD_EVENT_HANDLER( "id_start", GuiMenuRivalsScore, OnButtonStart );
         ADD_EVENT_HANDLER( "id_exit", GuiMenuRivalsScore, OnButtonExit );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
         std::string errorMsg("GuiMenuRivalsScore::Load");

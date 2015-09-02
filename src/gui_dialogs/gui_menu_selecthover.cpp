@@ -34,7 +34,7 @@ bool GuiMenuSelectHover::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_cancel", GuiMenuSelectHover, OnButtonCancel );
         ADD_EVENT_HANDLER( "select", GuiMenuSelectHover, OnSliderHover );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

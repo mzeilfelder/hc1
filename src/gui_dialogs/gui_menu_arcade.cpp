@@ -35,7 +35,7 @@ bool GuiMenuArcade::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "difficulty", GuiMenuArcade, OnSliderLevelDifficulty );
         ADD_EVENT_HANDLER( "track", GuiMenuArcade, OnSliderTracks );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 
@@ -142,7 +142,7 @@ bool GuiMenuArcade::OnButtonStart(const irr::SEvent &event_)
     if ( event_.GUIEvent.EventType != EGET_BUTTON_CLICKED )
         return false;
 
-    IGUIElement * root = GetDialogParent();
+    const IGUIElement * root = GetDialogRoot();
     if ( !root )
         return false;
     IGUITextSlider* sliderOpponents = static_cast<IGUITextSlider*>(GetElementByName(root, "opponents"));

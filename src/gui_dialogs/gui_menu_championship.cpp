@@ -32,7 +32,7 @@ bool GuiMenuChampionship::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_newchamp", GuiMenuChampionship, OnButtonNew );
         ADD_EVENT_HANDLER( "id_back", GuiMenuChampionship, OnButtonBack );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

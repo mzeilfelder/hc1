@@ -38,7 +38,7 @@ bool GuiMenuHighscores::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "trackdifficulty", GuiMenuHighscores, OnSliderDifficulty );
         ADD_EVENT_HANDLER( "track", GuiMenuHighscores, OnSliderTrack );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

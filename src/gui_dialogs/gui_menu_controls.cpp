@@ -52,7 +52,7 @@ bool GuiMenuControls::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "pause", GuiMenuControls, OnButtonPause );
         ADD_EVENT_HANDLER( "camera", GuiMenuControls, OnButtonCamera );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

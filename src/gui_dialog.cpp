@@ -261,7 +261,7 @@ irr::gui::IGUIEnvironment * GuiDialog::GetEnvironment()
     return APP.GetIrrlichtManager()->GetIrrlichtDevice()->getGUIEnvironment();
 }
 
-irr::gui::IGUIElement* GuiDialog::GetDialogParent()
+const irr::gui::IGUIElement* GuiDialog::GetDialogRoot()
 {
 	return mDialogRoot;
 }
@@ -693,7 +693,7 @@ int GuiDialog::ReadNameForId(TiXmlElement * xmlElement_)
     return id;
 }
 
-irr::gui::IGUIElement* GuiDialog::GetElementByName(irr::gui::IGUIElement* parent_, const std::string& name_, const std::string& error_) const
+irr::gui::IGUIElement* GuiDialog::GetElementByName(const irr::gui::IGUIElement* parent_, const std::string& name_, const std::string& error_) const
 {
 	if ( !parent_ )
 		return NULL;

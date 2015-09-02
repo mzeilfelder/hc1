@@ -45,7 +45,7 @@ bool GuiMenuGraphics::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_accept", GuiMenuGraphics, OnButtonAccept );
         ADD_EVENT_HANDLER( "id_cancel", GuiMenuGraphics, OnButtonCancel );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

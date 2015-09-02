@@ -55,7 +55,7 @@ bool GuiMenuMain::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_profiles", GuiMenuMain, OnButtonProfiles );
         ADD_EVENT_HANDLER( "id_quit", GuiMenuMain, OnButtonQuit );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

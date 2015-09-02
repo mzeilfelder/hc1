@@ -31,7 +31,7 @@ bool GuiMenuNewProfile::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_cancel", GuiMenuNewProfile, OnButtonCancel );
         ADD_EVENT_HANDLER( "profilename", GuiMenuNewProfile, OnEditName );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

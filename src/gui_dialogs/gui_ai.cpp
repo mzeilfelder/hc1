@@ -50,7 +50,7 @@ bool GuiAi::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "cbAiTraining", GuiAi, OnCheckBoxAiTraining );
         ADD_EVENT_HANDLER( "aidialog", GuiAi, OnWindowEvent );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

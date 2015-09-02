@@ -45,7 +45,7 @@ bool GuiMenuLoadingScreen::Load(const char* filename_, bool reloadLast_)
     {
 		ADD_EVENT_HANDLER( "id_start", GuiMenuLoadingScreen, OnButtonStart );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

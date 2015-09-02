@@ -54,7 +54,7 @@ public:
 
     // Find an element in this dialog by it's name
     // Careful: Slow - so don't use in speed-critical parts.
-    irr::gui::IGUIElement* GetElementByName(irr::gui::IGUIElement* parent_, const std::string& name_, const std::string& error_=std::string("")) const;
+    irr::gui::IGUIElement* GetElementByName(const irr::gui::IGUIElement* parent_, const std::string& name_, const std::string& error_=std::string("")) const;
 
 protected:
 
@@ -109,8 +109,9 @@ protected:
     int ReadNameForId(TiXmlElement * xmlElement_);
     irr::core::stringw ReadText(TiXmlElement * xmlElement_) const;
 
+	const irr::gui::IGUIElement* GetDialogRoot();
+
     irr::gui::IGUIEnvironment * GetEnvironment();
-    irr::gui::IGUIElement* GetDialogParent();
     irr::video::IVideoDriver* GetDriver();
     irr::io::IFileSystem * GetFileSystem();
 

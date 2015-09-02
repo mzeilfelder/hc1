@@ -35,7 +35,7 @@ bool GuiMenuAnalog::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "range", GuiMenuAnalog, OnSliderRange );
         ADD_EVENT_HANDLER( "deadzone", GuiMenuAnalog, OnSliderDead );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

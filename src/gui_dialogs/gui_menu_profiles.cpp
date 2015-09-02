@@ -31,7 +31,7 @@ bool GuiMenuProfiles::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "id_back", GuiMenuProfiles, OnButtonBack );
         ADD_EVENT_HANDLER( "profile", GuiMenuProfiles, OnSliderSelectProfile );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

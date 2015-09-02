@@ -53,7 +53,7 @@ bool GuiMenuTimeAttack::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "racemode", GuiMenuTimeAttack, OnSliderRaceMode );
         ADD_EVENT_HANDLER( "ghost", GuiMenuTimeAttack, OnSliderGhost );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

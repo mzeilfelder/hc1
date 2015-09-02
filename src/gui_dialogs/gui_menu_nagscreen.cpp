@@ -34,7 +34,7 @@ bool GuiMenuNagscreen::Load(const char* filename_, bool reloadLast_)
 		ADD_EVENT_HANDLER( "id_quit", GuiMenuNagscreen, OnButtonQuit );
         ADD_EVENT_HANDLER( "id_buy", GuiMenuNagscreen, OnButtonBuy );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
         std::string errorMsg("GuiMenuNagscreen::Load");
@@ -59,7 +59,7 @@ void GuiMenuNagscreen::Show()
 				mItemName = billing->getItemName(0);
 
 				std::string errorMsg("GuiMenuNagscreen::Show");
-				IGUIElement * root = GetDialogParent();
+				const IGUIElement * root = GetDialogRoot();
 				mStaticNagPrice = static_cast<IGUIStaticText*>(GetElementByName(root, "nag_price", errorMsg));
 				mStaticNagAdvertise = static_cast<IGUIStaticText*>(GetElementByName(root, "nag_advertise", errorMsg));
 

@@ -45,7 +45,7 @@ bool GuiMenuGameEndChampionship::Load(const char* filename_, bool reloadLast_)
 //        ADD_EVENT_HANDLER( "id_hdsavereplay", GuiMenuGameEndChampionship, OnButtonSaveReplay );
 //        ADD_EVENT_HANDLER( "id_hdquit", GuiMenuGameEndChampionship, OnButtonQuit );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 

@@ -30,7 +30,7 @@ bool GuiDlgOkCancel::Load(const char* filename_, bool reloadLast_)
 		ADD_EVENT_HANDLER( "id_ok", GuiDlgOkCancel, OnButtonOk );
         ADD_EVENT_HANDLER( "id_cancel", GuiDlgOkCancel, OnButtonCancel );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
         std::string errorMsg("GuiDlgOkCancel::Load");

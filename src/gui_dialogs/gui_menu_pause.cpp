@@ -44,7 +44,7 @@ bool GuiMenuPause::Load(const char* filename_, bool reloadLast_)
 			ADD_EVENT_HANDLER( "id_touch_controls", GuiMenuPause, OnButtonTouchControls );
 		}
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
 
@@ -112,7 +112,7 @@ void GuiMenuPause::Show()
 
     if ( GetConfig().GetUseTouchInput() == ETI_NO_TOUCH )
 	{
-		IGUIElement * root = GetDialogParent();
+		const IGUIElement * root = GetDialogRoot();
 		if ( root )
 		{
 			std::string errorMsg("");

@@ -43,7 +43,7 @@ bool GuiMenuGameEndRivals::Load(const char* filename_, bool reloadLast_)
     {
 		ADD_EVENT_HANDLER( "id_hdcontinue", GuiMenuGameEndRivals, OnButtonContinue );
 
-        IGUIElement * root = GetDialogParent();
+        const IGUIElement * root = GetDialogRoot();
         if ( !root )
             return false;
         std::string errorMsg("GuiMenuGameEndRivals::Load");
