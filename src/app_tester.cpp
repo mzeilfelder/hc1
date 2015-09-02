@@ -20,6 +20,11 @@ AppTester::AppTester()
 {
 }
 
+AppTester::~AppTester()
+{
+	delete mXmlDocument;
+}
+
 void AppTester::Init(App * app)
 {
 	mApp = app;

@@ -19,6 +19,7 @@ class AppTester
 {
 public:
 	AppTester();
+	~AppTester();
 
 	void Init(App * app);
 

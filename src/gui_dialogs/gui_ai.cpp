@@ -32,7 +32,6 @@ bool GuiAi::Load(const char* filename_, bool reloadLast_)
     bool ok = GuiDialog::Load(filename_, reloadLast_);
     if ( ok )
     {
-		ADD_EVENT_HANDLER( "cbShowTrack", GuiAi, OnCheckBoxShowTrack );
         ADD_EVENT_HANDLER( "cbShowTrack", GuiAi, OnCheckBoxShowTrack);
         ADD_EVENT_HANDLER( "btnRecordToTrack", GuiAi, OnButtonRecordToTrack );
         ADD_EVENT_HANDLER( "btnFixedSteps", GuiAi, OnButtonFixedSteps );

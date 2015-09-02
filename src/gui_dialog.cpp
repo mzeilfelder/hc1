@@ -142,6 +142,7 @@ bool GuiDialog::Load(const char* filename_, bool reloadLast_)
 
 	irr::core::recti rootRect(0, 0, (irr::s32)(mDefaultScreenWidth*mScaleX), (irr::s32)(mDefaultScreenHeight*mScaleY));
     mDialogRoot = new CGUIDialogRoot(env, env->getRootGUIElement(), -1, rootRect);
+    mDialogRoot->drop(); // gui elements get added to the environment in the constructor
 
     TiXmlElement * elementDialog = nodeDialog->ToElement();
     CreateSkinFromXml(elementDialog);
@@ -1227,6 +1228,13 @@ void GuiDialog::AddGuiEventFunctor(const std::string& name, IEventFunctor * func
 	{
 		mEventFunctorIds.push_back(id);
 		AddGuiEventFunctor(id, functor);
+	}
+	else
+	{
+		delete functor;
+        std::ostringstream str;
+        str << "No functor created for unknown GUI element: " << name << std::endl;
+        LOG.Warn( str.str() );
 	}
 }
 
