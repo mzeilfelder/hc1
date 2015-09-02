@@ -404,6 +404,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
 		LOG.Debug(profileResult.c_str());
 	)
 
+	//testFile = "gui_only.xml";
     //testFile = "one_level.xml";
     //testFile = "levels.xml";
     //testFile = "long_level.xml";

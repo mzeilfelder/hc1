@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<main>
+	<reset_profile/>
+	<wait timeMs="1000"/>
+	<write_fps name="main_menu"/>
+	<write_profile name="main_menu"/>
+	<screenshot name="main_menu"/>
+
+	<lmouse_click element="id_arcade"/>
+	<wait timeMs="1000"/>
+	<frame_end/>
+</main>
