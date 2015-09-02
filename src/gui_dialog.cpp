@@ -1,6 +1,7 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
 #include "gui_dialog.h"
+#include "CGUIDialogRoot.h"
 #include "irrlicht_manager.h"
 #include "config.h"
 #include "main.h"
@@ -24,6 +25,10 @@ int GuiDialog::mDefaultScreenHeight = 480;
 
 GuiDialog::GuiDialog(const Config& config)
 : mConfig(config)
+, mDialogRoot(0)
+, mDisplayMode(EDM_NORMAL)
+, mScaleX(1.f)
+, mScaleY(1.f)
 , mHighestFocusId(0)
 , mSkin(NULL)
 , mOldSkin(NULL)
@@ -59,26 +64,16 @@ void GuiDialog::Clear()
         return;
     }
 
-    // remove top elements (childs will be removed automatically)
-    std::vector<irr::gui::IGUIElement*> topElements;
-    for ( unsigned int i=0; i < mGUIElements.size(); ++i )
+    if ( mDialogRoot )
     {
-        // Somewhat complicated, because we have to take care here that childs are not
-        // checked for parent after they are removed - so we just save here and remove later
-        if ( mGUIElements[i]->getParent() == root )
-        {
-            topElements.push_back(mGUIElements[i]);
-        }
-        if ( env->hasFocus(mGUIElements[i]) )
-        {
+    	if ( mDialogRoot->isMyChild(env->getFocus()) )
+    	{
 			env->setFocus(0);
         }
+		mDialogRoot->remove();
+		mDialogRoot = 0;
     }
     mGUIElements.clear();
-    for ( size_t i=0; i < topElements.size(); ++i )
-    {
-        topElements[i]->remove();
-    }
 
     if ( mSkin )
     {
@@ -93,11 +88,34 @@ void GuiDialog::Clear()
     mIdNameMap.clear();
 }
 
+void GuiDialog::CheckScaling()
+{
+    irr::video::IVideoDriver* driver = GetDriver();
+    if ( driver )
+	{
+		mScreenDim = driver->getScreenSize();
+		mScaleX = (float)mScreenDim.Width / (float)mDefaultScreenWidth;
+		mScaleY = (float)mScreenDim.Height  / (float)mDefaultScreenHeight;
+
+		// triple-screen mode?
+		if ( mConfig.DoesNeedTripleHeadMode(mScreenDim.Width, mScreenDim.Height) )
+		{
+			mDisplayMode = EDM_TRIPLE_HEAD;
+			mScaleX /= 3.f;
+		}
+		else
+		{
+			mDisplayMode = EDM_NORMAL;
+		}
+	}
+}
+
 bool GuiDialog::Load(const char* filename_, bool reloadLast_)
 {
 	LOG.DebugLn("Load Dialog ", filename_);
     Hide();
     Clear();
+    CheckScaling();
     mIsLoaded = false;
     if ( !reloadLast_ )
     {
@@ -121,10 +139,14 @@ bool GuiDialog::Load(const char* filename_, bool reloadLast_)
     {
         return mIsLoaded;
     }
+
+	irr::core::recti rootRect(0, 0, (irr::s32)(mDefaultScreenWidth*mScaleX), (irr::s32)(mDefaultScreenHeight*mScaleY));
+    mDialogRoot = new CGUIDialogRoot(env, env->getRootGUIElement(), -1, rootRect);
+
     TiXmlElement * elementDialog = nodeDialog->ToElement();
     CreateSkinFromXml(elementDialog);
     CreateStyleTemplates(elementDialog);
-    CreateElementsFromXml(nodeDialog->ToElement(), env->getRootGUIElement());
+    CreateElementsFromXml(nodeDialog->ToElement(), mDialogRoot);
 
     mIsLoaded = true;
 
@@ -153,11 +175,8 @@ void GuiDialog::Show()
     {
         env->setSkin(mSkin);
     }
-    std::vector<irr::gui::IGUIElement*>::iterator it;
-    for ( it = mGUIElements.begin(); it != mGUIElements.end(); ++it )
-    {
-        (*it)->setVisible(true);
-    }
+    if ( mDialogRoot )
+		mDialogRoot->setVisible(true);
 
     LOG.LogLn( LP_DEBUG, "Show finished" );
 }
@@ -176,15 +195,14 @@ void GuiDialog::Hide()
         mOldSkin = 0;
     }
 
-    std::vector<irr::gui::IGUIElement*>::iterator it;
-    for ( it = mGUIElements.begin(); it != mGUIElements.end(); ++it )
-    {
-        (*it)->setVisible(false);
-        if ( env->hasFocus(*it) )
-        {
+    if ( mDialogRoot )
+	{
+		if ( mDialogRoot->isMyChild(env->getFocus()) )
+		{
 			env->setFocus(0);
-        }
-    }
+		}
+		mDialogRoot->setVisible(false);
+	}
 }
 
 void GuiDialog::Enable()
@@ -245,11 +263,7 @@ irr::gui::IGUIEnvironment * GuiDialog::GetEnvironment()
 
 irr::gui::IGUIElement* GuiDialog::GetDialogParent()
 {
-    irr::gui::IGUIEnvironment * env = GetEnvironment();
-    if ( !env )
-        return NULL;
-
-    return env->getRootGUIElement();
+	return mDialogRoot;
 }
 
 irr::video::IVideoDriver* GuiDialog::GetDriver()
@@ -608,14 +622,7 @@ irr::gui::IGUIFont* GuiDialog::ReadScaledFont(TiXmlElement * xmlElement_)
         {
             int size = 12;
             xmlElement_->QueryIntAttribute("font_size", &size);
-
-            irr::video::IVideoDriver* driver = GetDriver();
-            if ( driver )
-            {
-                core::dimension2d<s32> dim( driver->getScreenSize() );
-                float scaleY = (float)dim.Height  / (float)mDefaultScreenHeight;
-                size = (int)(size*scaleY);
-            }
+			size = (int)(size*mScaleY);
 
             int antiAlias = 1;
             xmlElement_->QueryIntAttribute("anti_alias", &antiAlias);
@@ -623,7 +630,7 @@ irr::gui::IGUIFont* GuiDialog::ReadScaledFont(TiXmlElement * xmlElement_)
             int transparency = 1;
             xmlElement_->QueryIntAttribute("transp", &transparency);
 
-            return APP.GetFontManager()->GetTtFont(driver, GetFileSystem(), completeFontName.c_str(), size, (bool)antiAlias, (bool)transparency);
+            return APP.GetFontManager()->GetTtFont(GetDriver(), GetFileSystem(), completeFontName.c_str(), size, (bool)antiAlias, (bool)transparency);
         }
 
         return env->getFont(completeFontName.c_str());
@@ -647,42 +654,31 @@ bool GuiDialog::ReadScaledRect(irr::core::rect<s32>& rect_, TiXmlElement * xmlEl
     int triplehead = 0;
     xmlElement_->QueryIntAttribute("triplehead", &triplehead);
 
-    irr::video::IVideoDriver* driver = GetDriver();
-    if ( !driver )
-        return false;
-
-    core::dimension2d<s32> dim( driver->getScreenSize() );
-
-    // tripplescreen mode?
-    if ( mConfig.DoesNeedTrippleHeadMode(dim.Width, dim.Height) )
+    if ( mDisplayMode == EDM_NORMAL && triplehead == 0 )
+	{
+        rect_.UpperLeftCorner.X = (int)round(rect_.UpperLeftCorner.X*mScaleX);
+        rect_.LowerRightCorner.X = (int)round(rect_.LowerRightCorner.X*mScaleX);
+        rect_.UpperLeftCorner.Y = (int)round(rect_.UpperLeftCorner.Y*mScaleY);
+        rect_.LowerRightCorner.Y = (int)round(rect_.LowerRightCorner.Y*mScaleY);
+	}
+    // triple-head mode?
+    else if ( mDisplayMode == EDM_TRIPLE_HEAD )
     {
         int newLeftSide = 0;
         if ( 0 == triplehead )
-            newLeftSide = (int)(dim.Width / 3.f);
+            newLeftSide = (int)(mScreenDim.Width / 3.f);
         else if ( 2 == triplehead )
-            newLeftSide = (int)(2.f*dim.Width / 3.f);
+            newLeftSide = (int)(2.f*mScreenDim.Width / 3.f);
 
-        float scaleX = (float)dim.Width / (float)mDefaultScreenWidth;
-        scaleX /= 3.f;
-        float scaleY = (float)dim.Height  / (float)mDefaultScreenHeight;
-        rect_.UpperLeftCorner.X = newLeftSide + (int)round(rect_.UpperLeftCorner.X*scaleX);
-        rect_.LowerRightCorner.X = newLeftSide + (int)round(rect_.LowerRightCorner.X*scaleX);
-        rect_.UpperLeftCorner.Y = (int)round(rect_.UpperLeftCorner.Y*scaleY);
-        rect_.LowerRightCorner.Y = (int)round(rect_.LowerRightCorner.Y*scaleY);
-    }
-    // don't show triplehead elements
-    else if ( triplehead > 0 )
-    {
-        return false;
+        rect_.UpperLeftCorner.X = newLeftSide + (int)round(rect_.UpperLeftCorner.X*mScaleX);
+        rect_.LowerRightCorner.X = newLeftSide + (int)round(rect_.LowerRightCorner.X*mScaleX);
+        rect_.UpperLeftCorner.Y = (int)round(rect_.UpperLeftCorner.Y*mScaleY);
+        rect_.LowerRightCorner.Y = (int)round(rect_.LowerRightCorner.Y*mScaleY);
     }
     else
     {
-        float scaleX = (float)dim.Width / (float)mDefaultScreenWidth;
-        float scaleY = (float)dim.Height  / (float)mDefaultScreenHeight;
-        rect_.UpperLeftCorner.X = (int)round(rect_.UpperLeftCorner.X*scaleX);
-        rect_.LowerRightCorner.X = (int)round(rect_.LowerRightCorner.X*scaleX);
-        rect_.UpperLeftCorner.Y = (int)round(rect_.UpperLeftCorner.Y*scaleY);
-        rect_.LowerRightCorner.Y = (int)round(rect_.LowerRightCorner.Y*scaleY);
+		// don't show triple-head elements outside triple-head mode
+        return false;
     }
 
     return true;
@@ -1249,16 +1245,6 @@ void GuiDialog::AutoRemoveFunctors()
 		RemoveGuiEventFunctor(mEventFunctorIds[i]);
 	}
 	mEventFunctorIds.clear();
-}
-
-void GuiDialog::BringElementsToFront()
-{
-	for ( size_t i=0; i<mGUIElements.size(); ++i )
-	{
-		gui::IGUIElement * parent = mGUIElements[i]->getParent();
-		if ( parent )
-			parent->bringToFront(mGUIElements[i]);
-	}
 }
 
 

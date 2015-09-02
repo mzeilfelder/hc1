@@ -141,8 +141,8 @@ public:
     // Write the whole config to a string
     void WriteToString(std::string &str_);
 
-	// Do we need to support tripplehead? (3 monitors)
-	bool DoesNeedTrippleHeadMode(int screenWidth, int screenHeight) const;
+	// Do we need to support triple-head? (3 monitors)
+	bool DoesNeedTripleHeadMode(int screenWidth, int screenHeight) const;
 
 	// On touch-devices with tiny screens (mobile phones) we need sometimes larger buttons
 	bool DoesNeedLargeButtons() const { return mDoesNeedLargeButtons; }

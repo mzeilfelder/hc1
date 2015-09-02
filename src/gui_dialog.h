@@ -15,6 +15,7 @@ class TiXmlElement;
 
 class IEventFunctor;
 class Config;
+class CGUIDialogRoot;
 
 class GuiDialog
 {
@@ -58,6 +59,8 @@ public:
 protected:
 
     void Clear();
+
+    void CheckScaling();
 
     //! Add a functor which is called for the given elementID for irr::EET_GUI_EVENT events
     //! This class will control the memory for the functor_ from now on.
@@ -116,15 +119,24 @@ protected:
     irr::gui::IGUIElement* GetAlternateDefaultFocus() const         { return mAlternateDefaultFocus; }
     void SetAlternateDefaultFocus( irr::gui::IGUIElement*element_)  { mAlternateDefaultFocus = element_; }
 
-    void BringElementsToFront();
-
     const Config& GetConfig() const { return mConfig; }
 
 private:
 
 	void AutoRemoveFunctors();
 
+	enum EDisplayMode
+	{
+		EDM_NORMAL,
+		EDM_TRIPLE_HEAD	// 3 screens wide. Most elements are only shown on center screen then. Some on left and right screen as well.
+	};
+
 	const Config& mConfig;
+
+	CGUIDialogRoot* mDialogRoot;
+	EDisplayMode mDisplayMode;
+	irr::core::dimension2d<irr::s32> mScreenDim;	// dimension screen has (or had when loading the dialog)
+	float mScaleX, mScaleY;	// compared to default mDefaultScreenWidth and mDefaultScreenHeight
 
     static int mHighestId;
     int mHighestFocusId;

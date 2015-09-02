@@ -406,7 +406,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
 
     //testFile = "one_level.xml";
     //testFile = "levels.xml";
-    testFile = "long_level.xml";
+    //testFile = "long_level.xml";
     if ( !testFile.empty() )
     {
 		mAppTester->Init(this);

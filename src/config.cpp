@@ -914,8 +914,8 @@ bool Config::GetKey(std::string &key_, irr::io::IFileSystem * fs_)
     return hasKey;
 }
 
-// Do we need to support tripplehead? (3 monitors)
-bool Config::DoesNeedTrippleHeadMode(int screenWidth, int screenHeight) const
+// Do we need to support triple-head? (3 monitors)
+bool Config::DoesNeedTripleHeadMode(int screenWidth, int screenHeight) const
 {
 #ifdef _IRR_ANDROID_PLATFORM_
 	return false;
