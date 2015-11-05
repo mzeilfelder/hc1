@@ -495,8 +495,7 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
     core::vector3df currentDir(0,0,1);
     const core::matrix4 & transform =	mMeshHover->getAbsoluteTransformation();
     transform.rotateVect(currentDir);
-    core::vector3df currDirXZ(currentDir);
-    currDirXZ.Y = 0.f;
+    core::vector3df currDirXZ(currentDir.X, 0.f, currentDir.Z);
     currentDir.normalize();
     currDirXZ.normalize();
 //    // debug draw
@@ -505,21 +504,23 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 //    driver->draw3DLine (objCenter, objCenter+currDirXZ*100.f, video::SColor(255, 255, 255, 255));
 
     core::vector3df normVelocity(speed > 1.f ? hoverPhysics.GetVelocity() : currentDir);
-    core::vector3df normVelocityXZ(normVelocity);
-    normVelocityXZ.Y = 0.f;
+    core::vector3df normVelocityXZ(normVelocity.X, 0.f, normVelocity.Z);
     normVelocityXZ.normalize();
     normVelocity.normalize();
 
     mAiInputData.mVelToDirAngleScaled = CalcScaledAngleToVector(normVelocityXZ, currDirXZ);
 
-    static int highestTrainingRecordIndex = 0;
     AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
+#if 0	// for debugging
+    static int highestTrainingRecordIndex = 0;
     if ( mHighestValidTrackMarker > highestTrainingRecordIndex )
     {
-        //fprintf(stderr, "rec: %d ", mHighestValidTrackMarker );
+        fprintf(stderr, "rec: %d ", mHighestValidTrackMarker );
         highestTrainingRecordIndex = mHighestValidTrackMarker;
     }
+#endif
+
     if ( mTrackMarkerReached >= 0 )
     {
         const float MAX_DIST_TO_CENTER = 500.f;

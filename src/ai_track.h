@@ -13,6 +13,10 @@ struct TrackMarker;
 
 struct AiTrackInfoSettings
 {
+	AiTrackInfoSettings() : mMaxSpeed(2000.f)
+	{
+	}
+
 	void ReadFromXml(const TiXmlElement * settings_);
     void WriteToXml(TiXmlElement * settings_) const;
 

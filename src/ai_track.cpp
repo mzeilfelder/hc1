@@ -39,7 +39,6 @@ void AiTrackInfoSettings::ReadFromXml(const TiXmlElement * settings_)
     settings_->QueryFloatAttribute("rg_y", &mBorderLeft.Y);
     settings_->QueryFloatAttribute("rg_z", &mBorderLeft.Z);
 
-    mMaxSpeed = 2000.f;
     settings_->QueryFloatAttribute("ms", &mMaxSpeed);
 
     mIdealLine = mCenter;
@@ -781,7 +780,6 @@ void AiTrack::GetPosAtDist(int origIndex_, float origDelta_, float stepDist_, in
         return;
     int idx1 = origIndex_;
     int idx2 = idx1 < (int)mAiTrackInfo.size()-1 ? idx1+1 : 0;
-    //float trackStepSize = (mAiTrackInfo[idx2].mSettings.mCenter-mAiTrackInfo[idx1].mSettings.mCenter).getLength();
     float trackStepSize = ExtIrr::GetLengthXZ(mAiTrackInfo[idx2].mSettings.mCenter-mAiTrackInfo[idx1].mSettings.mCenter);
     targetIndex_ = origIndex_;
     stepDist_ += origDelta_*trackStepSize;

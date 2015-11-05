@@ -60,8 +60,8 @@ struct AiInputData
     float   mVelToIdealAngleScaled[AI_TRACK_PREVIEWS];
     float   mPreviewHeightFactor[AI_TRACK_PREVIEWS];
 
-    static int GetNumInputs()               { return 5 + 2*AI_TRACK_PREVIEWS; }
 #if defined(NEURAL_AI)
+    static int GetNumInputs()               { return 5 + 2*AI_TRACK_PREVIEWS; }
     int FillNetInputLayer(NeuralNet* nn_, int neuronIndex_=0);
 #endif
     void PrintToFile(FILE* file_);
