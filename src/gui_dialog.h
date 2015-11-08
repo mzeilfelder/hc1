@@ -41,7 +41,7 @@ public:
     // Check if this element might receive the focus
     static bool AllowedToGetFocus(irr::gui::IGUIElement* element)
     {
-    	return element && element->isTabStop() && element->isVisible() && element->isEnabled() && element->getTabOrder() >= 0;
+    	return element && element->isTabStop() && element->isTrulyVisible() && element->isEnabled() && element->getTabOrder() >= 0;
     }
 
     // Some dialogs don't need 3d rendering in the background, which would only slow them down
