@@ -1,5 +1,11 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
+#if defined(DEBUG) && defined(__GNUC__)
+// for floating point exception trapping
+#define _GNU_SOURCE 1
+#include <fenv.h>
+#endif
+
 #include "main.h"
 #include "config.h"
 #include "app_tester.h"
@@ -945,6 +951,12 @@ void App::Quit()
 #ifndef _IRR_ANDROID_PLATFORM_
 int main(int argc, char *argv[])
 {
+#if defined(DEBUG) && defined(__GNUC__)
+	// floating point exception trapping
+	feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);	// TODO: |FE_UNDERFLOW crashes sound currently. Even when sound is disabled which is interesting in itself.
+#endif
+
+
     if ( !APP.Init(argc, argv) )
     {
 		APP.Quit();

@@ -23,7 +23,7 @@ CameraSettings::CameraSettings()
     mCamHeightUpwards = 5.f;
     mCamHeightDownwards = 5.f;
     mCamTargetHeight = 1500.f;
-    mCamTrailing = 7.f;
+    mCamTrailing = 0.99f;
     mCamSpeedFactorFast = 0.05f;
     mCamSpeedFactorSlow = 0.05f;
     mIsFirstPerson = false;
@@ -267,7 +267,8 @@ void Camera::UpdateGameCam(float timeTick_, const core::matrix4 &target_, scene:
 
     // Find out how fast the camera should rotate towards the new direction
     // It's still not perfect, but better than anything else i found so far.
-    float slerpFactor = 1 - pow(1,timeTick_) * pow((1-mCameraSettings.mCamTrailing), timeTick_);
+    float maxTick = core::min_(timeTick_, 1.f);
+    float slerpFactor = 1 - pow(1.f, maxTick) * pow(1.f-mCameraSettings.mCamTrailing, maxTick);
 
     if ( slerpFactor > 1.f )
         slerpFactor = 1.f;
