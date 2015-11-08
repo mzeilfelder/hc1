@@ -252,7 +252,7 @@ void Level::ClearTrackData()
             GetTrackStart(i).mSettings.Reset();
         }
     }
-    for ( int i=0; i < (int)mTrackMarkers.size(); ++i )
+    for ( size_t i=0; i < mTrackMarkers.size(); ++i )
     {
         mTrackMarkers[i].Clear();
     }
@@ -260,7 +260,7 @@ void Level::ClearTrackData()
     mFinishLine.Clear();
     mTpSource.Clear();
     mTpTarget.Clear();
-    for ( int i=0; i < (int)mModels.size(); ++i )
+    for ( size_t i=0; i < mModels.size(); ++i )
     {
         ClearModelData(mModels[i]);
     }

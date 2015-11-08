@@ -24,6 +24,7 @@ void AiTrackInfoSettings::ReadFromXml(const TiXmlElement * settings_)
 {
     assert(settings_);
 
+    mCenter.set(0.f, 0.f, 0.f);
     settings_->QueryFloatAttribute("c_x", &mCenter.X);
     settings_->QueryFloatAttribute("c_y", &mCenter.Y);
     settings_->QueryFloatAttribute("c_z", &mCenter.Z);

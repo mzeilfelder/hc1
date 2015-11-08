@@ -1078,7 +1078,7 @@ void Game::Update()
     guiHud.SetTimeTrack(time-mRaceStartTime);
 
     PROFILE_START(200);
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         mPlayers[p]->PrePhysicsUpdate(time);
     }

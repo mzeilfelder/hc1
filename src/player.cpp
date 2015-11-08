@@ -105,7 +105,6 @@ int AiInputData::FillNetInputLayer(NeuralNet* net_, int neuronIndex_)
     }
     return neuronIndex_;
 }
-#endif // NEURAL_AI
 
 void AiInputData::PrintToFile(FILE* file_)
 {
@@ -115,6 +114,7 @@ void AiInputData::PrintToFile(FILE* file_)
         fprintf(file_, " %f %f", mVelToPreviewAngleScaled[i], mPreviewHeightFactor[i]);
     }
 }
+#endif // NEURAL_AI
 
 // --------------------------------------------------------
 Player::Player(const Game& game)
@@ -411,6 +411,7 @@ void Player::UpdateAiManual(u32 time_, PhysicsObject& hoverPhysics)
 
     float speed = hoverPhysics.GetSpeedAbsolute();
     const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
+    assert(mTrackMarkerReached >= 0 && mTrackMarkerReached < (int)aiTrack.GetNumTrackInfos());
     const AiTrackInfo& info = aiTrack.GetTrackInfo(mTrackMarkerReached);
     float targetSpeed = info.mSettings.mMaxSpeed;
     // printf("targetSpeed %f power %f\n", targetSpeed, power);
@@ -484,7 +485,7 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 {
     mAiLastInputData = mAiInputData;
     float speed = hoverPhysics.GetSpeedAbsolute();
-    mAiInputData.mSpeedScaled = speed / hoverPhysics.mSettings.mMaxSpeed;   // 0 to 1mVelToPreviewAngleScaled
+    mAiInputData.mSpeedScaled = speed / hoverPhysics.mSettings.mMaxSpeed;   // 0 to 1
 
     core::vector3df objCenter(mMeshHover->getTransformedBoundingBox().getCenter());
 //    // debug draw
@@ -510,7 +511,7 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 
     mAiInputData.mVelToDirAngleScaled = CalcScaledAngleToVector(normVelocityXZ, currDirXZ);
 
-    AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
+    const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
 #if 0	// for debugging
     static int highestTrainingRecordIndex = 0;
@@ -523,17 +524,20 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 
     if ( mTrackMarkerReached >= 0 )
     {
-        const float MAX_DIST_TO_CENTER = 500.f;
         float deltaLine = 0.f;
-        core::vector3df closestPoint;
-        int indexNearest = aiTrack.GetNearestPosOnCenterLine(objCenter, mTrackMarkerReached, deltaLine, mClosestPointOnTrack, mDistToTrackCenter);
-        mTrainingDistToTrackCenterSum += fabs(mDistToTrackCenter);
-        if ( mDistToTrackCenter >= MAX_DIST_TO_CENTER )
+        float distToTrackCenter = 0.f;
+        int indexNearest = aiTrack.GetNearestPosOnCenterLine(objCenter, mTrackMarkerReached, deltaLine, mClosestPointOnTrack, distToTrackCenter);
+
+#if defined(NEURAL_AI)
+        mTrainingDistToTrackCenterSum += fabs(distToTrackCenter);
+
+        const float MAX_DIST_TO_CENTER = 500.f;
+        if ( distToTrackCenter >= MAX_DIST_TO_CENTER )
             mAiInputData.mDistToCenter =  1.f;
-        else if ( mDistToTrackCenter <= -MAX_DIST_TO_CENTER )
+        else if ( distToTrackCenter <= -MAX_DIST_TO_CENTER )
             mAiInputData.mDistToCenter = -1.f;
         else
-            mAiInputData.mDistToCenter = mDistToTrackCenter / MAX_DIST_TO_CENTER;
+            mAiInputData.mDistToCenter = distToTrackCenter / MAX_DIST_TO_CENTER;
 
         const float MAX_DIST_TO_BORDER = 5000.f;
         float distDirToBorder = MAX_DIST_TO_BORDER;
@@ -542,6 +546,7 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
         aiTrack.GetBorderDist(indexNearest, objCenter, normVelocity, MAX_DIST_TO_BORDER, distVelToBorder);
         mAiInputData.mScaledDistDirToBorder = fabs(distDirToBorder)/MAX_DIST_TO_BORDER;
         mAiInputData.mScaledDistVelToBorder = fabs(distVelToBorder)/MAX_DIST_TO_BORDER;
+#endif
 //        // debug draw
 //        core::vector3df borderPoint1(objCenter + currentDir*fabs(distDirToBorder));
 //        core::vector3df borderPoint2(objCenter + normVelocity*fabs(distVelToBorder));
@@ -1460,7 +1465,6 @@ void Player::InfoStartCountDown(u32 time_)
     mTrainingLastPos = mMeshHover->getTransformedBoundingBox().getCenter();
 
     mTrainingStartIndex = 0;
-    mDistToTrackCenter = 0.f;
     mTrainingDistToTrackCenterSum = 0.f;
     mTimeDisableTeleportFx = 0;
     mAlignmentMat.makeIdentity();
