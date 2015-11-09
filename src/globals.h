@@ -7,7 +7,7 @@
 
 #define MAX_PLAYERS 4
 #define MAX_SPAWNS 5
-#define MAX_BOT_SETTINGS 12
+#define MAX_BOT_SETTINGS 12	// 3 for each of : championship, easy, medium, hard.
 #define TIME_START_COUNTDOWN 3000
 #define MAX_RECORD_SIZE 3000000
 #define MAX_RIVALS 4

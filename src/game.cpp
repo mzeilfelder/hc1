@@ -408,7 +408,7 @@ void Game::PrepareStart()
 
         hasAi = true;
         mPlayers[players]->SetType(PT_AI);
-        mPlayers[players]->SetAiBotSettings(level.mBotSettings[(i+(int)mSettings.mBotDifficulty*3) % MAX_BOT_SETTINGS]);
+        mPlayers[players]->SetAiBotSettings( APP.GetLevelManager()->GetBotSettings(mSettings.mBotDifficulty, i) );
         mPlayers[players]->SetTrackStart(i%MAX_PLAYERS);
 #if defined(NEURAL_AI)
         mPlayers[players]->SetAiTrainingRecord(mRecordBestLap);

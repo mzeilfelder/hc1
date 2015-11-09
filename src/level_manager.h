@@ -4,6 +4,7 @@
 #define LEVEL_MANAGER_H
 
 #include "globals.h"
+#include "game_enums.h"
 #include <string>
 #include <vector>
 
@@ -102,6 +103,9 @@ public:
 
     const LevelSettings& GetLevelSettings(unsigned int index_, LevelDifficulty difficulty_ = LD_ALL) const;
     const LevelSettings& GetCurrentLevelSettings() const { return GetLevelSettings(mCurrentLevel); }
+
+    // Bot settings for current level settings. index can just be increased for each bot - it wraps around when more bots are requested than we have settings.
+    const AiBotSettings& GetBotSettings(BOT_DIFFICULTY botLevel, int index) const;
 
 private:
     LevelSettings mDefaultLevelSettings;

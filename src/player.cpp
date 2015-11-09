@@ -831,7 +831,7 @@ void Player::PrePhysicsUpdate(u32 time_)
     }
 
 #if 1
-    // Helper for humans - to be introduced in h-craft 1.3
+    // Helper for humans - introduced in h-craft 1.3
     // Fake some kind of energy wall around the tracks to prevent players from falling off so often
     if ( mPlayerType == PT_LOCAL )
     {

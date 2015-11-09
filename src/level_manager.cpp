@@ -297,6 +297,12 @@ const LevelSettings& LevelManager::GetLevelSettings(unsigned int index_, LevelDi
     return mLevelSettings[index_];
 }
 
+const AiBotSettings& LevelManager::GetBotSettings(BOT_DIFFICULTY botLevel, int index) const
+{
+	const LevelSettings& levelSettings = GetCurrentLevelSettings();
+	return levelSettings.mBotSettings[(int)botLevel*3 + index%3];
+}
+
 int LevelManager::GetIndexForId(int id_) const
 {
     for ( unsigned int i=0; i < mLevelSettings.size(); ++i )

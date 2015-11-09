@@ -4,6 +4,7 @@
 #define GAME_H
 
 #include "irrlicht_manager.h"
+#include "game_enums.h"
 #include <vector>
 #include <string>
 
@@ -43,43 +44,7 @@ struct SteeringSettings
     int   mResumeFreeze;
 };
 
-enum GAME_MODES
-{
-    GM_START,
-    GM_RUNNING,
-    GM_PAUSED,
-    GM_RESUME_PAUSE,
-    GM_FINISHED,
-    GM_REPLAY,
-};
-
-enum GAME_TYPE
-{
-    GT_UNKOWN,
-    GT_CHAMPIONSHIP,
-    GT_ARCADE,
-    GT_HOTLAP,
-    GT_TIMERACE,
-    GT_RIVALS,
-};
-
-enum GHOST_TYPE
-{
-    GHT_NONE,
-    GHT_LAP,
-    GHT_TRACK,
-    GHT_EXPORTED_LAP,
-    GHT_EPORTED_TRACK,
-};
-
-enum BOT_DIFFICULTY
-{
-    BD_CHAMPIONSHIP = 0,
-    BD_EASY,
-    BD_MEDIUM,
-    BD_HARD,
-};
-
+// runtime settings for the game (options set each time before a new level is played)
 struct GameSettings
 {
     GameSettings();
