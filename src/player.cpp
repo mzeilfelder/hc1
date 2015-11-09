@@ -847,7 +847,7 @@ void Player::PrePhysicsUpdate(u32 time_)
 			video::IVideoDriver * driver = 0; // APP.GetIrrlichtManager()->GetVideoDriver();
 //			APP.GetIrrlichtManager()->SetDriverDrawMode();
 
-			AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
+			const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
 			trackBorderInfo.mDistanceBorder = aiTrack.GetNearestPosOnBorder(mLastPos, mTrackMarkerCurrent, trackBorderInfo.mNearestBorder, true, driver);
 			float deltaDummy = 0.f;
@@ -921,7 +921,7 @@ void Player::ResetMarkersReached(u32 time_, bool createTimers_)
 
     if ( createTimers_ )
     {
-        AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
+        const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
         mTrackMarkerReachedTimes.resize(aiTrack.GetNumTrackInfos(), time_);
     }
 }
@@ -930,8 +930,8 @@ void Player::ResetMarkersReached(u32 time_, bool createTimers_)
 // other stuff as well so all player update that info.
 void Player::UpdateMarkersReached(u32 time_, bool searchAll_ )
 {
-    core::vector3df objCenter(mMeshHover->getTransformedBoundingBox().getCenter());
-    AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
+    const core::vector3df objCenter(mMeshHover->getTransformedBoundingBox().getCenter());
+    const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
     float dist = 0.f;
     mTrackMarkerCurrent = aiTrack.GetIndexForNearestCenter(mTrackMarkerReached, objCenter, dist, searchAll_);
     if ( dist > 1000.f && !searchAll_ )
