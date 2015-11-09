@@ -282,7 +282,6 @@ void Player::SetType(PLAYER_TYPE type_)
 #endif
     }
     UpdateShadow();
-    UpdateDriftMarkers();
 }
 
 bool Player::Init()
@@ -293,16 +292,6 @@ bool Player::Init()
     if ( mMeshBlobShadow )
     {
         mMeshBlobShadow->setVisible(false);
-    }
-
-    for ( int i=0; i < 10; ++i )
-    {
-        scene::ISceneNode* node = APP.GetNodeManager()->LoadNode("drift_marker");
-        if ( node )
-        {
-            node->setVisible(false);
-            mDriftMarkers.push_back(node);
-        }
     }
 
     return true;
@@ -1004,7 +993,6 @@ void Player::PostPhysicsUpdate(u32 time_)
 
     PROFILE_START(402);
     UpdateShadow();
-    UpdateDriftMarkers();
 
     // disable tp effect
     if ( mTimeDisableTeleportFx > 0
@@ -1254,76 +1242,6 @@ void Player::UpdateShadow()
     }
 }
 
-void Player::UpdateDriftMarkers()
-{
-    return; // TODO
-
-    const PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
-    if ( !hoverPhysics )
-        return;
-
-    core::vector3df velocity(hoverPhysics->GetVelocity());
-    velocity = velocity*0.1;
-
-    bool noUpdate = false;
-
-    if ( velocity.getLength() <= 0.001f )
-    {
-        noUpdate = true;
-    }
-
-    for ( unsigned int i=0; i < mDriftMarkers.size(); ++ i )
-    {
-        if ( noUpdate || !mMeshHover->isVisible() || mPlayerType != PT_LOCAL )
-        {
-            if ( mDriftMarkers[i]->isVisible() )
-            {
-                mDriftMarkers[i]->setVisible(false);
-            }
-            noUpdate = true;
-        }
-    }
-    if ( noUpdate )
-    {
-        return;
-    }
-
-    core::line3df oldLine;
-    oldLine.start = mMeshHover->getPosition();
-    oldLine.end = oldLine.start;
-    oldLine.end.Y -= 1000.f;
-
-    for ( unsigned int i=0; i < mDriftMarkers.size(); ++ i )
-    {
-        if ( !mDriftMarkers[i]->isVisible() )
-        {
-            mDriftMarkers[i]->setVisible(true);
-        }
-
-        core::vector3df floorPos;
-        core::line3df newLine(oldLine);
-        newLine.start += velocity;
-        newLine.end += velocity;
-
-        if ( !APP.GetPhysics()->GetTrackIntersection(newLine, newLine.start, floorPos) )
-        {
-            newLine.start.Y = oldLine.start.Y;
-            newLine.end.Y = oldLine.end.Y;
-            floorPos = newLine.start;
-        }
-        oldLine = newLine;
-        floorPos.Y += APP.GetConfig()->GetBlobHeight();
-        mDriftMarkers[i]->setPosition( floorPos );
-
-        // TODO
-        float dot = velocity.dotProduct(core::vector3df(1,0,0));    // careful, rounding errors will get this beyond 1
-        dot = MIN(dot, 1.f);
-        dot = MAX(dot, -1.f);
-        float angle = fabs(acos(dot));
-        mDriftMarkers[i]->setRotation(core::vector3df(0,angle,0));
-    }
-}
-
 void Player::CalcRollMatrices(const PhysicsObject& hoverPhysics, float additionalRoll_)
 {
 //    float speed = hoverPhysics.GetSpeedAbsolute();
@@ -1441,7 +1359,6 @@ void Player::InfoPrepareForRace()
     mYawMat.makeIdentity();
     ExtIrr::SetMatrixRotation(mYawMat, mMeshHover->getAbsoluteTransformation());
     UpdateShadow();
-    UpdateDriftMarkers();
     DisableAllEffects();
 }
 
@@ -1482,7 +1399,6 @@ void Player::InfoStartCountDown(u32 time_)
     mTimeLastVibrate = 0;
     mTimeFreezing = 0;
     UpdateShadow();
-    UpdateDriftMarkers();
     EnablePermanentEffects();
 
     if ( mEnableFxSounds && mPlayerType == PT_LOCAL )

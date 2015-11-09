@@ -153,7 +153,6 @@ protected:
     void UpdateAiInputData(const PhysicsObject& hoverPhysics);
 
     void UpdateShadow();
-    void UpdateDriftMarkers();
     void StopAllSoundSamples();
     void FadeoutAllSoundSamples();
     void DisableAllEffects();
@@ -185,7 +184,7 @@ private:
     bool mIsGhost;
     irr::scene::ISceneNode* mMeshHover;
     irr::scene::ISceneNode* mMeshBlobShadow;
-    std::vector<irr::scene::ISceneNode*> mDriftMarkers;  // currently not used
+
     int         mPhysicsId;
     float       mLastAlignmentScaling;
     irr::core::vector3df    mLastAlignmentVector;
