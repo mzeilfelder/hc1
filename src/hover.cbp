@@ -458,6 +458,7 @@
 		<Unit filename="font_manager.h" />
 		<Unit filename="game.cpp" />
 		<Unit filename="game.h" />
+		<Unit filename="game_enums.h" />
 		<Unit filename="globals.h" />
 		<Unit filename="grid_triangle_selector.cpp" />
 		<Unit filename="grid_triangle_selector.h" />
