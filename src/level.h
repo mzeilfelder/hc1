@@ -46,7 +46,7 @@ public:
     Level();
     ~Level();
 
-	bool Load(LevelSettings * settings_);
+	bool Load(const LevelSettings * settings_);
     bool SaveTrackData();
 
     irr::scene::ISceneNode* GetNodeCamera() { return mNodeCamera; }
@@ -58,7 +58,7 @@ public:
     bool CheckFinishLineCollision(const irr::core::line3d<irr::f32> &moveLine_) const;
     bool CheckTeleportLineCollision(const irr::core::line3d<irr::f32> &moveLine_, irr::core::vector3df &targetPos_, irr::core::vector3df &rotation_, irr::core::vector3df &velocity_) const;
 
-    int GetTrackRelocatesBetween(int indexFront_, int indexBack_);
+    int GetTrackRelocatesBetween(int indexFront_, int indexBack_) const;
 
     // remember: GetTrackMarker and GetModel return no references because they are part of a vector which can change
     TrackStart& GetTrackStart(unsigned int index_);
@@ -104,7 +104,7 @@ protected:
     // only two triangles checked!
     bool CheckLineNodeCollision2T(const irr::core::line3d<irr::f32> &line_, irr::scene::ISceneNode* node_, irr::core::vector3df &outIntersection_) const;
 
-    void BuildTrackData(LevelSettings * settings_);
+    void BuildTrackData();
     void ClearTrackData();
     void ClearModelData(LevelModel & model_);
 

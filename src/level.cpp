@@ -117,7 +117,7 @@ Level::~Level()
     }
 }
 
-bool Level::Load(LevelSettings * settings_)
+bool Level::Load(const LevelSettings * settings_)
 {
     LOG.Debug("Level::Load\n");
 
@@ -207,7 +207,7 @@ bool Level::Load(LevelSettings * settings_)
     LoadTrackData(settings_->mDataFile);
 
     LOG.Debug("build track data\n");
-    BuildTrackData(settings_);
+    BuildTrackData();
 
     APP.GetGame()->UpdateHoverAmbience(*settings_);
 
@@ -216,9 +216,8 @@ bool Level::Load(LevelSettings * settings_)
     return true;
 }
 
-void Level::BuildTrackData(LevelSettings * settings_)
+void Level::BuildTrackData()
 {
-    assert(settings_);
     for ( int i=0; i < MAX_SPAWNS; ++i )
     {
         SetTrackStart(GetTrackStart(i).mSettings, i);
@@ -1019,7 +1018,7 @@ bool Level::SaveTrackData()
     return result;
 }
 
-int Level::GetTrackRelocatesBetween(int indexFront_, int indexBack_)
+int Level::GetTrackRelocatesBetween(int indexFront_, int indexBack_) const
 {
     if ( !mTrackMarkers.size() )
         return -1;

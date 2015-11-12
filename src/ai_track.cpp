@@ -970,7 +970,9 @@ int AiTrack::GetIndexForNearestCenter(int lastIndex_, const core::vector3df& pos
 
     int bestIndex = lastIndex_;
     float bestDist = (pos_-mAiTrackInfo[bestIndex].mSettings.mCenter).getLengthSQ();
-    const int SEARCH_RANGE = 15;    // indices checked in each direction
+    int SEARCH_RANGE = 15;    // indices checked in each direction
+    if ( SEARCH_RANGE > (int)mAiTrackInfo.size() )
+		SEARCH_RANGE = mAiTrackInfo.size()/2;
     int frontIndex = bestIndex >= SEARCH_RANGE ? bestIndex - SEARCH_RANGE : mAiTrackInfo.size() - (SEARCH_RANGE-bestIndex);
     int backIndex = (bestIndex + SEARCH_RANGE) % mAiTrackInfo.size();
 

@@ -1428,7 +1428,7 @@ void Player::InfoRoundFinished(u32 time_)
     }
     else
     {
-        u32 roundTime = time_ - mRoundStartTime;
+        const u32 roundTime = time_ - mRoundStartTime;
         const u32 NO_CHEAT = 5000;
         if ( roundTime > NO_CHEAT )
         {
