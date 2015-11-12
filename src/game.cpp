@@ -46,7 +46,7 @@ GhostRecordSettings::GhostRecordSettings()
 {
 }
 
-void GhostRecordSettings::Write(MemArchive * serializeArchive_)
+void GhostRecordSettings::Write(MemArchive * serializeArchive_) const
 {
     if  (!serializeArchive_ )
         return;
@@ -1330,7 +1330,7 @@ float Game::GetRelativeTrackDistanceToPlayer(int sourcePlayer_, int targetPlayer
 }
 
 #if defined(NEURAL_AI)
-std::string Game::GetNextFilenameSaveNN()
+std::string Game::GetNextFilenameSaveNN() const
 {
     static int countFilenames = 0;
     char fileName[100];
@@ -1729,11 +1729,6 @@ void Game::SetNextCameraActive()
     SetActiveCameraIndex(index);
 }
 
-void Game::SetControllerSettings(const TiXmlElement * settings_)
-{
-    mSteeringSettings.ReadFromXml(settings_);
-}
-
 void Game::ReloadSettingsCamera()
 {
     const TiXmlElement * camerasNode = APP.GetConfig()->GetCamerasSettings();
@@ -1793,7 +1788,7 @@ void Game::SetAutosaveRecording(bool enable_)
     mAutosaveRecording = enable_;
 }
 
-bool Game::GetAutosaveRecording()
+bool Game::GetAutosaveRecording() const
 {
     return mAutosaveRecording;
 }
@@ -1803,7 +1798,7 @@ void Game::SetAutoloadRecording(bool enable_)
     mAutoloadRecording = enable_;
 }
 
-bool Game::GetAutoloadRecording()
+bool Game::GetAutoloadRecording() const
 {
     return mAutoloadRecording;
 }

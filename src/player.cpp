@@ -1685,7 +1685,7 @@ void Player::PlayingInterpolated(Record & record_, u32 time_)
 
         if ( timeEntry <= 0.f )
         {
-            //fprintffprintf(stderr, "***time:%d start:%d end:%d entry:%.2f\n", time_, itTimeStart->mTime, itTimeEnd->mTime, timeEntry);
+            //fprintf(stderr, "***time:%d start:%d end:%d entry:%.2f\n", time_, itTimeStart->mTime, itTimeEnd->mTime, timeEntry);
             mMeshHover->setPosition(data1.mPos);
             mMeshHover->setRotation(data1.mRot);
             return;

@@ -75,7 +75,7 @@ struct GameResult
 struct GhostRecordSettings
 {
     GhostRecordSettings();
-    void Write(MemArchive * serializeArchive_);
+    void Write(MemArchive * serializeArchive_) const;
     void Read( MemArchive * serializeArchive_);
     int CalcChecksum();
 
@@ -111,7 +111,6 @@ public:
     GAME_MODES GetMode() const              { return mMode; }
 
     const Timer* GetGameTimer() const       { return mGameTimer; }
-    irr::u32 GetGameStartTime() const       { return mGameStartTime; }  // time since start of countdown
     irr::u32 GetRaceStartTime() const       { return mRaceStartTime; }  // time since end of countdown
 
     const Player* GetPlayer(size_t index_) const { return mPlayers[index_]; }
@@ -124,8 +123,6 @@ public:
     size_t GetNumCameras() const            { return mCameras.size(); }
     Camera* GetCamera(size_t index_)        { return mCameras[index_]; }
 
-    void SetControllerSettings(const TiXmlElement * settings_);
-
     void ReloadSettingsCamera();
     void ReloadSettingsSteering();
     void ReloadSettingsPhysics();
@@ -136,9 +133,9 @@ public:
     // save the last recording of the local player
     void SaveLastRecording();
     void SetAutosaveRecording(bool enable_);
-    bool GetAutosaveRecording();
+    bool GetAutosaveRecording() const;
     void SetAutoloadRecording(bool enable_);
-    bool GetAutoloadRecording();
+    bool GetAutoloadRecording() const;
     void SetLocalPlayerStartTrack(int trackId_)     { mLocalPlayerStartTrack = trackId_; }
     int GetLocalPlayerStartTrack() const            { return mLocalPlayerStartTrack; }
 
@@ -182,7 +179,7 @@ protected:
     void AddPlayer(const wchar_t * name_, const char * model_);
 #if defined(NEURAL_AI)
     void TrainAi();
-    std::string GetNextFilenameSaveNN();
+    std::string GetNextFilenameSaveNN() const;
 #endif
     void UpdatePlacings();
     float GetRelativeTrackDistanceToPlayer(int sourcePlayer, int targetPlayer, irr::s32 &timeDiff_);
