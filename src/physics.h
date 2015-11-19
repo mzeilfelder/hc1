@@ -202,9 +202,9 @@ public:
     // Pointer is invalidated when physic objects are added or removed
     PhysicsObject* GetPhysicsObject(int id_);
 
-    // timeTick_: time in seconds for this game tick (since last Update)
+    // timeDelta: time in seconds passed since last update
     // enableObjObjCollision: when true hovers collide against each other, when false they don't
-    void Update(irr::f32 timeTick_, bool enableObjObjCollision);
+    void Update(irr::f32 timeDelta, bool enableObjObjCollision);
 
     void EnableDebugging(bool enable_)  { mDebuggingEnabled = enable_; }
     bool IsDebuggingEnabled() const     { return mDebuggingEnabled; }

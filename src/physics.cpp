@@ -736,7 +736,7 @@ void Physics::HandleCushions(PhysicsObject& obj, irr::core::vector3df& step)
 	}
 }
 
-void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
+void Physics::Update(f32 timeDelta, bool enableObjObjCollision)
 {
     PROFILE_START(300);
     typedef PhysicsObjectMap::iterator ItMap;
@@ -760,11 +760,12 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
     }
 	PROFILE_STOP(300);
 
-    mTimeRest += timeTick_;
+    mTimeRest += timeDelta;
     // clamp to max. value to avoid long calculations in cases gone awry
     if ( mTimeRest > 2.f )
         mTimeRest = 2.f;
 
+	// Calculate the movement the physics needs.
 	PROFILE_START(306);
     int countSteps = 0;
     while ( mTimeRest > mSettings.mTimeStep )
@@ -780,7 +781,7 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
         ++countSteps;
         mTimeRest -= mSettings.mTimeStep;
 
-        if ( enableObjObjCollision_ )
+        if ( enableObjObjCollision )
         {
             HandleObjObjCollision();
         }
@@ -885,7 +886,12 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
     }
     PROFILE_STOP(306);
 
-	//PROFILE_START(307);	// it's cheap and I need little profile output.
+    // Update the model. Note that physics steps are fixed-size and not synchronized with
+    // rendering, so we do an interpolation here for where to put the model.
+    // Meaning the physics objects are often a little further ahead than the displayed models.
+	//PROFILE_START(307);	// that part's cheap and I need less profile output.
+	const float alpha = mTimeRest / mSettings.mTimeStep;
+	mInterpolatedTick = mTicksSinceGameStart > 0 ? (mTicksSinceGameStart-1) + alpha : 0;
     for ( ItMap itObjects = mPhysicsObjects.begin(); itObjects != mPhysicsObjects.end(); ++itObjects )
     {
         PhysicsObject& obj = itObjects->second;
@@ -895,9 +901,7 @@ void Physics::Update(f32 timeTick_, bool enableObjObjCollision_)
         obj.mFrictionAccu = 0.f;
 
         // interpolate
-        const float alpha = mTimeRest / mSettings.mTimeStep;
         obj.mInterpolatedCollCenter = obj.mCurrentStepCollCenter*alpha + obj.mLastStepCollCenter*(1.0f-alpha);
-        mInterpolatedTick = mTicksSinceGameStart > 0 ? (mTicksSinceGameStart-1) + alpha : 0;
 
         // move model
         core::vector3df moved( obj.mInterpolatedCollCenter - obj.mModelCollCenter );

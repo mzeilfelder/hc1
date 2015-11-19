@@ -1208,7 +1208,7 @@ void Game::PlayRecords()
     mRecorder->UpdatePlaying( interpolatedPhysicsTick );
     if ( mSettings.mGhostType != GHT_NONE || HasSessionGhost() )
     {
-        for ( unsigned int g=0; g < mPlayers.size(); ++g)
+        for ( size_t g=0; g < mPlayers.size(); ++g)
         {
             if ( mPlayers[g]->GetType() == PT_GHOST_LAP )
             {
