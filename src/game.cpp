@@ -237,9 +237,9 @@ Game::~Game()
     if ( mRecordSession )
         mRecordSession->drop();
     delete mRecorder;
-    for ( unsigned int i=0; i< mCameras.size(); ++i )
+    for ( size_t i=0; i< mCameras.size(); ++i )
         delete mCameras[i];
-    for ( unsigned int i=0; i< mPlayers.size(); ++i )
+    for ( size_t i=0; i< mPlayers.size(); ++i )
         delete mPlayers[i];
     delete mGameTimer;
     delete mGameFinishedTimer;
@@ -320,7 +320,7 @@ void Game::PrepareStart()
 
     // reset players
     std::vector<int> oldRecordingIds;
-    for ( unsigned int p=0; p< mPlayers.size(); ++p )
+    for ( size_t p=0; p< mPlayers.size(); ++p )
     {
         oldRecordingIds.push_back(mPlayers[p]->GetRecordingId());
         mPlayers[p]->SetType(PT_UNKNOWN);
@@ -360,7 +360,7 @@ void Game::PrepareStart()
     }
 
     // set the local player
-    int players = 0;
+    size_t players = 0;
     if ( !mAiTraining )
     {
         if ( mSettings.mGameType == GT_HOTLAP )
@@ -401,9 +401,9 @@ void Game::PrepareStart()
         mSettings.mNrOfBots = 50;
     }
 
-    for ( unsigned int i=0; i < (unsigned int)mSettings.mNrOfBots; ++i )
+    for ( size_t i=0; i < (size_t)mSettings.mNrOfBots; ++i )
     {
-        if ( (unsigned int)players >= mPlayers.size() )
+        if ( players >= mPlayers.size() )
             AddPlayer(L"PLAYER X", "hc_shadow");
 
         hasAi = true;
@@ -479,7 +479,7 @@ void Game::PrepareStart()
     mRecorder->RemoveAllUnusedRecords();
     UpdateHoverAmbience(level);
 
-    for ( unsigned int p=0; p< mPlayers.size(); ++p )
+    for ( size_t p=0; p< mPlayers.size(); ++p )
     {
         mPlayers[p]->InfoPrepareForRace();
     }
@@ -544,7 +544,7 @@ void Game::Start()
 
     APP.GetIrrlichtManager()->ForceIrrlichtUpdate();
 
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         mPlayers[p]->InfoStartCountDown(mGameStartTime);
     }
@@ -616,7 +616,7 @@ void Game::ResetHud()
     if ( mHasGhost )
     {
         int i=0;
-        for ( unsigned int p=0; p< mPlayers.size(); ++p )
+        for ( size_t p=0; p< mPlayers.size(); ++p )
         {
             if (    mPlayers[p]->GetType() == PT_GHOST_LAP
                 ||  mPlayers[p]->GetType() == PT_GHOST_TRACK )
@@ -679,7 +679,7 @@ void Game::UpdateStart(GuiHud & guiHud)
         // show track ghost(s)
         if ( mHasRecordBestTrack || mSettings.mGhostType == GHT_EPORTED_TRACK || HasSessionGhost() )
         {
-            for ( unsigned int g=0; g < mPlayers.size(); ++g)
+            for ( size_t g=0; g < mPlayers.size(); ++g)
             {
                 if ( mPlayers[g]->GetType() == PT_GHOST_TRACK )
                 {
@@ -688,7 +688,7 @@ void Game::UpdateStart(GuiHud & guiHud)
             }
         }
 
-        for ( unsigned int p=0; p<mPlayers.size(); ++p)
+        for ( size_t p=0; p<mPlayers.size(); ++p)
         {
             mPlayers[p]->InfoStartRace(time);
         }
@@ -721,7 +721,7 @@ void Game::UpdateResume()
     if ( APP.GetIrrlichtManager()->GetIrrlichtTimer()->getTime() > mResumeGameTime )
     {
         mMode = mResumeMode;
-        for ( unsigned int p=0; p < mPlayers.size(); ++p )
+        for ( size_t p=0; p < mPlayers.size(); ++p )
         {
             if ( mPlayers[p]->IsActiveType() )
             {
@@ -738,12 +738,12 @@ void Game::UpdateFinished()
     const f32 timeTickSec = mGameFinishedTimer->GetLastTickInSeconds();
     const u32 time = mGameFinishedTimer->GetTime();
 
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         mPlayers[p]->PrePhysicsUpdate(time);
     }
     APP.GetPhysics()->Update(timeTickSec, false);
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         if ( mPlayers[p]->GetType() == PT_UNKNOWN )
             continue;
@@ -855,7 +855,7 @@ void Game::OnCrossedFinishLine(Player& player_, u32 time_)
             // show lap ghost(s)
             if ( mHasRecordBestLap || mSettings.mGhostType == GHT_EXPORTED_LAP)
             {
-                for ( unsigned int g=0; g < mPlayers.size(); ++g)
+                for ( size_t g=0; g < mPlayers.size(); ++g)
                 {
                     if ( mPlayers[g]->GetType() == PT_GHOST_LAP )
                     {
@@ -916,7 +916,7 @@ void Game::UpdateHud(const Player& player_, const PhysicsObject& physicsObj_, u3
             hud->SetCountdown(HUD_COUNT_NONE);
         }
 
-        for ( int i=0; i < mSettings.mNrOfBots && i < 3; ++i )
+        for ( size_t i=0; i < (size_t)mSettings.mNrOfBots && i < 3; ++i )
         {
             s32 timeDiff = 0;
             float trackDist = GetRelativeTrackDistanceToPlayer(mLocalPlayerIndex, i+1, timeDiff );
@@ -925,7 +925,7 @@ void Game::UpdateHud(const Player& player_, const PhysicsObject& physicsObj_, u3
         if ( mHasGhost )
         {
             int i=0;
-            for ( unsigned int p=0; p< mPlayers.size(); ++p )
+            for ( size_t p=0; p< mPlayers.size(); ++p )
             {
                 if (    mPlayers[p]->GetType() == PT_GHOST_LAP
                     ||  mPlayers[p]->GetType() == PT_GHOST_TRACK )
@@ -1091,7 +1091,7 @@ void Game::Update()
     PlayRecords();
 
     PROFILE_START(202);
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
 		Player& player = *mPlayers[p];
         if ( player.GetType() == PT_UNKNOWN )
@@ -1250,7 +1250,7 @@ bool Game::HasSessionGhost() const
 void Game::UpdatePlacings()
 {
     core::array<SortHelper> sortArray;
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         if ( !mPlayers[p]->IsActiveType() )
             continue;
@@ -1271,7 +1271,7 @@ void Game::UpdatePlacings()
 }
 
 // return a value between -1 and 1
-float Game::GetRelativeTrackDistanceToPlayer(int sourcePlayer_, int targetPlayer_, s32 &timeDiff_)
+float Game::GetRelativeTrackDistanceToPlayer(size_t sourcePlayer_, size_t targetPlayer_, s32 &timeDiff_)
 {
 	if ( mPlayers[sourcePlayer_]->GetCurrentRound() == 0 )
 	{
@@ -1364,7 +1364,7 @@ void Game::TrainAi()
 
         // sort nn's by award function
         core::array<SortHelper> parents;
-        for ( unsigned int p=0; p<mPlayers.size(); ++p)
+        for ( size_t p=0; p<mPlayers.size(); ++p)
         {
             if ( mPlayers[p]->GetType() == PT_AI )
             {
@@ -1424,7 +1424,7 @@ void Game::TrainAi()
 
         // create next generation of nn's
 		needRestart = true;
-		for ( unsigned int p=0; p<mPlayers.size(); ++p )
+		for ( size_t p=0; p<mPlayers.size(); ++p )
 		{
 		    int r1 = randGen.LinearSlope(parents.size());
 			NeuralNet* net = mPlayers[p]->GetNeuralNet();
@@ -1471,7 +1471,7 @@ void Game::TrainAi()
         fprintf(stderr, "**reset to %d\n", indexMarker);
         GetRelocationPos(indexMarker, center, rotation);
 
-        for ( unsigned int p=0; p<mPlayers.size(); ++p)
+        for ( size_t p=0; p<mPlayers.size(); ++p)
         {
             if ( mPlayers[p]->GetType() == PT_AI )
             {
@@ -1512,7 +1512,7 @@ void Game::Pause()
     APP.GetGui()->DisplayInfoText("pause game", 3000);
     APP.SetMode(MODE_GUI);
 
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         mPlayers[p]->InfoGamePaused();
     }
@@ -1544,7 +1544,7 @@ void Game::Finish(bool finishByPlaying_)
         return;
     }
 
-    for ( unsigned int p=0; p<mPlayers.size(); ++p)
+    for ( size_t p=0; p<mPlayers.size(); ++p)
     {
         mPlayers[p]->InfoGameFinished();
     }
@@ -1661,7 +1661,7 @@ void Game::Resume()
 	if ( touchDevice )
 		touchDevice->Reset();
 
-    for ( unsigned int p=0; p < mPlayers.size(); ++p )
+    for ( size_t p=0; p < mPlayers.size(); ++p )
     {
         if ( mPlayers[p]->IsActiveType() )
         {
@@ -1751,7 +1751,7 @@ void Game::ReloadSettingsSteering()
 void Game::ReloadSettingsPhysics()
 {
     APP.GetPhysics()->GetSettings().ReadFromXml(APP.GetConfig()->GetPhysicsSettings());
-    for ( unsigned int p=0; p< mPlayers.size(); ++p )
+    for ( size_t p=0; p< mPlayers.size(); ++p )
     {
         PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPlayers[p]->GetPhysicsId());
         if ( hoverPhysics )
@@ -1807,14 +1807,14 @@ void Game::SetAiTraining(bool enable_)
 {
     if ( enable_ && !mAiTraining )
     {
-        for ( unsigned int p=0; p< mPlayers.size(); ++p )
+        for ( size_t p=0; p< mPlayers.size(); ++p )
         {
             mPlayers[p]->ChangeModel("hc_shadow");
         }
     }
     else if ( !enable_ && mAiTraining )
     {
-        for ( unsigned int p=0; p< mPlayers.size() && p < 4; ++p )
+        for ( size_t p=0; p< mPlayers.size() && p < 4; ++p )
         {
             mPlayers[p]->ChangeModel("hover_player");
         }
@@ -1824,7 +1824,7 @@ void Game::SetAiTraining(bool enable_)
 
 void Game::UpdateHoverAmbience(const LevelSettings& settings_)
 {
-    for ( unsigned int i=0; i<mPlayers.size(); ++i )
+    for ( size_t i=0; i<mPlayers.size(); ++i )
     {
         scene::ISceneNode* node = mPlayers[i]->GetHoverNode();
         APP.GetIrrlichtManager()->SetNodeAndChildsAmbientMaterial(node, settings_.mAmbHoverRed, settings_.mAmbHoverGreen, settings_.mAmbHoverBlue, -1);

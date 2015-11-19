@@ -182,7 +182,7 @@ protected:
     std::string GetNextFilenameSaveNN() const;
 #endif
     void UpdatePlacings();
-    float GetRelativeTrackDistanceToPlayer(int sourcePlayer, int targetPlayer, irr::s32 &timeDiff_);
+    float GetRelativeTrackDistanceToPlayer(size_t sourcePlayer, size_t targetPlayer, irr::s32 &timeDiff_);
     void ResetHud();
     bool HasSessionGhost() const;
 
@@ -190,7 +190,7 @@ private:
 
     struct SortHelper
     {
-        int mPlayerId;
+        size_t mPlayerId;
         float mRating;
 
         bool operator<(const SortHelper& other_)
