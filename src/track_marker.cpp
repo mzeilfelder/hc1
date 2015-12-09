@@ -143,12 +143,14 @@ void TrackMarkerSettings::WriteToXml(TiXmlElement * settings_) const
 }
 
 // --------------------------------------------------------
-bool TrackStart::GetCenter( core::vector3df &pos_)
+bool TrackStart::GetCenter( core::vector3df &pos_) const
 {
-    if ( !mSettings.mIsValid )
-        return false;
-    pos_ = mSettings.mCenter;
-    return true;
+    if ( mSettings.mIsValid )
+	{
+		pos_ = mSettings.mCenter;
+		return true;
+	}
+	return false;
 }
 
 // --------------------------------------------------------
@@ -164,12 +166,14 @@ TrackMarker::TrackMarker()
 {
 }
 
-bool TrackMarker::GetCenter( core::vector3df &pos_)
+bool TrackMarker::GetCenter( core::vector3df &pos_) const
 {
-    if ( !mSettings.mIsValid )
-        return false;
-    pos_ = mSettings.mCenter;
-    return true;
+    if ( mSettings.mIsValid )
+	{
+		pos_ = mSettings.mCenter;
+		return true;
+	}
+	return false;
 }
 
 void TrackMarker::Clear()

@@ -48,7 +48,7 @@ struct TrackStart
 {
     TrackStart() : mEditNode(0) {}
 
-    bool GetCenter( irr::core::vector3df &pos_);
+    bool GetCenter( irr::core::vector3df &pos_) const;
 
     irr::scene::ISceneNode*  mEditNode;
     TrackStartSettings  mSettings;
@@ -60,7 +60,7 @@ struct TrackMarker
 
     TrackMarker();
 
-    bool GetCenter( irr::core::vector3df &pos_);
+    bool GetCenter( irr::core::vector3df &pos_) const;
 
     TrackMarkerSettings mSettings;
     irr::scene::ISceneNode*  mEditNodeCenter;
