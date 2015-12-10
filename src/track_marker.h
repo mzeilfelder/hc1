@@ -41,7 +41,6 @@ struct TrackMarkerSettings
     bool            mHasLeftWall;
     bool            mHasRightWall;
     bool            mHasBottomWall;
-//    bool            mHasTopWall;
 };
 
 struct TrackStart
@@ -56,31 +55,41 @@ struct TrackStart
 
 struct TrackMarker
 {
-	friend class Level;
+	enum EWall
+	{
+		WALL_CENTER,	// like start-lines and teleports. Perpendicular to the center node.
+		WALL_LEFT,
+		WALL_RIGHT,
+		WALL_BOTTOM,
+
+		WALL_COUNT
+	};
 
     TrackMarker();
 
     bool GetCenter( irr::core::vector3df &pos_) const;
+    irr::core::vector3df GetCenter() const;
+	bool CheckLineWallCollision(const irr::core::line3d<irr::f32> &line_, EWall wall, irr::core::vector3df &outIntersection_) const;
+
+    void SetTrackMarkerSettings(const TrackMarkerSettings &settings_, irr::scene::ISceneNode* editNodeParent, irr::scene::ISceneNode* trackNodeParent);
+    void SetSideWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode);
+    void RemoveSideWalls();
+	void Clear();
 
     TrackMarkerSettings mSettings;
     irr::scene::ISceneNode*  mEditNodeCenter;
 
 protected:
-	void Clear();
-    void SetCollisionWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode);
-    void RemoveCollisionWalls();
-    void CalcMarkerBorders(irr::core::vector3df & leftTop_, irr::core::vector3df & rightTop_, irr::core::vector3df & leftBottom_, irr::core::vector3df & rightBottom_, bool relative_=true) const;
-    void SetTrackMarkerSettings(const TrackMarkerSettings &settings_, irr::scene::ISceneNode* editNodeParent, irr::scene::ISceneNode* trackNodeParent);
+    void SetWall(EWall wall, irr::scene::ISceneNode* parent_, const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_);
+    void CalcMarkerBorders(irr::core::vector3df & leftTop_, irr::core::vector3df & rightTop_, irr::core::vector3df & leftBottom_, irr::core::vector3df & rightBottom_) const;
 
 private:
 
-    irr::scene::ISceneNode*  mEditNodeLeftTop;
-    irr::scene::ISceneNode*  mEditNodeRightBottom;
-    irr::scene::ISceneNode*  mNodeCollision;
-    irr::scene::ISceneNode*  mNodeWallLeft;
-    irr::scene::ISceneNode*  mNodeWallRight;
-    irr::scene::ISceneNode*  mNodeWallTop;
-    irr::scene::ISceneNode*  mNodeWallBottom;
+    irr::scene::ISceneNode* mEditNodeLeftTop;
+    irr::scene::ISceneNode* mEditNodeRightBottom;
+    irr::scene::ISceneNode* mWallNode[WALL_COUNT];
+	irr::core::triangle3df mWallTriangles[WALL_COUNT][2];
+	irr::core::aabbox3df mWallBoxes[WALL_COUNT];
 };
 
 #endif // TRACK_MARKER_H

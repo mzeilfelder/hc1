@@ -346,15 +346,15 @@ void Level::SetTrackMarker(const TrackMarkerSettings &markerSettings_, int index
     mTrackMarkers[index_].SetTrackMarkerSettings(markerSettings_, mEditDataNode, mTrackDataNode);
     if ( index_ > 0 )
     {
-        mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
+        mTrackMarkers[index_-1].SetSideWalls(mTrackMarkers[index_], mTrackDataNode);
     }
     if ( index_+1 < (int)mTrackMarkers.size() )
     {
-        mTrackMarkers[index_].SetCollisionWalls(mTrackMarkers[index_+1], mTrackDataNode);
+        mTrackMarkers[index_].SetSideWalls(mTrackMarkers[index_+1], mTrackDataNode);
     }
     if( mTrackMarkers.size() > 1 && (index_ == 0 || (index_+1 == (int)mTrackMarkers.size())) )
     {
-        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-1].SetSideWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -365,15 +365,15 @@ void Level::InsertTrackMarker(const TrackMarkerSettings &markerSettings_, int in
     mTrackMarkers.insert( mTrackMarkers.begin() + index_, marker);
     if ( index_ > 0 )
     {
-        mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
+        mTrackMarkers[index_-1].SetSideWalls(mTrackMarkers[index_], mTrackDataNode);
     }
     if ( index_+1 < (int)mTrackMarkers.size() )
     {
-        mTrackMarkers[index_].SetCollisionWalls(mTrackMarkers[index_+1], mTrackDataNode);
+        mTrackMarkers[index_].SetSideWalls(mTrackMarkers[index_+1], mTrackDataNode);
     }
     if( mTrackMarkers.size() > 1 && index_ == 0 )
     {
-        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-1].SetSideWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -384,8 +384,8 @@ void Level::AppendTrackMarker(const TrackMarkerSettings &markerSettings_, int in
     mTrackMarkers.push_back(marker);
     if ( mTrackMarkers.size() > 1 )
     {
-        mTrackMarkers[mTrackMarkers.size()-2].SetCollisionWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackDataNode);
-        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-2].SetSideWalls(mTrackMarkers[mTrackMarkers.size()-1], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-1].SetSideWalls(mTrackMarkers[0], mTrackDataNode);
     }
 }
 
@@ -519,20 +519,20 @@ void Level::RemoveTrackMarker(int index_)
     {
         if ( index_ < (int)mTrackMarkers.size() )
         {
-            mTrackMarkers[index_-1].SetCollisionWalls(mTrackMarkers[index_], mTrackDataNode);
+            mTrackMarkers[index_-1].SetSideWalls(mTrackMarkers[index_], mTrackDataNode);
         }
         else
         {
-            mTrackMarkers[index_-1].RemoveCollisionWalls();
+            mTrackMarkers[index_-1].RemoveSideWalls();
         }
     }
     if( mTrackMarkers.size() > 1 && (index_ == 0 || index_ >= (int)mTrackMarkers.size()) )
     {
-        mTrackMarkers[mTrackMarkers.size()-1].SetCollisionWalls(mTrackMarkers[0], mTrackDataNode);
+        mTrackMarkers[mTrackMarkers.size()-1].SetSideWalls(mTrackMarkers[0], mTrackDataNode);
     }
     else if ( mTrackMarkers.size() == 1 )
     {
-        mTrackMarkers[0].RemoveCollisionWalls();
+        mTrackMarkers[0].RemoveSideWalls();
     }
 }
 
@@ -648,11 +648,8 @@ bool Level::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISce
 
 bool Level::CheckFinishLineCollision(const core::line3d<f32> &moveLine_) const
 {
-    if ( !mFinishLine.mNodeCollision )
-        return false;
-
     core::vector3df outIntersection;
-    return CheckLineNodeCollision2T(moveLine_, mFinishLine.mNodeCollision, outIntersection);
+    return mFinishLine.CheckLineWallCollision(moveLine_, TrackMarker::WALL_CENTER, outIntersection);
 }
 
 bool Level::CheckWallCollision(const core::line3d<f32> &moveLine_, int &index_) const
@@ -662,25 +659,9 @@ bool Level::CheckWallCollision(const core::line3d<f32> &moveLine_, int &index_) 
         core::vector3df outIntersection;
         const TrackMarker & marker = mTrackMarkers[i];
 
-        if ( marker.mSettings.mHasLeftWall && marker.mNodeWallLeft)
+        for ( int w = TrackMarker::WALL_LEFT; w <= TrackMarker::WALL_BOTTOM; ++w )
         {
-            if ( CheckLineNodeCollision2T(moveLine_, marker.mNodeWallLeft, outIntersection) )
-            {
-                index_ = i;
-                return true;
-            }
-        }
-        if ( marker.mSettings.mHasRightWall && marker.mNodeWallRight)
-        {
-            if ( CheckLineNodeCollision2T(moveLine_, marker.mNodeWallRight, outIntersection) )
-            {
-                index_ = i;
-                return true;
-            }
-        }
-        if ( marker.mSettings.mHasBottomWall && marker.mNodeWallBottom)
-        {
-            if ( CheckLineNodeCollision2T(moveLine_, marker.mNodeWallBottom, outIntersection) )
+        	if ( marker.CheckLineWallCollision(moveLine_, (TrackMarker::EWall)w, outIntersection) )
             {
                 index_ = i;
                 return true;
@@ -699,8 +680,7 @@ bool Level::CheckMarkerCollision(const core::line3d<f32> &moveLine_, int &index_
 
         const TrackMarker & marker = mTrackMarkers[i];
         if (    marker.mSettings.mRelocate
-            &&  marker.mNodeCollision
-            &&  CheckLineNodeCollision2T(moveLine_, marker.mNodeCollision, outIntersection)
+			&&	marker.CheckLineWallCollision(moveLine_, TrackMarker::WALL_CENTER, outIntersection)
             )
         {
             index_ = i;
@@ -713,26 +693,16 @@ bool Level::CheckMarkerCollision(const core::line3d<f32> &moveLine_, int &index_
 
 bool Level::CheckTeleportLineCollision(const core::line3d<f32> &moveLine_, core::vector3df &targetPos_, core::vector3df &rotation_, core::vector3df &velocity_) const
 {
-    if ( !mTpSource.mNodeCollision || !mTpTarget.mNodeCollision )
-        return false;
-
     core::vector3df outIntersection;
-    if ( CheckLineNodeCollision2T(moveLine_, mTpSource.mNodeCollision, outIntersection) )
+    if ( mTpSource.CheckLineWallCollision(moveLine_, TrackMarker::WALL_CENTER, outIntersection) )
     {
-        targetPos_ = outIntersection - mTpSource.mNodeCollision->getAbsolutePosition();
-        core::matrix4 mat;
-        mat.setRotationDegrees( mTpSource.mNodeCollision->getRotation() );
-        mat.inverseRotateVect( targetPos_ );
-        mat.setRotationDegrees( mTpTarget.mNodeCollision->getRotation() );
-        mat.rotateVect( targetPos_ );
-
-        targetPos_ += mTpTarget.mNodeCollision->getAbsolutePosition();
+        targetPos_ = mTpTarget.GetCenter() + outIntersection - mTpSource.GetCenter();
         rotation_ = mTpTarget.mSettings.mRotation;
 
         float oldVel = velocity_.getLength();
-        velocity_.set(0,0,-1);
+        velocity_.set(0,0,1);
         core::matrix4 rotVel;
-        rotVel.setRotationDegrees (mTpTarget.mNodeCollision->getRotation());
+        rotVel.setRotationDegrees(rotation_);
         rotVel.transformVect(velocity_);
         velocity_ *= oldVel;
 

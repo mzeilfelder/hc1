@@ -54,7 +54,6 @@ void TrackMarkerSettings::Reset()
     mUseDefaultSizes = true;
     mHasLeftWall = false;
     mHasRightWall = false;
-//    mHasTopWall = false;
     mHasBottomWall = false;
     mRelocate = true;
 }
@@ -63,7 +62,6 @@ void TrackMarkerSettings::EnableWalls()
 {
     mHasLeftWall = true;
     mHasRightWall = true;
-//    mHasTopWall = true;
     mHasBottomWall = true;
 }
 
@@ -104,8 +102,6 @@ void TrackMarkerSettings::ReadFromXml(const TiXmlElement * settings_)
     mHasLeftWall = val ? true : false;
     settings_->QueryIntAttribute("wall_right", &val);
     mHasRightWall = val ? true : false;
-//    settings_->QueryIntAttribute("wall_top", &val);
-//    mHasTopWall = val ? true : false;
     settings_->QueryIntAttribute("wall_bottom", &val);
     mHasBottomWall = val ? true : false;
 }
@@ -138,7 +134,6 @@ void TrackMarkerSettings::WriteToXml(TiXmlElement * settings_) const
 
     settings_->SetAttribute("wall_left", mHasLeftWall ? 1 : 0 );
     settings_->SetAttribute("wall_right", mHasRightWall? 1 : 0 );
-//    settings_->SetAttribute("wall_top", mHasTopWall ? 1 : 0 );
     settings_->SetAttribute("wall_bottom", mHasBottomWall ? 1 : 0 );
 }
 
@@ -158,12 +153,9 @@ TrackMarker::TrackMarker()
 : mEditNodeCenter(0)
 , mEditNodeLeftTop(0)
 , mEditNodeRightBottom(0)
-, mNodeCollision(0)
-, mNodeWallLeft(0)
-, mNodeWallRight(0)
-, mNodeWallTop(0)
-, mNodeWallBottom(0)
 {
+	for ( int i=0; i < WALL_COUNT; ++i )
+		mWallNode[i] = NULL;
 }
 
 bool TrackMarker::GetCenter( core::vector3df &pos_) const
@@ -174,6 +166,40 @@ bool TrackMarker::GetCenter( core::vector3df &pos_) const
 		return true;
 	}
 	return false;
+}
+
+irr::core::vector3df TrackMarker::GetCenter() const
+{
+	return mSettings.mCenter;
+}
+
+bool TrackMarker::CheckLineWallCollision(const irr::core::line3d<irr::f32> &line_, EWall wall, irr::core::vector3df &outIntersection_) const
+{
+	if ( wall == WALL_LEFT && !mSettings.mHasLeftWall )
+		return false;
+	else if ( wall == WALL_RIGHT && !mSettings.mHasRightWall )
+		return false;
+	else if ( wall == WALL_BOTTOM && !mSettings.mHasBottomWall )
+		return false;
+
+    core::aabbox3d<f32> box(line_.start, line_.end);
+    box.repair();
+    const core::aabbox3d<f32>& box2 = mWallBoxes[wall];
+
+    if ( box.intersectsWithBox(box2) )
+    {
+        for ( int i=0; i < 2; ++i )
+        {
+        	const irr::core::triangle3df& triangle = mWallTriangles[wall][i];
+			if ( 	!triangle.isTotalOutsideBox(box)
+				&&	triangle.getIntersectionWithLimitedLine(line_, outIntersection_) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void TrackMarker::Clear()
@@ -193,64 +219,78 @@ void TrackMarker::Clear()
         mEditNodeRightBottom->remove();
         mEditNodeRightBottom = NULL;
     }
-    if ( mNodeCollision )
-    {
-        mNodeCollision->remove();
-        mNodeCollision = NULL;
-    }
-    RemoveCollisionWalls();
+
+	if ( mWallNode[WALL_CENTER] )
+	{
+		mWallNode[WALL_CENTER]->remove();
+		mWallNode[WALL_CENTER] = NULL;
+	}
+    RemoveSideWalls();
 
     mSettings.Reset();
 }
 
-void TrackMarker::SetCollisionWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode)
+void TrackMarker::SetWall(EWall wall, irr::scene::ISceneNode* parent_, const irr::core::vector3df &leftTop_, const irr::core::vector3df &rightTop_, const irr::core::vector3df &leftBottom_, const irr::core::vector3df &rightBottom_)
 {
-    RemoveCollisionWalls();
+	mWallNode[wall] = APP.GetIrrlichtManager()->AddQuadradicNode(parent_, leftTop_, rightTop_, leftBottom_, rightBottom_);
+	if ( mWallNode[wall] )
+	{
+        mWallNode[wall]->setPosition(mSettings.mCenter);
+        mWallNode[wall]->updateAbsolutePosition();
+
+        mWallBoxes[wall] = mWallNode[wall]->getTransformedBoundingBox();
+
+		scene::ITriangleSelector* selector = mWallNode[wall]->getTriangleSelector();
+		if ( selector  )
+		{
+			s32 trianglesReceived = 0;
+			selector->getTriangles(mWallTriangles[wall], 2, trianglesReceived);
+		}
+	}
+}
+
+void TrackMarker::SetSideWalls(const TrackMarker & nextMarker, irr::scene::ISceneNode* parentNode)
+{
+    RemoveSideWalls();
 
     core::vector3df leftTopVec1, rightBottomVec1, rightTopVec1, leftBottomVec1;
-    CalcMarkerBorders(leftTopVec1, rightTopVec1, leftBottomVec1, rightBottomVec1, false);
+    CalcMarkerBorders(leftTopVec1, rightTopVec1, leftBottomVec1, rightBottomVec1);
+
+	irr::core::vector3df toNext(nextMarker.mSettings.mCenter - mSettings.mCenter);
     core::vector3df leftTopVec2, rightBottomVec2, rightTopVec2, leftBottomVec2;
-    nextMarker.CalcMarkerBorders(leftTopVec2, rightTopVec2, leftBottomVec2, rightBottomVec2, false);
+    nextMarker.CalcMarkerBorders(leftTopVec2, rightTopVec2, leftBottomVec2, rightBottomVec2);
+    leftTopVec2 += toNext;
+    rightTopVec2 += toNext;
+    leftBottomVec2 += toNext;
+    rightBottomVec2 += toNext;
 
     if ( mSettings.mHasLeftWall )
     {
-        mNodeWallLeft = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftTopVec1, leftTopVec2, leftBottomVec1, leftBottomVec2 );
+    	SetWall(WALL_LEFT, parentNode, leftTopVec1, leftTopVec2, leftBottomVec1, leftBottomVec2);
     }
     if ( mSettings.mHasRightWall )
     {
-        mNodeWallRight = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, rightTopVec1, rightTopVec2, rightBottomVec1, rightBottomVec2 );
+        SetWall(WALL_RIGHT, parentNode, rightTopVec1, rightTopVec2, rightBottomVec1, rightBottomVec2 );
     }
     if ( mSettings.mHasBottomWall )
     {
-        mNodeWallBottom = APP.GetIrrlichtManager()->AddQuadradicNode(parentNode, leftBottomVec1, rightBottomVec1, leftBottomVec2, rightBottomVec2 );
+        SetWall(WALL_BOTTOM, parentNode, leftBottomVec1, rightBottomVec1, leftBottomVec2, rightBottomVec2 );
     }
 }
 
-void TrackMarker::RemoveCollisionWalls()
+void TrackMarker::RemoveSideWalls()
 {
-    if ( mNodeWallLeft )
-    {
-        mNodeWallLeft->remove();
-        mNodeWallLeft = NULL;
-    }
-    if ( mNodeWallRight )
-    {
-        mNodeWallRight->remove();
-        mNodeWallRight = NULL;
-    }
-    if ( mNodeWallTop )
-    {
-        mNodeWallTop->remove();
-        mNodeWallTop = NULL;
-    }
-    if ( mNodeWallBottom )
-    {
-        mNodeWallBottom->remove();
-        mNodeWallBottom = NULL;
-    }
+	for ( int i = WALL_LEFT; i <= WALL_BOTTOM; ++i )
+	{
+		if ( mWallNode[i] )
+		{
+			mWallNode[i]->remove();
+			mWallNode[i] = NULL;
+		}
+	}
 }
 
-void TrackMarker::CalcMarkerBorders(core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_, bool relative_) const
+void TrackMarker::CalcMarkerBorders(core::vector3df & leftTop_, core::vector3df & rightTop_, core::vector3df & leftBottom_, core::vector3df & rightBottom_) const
 {
     core::matrix4 rotMat;
     rotMat.setRotationDegrees(mSettings.mRotation);
@@ -274,22 +314,10 @@ void TrackMarker::CalcMarkerBorders(core::vector3df & leftTop_, core::vector3df 
     }
 
     core::vector3df leftVec(mSettings.mUpVector.crossProduct(forward));
-//    printf("up: %.3f %.3f %.3f\n", mSettings.mUpVector.X, mSettings.mUpVector.Y, mSettings.mUpVector.Z);
-//    printf("forward: %.3f %.3f %.3f\n", forward.X, forward.Y, forward.Z );
-//    printf("leftVec: %.3f %.3f %.3f\n", leftVec.X, leftVec.Y, leftVec.Z );
-
     leftTop_ = (leftVec * left + mSettings.mUpVector * top);
     rightBottom_ = (leftVec * right + mSettings.mUpVector * bottom);
     rightTop_ = (leftVec * right + mSettings.mUpVector * top);
     leftBottom_ = (leftVec * left + mSettings.mUpVector * bottom);
-
-    if ( !relative_ )
-    {
-        leftTop_ += mSettings.mCenter;
-        rightBottom_ += mSettings.mCenter;
-        rightTop_ += mSettings.mCenter;
-        leftBottom_ += mSettings.mCenter;
-    }
 }
 
 void TrackMarker::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, irr::scene::ISceneNode* editNodeParent, irr::scene::ISceneNode* trackNodeParent)
@@ -301,68 +329,54 @@ void TrackMarker::SetTrackMarkerSettings(const TrackMarkerSettings &settings_, i
         core::vector3df leftTopVec, rightBottomVec, rightTopVec, leftBottomVec;
         CalcMarkerBorders(leftTopVec, rightTopVec, leftBottomVec, rightBottomVec );
 
-        scene::ISceneNode * nodeCollision = mNodeCollision;
 #ifdef HC1_ENABLE_EDITOR
-        scene::ISceneNode * nodeCenter = mEditNodeCenter;
-        scene::ISceneNode * nodeLeftTop = mEditNodeLeftTop;
-        scene::ISceneNode * nodeRightBottom = mEditNodeRightBottom;
-        if ( !nodeCenter )
+        if ( !mEditNodeCenter )
         {
             scene::SMesh * mesh = APP.GetEditor()->GetDefaultArrowMesh();
-            nodeCenter = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
-            assert(nodeCenter);
+            mEditNodeCenter = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
+            assert(mEditNodeCenter);
 
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeCenter);
-            nodeCenter->setTriangleSelector(selector);
+            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, mEditNodeCenter);
+            mEditNodeCenter->setTriangleSelector(selector);
             selector->drop();
-
-            mEditNodeCenter = nodeCenter;
         }
-        if ( !nodeLeftTop )
+        mEditNodeCenter->setPosition(settings_.mCenter);
+        mEditNodeCenter->setRotation(settings_.mRotation);
+        mEditNodeCenter->updateAbsolutePosition();
+
+        if ( !mEditNodeLeftTop )
         {
             scene::SMesh * mesh = APP.GetEditor()->GetDefaultBoxMesh();
-            nodeLeftTop = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
-            assert(nodeLeftTop);
+            mEditNodeLeftTop = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
+            assert(mEditNodeLeftTop);
 
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeLeftTop);
-            nodeLeftTop->setTriangleSelector(selector);
+            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, mEditNodeLeftTop);
+            mEditNodeLeftTop->setTriangleSelector(selector);
             selector->drop();
+		}
+        mEditNodeLeftTop->setPosition(settings_.mCenter + leftTopVec);
+        mEditNodeLeftTop->updateAbsolutePosition();
 
-            mEditNodeLeftTop = nodeLeftTop;
-        }
-        if ( !nodeRightBottom )
+        if ( !mEditNodeRightBottom )
         {
             scene::SMesh * mesh = APP.GetEditor()->GetDefaultBoxMesh();
-            nodeRightBottom = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
-            assert(nodeRightBottom);
+            mEditNodeRightBottom = APP.GetIrrlichtManager()->GetSceneManager()->addMeshSceneNode(mesh, editNodeParent);
+            assert(mEditNodeRightBottom);
 
-            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, nodeRightBottom);
-            nodeRightBottom->setTriangleSelector(selector);
+            scene::ITriangleSelector* selector = APP.GetIrrlichtManager()->GetSceneManager()->createTriangleSelector(mesh, mEditNodeRightBottom);
+            mEditNodeRightBottom->setTriangleSelector(selector);
             selector->drop();
-
-            mEditNodeRightBottom = nodeRightBottom;
         }
-
-        nodeCenter->setPosition(settings_.mCenter);
-        nodeCenter->setRotation(settings_.mRotation);
-        nodeCenter->updateAbsolutePosition();
-
-        nodeLeftTop->setPosition(settings_.mCenter + leftTopVec);
-        nodeLeftTop->updateAbsolutePosition();
-        nodeRightBottom->setPosition(settings_.mCenter + rightBottomVec);
-        nodeRightBottom->updateAbsolutePosition();
+        mEditNodeRightBottom->setPosition(settings_.mCenter + rightBottomVec);
+        mEditNodeRightBottom->updateAbsolutePosition();
 #endif // HC1_ENABLE_EDITOR
 
-        if ( nodeCollision )
+		if ( mWallNode[WALL_CENTER] )
         {
-            nodeCollision->remove();
-            nodeCollision = NULL;
+            mWallNode[WALL_CENTER]->remove();
+            mWallNode[WALL_CENTER] = NULL;
         }
-        nodeCollision = APP.GetIrrlichtManager()->AddQuadradicNode(trackNodeParent, leftTopVec,rightTopVec, leftBottomVec, rightBottomVec);
-        nodeCollision->setPosition(settings_.mCenter);
-        nodeCollision->updateAbsolutePosition();
-
-        mNodeCollision = nodeCollision;
+        SetWall(WALL_CENTER, trackNodeParent, leftTopVec, rightTopVec, leftBottomVec, rightBottomVec);
     }
     else    // !mIsValid
     {
