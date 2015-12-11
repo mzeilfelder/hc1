@@ -51,9 +51,6 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
         return true;
 #endif
 
-    if ( APP.GetGame() && APP.GetGame()->OnEvent(event) )
-        return true;
-
     switch ( event.EventType )
     {
         case EET_KEY_INPUT_EVENT:

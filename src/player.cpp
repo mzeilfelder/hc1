@@ -138,9 +138,6 @@ Player::Player(const Game& game)
     mCanPlayEngineAccSound = true;
     mCanPlayBrakeSound = true;
     ResetMarkersReached(0);
-    mLastTrainingTimeIndex = 0;
-    mLastTrainingTime = 0;
-    mTrainingDroppedFromTrack = 0;
     mNumDroppedLastRound = 0;
     mNumDroppedThisRound = 0;
     mTimeDisableTeleportFx = 0;
@@ -386,7 +383,6 @@ void Player::UpdateAiManual(u32 time_, PhysicsObject& hoverPhysics)
 
 void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 {
-    mAiLastInputData = mAiInputData;
     float speed = hoverPhysics.GetSpeedAbsolute();
     mAiInputData.mSpeedScaled = speed / hoverPhysics.mSettings.mMaxSpeed;   // 0 to 1
 
@@ -1198,20 +1194,10 @@ void Player::InfoStartCountDown(u32 time_)
     mLevelMarkerReached = 0;
     mLastRoundTime = 0;
     mLastTimeTouchedFloor = 0;
-    mLastTrainingTime = time_;
-    mLastTrainingTimeIndex = 0;
     ResetMarkersReached(time_, true);
-    mTrainingDroppedFromTrack = 0;
-    mTrainingLastAward = 0.f;
-    mTrainingAverageAward = 0.f;
-    mTrainingTimeFirstDropped = 0;
     mNumDroppedLastRound = 0;
     mNumDroppedThisRound = 0;
-    mTrainingLastDroppedTime = time_;
-    mTrainingLastPos = mMeshHover->getTransformedBoundingBox().getCenter();
 
-    mTrainingStartIndex = 0;
-    mTrainingDistToTrackCenterSum = 0.f;
     mTimeDisableTeleportFx = 0;
     mAlignmentMat.makeIdentity();
     mRollingMat.makeIdentity();
@@ -1219,7 +1205,6 @@ void Player::InfoStartCountDown(u32 time_)
     mLastPos = mMeshHover->getAbsolutePosition();
     mYawMat.makeIdentity();
     ExtIrr::SetMatrixRotation(mYawMat, mMeshHover->getAbsoluteTransformation());
-    mAiLastInputData.Reset();
     mAiInputData.Reset();
     mTimeLastObjCollision = 0;
     mPlacing = 0;
@@ -1244,8 +1229,6 @@ void Player::InfoTrainingAiTeleport(u32 time_)
 {
     InfoStartRace(time_);
     UpdateMarkersReached(time_, true);
-    mLastTrainingTimeIndex = mTrackMarkerReached;
-    mTrainingStartIndex = mTrackMarkerReached;
 }
 
 void Player::InfoRoundFinished(u32 time_)
@@ -1280,7 +1263,6 @@ void Player::InfoRoundFinished(u32 time_)
         mTimeHighestValidTrackMarker = time_;
         mNumDroppedLastRound = mNumDroppedThisRound;
         mNumDroppedThisRound = 0;
-        mTrainingStartIndex = 0;
 
 #ifdef _IRR_ANDROID_PLATFORM_
 		if ( mPlayerType == PT_LOCAL && mCurrentRound > 1 )
@@ -1346,7 +1328,6 @@ void Player::InfoDroppedFromTrack(u32 time_)
     mTimeDisableTeleportFx = time_ + steeringSettings.mRelocateNoColl;
 
     ++mNumDroppedThisRound;
-    mTrainingLastDroppedTime = time_;
 
     UpdateMarkersReached(time_, true);
 }

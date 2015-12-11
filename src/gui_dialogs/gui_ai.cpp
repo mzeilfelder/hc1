@@ -46,7 +46,6 @@ bool GuiAi::Load(const char* filename_, bool reloadLast_)
         ADD_EVENT_HANDLER( "btnRecordLine", GuiAi, OnButtonRecordLine );
         ADD_EVENT_HANDLER( "btnSmoothIdealLine", GuiAi, OnButtonSmoothIdealLine );
         ADD_EVENT_HANDLER( "btnFixTp", GuiAi, OnButtonFixTp );
-        ADD_EVENT_HANDLER( "cbAiTraining", GuiAi, OnCheckBoxAiTraining );
         ADD_EVENT_HANDLER( "aidialog", GuiAi, OnWindowEvent );
 
         const IGUIElement * root = GetDialogRoot();
@@ -61,6 +60,11 @@ bool GuiAi::Load(const char* filename_, bool reloadLast_)
         {
             cb->setChecked(APP.GetDrawAiTrack());
         }
+        cb = static_cast<IGUICheckBox*>(GetElementByName(root, "cbAiTraining", errorMsg));
+        if ( cb )
+		{
+			cb->setVisible(false);	// no longer used, so hide
+		}
     }
     return ok;
 }
@@ -232,20 +236,6 @@ bool GuiAi::OnButtonFixTp(const irr::SEvent &event_)
     {
         TrackMarker& tpTarget = APP.GetLevel()->GetTpSource();
         APP.GetLevel()->GetAiTrack().AddTrackBehindTp(&tpTarget);
-        return true;
-    }
-    return false;
-}
-
-bool GuiAi::OnCheckBoxAiTraining(const irr::SEvent &event_)
-{
-    if ( event_.GUIEvent.EventType == EGET_CHECKBOX_CHANGED )
-    {
-        IGUICheckBox* cb = static_cast<IGUICheckBox*>(event_.GUIEvent.Caller);
-        assert(cb);
-
-        APP.GetGame()->SetAiTraining(cb->isChecked());
-
         return true;
     }
     return false;

@@ -106,8 +106,6 @@ public:
     void Resume();
     void Finish(bool finishByPlaying_);
 
-    bool OnEvent(const irr::SEvent &event);
-
     GAME_MODES GetMode() const              { return mMode; }
 
     const Timer* GetGameTimer() const       { return mGameTimer; }
@@ -141,9 +139,6 @@ public:
 
     // time which is used for "best times" when no time is given yet
     static irr::s32 TIME_UNUSED;
-
-    void SetAiTraining(bool enable_);
-    bool GetAiTraining() const                      { return mAiTraining; }
 
     // game settings
     void SetSettings(const GameSettings &settings_);
@@ -213,9 +208,6 @@ private:
     bool                mAutosaveRecording;
     bool                mAutoloadRecording;
     bool                mHasGhost;
-
-    bool                mAiTraining;
-    irr::core::position2d<irr::s32> mOldCursorPos;  // only needed for cam in training mode
 
     bool                mHasRecordBestLap;
     Record              *mRecordBestLap;        // for playing the best available lap

@@ -37,7 +37,6 @@ protected:
     bool OnButtonRecordLine(const irr::SEvent &event_);
     bool OnButtonSmoothIdealLine(const irr::SEvent &event_);
     bool OnButtonFixTp(const irr::SEvent &event_);
-    bool OnCheckBoxAiTraining(const irr::SEvent &event_);
     bool OnWindowEvent(const irr::SEvent &event_);
 
     bool GetLevelRecord(Record& record_);

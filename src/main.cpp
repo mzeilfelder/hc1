@@ -557,17 +557,8 @@ void App::SetNewMode(APP_MODES mode_)
 
             if ( mGame && mIrrlichtManager )
             {
-                if ( mGame->GetAiTraining() )
-                {
-                    mIrrlichtManager->SetCameraEditor();
-                }
-                else
-                {
-                    mIrrlichtManager->SetCameraGame(mConfig->GetUseTouchInput() == ETI_NO_TOUCH);
-                }
+				mIrrlichtManager->SetCameraGame(mConfig->GetUseTouchInput() == ETI_NO_TOUCH);
             }
-            // if ( mEditGui )
-            //  mGui->GetControllerDisplay()->setVisible(true);
         }
         break;
         case MODE_EDITOR:

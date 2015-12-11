@@ -19,8 +19,8 @@ struct AiBotSettings;
 
 struct PlayerSettings
 {
-    std::wstring    mName;
-    std::string     mModelFileName;
+    std::wstring mName;
+    std::string  mModelFileName;
 };
 
 enum PLAYER_TYPE
@@ -44,7 +44,7 @@ struct PlayerStreamData
     float mControllerRotation;
 };
 
-// input data available on each tick for the AI-bots
+// Input data updated each tick for the AI-bots
 struct AiInputData
 {
     float   mSpeedScaled;
@@ -211,25 +211,14 @@ private:
     bool mCanPlayEngineAccSound;
     bool mCanPlayBrakeSound;
 
-    Controller*         mAiController;
-    AiBotSettings*      mAiBotSettings;
+    Controller*    mAiController;
+    AiBotSettings* mAiBotSettings;
 
     int mRecordingId;
     int mRecordPlayId;
 
     AiInputData mAiInputData;
-    AiInputData mAiLastInputData;
     irr::core::vector3df mClosestPointOnTrack;
-    float mTrainingDistToTrackCenterSum;
-    float mTrainingLastAward;
-    float mTrainingAverageAward;
-    int mLastTrainingTimeIndex;
-    int mLastTrainingTime;
-    int mTrainingDroppedFromTrack;
-    int mTrainingStartIndex;
-    irr::u32 mTrainingLastDroppedTime;
-    irr::u32 mTrainingTimeFirstDropped;
-    irr::core::vector3df mTrainingLastPos;
     float   mRelativePreviewDist[AI_TRACK_PREVIEWS];
     irr::core::vector3df mPreviewDir[AI_TRACK_PREVIEWS];
     irr::core::vector3df mPreviewDirIdeal[AI_TRACK_PREVIEWS];

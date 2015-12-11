@@ -196,7 +196,6 @@ Game::Game()
     mRaceStartTime = 0;
     mAutosaveRecording = false;
     mAutoloadRecording = false;
-    mAiTraining = false;
     mHasGhost = false;
 
     mCameras.push_back( new Camera() );
@@ -275,7 +274,6 @@ bool Game::Init()
     PROFILE_ADD(201, PGROUP_GAME, "update physics");
     PROFILE_ADD(202, PGROUP_GAME, "post physics");
     PROFILE_ADD(203, PGROUP_GAME, "local player");
-    PROFILE_ADD(204, PGROUP_GAME, "training");
     PROFILE_ADD(205, PGROUP_GAME, "record");
     PROFILE_ADD(206, PGROUP_GAME, "pp 2");
     PROFILE_ADD(207, PGROUP_GAME, "pp 3");
@@ -360,7 +358,6 @@ void Game::PrepareStart()
 
     // set the local player
     size_t players = 0;
-    if ( !mAiTraining )
     {
         if ( mSettings.mGameType == GT_HOTLAP )
         {
@@ -392,11 +389,6 @@ void Game::PrepareStart()
 
     // add ai's
     bool hasAi = false;
-    if ( mAiTraining )
-    {
-        mSettings.mNrOfBots = 50;
-    }
-
     for ( size_t i=0; i < (size_t)mSettings.mNrOfBots; ++i )
     {
         if ( players >= mPlayers.size() )
@@ -766,7 +758,7 @@ void Game::OnCrossedFinishLine(Player& player_, u32 time_)
             lapRecord = GetCurrentLapHighscores()->GetScore(0).mTime;
         }
 
-        if ( PT_LOCAL == player_.GetType() && !mAiTraining )
+        if ( PT_LOCAL == player_.GetType())
         {
             PlayerProfile* profile = APP.GetProfileManager()->GetSelectedProfile();
             bool playPingSample = false;
@@ -1062,7 +1054,7 @@ void Game::Update()
         return;
 
 #ifdef HC1_ENABLE_SOUND
-    if ( APP.GetSound() && !APP.GetSound()->IsMusicPlaying() && !mAiTraining )
+    if ( APP.GetSound() && !APP.GetSound()->IsMusicPlaying() )
     {
         APP.GetMusicManager()->PlayLevelMusic();
     }
@@ -1079,7 +1071,7 @@ void Game::Update()
     PROFILE_STOP(200);
 
     PROFILE_START(201);
-    APP.GetPhysics()->Update(timeTickSec, !GetAiTraining());
+    APP.GetPhysics()->Update(timeTickSec, true);
     PROFILE_STOP(201);
 
     PlayRecords();
@@ -1111,10 +1103,7 @@ void Game::Update()
         if ( physicsObj )
 			UpdateHud(*mPlayers[mLocalPlayerIndex], *physicsObj, time);
 
-        if ( !mAiTraining )
-        {
-            guiHud.SetTimeBestLap( mPlayers[mLocalPlayerIndex]->GetBestRoundTime() );
-        }
+		guiHud.SetTimeBestLap( mPlayers[mLocalPlayerIndex]->GetBestRoundTime() );
 
         // camera
         scene::ICameraSceneNode* gameCam = APP.GetIrrlichtManager()->GetGameCamera();
@@ -1476,10 +1465,7 @@ void Game::Resume()
         }
     }
 
-    if ( !mAiTraining )
-    {
-        SetActiveCameraIndex(mActiveCameraIndex);
-    }
+	SetActiveCameraIndex(mActiveCameraIndex);
 }
 
 void Game::SetActiveCameraIndex(size_t index_)
@@ -1610,25 +1596,6 @@ bool Game::GetAutoloadRecording() const
     return mAutoloadRecording;
 }
 
-void Game::SetAiTraining(bool enable_)
-{
-    if ( enable_ && !mAiTraining )
-    {
-        for ( size_t p=0; p< mPlayers.size(); ++p )
-        {
-            mPlayers[p]->ChangeModel("hc_shadow");
-        }
-    }
-    else if ( !enable_ && mAiTraining )
-    {
-        for ( size_t p=0; p< mPlayers.size() && p < 4; ++p )
-        {
-            mPlayers[p]->ChangeModel("hover_player");
-        }
-    }
-    mAiTraining = enable_;
-}
-
 void Game::UpdateHoverAmbience(const LevelSettings& settings_)
 {
     for ( size_t i=0; i<mPlayers.size(); ++i )
@@ -1682,52 +1649,6 @@ void Game::SetSettings(const GameSettings &settings_)
     {
         mTrackScores = NULL;
     }
-}
-
-bool Game::OnEvent(const SEvent &event)
-{
-    // Some special handling for edit-cam in training mode
-    if ( mAiTraining )
-    {
-        switch ( event.EventType )
-        {
-            case EET_MOUSE_INPUT_EVENT:
-            {
-                switch ( event.MouseInput.Event )
-                {
-                    case EMIE_RMOUSE_PRESSED_DOWN:
-                    {
-                        gui::ICursorControl* cursor = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getCursorControl();
-                        assert(cursor);
-                        if ( cursor->isVisible() )
-                        {
-                            mOldCursorPos = cursor->getPosition();
-                            cursor->setVisible(false);
-                        }
-                    }
-                    break;
-                    case EMIE_RMOUSE_LEFT_UP:
-                    {
-                        gui::ICursorControl* cursor = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getCursorControl();
-                        assert(cursor);
-                        if ( !cursor->isVisible() )
-                        {
-                            cursor->setPosition(mOldCursorPos.X, mOldCursorPos.Y);
-                            cursor->setVisible(true);
-                        }
-                    }
-                    break;
-                    default:
-                    break;
-                }
-                break;
-            }
-            default:
-            break;
-        }
-    }
-
-    return false;
 }
 
 void Game::ResetSessionRecord()
