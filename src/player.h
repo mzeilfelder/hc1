@@ -9,10 +9,6 @@
 #include <vector>
 #include "recorder.h"
 
-#if defined(NEURAL_AI)
-class NeuralNet;
-#endif
-
 class Controller;
 class Game;
 struct SteeringSettings;
@@ -58,15 +54,6 @@ struct AiInputData
     float   mVelToIdealAngleScaled[AI_TRACK_PREVIEWS];
     float   mPreviewHeightFactor[AI_TRACK_PREVIEWS];
 
-#if defined(NEURAL_AI)
-    float   mDistToCenter;
-    float   mScaledDistDirToBorder;
-    float   mScaledDistVelToBorder;
-
-    static int GetNumInputs()               { return 5 + 2*AI_TRACK_PREVIEWS; }
-    int FillNetInputLayer(NeuralNet* nn_, int neuronIndex_=0);
-    void PrintToFile(FILE* file_);
-#endif
     void Reset();
 };
 
@@ -137,14 +124,6 @@ public:
 
     void SetTrackStart(int startId_) { mTrackStart = startId_; }
     int GetTrackStart() const        { return mTrackStart; }
-
-#if defined(NEURAL_AI)
-    void SetAiTrainingRecord(Record * record_);
-    float CalculateAiTrainingAward(irr::u32 time_);
-
-    NeuralNet* GetNeuralNet() { return mNeuralNet; }
-    NeuralNet* GetTrainingNeuralNet() { return mTrainingNeuralNet; }
-#endif
 
 protected:
     void CalcRollMatrices(const PhysicsObject& hoverPhysics, float additionalRoll_=0.f);
@@ -255,13 +234,6 @@ private:
     irr::core::vector3df mPreviewDir[AI_TRACK_PREVIEWS];
     irr::core::vector3df mPreviewDirIdeal[AI_TRACK_PREVIEWS];
     bool    mUseStayOnTrackCheat;
-
-#if defined(NEURAL_AI)
-    NeuralNet*          mNeuralNet;
-    NeuralNet*          mTrainingNeuralNet;
-    FILE*               mAiTrainingDataFile;
-    Record*             mAiTrainingRecord;
-#endif
 };
 
 #endif // PLAYER_H

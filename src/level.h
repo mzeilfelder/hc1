@@ -101,8 +101,6 @@ public:
 
 protected:
     bool CheckEditCollision(irr::scene::ISceneNode*, const irr::core::line3d<irr::f32> line_, float &dist_) const;
-    // only two triangles checked!
-    bool CheckLineNodeCollision2T(const irr::core::line3d<irr::f32> &line_, irr::scene::ISceneNode* node_, irr::core::vector3df &outIntersection_) const;
 
     void BuildTrackData();
     void ClearTrackData();

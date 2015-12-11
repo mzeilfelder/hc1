@@ -8,8 +8,6 @@
 
 // #define HOVER_RELEASE // define if this version will go to customers (enabled by default in release targets). TODO: Make this HOVER_RETAIL and add another target besides debug and release - retail and release are not the same.
 
-//	#define NEURAL_AI   // I can't yet get myself to completely remove it, but don't expect it to do anything
-
 #define HC1_HAS_FREETYPE
 
 // IRR_SVN: Remember the svn versions used as base for the Irrlicht version against which we compile.

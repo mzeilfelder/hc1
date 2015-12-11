@@ -177,10 +177,7 @@ protected:
     void GetRelocationPos(int wallIndex_, irr::core::vector3df &pos_, irr::core::vector3df &rotation_);
     void ResetRecord(Record* record_);
     void AddPlayer(const wchar_t * name_, const char * model_);
-#if defined(NEURAL_AI)
-    void TrainAi();
-    std::string GetNextFilenameSaveNN() const;
-#endif
+
     void UpdatePlacings();
     float GetRelativeTrackDistanceToPlayer(size_t sourcePlayer, size_t targetPlayer, irr::s32 &timeDiff_);
     void ResetHud();

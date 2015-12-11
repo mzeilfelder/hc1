@@ -15,7 +15,6 @@
 #include "irrlicht_manager.h"
 #include "level.h"
 #include "level_manager.h"
-#include "nn.h"
 #include "random.h"
 #include "globals.h"
 #include "logging.h"
@@ -80,42 +79,6 @@ void AiInputData::Reset()
     memset(this, 0, sizeof(AiInputData));
 }
 
-#if defined(NEURAL_AI)
-int AiInputData::FillNetInputLayer(NeuralNet* net_, int neuronIndex_)
-{
-    if( !net_ )
-        return 0;
-
-    net_->SetInputValue(neuronIndex_, mSpeedScaled);
-    ++neuronIndex_;
-    net_->SetInputValue(neuronIndex_, mVelToDirAngleScaled);
-    ++neuronIndex_;
-    net_->SetInputValue(neuronIndex_, mDistToCenter);
-    ++neuronIndex_;
-    net_->SetInputValue(neuronIndex_, mScaledDistDirToBorder);
-    ++neuronIndex_;
-    net_->SetInputValue(neuronIndex_, mScaledDistVelToBorder);
-    ++neuronIndex_;
-    for ( int i=0; i < AI_TRACK_PREVIEWS; ++i )
-    {
-        net_->SetInputValue(neuronIndex_, mVelToPreviewAngleScaled[i]);
-        ++neuronIndex_;
-        net_->SetInputValue(neuronIndex_, mPreviewHeightFactor[i]);
-        ++neuronIndex_;
-    }
-    return neuronIndex_;
-}
-
-void AiInputData::PrintToFile(FILE* file_)
-{
-    fprintf(file_, "%f %f %f %f %f", mSpeedScaled, mVelToDirAngleScaled, mDistToCenter, mScaledDistDirToBorder, mScaledDistVelToBorder);
-    for ( int i=0; i < AI_TRACK_PREVIEWS; ++i )
-    {
-        fprintf(file_, " %f %f", mVelToPreviewAngleScaled[i], mPreviewHeightFactor[i]);
-    }
-}
-#endif // NEURAL_AI
-
 // --------------------------------------------------------
 Player::Player(const Game& game)
 : mGame(game)
@@ -163,13 +126,7 @@ Player::Player(const Game& game)
     mRecordPlayId = -1;
     mAiController = NULL;
     mAiBotSettings = NULL;
-#if defined(NEURAL_AI)
-    mNeuralNet = NULL;
-    mTrainingNeuralNet = NULL;
-    mAiTrainingRecord = NULL;
-    mAiTrainingDataFile = 0;
-//    mAiTrainingDataFile = fopen("aitrainingdata.txt", "at");
-#endif
+
     mTrackStart = -1;
     mSoundRefEngine = -1;
     mSoundRefEngine2 = -1;
@@ -202,17 +159,6 @@ Player::~Player()
 {
     delete mAiController;
     delete mAiBotSettings;
-#if defined(NEURAL_AI)
-    if ( mAiTrainingDataFile )
-    {
-        fclose(mAiTrainingDataFile);
-        mAiTrainingDataFile = 0;
-    }
-    if ( mAiTrainingRecord )
-        mAiTrainingRecord->drop();
-    delete mNeuralNet;
-    delete mTrainingNeuralNet;
-#endif
 }
 
 void Player::SetAiBotSettings(const AiBotSettings &settings_)
@@ -241,32 +187,6 @@ void Player::SetType(PLAYER_TYPE type_)
         // mUseStayOnTrackCheat = true;
         mAiController = new Controller();
         mAiBotSettings = new AiBotSettings();
-#if defined(NEURAL_AI)
-//        mNeuralNet = new NeuralNet();
-//        mTrainingNeuralNet = new NeuralNet();
-//
-//        int inputSize = AiInputData::GetNumInputs()+1;
-//        int hiddenSize = 15;
-//        int outputSize = 2;
-//
-//        mNeuralNet->Initialize(inputSize, hiddenSize, outputSize, 0.05f);
-//
-//        if ( mGame.GetAiTraining() )
-//        {
-//            mEnableFxSounds = false;
-//            mNeuralNet->RandomizeWeights(-1.f, 1.f);
-//    //        mNeuralNet->RandomizeWeightBias();
-//    //        mNeuralNet->SetHiddenBiasForOutputNeuron(0, 0.5f);
-//    //        mNeuralNet->SetHiddenBiasForOutputNeuron(1, 0.0f);
-//    //        mNeuralNet->SetBoostWinnerWeights(0.0001f);
-//            *mTrainingNeuralNet = *mNeuralNet;
-//        }
-//        else
-//        {
-//            std::string fileNN( APP.GetConfig()->MakeFilenameLevel("easy.nn") );
-//            mNeuralNet->Load(fileNN.c_str());
-//        }
-#endif
     }
     else if ( mAiController )
     {
@@ -274,12 +194,6 @@ void Player::SetType(PLAYER_TYPE type_)
         mAiController = NULL;
         delete mAiBotSettings;
         mAiBotSettings = NULL;
-#if defined(NEURAL_AI)
-//        delete mNeuralNet;
-//        mNeuralNet = NULL;
-//        delete mTrainingNeuralNet;
-//        mTrainingNeuralNet = NULL;
-#endif
     }
     UpdateShadow();
 }
@@ -502,40 +416,12 @@ void Player::UpdateAiInputData(const PhysicsObject& hoverPhysics)
 
     const AiTrack& aiTrack = APP.GetLevel()->GetAiTrack();
 
-#if 0	// for debugging
-    static int highestTrainingRecordIndex = 0;
-    if ( mHighestValidTrackMarker > highestTrainingRecordIndex )
-    {
-        fprintf(stderr, "rec: %d ", mHighestValidTrackMarker );
-        highestTrainingRecordIndex = mHighestValidTrackMarker;
-    }
-#endif
-
     if ( mTrackMarkerReached >= 0 )
     {
         float deltaLine = 0.f;
         float distToTrackCenter = 0.f;
         int indexNearest = aiTrack.GetNearestPosOnCenterLine(objCenter, mTrackMarkerReached, deltaLine, mClosestPointOnTrack, distToTrackCenter);
 
-#if defined(NEURAL_AI)
-        mTrainingDistToTrackCenterSum += fabs(distToTrackCenter);
-
-        const float MAX_DIST_TO_CENTER = 500.f;
-        if ( distToTrackCenter >= MAX_DIST_TO_CENTER )
-            mAiInputData.mDistToCenter =  1.f;
-        else if ( distToTrackCenter <= -MAX_DIST_TO_CENTER )
-            mAiInputData.mDistToCenter = -1.f;
-        else
-            mAiInputData.mDistToCenter = distToTrackCenter / MAX_DIST_TO_CENTER;
-
-        const float MAX_DIST_TO_BORDER = 5000.f;
-        float distDirToBorder = MAX_DIST_TO_BORDER;
-        float distVelToBorder = MAX_DIST_TO_BORDER;
-        aiTrack.GetBorderDist(indexNearest, objCenter, currentDir, MAX_DIST_TO_BORDER, distDirToBorder);
-        aiTrack.GetBorderDist(indexNearest, objCenter, normVelocity, MAX_DIST_TO_BORDER, distVelToBorder);
-        mAiInputData.mScaledDistDirToBorder = fabs(distDirToBorder)/MAX_DIST_TO_BORDER;
-        mAiInputData.mScaledDistVelToBorder = fabs(distVelToBorder)/MAX_DIST_TO_BORDER;
-#endif
 //        // debug draw
 //        core::vector3df borderPoint1(objCenter + currentDir*fabs(distDirToBorder));
 //        core::vector3df borderPoint2(objCenter + normVelocity*fabs(distVelToBorder));
@@ -642,50 +528,6 @@ void Player::UpdateAi(u32 time_, PhysicsObject* hoverPhysics)
 //    mAiController->SetPower(power);
 //    mAiController->SetRotation(rotation);
 }
-
-#if defined(NEURAL_AI)
-float Player::CalculateAiTrainingAward(u32 time_)
-{
-    float award = 0.f;
-    const float MALUS_NO_IMPROVE = 0.0f;
-    const float BONUS_NO_DROP = 1.f;
-    const float BONUS_TRACK = 2.f;
-    int numAiTrackInfos = APP.GetLevel()->GetAiTrack().GetNumTrackInfos();
-
-    if ( mLastTrainingTime == 0)
-    {
-        mLastTrainingTime = time_;
-        mLastTrainingTimeIndex = 0;
-        //fprintf(stderr, "reset, new index: %d\n", mLastTrainingTimeIndex);
-    }
-
-    award = mCurrentRound*numAiTrackInfos*BONUS_TRACK;
-    if ( mTrackMarkerReached + 10 < mHighestValidTrackMarker )
-        award += mTrackMarkerReached*BONUS_TRACK;
-    else
-        award -= BONUS_TRACK*(((mHighestValidTrackMarker+numAiTrackInfos)-mTrackMarkerReached) % numAiTrackInfos);
-    award -= BONUS_TRACK*mTrainingStartIndex;
-
-    award -= (time_ - mTimeHighestValidTrackMarker)*MALUS_NO_IMPROVE;
-
-    const int MAX_TIME_NO_DROP = 15;
-    int timeNoDrop = time_ - mTrainingLastDroppedTime;
-    if ( timeNoDrop > MAX_TIME_NO_DROP )
-        timeNoDrop = MAX_TIME_NO_DROP;
-    award += BONUS_NO_DROP* ((float)timeNoDrop/(float)MAX_TIME_NO_DROP);
-
-    // TEST
-//    award -= mTrainingDistToTrackCenterSum * 0.01f;
-    mTrainingDistToTrackCenterSum = 0.f;
-
-    mLastTrainingTime = time_;
-    mLastTrainingTimeIndex = mTrackMarkerReached;
-    if ( mNeuralNet && mTrainingNeuralNet )
-        *mTrainingNeuralNet = *mNeuralNet;
-
-    return award;
-}
-#endif // NEURAL_AI
 
 float Player::CalcAngleForRotation(float rotation_, float timeSec_, const PhysicsObject& hoverPhysics_, const SteeringSettings& settings_)
 {
@@ -863,19 +705,6 @@ void Player::PrePhysicsUpdate(u32 time_)
         cheatDir *= cheatDir.getLength();
         hoverPhysics->SetForceAccu( hoverPhysics->GetForceAccu() + cheatDir );
     }
-
-#if defined(NEURAL_AI)
-    if ( mAiTrainingDataFile )
-    {
-        UpdateAiInputData(*hoverPhysics);
-        mAiInputData.PrintToFile(mAiTrainingDataFile);
-        fprintf(mAiTrainingDataFile, "\n");
-        if ( controller )
-        {
-            fprintf(mAiTrainingDataFile, "%f %f\n",  controller->GetPower(), controller->GetRotation());
-        }
-    }
-#endif
 
     if ( mTimeFreezing && time_ >= mTimeFreezing )
     {
@@ -1520,19 +1349,6 @@ void Player::InfoDroppedFromTrack(u32 time_)
     mTrainingLastDroppedTime = time_;
 
     UpdateMarkersReached(time_, true);
-
-#if defined(NEURAL_AI)
-    if ( mAiTrainingRecord )
-    {
-        if ( !mTrainingDroppedFromTrack )
-        {
-            mTrainingTimeFirstDropped = time_;
-        }
-        ++mTrainingDroppedFromTrack;
-        mLastTrainingTimeIndex = mTrackMarkerReached;
-        //fprintf(stderr, "dropped, new index: %d", mLastTrainingTimeIndex);
-    }
-#endif
 }
 
 void Player::StopAllSoundSamples()
@@ -1829,21 +1645,6 @@ int Player::GetTimeIndexForPos(int lastIndex_, Record * record_, const core::vec
 
     return bestIndex;
 }
-
-#if defined(NEURAL_AI)
-void Player::SetAiTrainingRecord(Record * record_)
-{
-    if ( mAiTrainingRecord )
-        mAiTrainingRecord->drop();
-    mAiTrainingRecord = record_;
-    if ( mAiTrainingRecord )
-    {
-        mAiTrainingRecord->grab();
-    }
-    mTrackMarkerReached = 0;
-    mTimeMarkerChanged = 0;
-}
-#endif
 
 bool Player::PlaySample(int & soundRef_, const std::string & sampleName_, float gain_, bool repeat_)
 {

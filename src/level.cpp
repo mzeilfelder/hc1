@@ -616,36 +616,6 @@ void Level::RemoveModel(int index_)
     mModels.erase( mModels.begin() + index_);
 }
 
-bool Level::CheckLineNodeCollision2T(const core::line3d<f32> &line_, scene::ISceneNode* node_, core::vector3df &outIntersection_) const
-{
-    if ( !node_ )
-        return false;
-
-    core::aabbox3d<f32> box(line_.start, line_.end);
-    box.repair();
-    core::aabbox3d<f32> box2(node_->getTransformedBoundingBox());
-
-    if ( box.intersectsWithBox(box2) )
-    {
-        const s32 MAX_TRIANGLES = 2;
-        s32 trianglesReceived = 0;
-        core::triangle3df triangles[MAX_TRIANGLES];
-
-        scene::ITriangleSelector* selector = node_->getTriangleSelector();
-        selector->getTriangles( triangles, MAX_TRIANGLES, trianglesReceived, box, /*transform*/ 0 );
-
-        for ( int i=0; i < trianglesReceived; ++i )
-        {
-            if ( triangles[i].getIntersectionWithLimitedLine(line_, outIntersection_) )
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 bool Level::CheckFinishLineCollision(const core::line3d<f32> &moveLine_) const
 {
     core::vector3df outIntersection;

@@ -31,7 +31,6 @@
 #include "gui_dialogs/gui_menu_gameend_rivals.h"
 #include "recorder.h"
 #include "random.h"
-#include "nn.h"
 #include "tinyxml/tinyxml.h"
 
 #include <sstream>
@@ -374,9 +373,6 @@ void Game::PrepareStart()
 
         mPlayers[players]->SetType(PT_LOCAL);
         mPlayers[players]->SetTrackStart(mLocalPlayerStartTrack);
-#if defined(NEURAL_AI)
-        mPlayers[players]->SetAiTrainingRecord(mRecordBestLap);
-#endif
 
         // set player hover
         int hoverIndex = 0;
@@ -410,9 +406,7 @@ void Game::PrepareStart()
         mPlayers[players]->SetType(PT_AI);
         mPlayers[players]->SetAiBotSettings( APP.GetLevelManager()->GetBotSettings(mSettings.mBotDifficulty, i) );
         mPlayers[players]->SetTrackStart(i%MAX_PLAYERS);
-#if defined(NEURAL_AI)
-        mPlayers[players]->SetAiTrainingRecord(mRecordBestLap);
-#endif
+
         ++players;
     }
 
@@ -1104,23 +1098,6 @@ void Game::Update()
         CheckCollisions(player, time);
         if ( mMode == GM_FINISHED )
             return;
-
-#if defined(NEURAL_AI)
-        if ( mAiTraining && player.IsActiveType() )
-        {
-            if ( time - player.GetRoundStartTime() > 5000
-                ||  player.GetCurrentRound() == 1
-                )
-            {
-                if ( player.GetBestRoundTime() < guiHud.GetTimeBestLap() )
-                {
-                    std::string fileNN( APP.GetConfig()->MakeFilenameLevel("easy.nn") );
-                    player.GetNeuralNet()->Save(fileNN.c_str());
-                    guiHud.SetTimeBestLap( player.GetBestRoundTime() );
-                }
-            }
-        }
-#endif
     }
     PROFILE_STOP(202);
 
@@ -1159,18 +1136,6 @@ void Game::Update()
         }
     }
     PROFILE_STOP(203);
-
-#if defined(NEURAL_AI)
-    if ( mAiTraining )
-    {
-        PROFILE_START(204);
-        gui::ICursorControl* cursor = APP.GetIrrlichtManager()->GetIrrlichtDevice()->getCursorControl();
-        assert(cursor);
-        Camera::UpdateEditCam(timeTickSec, APP.GetIrrlichtManager()->GetEditorCamera(), !cursor->isVisible() );
-        TrainAi();
-        PROFILE_STOP(204);
-    }
-#endif
 }
 
 void Game::OnPhysicsTick(unsigned int ticksSinceGameStart_)
@@ -1328,164 +1293,6 @@ float Game::GetRelativeTrackDistanceToPlayer(size_t sourcePlayer_, size_t target
 
     return (float)(p1-p2) / (float)maxMarkers;
 }
-
-#if defined(NEURAL_AI)
-std::string Game::GetNextFilenameSaveNN() const
-{
-    static int countFilenames = 0;
-    char fileName[100];
-    sprintf(fileName, "easy%d.nn", countFilenames );
-    ++countFilenames;
-    std::string fileNN( APP.GetConfig()->MakeFilenameLevel(fileName) );
-    return fileNN;
-}
-
-void Game::TrainAi()
-{
-    Timer* gameTimer = APP.GetGame()->GetGameTimer();
-
-    bool needRestart = false;
-    RandomGenerator randGen;
-    static u32 mostAiRounds = 0;
-    int time = gameTimer->GetTime();
-    static int lastTrainingTime = 0;
-    if ( lastTrainingTime == 0)
-    {
-        lastTrainingTime = time;
-    }
-
-    //float TEST_TIME = 500.f + mostAiRounds;
-//    float MIN_TIME_SINCE_RESET = 5000.f;
-    float TEST_TIME = 10000.f;
-    if (    time - lastTrainingTime > TEST_TIME )
-//        &&  time - lastResetTime > MIN_TIME_SINCE_RESET )
-    {
-        lastTrainingTime = time;
-
-        // sort nn's by award function
-        core::array<SortHelper> parents;
-        for ( size_t p=0; p<mPlayers.size(); ++p)
-        {
-            if ( mPlayers[p]->GetType() == PT_AI )
-            {
-                SortHelper helper;
-                helper.mPlayerId = p;
-                helper.mRating = mPlayers[p]->CalculateAiTrainingAward(time);
-                parents.push_back(helper);
-
-                if ( mPlayers[p]->GetCurrentRound() > mostAiRounds )
-                {
-                    mostAiRounds = mPlayers[p]->GetCurrentRound();
-                }
-            }
-        }
-        parents.sort();
-
-        // regularly saving the currently best nn
-        static int saveTime = time;
-        if ( time - saveTime > 3600000 )    // once per hour
-        {
-            saveTime = time;
-            std::string fileNN( GetNextFilenameSaveNN() );
-            mPlayers[parents[0].mPlayerId]->GetNeuralNet()->Save(fileNN.c_str());
-        }
-
-        static int debugTime = time;
-//        static int WINS_TO_SAVE = 2;
-        static int lastWinner = 0;
-//        static int numWins = 0;
-//        static int debugTest = 0;
-        if ( time - debugTime > 25000 )
-        {
-            debugTime = time;
-
-            // debug output
-            fprintf(stderr, "\nRatings: ");
-            for ( unsigned int i=0; i<parents.size(); ++i )
-                fprintf(stderr, "(%d)%f %d ", parents[i].mPlayerId, parents[i].mRating, mPlayers[parents[i].mPlayerId]->GetLastRoundTime());
-            fprintf(stderr, "\n");
-
-//            // save a good nn
-//            if ( parents[0].mPlayerId == lastWinner )
-//            {
-//                ++numWins;
-//                if ( numWins == WINS_TO_SAVE )
-//                {
-//                    std::string fileNN( GetNextFilenameSaveNN() );
-//                    mPlayers[parents[0].mPlayerId]->GetNeuralNet()->Save(fileNN.c_str());
-//                }
-//            }
-//            else
-//            {
-//                numWins = 0;
-//            }
-            lastWinner = parents[0].mPlayerId;
-        }
-
-        // create next generation of nn's
-		needRestart = true;
-		for ( size_t p=0; p<mPlayers.size(); ++p )
-		{
-		    int r1 = randGen.LinearSlope(parents.size());
-			NeuralNet* net = mPlayers[p]->GetNeuralNet();
-            *net = *(mPlayers[r1]->GetTrainingNeuralNet());
-
-			int r2 = randGen.LinearSlope(parents.size());
-			NeuralNet* cross = mPlayers[r2]->GetTrainingNeuralNet();
-
-			net->CrossInputWeights(0.5, *cross, false);
-			net->CrossHiddenWeights(0.5, *cross, false);
-
-			float mutationRate = 3.f / (float)net->GetNumWeights();
-			net->MutateInputWeights(mutationRate, -150.f, 150.f, 3.f);
-			net->MutateHiddenWeights(mutationRate, -150.f, 150.f, 3.f);
-		}
-
-//        // create next generation of nn's
-//        for ( unsigned int p=3; p<parents.size(); ++p )
-//        {
-//            NeuralNet* net = mPlayers[parents[p].mPlayerId]->GetNeuralNet();
-//
-////            int p1 = randGen.LinearSlope(parents.size());
-//            int p2 = randGen.LinearSlope(parents.size()/2);
-////            *net = *(mPlayers[parents[p1].mPlayerId]->GetTrainingNeuralNet());
-//            NeuralNet* cross = mPlayers[parents[p2].mPlayerId]->GetTrainingNeuralNet();
-//            net->CrossInputWeights(0.003, *cross, false);
-//            net->CrossHiddenWeights(0.003, *cross, false);
-//
-//            net->MutateInputWeights(0.0003f*(p+1), -1000.f, 1000.f, 3.f);
-//            net->MutateHiddenWeights(0.0003f*(p+1), -1000.f, 1000.f, 3.f);
-//        }
-    }
-
-    // set all player to same random start position
-    const int RANDOM_RESTART_TIME = 180000;  // seconds*1000
-    static int lastResetTime = time;
-    if ( needRestart || time - lastResetTime > RANDOM_RESTART_TIME )
-    {
-        lastResetTime = time;
-        core::vector3df rotation;
-        core::vector3df center;
-
-        int indexMarker = randGen.GetNumberInRange(0, APP.GetLevel()->GetNrOfTrackMarkers()-1);
-        fprintf(stderr, "**reset to %d\n", indexMarker);
-        GetRelocationPos(indexMarker, center, rotation);
-
-        for ( size_t p=0; p<mPlayers.size(); ++p)
-        {
-            if ( mPlayers[p]->GetType() == PT_AI )
-            {
-                PhysicsObject* physicsObj = APP.GetPhysics()->GetPhysicsObject(mPlayers[p]->GetPhysicsId());
-                physicsObj->mSceneNode->setPosition(center);
-                physicsObj->mSceneNode->setRotation(rotation);
-                physicsObj->mSceneNode->updateAbsolutePosition();
-                mPlayers[p]->InfoTrainingAiTeleport(time);
-            }
-        }
-        return;
-    }
-}
-#endif
 
 void Game::GetRelocationPos(int wallIndex_, core::vector3df &pos_, core::vector3df &rotation_)
 {
