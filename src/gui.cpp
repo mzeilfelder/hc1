@@ -745,7 +745,7 @@ void Gui::PrintDriverFeatures()
     printf("Current driver supports:\n");
     printf("Is driver able to render to a surface? %s\n", mVideoDriver->queryFeature(video::EVDF_RENDER_TO_TARGET) ? "yes" : "no");
     printf("Is driver able to render with a bilinear filter applied? %s\n", mVideoDriver->queryFeature(video::EVDF_BILINEAR_FILTER) ? "yes" : "no");
-    printf("Is hardeware transform and lighting supported? %s\n", mVideoDriver->queryFeature(video::EVDF_HARDWARE_TL) ? "yes" : "no");
+    printf("Is hardware transform and lighting supported? %s\n", mVideoDriver->queryFeature(video::EVDF_HARDWARE_TL) ? "yes" : "no");
     printf("Can the driver handle mip maps? %s\n", mVideoDriver->queryFeature(video::EVDF_MIP_MAP ) ? "yes" : "no");
     printf("Are stencilbuffers switched on and does the device support stencil buffers? %s\n", mVideoDriver->queryFeature(video::EVDF_STENCIL_BUFFER ) ? "yes" : "no");
     printf("Is Vertex Shader 1.1 supported? %s\n", mVideoDriver->queryFeature(video::EVDF_VERTEX_SHADER_1_1) ? "yes" : "no");
