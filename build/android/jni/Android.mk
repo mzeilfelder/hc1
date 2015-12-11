@@ -104,7 +104,3 @@ LOCAL_SHARED_LIBRARIES := openal freealut
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module,android/native_app_glue)
-
-# copy shaders
-$(shell mkdir -p ../../media/shaders)
-$(shell cp ../../shaders/* ../../media/shaders )
