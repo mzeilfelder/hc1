@@ -281,7 +281,7 @@ bool OggStream::Stream(ALuint buffer)
 
     while(size < SOUND_STREAM_BUF_SIZE)
     {
-#ifdef _IRR_ANDROID_PLATFORM_	// tremor
+#ifdef __ANDROID__	// tremor
 		result = ov_read(&mOggStream, data + size, SOUND_STREAM_BUF_SIZE - size, & section);
 #else
         result = ov_read(&mOggStream, data + size, SOUND_STREAM_BUF_SIZE - size, 0, 2, 1, & section);

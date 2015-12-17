@@ -3,7 +3,7 @@
 
 #include "../compile_config.h"
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 
 #include <irrlicht.h>
 #include <android_native_app_glue.h>
@@ -40,5 +40,5 @@ extern void vibrate(android_app* app, int ms);
 }
 }
 
-#endif // _IRR_ANDROID_PLATFORM_
+#endif // __ANDROID__
 #endif // __IRR_ANDROID_TOOLS_H__

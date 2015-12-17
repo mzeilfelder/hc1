@@ -1,17 +1,15 @@
+// Copyright (C) 2015 Patryk Nadrowski
 // Copyright (C) 2009-2010 Amundis
-// Heavily based on the OpenGL driver implemented by Nikolaus Gebhardt
-// and OpenGL ES driver implemented by Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "IrrCompileConfig.h"
+#include "COGLES2ExtensionHandler.h"
 
 #ifdef _IRR_COMPILE_WITH_OGLES2_
 
-#include "COGLES2ExtensionHandler.h"
-#include "COGLES2Driver.h"
-#include "fast_atof.h"
 #include "irrString.h"
+#include "SMaterial.h"
+#include "fast_atof.h"
 
 namespace irr
 {
@@ -160,28 +158,50 @@ namespace video
 
 
 	COGLES2ExtensionHandler::COGLES2ExtensionHandler() :
-			Version(0), MaxTextureUnits(0), MaxSupportedTextures(0),
-			MaxAnisotropy(1), MaxIndices(0xffff),
+			Version(0), MaxAnisotropy(1), MaxIndices(0xffff),
 			MaxTextureSize(1), MaxTextureLODBias(0.f),
 			StencilBuffer(false)
 	{
-		for (u32 i=0; i<IRR_OGLES2_Feature_Count; ++i)
+		for (u32 i = 0; i < IRR_OGLES2_Feature_Count; ++i)
 			FeatureAvailable[i] = false;
+
+		DimAliasedLine[0] = 1.f;
+		DimAliasedLine[1] = 1.f;
+		DimAliasedPoint[0] = 1.f;
+		DimAliasedPoint[1] = 1.f;
 	}
 
 
 	void COGLES2ExtensionHandler::dump() const
 	{
-		for (u32 i=0; i<IRR_OGLES2_Feature_Count; ++i)
+		for (u32 i = 0; i < IRR_OGLES2_Feature_Count; ++i)
 			os::Printer::log(OGLES2FeatureStrings[i], FeatureAvailable[i] ? " true" : " false");
 	}
 
 
-	void COGLES2ExtensionHandler::initExtensions(COGLES2Driver* driver, bool withStencil)
+	void COGLES2ExtensionHandler::initExtensions()
 	{
-		const core::stringc stringVer(glGetString(GL_VERSION));
-		const f32 ogl_ver = core::fast_atof(stringVer.c_str() + 10);
-		Version = static_cast<u16>(core::floor32(ogl_ver) * 100 + core::round32(core::fract(ogl_ver) * 10.0f));
+		Version = 0;
+		s32 multiplier = 100;
+
+		core::stringc version(glGetString(GL_VERSION));
+
+		for (u32 i = 0; i < version.size(); ++i)
+		{
+			if (version[i] >= '0' && version[i] <= '9')
+			{
+				if (multiplier > 1)
+				{
+					Version += static_cast<u16>(core::floor32(core::fast_atof(&(version[i]))) * multiplier);
+					multiplier /= 10;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
 		core::stringc extensions = glGetString(GL_EXTENSIONS);
 		os::Printer::log(extensions.c_str());
 
@@ -220,7 +240,7 @@ namespace video
 
 		GLint val=0;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &val);
-		MaxSupportedTextures = core::min_(MATERIAL_MAX_TEXTURES, static_cast<u32>(val));
+		Feature.TextureUnit = static_cast<u8>(val);
 
 	#ifdef GL_EXT_texture_filter_anisotropic
 		if (FeatureAvailable[IRR_EXT_texture_filter_anisotropic])
@@ -242,7 +262,13 @@ namespace video
 		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);
 		glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, DimAliasedPoint);
 
-		MaxTextureUnits = core::min_(MaxSupportedTextures, static_cast<u8>(MATERIAL_MAX_TEXTURES));
+		Feature.TextureUnit = core::min_(Feature.TextureUnit, static_cast<u8>(MATERIAL_MAX_TEXTURES));
+		Feature.ColorAttachment = 1;
+	}
+
+	const COGLCoreFeature& COGLES2ExtensionHandler::getFeature() const
+	{
+		return Feature;
 	}
 
 } // end namespace video
@@ -250,4 +276,3 @@ namespace video
 
 
 #endif // _IRR_COMPILE_WITH_OGLES2_
-

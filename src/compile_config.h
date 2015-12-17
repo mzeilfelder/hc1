@@ -13,7 +13,7 @@
 // IRR_SVN: Remember the svn versions used as base for the Irrlicht version against which we compile.
 // 			My Irrlicht is maybe modified - but helps having that info around.
 // IRR_REV: An internal counter for when Irrlicht is updated in the project in a way where code using it will no longer be backward compatible.
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	#define IRR_SVN 5063
 	#define IRR_REV 4
 	#define HC1_ENABLE_SOUND

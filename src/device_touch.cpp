@@ -246,7 +246,7 @@ void DeviceTouch::OnEvent(const irr::SEvent &event, ETouchInput touchInput)
 		}
 		break;
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		case EET_TOUCH_INPUT_EVENT:
 		{
 			switch ( event.TouchInput.Event)

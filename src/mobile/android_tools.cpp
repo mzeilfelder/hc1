@@ -7,7 +7,7 @@
 
 #include "android_tools.h"
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android/log.h>	// for the occasional debugging, style: __android_log_print(ANDROID_LOG_VERBOSE, "Irrlicht", "%s\n", "We do log");
 
 namespace hc1
@@ -259,4 +259,4 @@ void vibrate(android_app* app, int ms)
 } // namespace android
 } // namespace hc1
 
-#endif // _IRR_ANDROID_PLATFORM_
+#endif // __ANDROID__

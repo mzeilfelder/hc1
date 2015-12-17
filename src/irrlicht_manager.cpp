@@ -18,7 +18,7 @@
 #include <SMeshBuffer.h>
 #include <cassert>
 #include <algorithm>
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android_native_app_glue.h>
 #endif
 
@@ -162,7 +162,7 @@ irr::IrrlichtDevice* IrrlichtManager::CreateIrrlichtDeviceAndroid(const Config& 
 {
 	mEventReceiver = new EventReceiverBase(config);
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	SIrrlichtCreationParameters param;
 //	param.DriverType = video::EDT_OGLES1;				// android:glEsVersion in AndroidManifest.xml should be at least "0x00010000"
 	param.DriverType = video::EDT_OGLES2;				// android:glEsVersion in AndroidManifest.xml should be at least "0x00020000"
@@ -331,7 +331,7 @@ bool IrrlichtManager::Init(const Config& config)
     mCameraGui = mSceneManager->addCameraSceneNode();
     mCameraGui->setFarValue( config.GetFarClipping() );
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	// The Android assets file-system does not know which sub-directories it has (blame google).
 	// So we have to add all sub-directories in assets manually. Otherwise we could still open the files,
 	// but existFile checks will fail (which are for example needed by getFont).

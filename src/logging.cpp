@@ -4,7 +4,7 @@
 #include "compile_config.h"
 #include <sstream>
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android/log.h>
 #endif
 
@@ -46,7 +46,7 @@ void Logging::SetStreamPriority(LogPriority prio_)
 
 bool Logging::OpenFile(LogPriority prio_, const char *file_, const char *mode_)
 {
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     mFile = fopen(file_, mode_);
 #endif
     if ( !mFile )
@@ -74,7 +74,7 @@ void Logging::Log(LogPriority priority_, const wchar_t * text_)
 		mStringStream << text_;
 	}
 
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     if ( mPriorityStdout <= priority_ )
     {
         fwprintf(stdout, L"%ls", text_);

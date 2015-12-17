@@ -8,7 +8,7 @@
 #ifdef HC1_ENABLE_OGG
 
 #include "ogg/ogg.h"
-#ifdef _IRR_ANDROID_PLATFORM_	// using tremor
+#ifdef __ANDROID__	// using tremor
 	#include "ivorbiscodec.h"
 	#include "ivorbisfile.h"
 #else
@@ -24,7 +24,7 @@ extern long   cb_ov_irr_tell(void *);
 
 extern ov_callbacks ov_callback_irr_fs;
 
-#ifdef _IRR_ANDROID_PLATFORM_	// using tremor
+#ifdef __ANDROID__	// using tremor
 // Just some stuff which is usually in vorbisfile.h but missing in ivorbisfile in tremor.
 #ifndef OV_EXCLUDE_STATIC_CALLBACKS
 
@@ -62,7 +62,7 @@ static ov_callbacks OV_CALLBACKS_DEFAULT = {
   (long (*)(void *))                            ftell
 };
 #endif	// !OV_EXCLUDE_STATIC_CALLBACKS
-#endif // _IRR_ANDROID_PLATFORM_
+#endif // __ANDROID__
 
 #endif // HC1_ENABLE_OGG
 

@@ -122,7 +122,7 @@ bool GuiMenuNewProfile::OnButtonCancel(const irr::SEvent &event_)
 
 bool GuiMenuNewProfile::OnEditName(const irr::SEvent &event_)
 {
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     if ( event_.GUIEvent.EventType == EGET_EDITBOX_ENTER )
     {
         if ( GetEnvironment() )

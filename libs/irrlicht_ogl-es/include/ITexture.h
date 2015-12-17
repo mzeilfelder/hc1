@@ -68,7 +68,7 @@ enum E_TEXTURE_CREATION_FLAG
 	//! Allow the driver to keep a copy of the texture in memory
 	/** This makes calls to ITexture::lock a lot faster, but costs main memory.
 	Default is off, except for font-texture which always enable this flag.
-	Currently only used in combination with OpenGL-ES2.	*/
+	Currently only used in combination with OpenGL drivers.	*/
 	ETCF_ALLOW_MEMORY_COPY = 0x00000080,
 
 	/** This flag is never used, it only forces the compiler to compile
@@ -98,30 +98,8 @@ enum E_TEXTURE_TYPE
 	//! 2D texture.
 	ETT_2D,
 
-	//! Cube texture.
-	ETT_CUBE
-};
-
-//! Enumeration describing the type of cube texture surfaces.
-enum E_TEXTURE_CUBE_SURFACE
-{
-	//! Positive x-face of the cubemap
-	ETCS_POSX = 0,
-
-	//! Negative x-face of the cubemap
-	ETCS_NEGX = 1,
-
-	//! Positive y-face of the cubemap
-	ETCS_POSY = 2,
-
-	//! Negative y-face of the cubemap
-	ETCS_NEGY = 3,
-
-	//! Positive z-face of the cubemap
-	ETCS_POSZ = 4,
-
-	//! Negative z-face of the cubemap
-	ETCS_NEGZ = 5
+	//! Cubemap texture.
+	ETT_CUBEMAP
 };
 
 //! Where did the last IVideoDriver::getTexture call find this texture
@@ -151,7 +129,8 @@ class ITexture : public virtual IReferenceCounted
 public:
 
 	//! constructor
-	ITexture(const io::path& name, E_TEXTURE_TYPE type = ETT_2D) : NamedPath(name), Source(ETS_UNKNOWN), Type(type)
+	ITexture(const io::path& name, E_TEXTURE_TYPE type) : NamedPath(name), DriverType(EDT_NULL), OriginalColorFormat(ECF_UNKNOWN),
+		ColorFormat(ECF_UNKNOWN), Pitch(0), HasMipMaps(false), IsRenderTarget(false), Source(ETS_UNKNOWN), Type(type)
 	{
 	}
 
@@ -182,6 +161,17 @@ public:
 	The last locked mip level will be unlocked. */
 	virtual void unlock() = 0;
 
+	//! Regenerates the mip map levels of the texture.
+	/** Required after modifying the texture, usually after calling unlock().
+	\param data Optional parameter to pass in image data which will be
+	used instead of the previously stored or automatically generated mipmap
+	data. The data has to be a continuous pixel data for all mipmaps until
+	1x1 pixel. Each mipmap has to be half the width and height of the previous
+	level. At least one pixel will be always kept.
+	\param layer It informs a texture about layer which needs
+	mipmaps regeneration. */
+	virtual void regenerateMipMapLevels(void* data = 0, u32 layer = 0) = 0;
+
 	//! Get original size of the texture.
 	/** The texture is usually scaled, if it was created with an unoptimal
 	size. For example if the size was not a power of two. This method
@@ -190,65 +180,76 @@ public:
 	exact size of the original texture. Use ITexture::getSize() if you want
 	to know the real size it has now stored in the system.
 	\return The original size of the texture. */
-	virtual const core::dimension2d<u32>& getOriginalSize() const = 0;
+	const core::dimension2d<u32>& getOriginalSize() const { return OriginalSize; };
 
 	//! Get dimension (=size) of the texture.
 	/** \return The size of the texture. */
-	virtual const core::dimension2d<u32>& getSize() const = 0;
+	const core::dimension2d<u32>& getSize() const { return Size; };
 
 	//! Get driver type of texture.
 	/** This is the driver, which created the texture. This method is used
 	internally by the video devices, to check, if they may use a texture
 	because textures may be incompatible between different devices.
 	\return Driver type of texture. */
-	virtual E_DRIVER_TYPE getDriverType() const = 0;
+	E_DRIVER_TYPE getDriverType() const { return DriverType; };
 
 	//! Get the color format of texture.
 	/** \return The color format of texture. */
-	virtual ECOLOR_FORMAT getColorFormat() const = 0;
+	ECOLOR_FORMAT getColorFormat() const { return ColorFormat; };
 
 	//! Get pitch of the main texture (in bytes).
 	/** The pitch is the amount of bytes used for a row of pixels in a
 	texture.
 	\return Pitch of texture in bytes. */
-	virtual u32 getPitch() const = 0;
+	u32 getPitch() const { return Pitch; };
 
 	//! Check whether the texture has MipMaps
 	/** \return True if texture has MipMaps, else false. */
-	virtual bool hasMipMaps() const { return false; }
-
-	//! Returns if the texture has an alpha channel
-	virtual bool hasAlpha() const {
-		return getColorFormat () == video::ECF_A8R8G8B8 || getColorFormat () == video::ECF_A1R5G5B5;
-	}
-
-	//! Regenerates the mip map levels of the texture.
-	/** Required after modifying the texture, usually after calling unlock().
-	\param mipmapData Optional parameter to pass in image data which will be
-	used instead of the previously stored or automatically generated mipmap
-	data. The data has to be a continuous pixel data for all mipmaps until
-	1x1 pixel. Each mipmap has to be half the width and height of the previous
-	level. At least one pixel will be always kept.*/
-	virtual void regenerateMipMapLevels(void* mipmapData=0) = 0;
+	bool hasMipMaps() const { return HasMipMaps; }
 
 	//! Check whether the texture is a render target
 	/** Render targets can be set as such in the video driver, in order to
 	render a scene into the texture. Once unbound as render target, they can
 	be used just as usual textures again.
 	\return True if this is a render target, otherwise false. */
-	virtual bool isRenderTarget() const { return false; }
+	bool isRenderTarget() const { return IsRenderTarget; }
 
 	//! Get name of texture (in most cases this is the filename)
 	const io::SNamedPath& getName() const { return NamedPath; }
-
-	//! Returns the type of texture
-	E_TEXTURE_TYPE getType() const { return Type; }
 
 	//! Check where the last IVideoDriver::getTexture found this texture
 	E_TEXTURE_SOURCE getSource() const { return Source; }
 
 	//! Used internally by the engine to update Source status on IVideoDriver::getTexture calls.
 	void updateSource(E_TEXTURE_SOURCE source) { Source = source; }
+
+	//! Returns if the texture has an alpha channel
+	bool hasAlpha() const
+	{
+		bool status = false;
+
+		switch (ColorFormat)
+		{
+		case ECF_A8R8G8B8:
+		case ECF_A1R5G5B5:
+		case ECF_DXT1:
+		case ECF_DXT2:
+		case ECF_DXT3:
+		case ECF_DXT4:
+		case ECF_DXT5:
+		case ECF_A16B16G16R16F:
+		case ECF_A32B32G32R32F:
+			status = true;
+			break;
+		default:
+			break;
+		}
+
+		return status;
+	}
+
+	//! Returns the type of texture
+	E_TEXTURE_TYPE getType() const { return Type; }
 
 protected:
 
@@ -269,6 +270,14 @@ protected:
 	}
 
 	io::SNamedPath NamedPath;
+	core::dimension2d<u32> OriginalSize;
+	core::dimension2d<u32> Size;
+	E_DRIVER_TYPE DriverType;
+	ECOLOR_FORMAT OriginalColorFormat;
+	ECOLOR_FORMAT ColorFormat;
+	u32 Pitch;
+	bool HasMipMaps;
+	bool IsRenderTarget;
 	E_TEXTURE_SOURCE Source;
 	E_TEXTURE_TYPE Type;
 };

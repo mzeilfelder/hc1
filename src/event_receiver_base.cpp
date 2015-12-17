@@ -24,7 +24,7 @@
 #include <sstream>
 #include <ctime>
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android_native_app_glue.h>
 #endif
 
@@ -345,7 +345,7 @@ bool EventReceiverBase::OnEvent(const SEvent& event)
                 return true;
 		break;
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		case EET_SYSTEM_EVENT:
 		{
 			if ( event.SystemEvent.EventType == ESET_ANDROID_CMD )

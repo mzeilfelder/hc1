@@ -891,7 +891,7 @@ irr::gui::IGUIElement* GuiDialog::AddStatic(TiXmlElement * xmlElement_, irr::gui
 
     // HACK: We never need to draw borders for static elements in the game. They might still be needed for editing,
     // in which case we should add a special edit-mode for this. But for now disable always as those are expensive in drawing.
-#if defined(HOVER_RELEASE) || defined(_IRR_ANDROID_PLATFORM_)
+#if defined(HOVER_RELEASE) || defined(__ANDROID__)
 	border = 0;
 #endif
 	if ( mConfig.GetUseTouchInput() == ETI_TOUCH_SIMULATION )

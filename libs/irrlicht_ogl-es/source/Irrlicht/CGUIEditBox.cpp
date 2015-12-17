@@ -153,7 +153,6 @@ void CGUIEditBox::enableOverrideColor(bool enable)
 
 bool CGUIEditBox::isOverrideColorEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return OverrideColorEnabled;
 }
 
@@ -181,7 +180,6 @@ void CGUIEditBox::updateAbsolutePosition()
 //! Checks if word wrap is enabled
 bool CGUIEditBox::isWordWrapEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return WordWrap;
 }
 
@@ -197,7 +195,6 @@ void CGUIEditBox::setMultiLine(bool enable)
 //! Checks if multi line editing is enabled
 bool CGUIEditBox::isMultiLineEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return MultiLine;
 }
 
@@ -217,7 +214,6 @@ void CGUIEditBox::setPasswordBox(bool passwordBox, wchar_t passwordChar)
 
 bool CGUIEditBox::isPasswordBox() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return PasswordBox;
 }
 
@@ -345,13 +341,8 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const c8* p = Operator->getTextFromClipboard();
 				if (p)
 				{
-					// TODO: we should have such a function in core::string
-					size_t lenOld = strlen(p);
-					wchar_t *ws = new wchar_t[lenOld + 1];
-					size_t len = mbstowcs(ws,p,lenOld);
-					ws[len] = 0;
-					irr::core::stringw widep(ws);
-					delete[] ws;
+					irr::core::stringw widep;
+					core::multibyteToWString(widep, p);
 
 					if (MarkBegin == MarkEnd)
 					{
@@ -1014,7 +1005,6 @@ void CGUIEditBox::setAutoScroll(bool enable)
 //! \return true if automatic scrolling is enabled, false if not
 bool CGUIEditBox::isAutoScrollEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return AutoScroll;
 }
 

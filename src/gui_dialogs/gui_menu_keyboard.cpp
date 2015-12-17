@@ -8,7 +8,7 @@
 #include <irrlicht.h>
 #include <sstream>
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include "mobile/android_tools.h"
 #endif
 
@@ -91,7 +91,7 @@ bool GuiMenuKeyboard::OnEvent(const irr::SEvent &event)
                 {
                     case KEY_RETURN:
 					{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 						if ( GetConfig().GetVirtualKeyboard() == 0 )
 							hc1::android::setSoftInputVisibility(APP.GetAndroidApp(), false);
 						else if ( GetConfig().GetVirtualKeyboard() == 1 )
@@ -117,7 +117,7 @@ bool GuiMenuKeyboard::OnEvent(const irr::SEvent &event)
                 {
 					if ( event.GUIEvent.Caller->getType() == irr::gui::EGUIET_EDIT_BOX )
 					{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 						if ( GetConfig().GetVirtualKeyboard() == 0 )
 							hc1::android::setSoftInputVisibility(APP.GetAndroidApp(), false);
 						else if ( GetConfig().GetVirtualKeyboard() == 1 )
@@ -142,7 +142,7 @@ bool GuiMenuKeyboard::OnEvent(const irr::SEvent &event)
 					{
 						if ( event.GUIEvent.Caller->getType() == irr::gui::EGUIET_EDIT_BOX )
 						{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 							if ( GetConfig().GetVirtualKeyboard() == 0 )
 								hc1::android::setSoftInputVisibility(APP.GetAndroidApp(), true);
 							else if ( GetConfig().GetVirtualKeyboard() == 1 )

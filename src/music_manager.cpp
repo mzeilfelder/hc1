@@ -56,7 +56,7 @@ void MusicManager::AddMusicToPlayList(Playlist & playList_, const char * path_, 
     assert(fs);
 
 	const irr::io::IFileList * fileList = NULL;
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	for ( u32 i=0; i<fs->getFileArchiveCount (); ++i )
 	{
 		io::IFileArchive * archive = fs->getFileArchive (i);
@@ -88,7 +88,7 @@ void MusicManager::AddMusicToPlayList(Playlist & playList_, const char * path_, 
 			const io::path & fullName = fileList->getFullFileName(i);
             if ( core::hasFileExtension(fullName, io::path(ending_)) )
             {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 				if ( core::isInSameDirectory (io::path(path_), fullName) < 0 )
 					continue;
 #endif

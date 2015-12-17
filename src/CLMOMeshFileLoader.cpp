@@ -1198,7 +1198,7 @@ video::ITexture * CLMOMeshFileLoader::getTexture(const c8* textureName, const io
 	}
 	else
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		LOG.DebugLn("LMO Missing meshtextureloader (bad on Android, doesn't matter on PC) to load: ", textureName);
 #endif
 	}

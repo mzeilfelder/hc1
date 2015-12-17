@@ -19,7 +19,7 @@
 #include "globals.h"
 #include "logging.h"
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include "mobile/android_tools.h"
 #endif
 
@@ -871,7 +871,7 @@ void Player::PostPhysicsUpdate(u32 time_)
 		if ( mPlayerType == PT_LOCAL && cushioningPerSec > MIN_CUSHION_TO_VIBRATE && mTimeLastVibrate+VIBRATION_REPEAT < time_)
 		{
 			mTimeLastVibrate = time_;
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 			hc1::android::vibrate(APP.GetAndroidApp(), VIBRATION_TIME_MS);
 #endif
 		}
@@ -1264,7 +1264,7 @@ void Player::InfoRoundFinished(u32 time_)
         mNumDroppedLastRound = mNumDroppedThisRound;
         mNumDroppedThisRound = 0;
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		if ( mPlayerType == PT_LOCAL && mCurrentRound > 1 )
 		{
 			const int VIBRATION_TIME_MS = 15;

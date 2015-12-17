@@ -19,7 +19,7 @@
 #include <time.h>
 #endif // __GNUWIN32__
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include "mobile/android_tools.h"
 #include <sys/stat.h>
 #endif
@@ -31,7 +31,7 @@ Config::Config(void * systemData)
 : mXmlDocument(NULL)
 , mXmlProviderDocument(NULL)
 , mDoesNeedLargeButtons(false)
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 , mUseTouchInput(ETI_TOUCH_HARDWARE)
 #elif defined(HOVER_RELEASE)
 , mUseTouchInput(ETI_NO_TOUCH)
@@ -87,7 +87,7 @@ Config::Config(void * systemData)
 		mDateTimeStart = streamTime.str();
 	}
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
     mBasePath       = "";	// assets filesystem has no real path
     mPathMedia      = "";	// assets filesystem has no real path
 
@@ -150,7 +150,7 @@ Config::~Config()
 
 void Config::Init(const char *argv0_)
 {
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     char cwd[MAXPATHLEN];
     getcwd(cwd, MAXPATHLEN);
     if ( argv0_ )
@@ -333,7 +333,7 @@ std::string Config::MakeFilenameShader(const std::string &file_) const
 
 std::string Config::GetConfigFilename(bool checkAssetsFs) const
 {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	if ( checkAssetsFs )
 	{
 		return GetPathMedia() + "config.xml";
@@ -353,7 +353,7 @@ std::string Config::GetConfigFilename(bool checkAssetsFs) const
 
 std::string Config::GetProviderFilename(bool checkAssetsFs) const
 {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	if ( checkAssetsFs )
 	{
 		return GetPathMedia() + "provider.xml";
@@ -398,14 +398,14 @@ bool Config::Load(irr::io::IFileSystem * fs_)
 	mXmlProviderDocument = new TiXmlDocument(configFileName.c_str());
 
     mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_NO_IRR);	// don't try on assets as that uses another folder-name
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
     if (mXmlProviderDocument)
 		mXmlProviderDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);	// only use assets system for provider document
 #endif
 
 	if ( !mXmlDocument->LoadFile() )
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		// get original config from assets filesystem
 		configFileName = GetConfigFilename(true);
 		mXmlDocument->SetIrrFs(fs_, TiXmlDocument::E_ON_READ_ANDROID);
@@ -422,7 +422,7 @@ bool Config::Load(irr::io::IFileSystem * fs_)
 
 	if (mXmlProviderDocument)
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		// This is only on the assets fs
 		providerFileName = GetProviderFilename(true);
 		if ( !mXmlProviderDocument->LoadFile(providerFileName.c_str()) )
@@ -478,8 +478,6 @@ bool Config::UpdateCache()
         {
             if ( 0 == strcmp(val, "DIRECT3D9") )
                 mDriverType = video::EDT_DIRECT3D9;
-            else if ( 0 == strcmp(val, "DIRECT3D8") )
-                mDriverType = video::EDT_DIRECT3D8;
             else if ( 0 == strcmp(val, "OPENGL") )
                 mDriverType = video::EDT_OPENGL;
             else if ( 0 == strcmp(val, "SOFTWARE") )
@@ -917,7 +915,7 @@ bool Config::GetKey(std::string &key_, irr::io::IFileSystem * fs_)
 // Do we need to support triple-head? (3 monitors)
 bool Config::DoesNeedTripleHeadMode(int screenWidth, int screenHeight) const
 {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	return false;
 #else
     return screenWidth / screenHeight >= 3.f;

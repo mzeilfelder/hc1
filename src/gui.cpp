@@ -815,7 +815,7 @@ bool Gui::OnEvent(const SEvent &event)
 			}
 			break;
     	}
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     	case EET_KEY_INPUT_EVENT:
     	{
 			if ( event.KeyInput.PressedDown )

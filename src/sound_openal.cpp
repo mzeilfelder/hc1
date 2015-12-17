@@ -299,7 +299,7 @@ bool SoundOpenAL::LoadSample(const char *fileName_, Sample &targetSample, bool c
 	}
 	else
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		LOG.LogLn(LP_DEBUG, "SoundOpenAL::LoadSample - mIrrFileSystem is NULL");
 #endif
 		targetSample.mBufferHandle = alutCreateBufferFromFile(fileName_);

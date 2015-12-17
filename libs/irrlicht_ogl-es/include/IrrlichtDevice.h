@@ -112,15 +112,15 @@ namespace irr
 		virtual ILogger* getLogger() = 0;
 
 		//! Gets a list with all video modes available.
-		/** If you are confused now, because you think you have to
-		create an Irrlicht Device with a video mode before being able
-		to get the video mode list, let me tell you that there is no
-		need to start up an Irrlicht Device with EDT_DIRECT3D8,
-		EDT_OPENGL or EDT_SOFTWARE: For this (and for lots of other
-		reasons) the null driver, EDT_NULL exists.
+		/** You only need a null driver (ED_NULL) to access 
+		those video modes. So you can get the available modes 
+		before starting any other video driver.
 		\return Pointer to a list with all video modes supported
 		by the gfx adapter. */
 		virtual video::IVideoModeList* getVideoModeList() = 0;
+
+		//! Get context manager
+		virtual video::IContextManager* getContextManager() = 0;
 
 		//! Provides access to the operation system operator object.
 		/** The OS operator provides methods for
@@ -304,9 +304,6 @@ namespace irr
 		virtual bool getGammaRamp(f32 &red, f32 &green, f32 &blue,
 					f32 &brightness, f32 &contrast) =0;
 
-		//! Get context manager
-		virtual video::IContextManager* getContextManager() =0;
-
 		//! Set the maximal elapsed time between 2 clicks to generate doubleclicks for the mouse. It also affects tripleclick behavior.
 		/** When set to 0 no double- and tripleclicks will be generated.
 		\param timeMs maximal time in milliseconds for two consecutive clicks to be recognized as double click
@@ -353,12 +350,6 @@ namespace irr
 #endif
 				case video::EDT_BURNINGSVIDEO:
 #ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
-					return true;
-#else
-					return false;
-#endif
-				case video::EDT_DIRECT3D8:
-#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
 					return true;
 #else
 					return false;

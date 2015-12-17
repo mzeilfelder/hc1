@@ -40,19 +40,6 @@ struct SExposedVideoData
 		void* HWnd;
 	};
 
-	struct SD3D8
-	{
-		//! Pointer to the IDirect3D8 interface
-		IDirect3D8* D3D8;
-
-		//! Pointer to the IDirect3DDevice8 interface
-		IDirect3DDevice8* D3DDev8;
-
-		//! Window handle.
-		/** Get with for example with: HWND h = reinterpret_cast<HWND>(exposedData.D3D8.HWnd) */
-		void* HWnd;
-	};
-
 	struct SOpenGLWin32
 	{
 		//! Private GDI Device Context.
@@ -75,46 +62,52 @@ struct SExposedVideoData
 		void* X11Context;
 		unsigned long X11Window;
 	};
+    
+    struct SOpenGLOSX
+    {
+        //! The NSOpenGLContext object.
+        void* Context;
+        
+        //! The NSWindow object.
+        void* Window;
+    };
+	
+	struct SOpenGLFB
+	{
+		//! The EGLNativeWindowType object.
+		void* Window;	
+	};
+	
+	struct SOpenGLiOS
+	{
+		//! The EAGLContext object.
+		void* Context;
+			
+		//! The subview UIView object where the drawing happens.
+		void* View;
+		
+		//! The UIViewController object.
+		void* ViewController;
+		
+		//! The UIWindow object.
+        void* Window;
+	};
+
+	struct SOGLESAndroid
+	{
+		//! The ANativeWindow object.
+		void* Window;
+	};
 
 	union
 	{
 		SD3D9 D3D9;
-		SD3D8 D3D8;
 		SOpenGLWin32 OpenGLWin32;
 		SOpenGLLinux OpenGLLinux;
-
-		struct
-		{
-			//! The EGLNativeWindowType object.
-			void* Window;	
-		} OpenGLFB;
-        
-		struct
-		{
-			//! The NSOpenGLContext object.
-			void* Context;
-
-			//! The NSWindow object.
-			void* Window;
-		} OpenGLOSX;
-        
-		struct
-		{
-			//! The UIApplicationDelegate object.
-			void* AppDelegate;
-
-			//! The EAGLContext object.
-			void* Context;
-			
-			//! The subview UIView object where the drawing happens.
-			void* View;	
-		} OGLESIPhone;
-
-		struct
-		{
-			//! The ANativeWindow object.
-			void* Window;
-		} OGLESAndroid;
+		SOpenGLOSX OpenGLOSX;
+		SOpenGLFB OpenGLFB;
+		SOpenGLiOS OpenGLiOS;
+		SOGLESAndroid OGLESAndroid;
 	};
 };
 

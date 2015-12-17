@@ -114,13 +114,6 @@ video::IVideoDriver* CIrrDeviceStub::getVideoDriver()
 }
 
 
-//! return the context manager
-video::IContextManager* CIrrDeviceStub::getContextManager()
-{
-	return ContextManager;
-}
-
-
 //! return file system
 io::IFileSystem* CIrrDeviceStub::getFileSystem()
 {
@@ -172,6 +165,11 @@ video::IVideoModeList* CIrrDeviceStub::getVideoModeList()
 	return VideoModeList;
 }
 
+//! return the context manager
+video::IContextManager* CIrrDeviceStub::getContextManager()
+{
+	return ContextManager;
+}
 
 //! checks version of sdk and prints warning if there might be a problem
 bool CIrrDeviceStub::checkVersion(const char* version)
@@ -185,7 +183,7 @@ bool CIrrDeviceStub::checkVersion(const char* version)
 		w += version;
 		w += "). This may cause problems.";
 		os::Printer::log(w.c_str(), ELL_WARNING);
-		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+
 		return false;
 	}
 
@@ -241,7 +239,6 @@ bool CIrrDeviceStub::postEventFromUser(const SEvent& event)
 	if (!absorbed && inputReceiver)
 		absorbed = inputReceiver->postEventFromUser(event);
 
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return absorbed;
 }
 

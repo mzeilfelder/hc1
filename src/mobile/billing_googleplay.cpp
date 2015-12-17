@@ -14,7 +14,7 @@
 #include "../logging.h"
 #include "../tinyxml/tinyxml.h"
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android_native_app_glue.h>
 #include <android/log.h>	// for the occasional debugging, style: __android_log_print(ANDROID_LOG_VERBOSE, "Irrlicht", "%s\n", "We do log");
 
@@ -260,4 +260,4 @@ void BillingGooglePlay::dropJNIEnv()
 {
 	mAndroidApp.activity->vm->DetachCurrentThread();
 }
-#endif	// _IRR_ANDROID_PLATFORM_
+#endif	// __ANDROID__

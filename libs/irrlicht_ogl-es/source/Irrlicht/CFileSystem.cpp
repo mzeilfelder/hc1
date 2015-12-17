@@ -315,7 +315,6 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 		os::Printer::log("Could not create archive for", filename, ELL_ERROR);
 	}
 
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
 }
 
@@ -429,23 +428,22 @@ bool CFileSystem::addFileArchive(IReadFile* file, bool ignoreCase,
 //! Adds an archive to the file system.
 bool CFileSystem::addFileArchive(IFileArchive* archive)
 {
-	if ( !archive )
+	if ( archive )
 	{
-		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
-		return false;
-	}
-	for (u32 i=0; i < FileArchives.size(); ++i)
-	{
-		if (archive == FileArchives[i])
+		for (u32 i=0; i < FileArchives.size(); ++i)
 		{
-			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
-			return false;
+			if (archive == FileArchives[i])
+			{
+				return false;
+			}
 		}
+		FileArchives.push_back(archive);
+		archive->grab();
+
+		return true;
 	}
-	archive->grab();
-	FileArchives.push_back(archive);
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
-	return true;
+
+	return false;
 }
 
 
@@ -459,7 +457,6 @@ bool CFileSystem::removeFileArchive(u32 index)
 		FileArchives.erase(index);
 		ret = true;
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
 }
 
@@ -473,7 +470,6 @@ bool CFileSystem::removeFileArchive(const io::path& filename)
 		if (absPath == FileArchives[i]->getFileList()->getPath())
 			return removeFileArchive(i);
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return false;
 }
 
@@ -485,11 +481,9 @@ bool CFileSystem::removeFileArchive(const IFileArchive* archive)
 	{
 		if (archive == FileArchives[i])
 		{
-			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 			return removeFileArchive(i);
 		}
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return false;
 }
 
@@ -518,9 +512,7 @@ const io::path& CFileSystem::getWorkingDirectory()
 	}
 	else
 	{
-		#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-		// does not need this
-		#elif defined(_IRR_WINDOWS_API_)
+		#if defined(_IRR_WINDOWS_API_)
 			fschar_t tmp[_MAX_PATH];
 			#if defined(_IRR_WCHAR_FILESYSTEM )
 				_wgetcwd(tmp, _MAX_PATH);
@@ -593,9 +585,7 @@ bool CFileSystem::changeWorkingDirectoryTo(const io::path& newDirectory)
 	{
 		WorkingDirectory[FILESYSTEM_NATIVE] = newDirectory;
 
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-		success = true;
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 	#if defined(_IRR_WCHAR_FILESYSTEM)
 		success = (_wchdir(newDirectory.c_str()) == 0);
 	#else
@@ -616,9 +606,7 @@ bool CFileSystem::changeWorkingDirectoryTo(const io::path& newDirectory)
 
 io::path CFileSystem::getAbsolutePath(const io::path& filename) const
 {
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-	return filename;
-#elif defined(_IRR_WINDOWS_API_)
+#if defined(_IRR_WINDOWS_API_)
 	fschar_t *p=0;
 	fschar_t fpath[_MAX_PATH];
 	#if defined(_IRR_WCHAR_FILESYSTEM )
@@ -966,21 +954,6 @@ bool CFileSystem::existFile(const io::path& filename) const
 		if (FileArchives[i]->getFileList()->findFile(filename)!=-1)
 			return true;
 
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-#if defined(_IRR_WCHAR_FILESYSTEM)
-	HANDLE hFile = CreateFileW(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-#else
-	HANDLE hFile = CreateFileW(core::stringw(filename).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-#endif
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-	else
-	{
-		CloseHandle(hFile);
-		return true;
-	}
-#else
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 #if defined(_MSC_VER)
 	#if defined(_IRR_WCHAR_FILESYSTEM)
 		return (_waccess(filename.c_str(), 0) != -1);
@@ -995,7 +968,6 @@ bool CFileSystem::existFile(const io::path& filename) const
 	#endif
 #else
 	return (access(filename.c_str(), 0) != -1);
-#endif
 #endif
 }
 

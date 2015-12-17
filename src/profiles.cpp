@@ -286,7 +286,7 @@ void ProfileManager::LoadProfiles()
 
     if ( !xmlDoc.LoadFile() )
     {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		// We sometimes need profiles with everything played clear for testing, so we try the default profiles.xml from PC as well first.
 		std::string xmlName(APP.GetConfig()->MakeFilenameUserData(std::string("profiles.xml"), true));
 		if ( !xmlDoc.LoadFile(xmlName.c_str()) )
@@ -296,7 +296,7 @@ void ProfileManager::LoadProfiles()
         LOG.WarnLn("ProfileManager::LoadProfiles: could not load xml ", xmlName.c_str());
         LOG.DebugLn("TiXmlDocument::ErrorDesc: ", xmlDoc.ErrorDesc());
         return;
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		}
 #endif
     }

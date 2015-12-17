@@ -72,7 +72,7 @@ void InputDeviceManager::CreateAllDevices(irr::gui::ICursorControl * cursorContr
 
 // TEST
 /*
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	if ( APP.GetIrrlichtManager()->GetIrrlichtDevice()->activateAccelerometer() )
 	{
 		LOG.Info("Accelerometer activated");
@@ -497,7 +497,7 @@ bool InputDeviceManager::OnEvent(const irr::SEvent &event)
 {
     switch ( event.EventType )
     {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		case EET_TOUCH_INPUT_EVENT:
 		case EET_ACCELEROMETER_EVENT:
 		case EET_GYROSCOPE_EVENT:

@@ -30,7 +30,7 @@ GuiHud::GuiHud(const Config& config)
     , mStaticCountdown(0)
     , mStaticCamera(0)
     , mStaticFps(0)
-#if defined(HOVER_RELEASE) && !defined(_IRR_ANDROID_PLATFORM_)
+#if defined(HOVER_RELEASE) && !defined(__ANDROID__)
     , mFpsVisible(false)
 #else
     , mFpsVisible(true)

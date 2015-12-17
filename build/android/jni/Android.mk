@@ -37,7 +37,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := hcraft1
 
-LOCAL_CFLAGS := -D_IRR_ANDROID_PLATFORM_ -pipe -fno-exceptions -fno-rtti -fstrict-aliasing
+LOCAL_CFLAGS := -pipe -fno-exceptions -fno-rtti -fstrict-aliasing
 
 ifndef NDEBUG
 LOCAL_CFLAGS += -g -ggdb -O0 -D_DEBUG

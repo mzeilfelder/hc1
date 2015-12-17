@@ -41,14 +41,14 @@
 #include "mobile/billing.h"
 #include "tinyxml/tinyxml.h"
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android_native_app_glue.h>
 #include <android/log.h>
 #include "mobile/advert_admob.h"
 #include "mobile/billing_googleplay.h"
 #endif
 
-#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(_IRR_ANDROID_PLATFORM_)
+#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(__ANDROID__)
 #include <X11/Xlib.h>
 #endif
 
@@ -102,7 +102,7 @@ App::~App()
 
 void App::StopApp()
 {
-	#if defined(_IRR_ANDROID_PLATFORM_)
+	#if defined(__ANDROID__)
 	ANativeActivity_finish(mAndroidApp->activity);
 	#else
     mIsRunning = false;
@@ -111,7 +111,7 @@ void App::StopApp()
 
 bool App::Init(int argc, char *argv[], void * systemData)
 {
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	mAndroidApp = (android_app*)systemData;
 #endif
 
@@ -203,7 +203,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
     mRivalsMode = new RivalsMode();
     mAppTester = new AppTester();
 #if defined(HOVER_ADS)
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	if (mAndroidApp)
 	{
 		mAdvert = new AdvertAdmob(*mAndroidApp);
@@ -217,7 +217,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
 
     mConfig->Init(argv[0]);
 
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
     if ( !LOG.OpenFile(prioFile, mConfig->MakeFilenameBase("logging.txt").c_str(), "wt") )
     {
         if ( !LOG.OpenFile(prioFile, "logging.txt", "wt") )
@@ -233,7 +233,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
     LOG.LogLn(LP_DEBUG, "log priority stdout: ", (int)prioStdout);
     LOG.LogLn(LP_DEBUG, "log priority stream: ", (int)prioStream);
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	// we need the Irrlicht filesystem already for loading the config on Android
 	irr::IrrlichtDevice* irrDevice = mIrrlichtManager->CreateIrrlichtDeviceAndroid(*mConfig, mAndroidApp);
 	if ( irrDevice && !mConfig->Load(irrDevice->getFileSystem()) )
@@ -253,7 +253,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
         LOG.Debug("\n");
     }
 
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
 	irr::IrrlichtDevice* irrDevice = mIrrlichtManager->CreateIrrlichtDevicePC(*mConfig);
 #endif
     if ( !mIrrlichtManager->Init(*mConfig) )
@@ -266,7 +266,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
     mGui->Init(irrDevice->getGUIEnvironment(), mIrrlichtManager->GetVideoDriver(), irrDevice->getFileSystem(), GetFontManager());
     mGui->PrintDriverFeatures();
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	mGui->SetEditGuiVisible(false);
 #endif
 
@@ -288,7 +288,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
         LOG.Warn(L"mStringTable->Load failed\n");
     }
 
-#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(_IRR_ANDROID_PLATFORM_)
+#if defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(__ANDROID__)
 	// This should prevent screensaver from starting (on Windows Irrlicht does that)
 	// TODO: not yet tested if it works.
 	XSetScreenSaver((Display*)(mIrrlichtManager->GetVideoDriver()->getExposedVideoData().OpenGLLinux.X11Display), 0, 0, DefaultBlanking, DefaultExposures);
@@ -302,7 +302,7 @@ bool App::Init(int argc, char *argv[], void * systemData)
         mSound = new SoundOpenAL();
 
 
-	#ifdef _IRR_ANDROID_PLATFORM_
+	#ifdef __ANDROID__
         mSound->SetIrrFs(mIrrlichtManager->GetIrrlichtDevice()->getFileSystem());
 	#endif
 #endif
@@ -939,7 +939,7 @@ void App::Quit()
     LOG.Info(L"clean quit successful\n");
 }
 
-#ifndef _IRR_ANDROID_PLATFORM_
+#ifndef __ANDROID__
 int main(int argc, char *argv[])
 {
 #if defined(DEBUG) && defined(__GNUC__)
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 void android_main(android_app* app)
 {
 	// Make sure glue isn't stripped.

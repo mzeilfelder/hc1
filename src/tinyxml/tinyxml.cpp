@@ -25,7 +25,7 @@ distribution.
 #include "tinyxml.h"
 
 #include <irrlicht.h>
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 #include <android/log.h>
 #endif
 
@@ -1042,7 +1042,7 @@ bool TiXmlDocument::LoadFile( const char* filename, TiXmlEncoding encoding )
 	// Fixed with the StringToBuffer class.
 	value = filename;
 
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 	if ( irrFsFlags == E_ON_READ_ANDROID )
 	{
 		return LoadFileWithIrrFs(encoding);
@@ -1059,7 +1059,7 @@ bool TiXmlDocument::LoadFile( const char* filename, TiXmlEncoding encoding )
 	}
 	else
 	{
-#ifdef _IRR_ANDROID_PLATFORM_
+#ifdef __ANDROID__
 		if ( irrFsFlags == E_ON_READ_FAIL_ANDROID )
 		{
 			return LoadFileWithIrrFs(encoding);
@@ -1074,7 +1074,7 @@ bool TiXmlDocument::LoadFileWithIrrFs(TiXmlEncoding encoding)
 {
 	if ( !irrFileSystem )
 	{
-#if defined(_IRR_ANDROID_PLATFORM_) && !defined(HOVER_RELEASE)
+#if defined(__ANDROID__) && !defined(HOVER_RELEASE)
 		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - irrFileSystem is NULL.\n");
 #endif
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
@@ -1088,7 +1088,7 @@ bool TiXmlDocument::LoadFileWithIrrFs(TiXmlEncoding encoding)
 	irr::io::IReadFile* file = irrFileSystem->createAndOpenFile(irr::io::path(value.c_str()));
 	if (!file )
 	{
-#if defined(_IRR_ANDROID_PLATFORM_) && !defined(HOVER_RELEASE)
+#if defined(__ANDROID__) && !defined(HOVER_RELEASE)
 		__android_log_print(ANDROID_LOG_DEBUG, "Irrlicht", "LoadFileWithIrrFs - file not yet on IrrFS: %s\n", value.c_str());
 #endif
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );

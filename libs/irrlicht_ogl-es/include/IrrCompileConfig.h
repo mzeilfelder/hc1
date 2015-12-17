@@ -17,14 +17,12 @@
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
 //! The defines for different operating system are:
-//! _IRR_XBOX_PLATFORM_ for XBox
 //! _IRR_WINDOWS_ for all irrlicht supported Windows versions
-//! _IRR_WINDOWS_CE_PLATFORM_ for Windows CE
 //! _IRR_WINDOWS_API_ for Windows or XBox
 //! _IRR_LINUX_PLATFORM_ for Linux (it is defined here if no other os is defined)
 //! _IRR_SOLARIS_PLATFORM_ for Solaris
 //! _IRR_OSX_PLATFORM_ for Apple systems running OSX
-//! _IRR_IPHONE_PLATFORM_ for Apple devices running iOS
+//! _IRR_IOS_PLATFORM_ for Apple devices running iOS
 //! _IRR_ANDROID_PLATFORM_ for devices running Android
 //! _IRR_POSIX_API_ for Posix compatible systems
 //! Note: PLATFORM defines the OS specific layer, API can group several platforms
@@ -32,7 +30,6 @@
 //! DEVICE is the windowing system used, several PLATFORMs support more than one DEVICE
 //! Irrlicht can be compiled with more than one device
 //! _IRR_COMPILE_WITH_WINDOWS_DEVICE_ for Windows API based device
-//! _IRR_COMPILE_WITH_WINDOWS_CE_DEVICE_ for Windows CE API based device
 //! _IRR_COMPILE_WITH_OSX_DEVICE_ for Cocoa native windowing on OSX
 //! _IRR_COMPILE_WITH_X11_DEVICE_ for Linux X11 based device
 //! _IRR_COMPILE_WITH_SDL_DEVICE_ for platform independent SDL framework
@@ -66,22 +63,14 @@
 #define _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 #endif
 
-//! WINCE is a very restricted environment for mobile devices
-#if defined(_WIN32_WCE)
-#define _IRR_WINDOWS_
-#define _IRR_WINDOWS_API_
-#define _IRR_WINDOWS_CE_PLATFORM_
-#define _IRR_COMPILE_WITH_WINDOWS_CE_DEVICE_
+#if defined(_MSC_VER) && (_MSC_VER < 1500)
+#  error "Only Microsoft Visual Studio 9.0 and later are supported."
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-#  error "Only Microsoft Visual Studio 7.0 and later are supported."
-#endif
-
-// XBox only suppots the native Window stuff
+// XBox is deprecated (as DX8 is removed). Use Irrlicht 1.8 if you still want to work on this.
 #if defined(_XBOX)
 	#undef _IRR_WINDOWS_
-	#define _IRR_XBOX_PLATFORM_
+	#define _IRR_XBOX_PLATFORM_	// deprecated
 	#define _IRR_WINDOWS_API_
 	//#define _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 	#undef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
@@ -94,27 +83,23 @@
 #if !defined(MACOSX)
 #define MACOSX // legacy support
 #endif
-#define _IRR_OSX_PLATFORM_ // we only support OSX on these systems
-
 #if defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__) || defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-#define _IRR_IPHONE_PLATFORM_
-#define _IRR_COMPILE_WITH_IPHONE_DEVICE_
-#define _IRR_COMPILE_WITH_OGLES1_
-#define _IRR_COMPILE_WITH_OGLES2_
-#define _IRR_COMPILE_WITH_EAGL_MANAGER_
+#define _IRR_IOS_PLATFORM_
+#define _IRR_COMPILE_WITH_IOS_DEVICE_
+#define NO_IRR_COMPILE_WITH_OPENGL_
 #else
+#define _IRR_OSX_PLATFORM_
 #define _IRR_COMPILE_WITH_OSX_DEVICE_
-#define _IRR_COMPILE_WITH_NSOGL_MANAGER_
+#define NO_IRR_COMPILE_WITH_OGLES1_
+#define NO_IRR_COMPILE_WITH_OGLES2_
 #endif
-#define NO_IRR_COMPILE_WITH_EGL_MANAGER_
 #endif
 
-#if defined(_IRR_ANDROID_PLATFORM_)
+#if defined(__ANDROID__)
+#define _IRR_ANDROID_PLATFORM_
 #define _IRR_COMPILE_WITH_ANDROID_DEVICE_
-#define _IRR_COMPILE_WITH_OGLES1_
-#define _IRR_COMPILE_WITH_OGLES2_
 #define _IRR_COMPILE_ANDROID_ASSET_READER_
-#define _IRR_COMPILE_WITH_EGL_MANAGER_
+#define NO_IRR_COMPILE_WITH_OPENGL_
 #endif
 
 #if defined(__SVR4) && defined(__sun)
@@ -124,7 +109,7 @@
 #endif
 #endif
 
-#if !defined(_IRR_WINDOWS_API_) && !defined(_IRR_OSX_PLATFORM_) && !defined(_IRR_ANDROID_PLATFORM_)
+#if !defined(_IRR_WINDOWS_API_) && !defined(_IRR_OSX_PLATFORM_) && !defined(_IRR_IOS_PLATFORM_) && !defined(_IRR_ANDROID_PLATFORM_)
 #ifndef _IRR_SOLARIS_PLATFORM_
 #define _IRR_LINUX_PLATFORM_
 #endif
@@ -165,20 +150,14 @@ while it runs and enabling it will slow down the engine. */
 #undef _IRR_COMPILE_WITH_PROFILING_
 #endif
 
-//! Define _IRR_COMPILE_WITH_DIRECT3D_8_ and _IRR_COMPILE_WITH_DIRECT3D_9_ to
-//! compile the Irrlicht engine with Direct3D8 and/or DIRECT3D9.
+//! Define _IRR_COMPILE_WITH_DIRECT3D_9_ to compile the Irrlicht engine with DIRECT3D9.
 /** If you only want to use the software device or opengl you can disable those defines.
 This switch is mostly disabled because people do not get the g++ compiler compile
 directX header files, and directX is only available on Windows platforms. If you
 are using Dev-Cpp, and want to compile this using a DX dev pack, you can define
 _IRR_COMPILE_WITH_DX9_DEV_PACK_. So you simply need to add something like this
 to the compiler settings: -DIRR_COMPILE_WITH_DX9_DEV_PACK
-and this to the linker settings: -ld3dx9 -ld3dx8
-
-Microsoft have chosen to remove D3D8 headers from their recent DXSDKs, and
-so D3D8 support is now disabled by default.  If you really want to build
-with D3D8 support, then you will have to source a DXSDK with the appropriate
-headers, e.g. Summer 2004.  This is a Microsoft issue, not an Irrlicht one.
+and this to the linker settings: -ld3dx9
 */
 #if defined(_IRR_WINDOWS_API_) && (!defined(__GNUC__) || defined(IRR_COMPILE_WITH_DX9_DEV_PACK))
 
@@ -194,13 +173,8 @@ If not defined, Windows Multimedia library is used, which offers also broad supp
 #undef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #endif
 
-//! Only define _IRR_COMPILE_WITH_DIRECT3D_8_ if you have an appropriate DXSDK, e.g. Summer 2004
-// #define _IRR_COMPILE_WITH_DIRECT3D_8_
+//! enabled Direct3D 9
 #define _IRR_COMPILE_WITH_DIRECT3D_9_
-
-#ifdef NO_IRR_COMPILE_WITH_DIRECT3D_8_
-#undef _IRR_COMPILE_WITH_DIRECT3D_8_
-#endif
 #ifdef NO_IRR_COMPILE_WITH_DIRECT3D_9_
 #undef _IRR_COMPILE_WITH_DIRECT3D_9_
 #endif
@@ -210,47 +184,68 @@ If not defined, Windows Multimedia library is used, which offers also broad supp
 //! Define _IRR_COMPILE_WITH_OPENGL_ to compile the Irrlicht engine with OpenGL.
 /** If you do not wish the engine to be compiled with OpenGL, comment this
 define out. */
-#if !defined(_IRR_IPHONE_PLATFORM_) && !defined(_IRR_ANDROID_PLATFORM_)
 #define _IRR_COMPILE_WITH_OPENGL_
-#endif
 #ifdef NO_IRR_COMPILE_WITH_OPENGL_
 #undef _IRR_COMPILE_WITH_OPENGL_
 #endif
-#if defined(_IRR_COMPILE_WITH_OPENGL_) && defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) && !defined(NO_IRR_COMPILE_WITH_WGL_MANAGER_)
+
+//! Define required options for OpenGL drivers.
+#if defined(_IRR_COMPILE_WITH_OPENGL_)
+#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_)
+#define _IRR_OPENGL_USE_EXTPOINTER_
 #define _IRR_COMPILE_WITH_WGL_MANAGER_
-#endif
-#if defined(_IRR_COMPILE_WITH_OPENGL_) && defined(_IRR_COMPILE_WITH_X11_DEVICE_) && !defined(NO_IRR_COMPILE_WITH_GLX_MANAGER_)
+#elif defined(_IRR_COMPILE_WITH_X11_DEVICE_)
+#define _IRR_OPENGL_USE_EXTPOINTER_
+#define _IRR_COMPILE_WITH_GLX_MANAGER_
+#elif defined(_IRR_COMPILE_WITH_OSX_DEVICE_)
+#define _IRR_COMPILE_WITH_NSOGL_MANAGER_
+#elif defined(_IRR_SOLARIS_PLATFORM_)
 #define _IRR_COMPILE_WITH_GLX_MANAGER_
 #endif
+#endif
 
-//! Define _IRR_COMPILE_WITH_OGLES1_ to compile the Irrlicht engine with OpenGL-ES 1.x.
-/** If you do not wish the engine to be compiled with OpenGL-ES 1.x, comment
- this define out.
- You should only use this define if you really need the OpenGL-ES driver, and
- it should be usually the only HW accelerated one. OpenGL is currently disabled
- if using this driver, to avoid problems with the ogl-es emulators.
- */
+//! Define _IRR_COMPILE_WITH_OGLES1_ to compile the Irrlicht engine with OpenGL ES 1.1.
+/** If you do not wish the engine to be compiled with OpenGL ES 1.1, comment this
+define out. */
 #define _IRR_COMPILE_WITH_OGLES1_
 #ifdef NO_IRR_COMPILE_WITH_OGLES1_
 #undef _IRR_COMPILE_WITH_OGLES1_
 #endif
-#if defined(_IRR_COMPILE_WITH_OGLES1_) && !defined(NO_IRR_COMPILE_WITH_EGL_MANAGER_)
+
+//! Define required options for OpenGL ES 1.1 drivers.
+#if defined(_IRR_COMPILE_WITH_OGLES1_)
+#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_X11_DEVICE_) || defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+#define _IRR_OGLES1_USE_EXTPOINTER_
+#ifndef _IRR_COMPILE_WITH_EGL_MANAGER_
 #define _IRR_COMPILE_WITH_EGL_MANAGER_
 #endif
+#elif defined(_IRR_COMPILE_WITH_IOS_DEVICE_)
+#ifndef _IRR_COMPILE_WITH_EAGL_MANAGER_
+#define _IRR_COMPILE_WITH_EAGL_MANAGER_
+#endif
+#endif
+#endif
 
-//! Define _IRR_COMPILE_WITH_OGLES2_ to compile the Irrlicht engine with OpenGL-ES 2.x.
-/** If you do not wish the engine to be compiled with OpenGL-ES 2.x, comment
- this define out.
- You should only use this define if you really need the OpenGL-ES driver, and
- it should be usually the only HW accelerated one. OpenGL is currently disabled
- if using this driver, to avoid problems with the ogl-es emulators.
- */
+//! Define _IRR_COMPILE_WITH_OGLES2_ to compile the Irrlicht engine with OpenGL ES 2.0.
+/** If you do not wish the engine to be compiled with OpenGL ES 2.0, comment this
+define out. */
 #define _IRR_COMPILE_WITH_OGLES2_
 #ifdef NO_IRR_COMPILE_WITH_OGLES2_
 #undef _IRR_COMPILE_WITH_OGLES2_
 #endif
-#if defined(_IRR_COMPILE_WITH_OGLES2_) && !defined(NO_IRR_COMPILE_WITH_EGL_MANAGER_)
+
+//! Define required options for OpenGL ES 2.0 drivers.
+#if defined(_IRR_COMPILE_WITH_OGLES2_)
+#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_X11_DEVICE_) || defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+#define _IRR_OGLES2_USE_EXTPOINTER_
+#ifndef _IRR_COMPILE_WITH_EGL_MANAGER_
 #define _IRR_COMPILE_WITH_EGL_MANAGER_
+#endif
+#elif defined(_IRR_COMPILE_WITH_IOS_DEVICE_)
+#ifndef _IRR_COMPILE_WITH_EAGL_MANAGER_
+#define _IRR_COMPILE_WITH_EAGL_MANAGER_
+#endif
+#endif
 #endif
 
 //! Define _IRR_COMPILE_WITH_SOFTWARE_ to compile the Irrlicht engine with software driver
@@ -275,36 +270,6 @@ define out. */
 #define _IRR_COMPILE_WITH_X11_
 #ifdef NO_IRR_COMPILE_WITH_X11_
 #undef _IRR_COMPILE_WITH_X11_
-#endif
-
-//! Define _IRR_OPENGL_USE_EXTPOINTER_ if the OpenGL renderer should use OpenGL extensions via function pointers.
-/** On some systems there is no support for the dynamic extension of OpenGL
-	via function pointers such that this has to be undef'ed. */
-#ifdef _IRR_COMPILE_WITH_OPENGL_
-#if !defined(_IRR_OSX_PLATFORM_) && !defined(_IRR_SOLARIS_PLATFORM_)
-#define _IRR_OPENGL_USE_EXTPOINTER_
-#endif
-#endif
-
-//! Define _IRR_OGLES1_USE_EXTPOINTER_ if the OpenGL-ES 1.x driver should use extensions via function pointers.
-/** This should usually be enabled, but also depends on the specific
- architecture. You can simply uncomment the define and recompile.
- The iPhone does not have extension pointers, so disable it there always.
- */
-#ifdef _IRR_COMPILE_WITH_OGLES1_
-#if !defined(_IRR_IPHONE_PLATFORM_)
-#define _IRR_OGLES1_USE_EXTPOINTER_
-#endif
-#endif
-
-//! Define _IRR_OGLES2_USE_EXTPOINTER_ if the OpenGL-ES 2.x driver should use extensions via function pointers.
-/** This should usually be enabled, but also depends on the specific
- architecture. You can simply uncomment the define and recompile.
- */
-#ifdef _IRR_COMPILE_WITH_OGLES2_
-#if !defined(_IRR_IPHONE_PLATFORM_)
-#define _IRR_OGLES2_USE_EXTPOINTER_
-#endif
 #endif
 
 //! On some Linux systems the XF86 vidmode extension or X11 RandR are missing. Use these flags
@@ -403,15 +368,6 @@ to provide the user with the proper DLL. That's why it's disabled by default. */
 //#define _IRR_D3D_USE_LEGACY_HLSL_COMPILER
 #ifdef NO_IRR_D3D_USE_LEGACY_HLSL_COMPILER
 #undef _IRR_D3D_USE_LEGACY_HLSL_COMPILER
-#endif
-
-//! Define _IRR_COMPILE_WITH_CG_ to enable Cg Shading Language support
-//#define _IRR_COMPILE_WITH_CG_
-#ifdef NO_IRR_COMPILE_WITH_CG_
-#undef _IRR_COMPILE_WITH_CG_
-#endif
-#if !defined(_IRR_COMPILE_WITH_OPENGL_) && !defined(_IRR_COMPILE_WITH_DIRECT3D_9_)
-#undef _IRR_COMPILE_WITH_CG_
 #endif
 
 //! Define _IRR_USE_NVIDIA_PERFHUD_ to opt-in to using the nVidia PerHUD tool
@@ -594,6 +550,11 @@ B3D, MS3D or X meshes */
 #ifdef NO_IRR_COMPILE_WITH_PLY_WRITER_
 #undef _IRR_COMPILE_WITH_PLY_WRITER_
 #endif
+//! Define _IRR_COMPILE_WITH_B3D_WRITER_ if you want to write .b3d files
+#define _IRR_COMPILE_WITH_B3D_WRITER_
+#ifdef NO_IRR_COMPILE_WITH_B3D_WRITER_
+#undef _IRR_COMPILE_WITH_B3D_WRITER_
+#endif
 
 //! Define _IRR_COMPILE_WITH_BMP_LOADER_ if you want to load .bmp files
 //! Disabling this loader will also disable the built-in font
@@ -626,6 +587,11 @@ B3D, MS3D or X meshes */
 #ifdef NO_IRR_COMPILE_WITH_PSD_LOADER_
 #undef _IRR_COMPILE_WITH_PSD_LOADER_
 #endif
+//! Define _IRR_COMPILE_WITH_PVR_LOADER_ if you want to load .pvr files
+#define _IRR_COMPILE_WITH_PVR_LOADER_
+#ifdef NO_IRR_COMPILE_WITH_PVR_LOADER_
+#undef _IRR_COMPILE_WITH_PVR_LOADER_
+#endif
 //! Define _IRR_COMPILE_WITH_DDS_LOADER_ if you want to load compressed .dds files
 // Patent problem isn't related to this loader.
 #define _IRR_COMPILE_WITH_DDS_LOADER_
@@ -645,11 +611,6 @@ B3D, MS3D or X meshes */
 #endif
 #ifdef _IRR_COMPILE_WITH_DDS_DECODER_LOADER_
 #undef _IRR_COMPILE_WITH_DDS_LOADER_
-#endif
-//! Define _IRR_COMPILE_WITH_PVR_LOADER_ if you want to load .pvr files
-#define _IRR_COMPILE_WITH_PVR_LOADER_
-#ifdef NO_IRR_COMPILE_WITH_PVR_LOADER_
-#undef _IRR_COMPILE_WITH_PVR_LOADER_
 #endif
 //! Define _IRR_COMPILE_WITH_TGA_LOADER_ if you want to load .tga files
 #define _IRR_COMPILE_WITH_TGA_LOADER_
@@ -833,75 +794,6 @@ precision will be lower but speed higher. currently X86 only
 #define IRRCALLCONV
 
 #endif // _IRR_WINDOWS_API_
-
-// We need to disable DIRECT3D9 support for Visual Studio 6.0 because
-// those $%&$!! disabled support for it since Dec. 2004 and users are complaining
-// about linker errors. Comment this out only if you are knowing what you are
-// doing. (Which means you have an old DX9 SDK and VisualStudio6).
-#ifdef _MSC_VER
-#if (_MSC_VER < 1300 && !defined(__GNUC__))
-#undef _IRR_COMPILE_WITH_DIRECT3D_9_
-#pragma message("Compiling Irrlicht with Visual Studio 6.0, support for DX9 is disabled.")
-#endif
-#endif
-
-// XBox does not have OpenGL or DirectX9
-#if defined(_IRR_XBOX_PLATFORM_)
-	#undef _IRR_COMPILE_WITH_OPENGL_
-	#undef _IRR_COMPILE_WITH_DIRECT3D_9_
-#endif
-
-//! WinCE does not have OpenGL or DirectX9. use minimal loaders
-#if defined(_WIN32_WCE)
-	#undef _IRR_COMPILE_WITH_OPENGL_
-	#undef _IRR_COMPILE_WITH_DIRECT3D_8_
-	#undef _IRR_COMPILE_WITH_DIRECT3D_9_
-
-	#undef BURNINGVIDEO_RENDERER_BEAUTIFUL
-	#undef BURNINGVIDEO_RENDERER_FAST
-	#undef BURNINGVIDEO_RENDERER_ULTRA_FAST
-	#define BURNINGVIDEO_RENDERER_CE
-
-	#undef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-	#define _IRR_COMPILE_WITH_WINDOWS_CE_DEVICE_
-	//#define _IRR_WCHAR_FILESYSTEM
-
-	#undef _IRR_COMPILE_WITH_IRR_MESH_LOADER_
-	//#undef _IRR_COMPILE_WITH_MD2_LOADER_
-	#undef _IRR_COMPILE_WITH_MD3_LOADER_
-	#undef _IRR_COMPILE_WITH_3DS_LOADER_
-	#undef _IRR_COMPILE_WITH_COLLADA_LOADER_
-	#undef _IRR_COMPILE_WITH_CSM_LOADER_
-	#undef _IRR_COMPILE_WITH_BSP_LOADER_
-	#undef _IRR_COMPILE_WITH_DMF_LOADER_
-	#undef _IRR_COMPILE_WITH_LMTS_LOADER_
-	#undef _IRR_COMPILE_WITH_MY3D_LOADER_
-	#undef _IRR_COMPILE_WITH_OBJ_LOADER_
-	#undef _IRR_COMPILE_WITH_OCT_LOADER_
-	#undef _IRR_COMPILE_WITH_OGRE_LOADER_
-	#undef _IRR_COMPILE_WITH_LWO_LOADER_
-	#undef _IRR_COMPILE_WITH_STL_LOADER_
-	#undef _IRR_COMPILE_WITH_IRR_WRITER_
-	#undef _IRR_COMPILE_WITH_COLLADA_WRITER_
-	#undef _IRR_COMPILE_WITH_STL_WRITER_
-	#undef _IRR_COMPILE_WITH_OBJ_WRITER_
-	//#undef _IRR_COMPILE_WITH_BMP_LOADER_
-	//#undef _IRR_COMPILE_WITH_JPG_LOADER_
-	#undef _IRR_COMPILE_WITH_PCX_LOADER_
-	//#undef _IRR_COMPILE_WITH_PNG_LOADER_
-	#undef _IRR_COMPILE_WITH_PPM_LOADER_
-	#undef _IRR_COMPILE_WITH_PSD_LOADER_
-	//#undef _IRR_COMPILE_WITH_TGA_LOADER_
-	#undef _IRR_COMPILE_WITH_WAL_LOADER_
-	#undef _IRR_COMPILE_WITH_BMP_WRITER_
-	#undef _IRR_COMPILE_WITH_JPG_WRITER_
-	#undef _IRR_COMPILE_WITH_PCX_WRITER_
-	#undef _IRR_COMPILE_WITH_PNG_WRITER_
-	#undef _IRR_COMPILE_WITH_PPM_WRITER_
-	#undef _IRR_COMPILE_WITH_PSD_WRITER_
-	#undef _IRR_COMPILE_WITH_TGA_WRITER_
-
-#endif
 
 #ifndef _IRR_WINDOWS_API_
 	#undef _IRR_WCHAR_FILESYSTEM

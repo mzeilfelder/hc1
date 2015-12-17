@@ -22,7 +22,7 @@ namespace scene
 
 	//! Special scene node animator for FPS cameras
 	/** This scene node animator can be attached to a camera to make it act
-	like a 3d modelling tool camera
+	like a 3d modeling tool camera
 	*/
 	class CSceneNodeAnimatorCameraMaya : public ISceneNodeAnimatorCameraMaya
 	{
@@ -64,6 +64,12 @@ namespace scene
 		//! Set the distance
 		virtual void setDistance(f32 distance) _IRR_OVERRIDE_;
 
+		//! Set the minimal distance to the camera target for zoom
+		virtual void setTargetMinDistance(f32 minDistance) _IRR_OVERRIDE_;
+
+		//! Returns the minimal distance to the camera target for zoom
+		virtual f32 getTargetMinDistance() const _IRR_OVERRIDE_;
+
 		//! This animator will receive events when attached to the active camera
 		virtual bool isEventReceiverEnabled() const _IRR_OVERRIDE_
 		{
@@ -82,6 +88,12 @@ namespace scene
 		this. */
 		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) _IRR_OVERRIDE_;
 
+		//! Writes attributes of the scene node animator.
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const _IRR_OVERRIDE_;
+
+		//! Reads attributes of the scene node animator.
+		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0) _IRR_OVERRIDE_;
+
 	private:
 
 		void allKeysUp();
@@ -98,6 +110,7 @@ namespace scene
 		core::position2df ZoomStart;
 		core::position2df TranslateStart;
 		core::position2df MousePos;
+		f32 TargetMinDistance;
 		f32 ZoomSpeed;
 		f32 RotateSpeed;
 		f32 TranslateSpeed;
