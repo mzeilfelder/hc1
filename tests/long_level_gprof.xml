@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<main>
+	<wait timeMs="100"/>
+	<lmouse_click element="id_arcade"/>
+	<frame_end/>
+	
+	<func name="run_arcade_level">
+		<lmouse_click element="id_start"/>
+		<frame_end/>
+		<lmouse_click element="id_start"/>
+		<frame_end/>
+		<wait timeMs="3000"/>
+		<wait timeMs="300000"/>
+	</func>
+	
+	<func name="next_arcade_level">
+		<lmouse_click element="track"/>
+		<key_down key="KEY_RIGHT"/>
+	</func>
+	
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="next_arcade_level"/>
+	<call name="run_arcade_level"/>
+</main>
