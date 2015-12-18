@@ -48,7 +48,7 @@ CameraSettings::CameraSettings()
     mOutroTimeMaxMs = 3000;
     mOutroCamX = 0.1f;
     mOutroCamSqrX = 0.f;
-    mOutroCamY = 0.1;
+    mOutroCamY = 0.1f;
     mOutroCamSqrY = 0.f;
     mOutroCamZ = 0.1f;
     mOutroCamSqrZ = 0.f;

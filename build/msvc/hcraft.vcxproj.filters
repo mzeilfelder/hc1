@@ -1,0 +1,680 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\gui_dialogs">
+      <UniqueIdentifier>{0e30b163-821b-4780-8cb3-f3b031890139}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinyxml">
+      <UniqueIdentifier>{f33f17a1-9413-4b37-9585-5484b85333f0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ai_track.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\app_tester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CGUITextSlider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CGUITTFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\championship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CLMOMeshFileLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\convert_utf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_joystick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_joystick_settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_keyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_touch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\device_touch_settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\event_receiver_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\font_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\grid_triangle_selector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_freetype_font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\helper_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\helper_irr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\helper_math.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\helper_str.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\helper_xml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\highscores.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\input_device_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\irrlicht_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\keycode_strings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\level_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\mesh_texture_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\music_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\nn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\node_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ogg_stream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ogles2_materials.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ov_callbacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\profiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\random.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\recorder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rivalsmode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound_openal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound_settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\start_browser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\streaming.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\string_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\track_marker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_ai.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_controller_display.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_developer_settings.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_dlg_okcancel.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_editor.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_game.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_helper.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_hud.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_intro.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_levelmanager.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_analog.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_arcade.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship_progress.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship_winner.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_controls.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_credits.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend_champ.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend_rivals.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_graphics.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_highscores.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_hover_unlocked.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_keyboard.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_licenses.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_loadingscreen.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_main.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_nagscreen.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_newprofile.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_options.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_pause.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_profiles.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_replaytheatre.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_rivals.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_rivals_score.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_selecthover.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_timeattack.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_tutorial3.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_modellist.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_nodemanager.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_touch.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui_dialogs\gui_user_controls.cpp">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tinyxml\tinystr.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\ai_track.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\app_tester.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\camera.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CGUIDialogRoot.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CGUITextSlider.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CGUITTFont.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\championship.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CLMOMeshFileLoader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compile_config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\config_enums.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\controller.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\convert_utf.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_joystick.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_joystick_settings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_keyboard.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_mouse.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_touch.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\device_touch_settings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\editor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EGUIElementTypesHC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\EGUIEventTypesHC.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\event_receiver_base.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\font_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game_enums.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\globals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\grid_triangle_selector.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialog.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_freetype_font.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_ids.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\helper_file.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\helper_irr.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\helper_math.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\helper_str.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\helper_xml.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\highscores.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hover.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\IGUITextSlider.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\input_device.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\input_device_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\irrlicht_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\keycode_strings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\level.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\level_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\logging.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\logging_priorities.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\mesh_texture_loader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\music_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\nn.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\node_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ogg_stream.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ogles2_materials.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ov_callbacks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\physics.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\player.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\profiles.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\random.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\recorder.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rivalsmode.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound_openal.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound_settings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\start_browser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\streaming.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\string_table.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\track_marker.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_ai.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_controller_display.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_developer_settings.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_dlg_okcancel.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_editor.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_game.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_helper.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_hud.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_intro.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_levelmanager.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_analog.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_arcade.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship_progress.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship_winner.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_controls.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_credits.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend_champ.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend_rivals.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_graphics.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_highscores.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_hover_unlocked.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_keyboard.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_licenses.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_loadingscreen.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_main.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_nagscreen.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_newprofile.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_options.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_pause.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_profiles.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_replaytheatre.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_rivals.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_rivals_score.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_selecthover.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_timeattack.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_tutorial3.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_modellist.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_nodemanager.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_touch.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui_dialogs\gui_user_controls.h">
+      <Filter>Source Files\gui_dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tinyxml\tinystr.h">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tinyxml\tinyxml.h">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

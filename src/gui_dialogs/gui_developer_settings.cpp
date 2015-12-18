@@ -46,7 +46,7 @@ void GuiDeveloperSettings::CreateDeveloperSettings()
 	IGUITabControl* tab = mEnvironment->addTabControl(core::rect<s32>(2,20,640-302,480-7),
                                                         mWindow, true, true, GUI_TAB_TOOLBOX);
 
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
 
     // steering

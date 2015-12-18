@@ -10,11 +10,13 @@
 #include "logging.h"
 #include "tinyxml/tinyxml.h"
 #include <iostream>
-#include <unistd.h>
+#if !defined(_MSC_VER)
+	#include <unistd.h>
+#endif
 #include <sstream>
 #include <fstream>
 
-#ifdef __GNUWIN32__
+#if defined(_WIN32)
 #include <direct.h>
 #include <time.h>
 #endif // __GNUWIN32__
@@ -152,7 +154,7 @@ void Config::Init(const char *argv0_)
 {
 #ifndef __ANDROID__
     char cwd[MAXPATHLEN];
-    getcwd(cwd, MAXPATHLEN);
+    _getcwd(cwd, MAXPATHLEN);
     if ( argv0_ )
     {
         std::string strCwd(cwd);

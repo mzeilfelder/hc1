@@ -11,7 +11,7 @@ class TiXmlElement;
 class IArchive;
 class MemArchive;
 
-struct Record;
+class Record;
 
 class IRecordable
 {

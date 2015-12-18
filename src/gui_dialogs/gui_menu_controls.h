@@ -5,8 +5,8 @@
 
 #include "../gui_dialog.h"
 
-class ControllerAxis;
-class ControllerButton;
+struct ControllerAxis;
+struct ControllerButton;
 
 class GuiMenuControls : public GuiDialog
 {

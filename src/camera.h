@@ -10,7 +10,7 @@
 #include <string>
 
 class TiXmlElement;
-class PhysicsObject;
+struct PhysicsObject;
 
 struct CameraSettings
 {

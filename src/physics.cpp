@@ -78,7 +78,7 @@ void PhysicsObject::ForcePositionUpdate()
 
 // --------------------------------------------------------
 PhysicsSettings::PhysicsSettings()
-: mTimeStep(0.16)
+: mTimeStep(0.16f)
 , mRollFriction(0.f)
 , mAirConst(0.f)
 , mGravity(0.f)
@@ -162,7 +162,7 @@ Physics::Physics()
     mInterpolatedTick = 0.f;
     mSettings.mTimeStep = 0.1f;
     mSettings.mRollFriction = 10.f;
-    mSettings.mAirConst = 0.01;
+    mSettings.mAirConst = 0.01f;
     mSettings.mGravity = 100.f;
     mSettings.mWallFriction = 100.f;
     mSettings.mWallBoundary = 0.7f;

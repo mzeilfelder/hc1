@@ -13,7 +13,7 @@ GridTriangleSelector::GridTriangleSelector(const irr::scene::IMesh* mesh, irr::s
     updateMesh(mesh);
 }
 
-GridTriangleSelector::GridTriangleSelector::~GridTriangleSelector()
+GridTriangleSelector::~GridTriangleSelector()
 {
 }
 

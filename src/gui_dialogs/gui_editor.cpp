@@ -1034,31 +1034,6 @@ bool GuiEditor::OnEventFinishLine(const SEvent &event)
     return false;
 }
 
-bool GuiEditor::OnEventSounds(const SEvent &event)
-{
-    if ( event.EventType != EET_GUI_EVENT)
-        return false;
-
-    s32 id = event.GUIEvent.Caller->getID();
-    switch(event.GUIEvent.EventType)
-    {
-        case EGET_BUTTON_CLICKED:
-        {
-            switch(id)
-            {
-                default:
-                break;
-            }
-        }
-        break;
-
-        default:
-        break;
-    }
-
-    return false;
-}
-
 bool GuiEditor::OnEventObjects(const SEvent &event)
 {
     if ( event.EventType != EET_GUI_EVENT)
@@ -1370,8 +1345,6 @@ bool GuiEditor::OnEvent(const SEvent &event)
         return true;
     if ( mWndFinishLine && OnEventFinishLine(event) )
         return true;
-    if ( mWndSounds && OnEventSounds(event) )
-        return true;
     if ( mWndObjects && OnEventObjects(event) )
         return true;
     if ( mGuiNodeManager->GetNodeWindow() && mGuiNodeManager->OnEvent(event) )
@@ -1488,7 +1461,7 @@ void GuiEditor::UpdatePlayerStart()
     if ( !cb )
         return;
 
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
     for ( int i=0; i < MAX_SPAWNS; ++i )
     {
@@ -1552,7 +1525,7 @@ void GuiEditor::UpdateTrackMarker()
         return;
 
     listBox->clear();
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
     for ( unsigned int i=0; i < APP.GetLevel()->GetNrOfTrackMarkers(); ++i )
     {
@@ -1628,7 +1601,7 @@ void GuiEditor::UpdateTeleportSource()
     if ( !cb )
         return;
 
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
 
     TrackMarker & marker = APP.GetLevel()->GetTpSource();
@@ -1659,7 +1632,7 @@ void GuiEditor::UpdateTeleportTarget()
     if ( !cb )
         return;
 
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
 
     TrackMarker & marker = APP.GetLevel()->GetTpTarget();
@@ -1690,7 +1663,7 @@ void GuiEditor::UpdateFinishLine()
     if ( !cb )
         return;
 
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
 
     TrackMarker& marker = APP.GetLevel()->GetFinishLine();
@@ -1724,7 +1697,7 @@ void GuiEditor::UpdateObjects()
         return;
 
     listBox->clear();
-    int editSize=1024;
+    const int editSize=1024;
     wchar_t editText[editSize+1];
     for ( unsigned int i=0; i < APP.GetLevel()->GetNrOfModels(); ++i )
     {

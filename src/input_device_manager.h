@@ -11,8 +11,8 @@ class DeviceKeyboard;
 class DeviceMouse;
 class IDeviceJoystick;
 class DeviceTouch;
-class ControllerAxis;
-class ControllerButton;
+struct ControllerAxis;
+struct ControllerButton;
 class TiXmlElement;
 class Config;
 

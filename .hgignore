@@ -13,7 +13,11 @@ syntax: glob
 *.a
 *.obj
 *.pdb
+*.suo
+*.opensdf
+*.sdf
 *.ilk
+*.exp
 *~
 *.depend
 *.manifest
@@ -82,6 +86,10 @@ build/android/gen
 build/android/obj
 build/android/assets
 
+#msvc build files
+build/msvc/Debug
+build/msvc/Release
+
 #binaries and releases
 releases/*
 hovercraft
@@ -114,6 +122,7 @@ libs/irrlicht/bin/Win32-VisualStudio/*.dll
 libs/irrlicht/bin/Win64-VisualStudio/*.dll
 libs/irrlicht/tests/tests
 libs/irrlicht/tests/results
+libs/irrlicht/source/Irrlicht/obj
 
 #Gust some temporary folder used while adding the billing and google-play-services api's.
 sales

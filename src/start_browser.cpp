@@ -3,7 +3,7 @@
 #include "start_browser.h"
 #include <cstdlib>
 
-#ifdef __GNUWIN32__
+#if defined(_WIN32)
 #include <windows.h>
 
 #include <windows.h>

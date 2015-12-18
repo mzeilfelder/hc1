@@ -488,11 +488,11 @@ float Player::CalcScaledAngleToVector(const core::vector3df &normDirXZ_, const c
     float crossY = normDirXZ_.crossProduct(normTargetDirXZ_).Y;
     float dot = normDirXZ_.dotProduct(normTargetDirXZ_);
 
-    float result = ExtMath::acos_save(dot)/M_PI;
+    double result = ExtMath::acos_save(dot)/M_PI;
     if ( crossY < 0 )
         result *= -1.f;
 
-    return result;
+    return (float)result;
 }
 
 void Player::UpdateAi(u32 time_, PhysicsObject* hoverPhysics)

@@ -28,11 +28,19 @@
 	#define IRR_REV 4
 
 	#define HC1_ENABLE_SOUND
+	#define HC1_HAS_SDL  	// is SDL available? Needed for joystick
+
+	#if defined(_MSC_VER)
+		#undef HC1_ENABLE_SOUND // not yet supported
+		#undef HC1_HAS_SDL		// not yet supported
+
+		#define __func__ __FUNCTION__
+#endif
+
 	#ifdef HC1_ENABLE_SOUND
 		#define HC1_ENABLE_OPENAL
 		#define HC1_ENABLE_OGG
 	#endif
-	#define HC1_HAS_SDL  	// is SDL available? Needed for joystick
 
 	#define HOVER_ADS	// Allow advertising (can be disabled again by runtime settings)
 

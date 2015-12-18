@@ -43,7 +43,6 @@ protected:
     bool OnEventTeleportSource(const irr::SEvent &event);
     bool OnEventTeleportTarget(const irr::SEvent &event);
     bool OnEventFinishLine(const irr::SEvent &event);
-    bool OnEventSounds(const irr::SEvent &event);
     bool OnEventObjects(const irr::SEvent &event);
     void OnModelSelected(std::wstring name_);
 

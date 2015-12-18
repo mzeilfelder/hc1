@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1BF5406C-EB09-458B-B48E-25CBC9193D38}</ProjectGuid>
+    <RootNamespace>hcraft</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../libs/libfreetype/freetype-2.5.5/include;../../libs/irrlicht/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_USING_V110_SDK71_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../libs/libfreetype/freetype-2.5.5/include;../../libs/irrlicht/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_USING_V110_SDK71_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ai_track.cpp" />
+    <ClCompile Include="..\..\src\app_tester.cpp" />
+    <ClCompile Include="..\..\src\camera.cpp" />
+    <ClCompile Include="..\..\src\CGUITextSlider.cpp" />
+    <ClCompile Include="..\..\src\CGUITTFont.cpp" />
+    <ClCompile Include="..\..\src\championship.cpp" />
+    <ClCompile Include="..\..\src\CLMOMeshFileLoader.cpp" />
+    <ClCompile Include="..\..\src\config.cpp" />
+    <ClCompile Include="..\..\src\controller.cpp" />
+    <ClCompile Include="..\..\src\convert_utf.c" />
+    <ClCompile Include="..\..\src\device_joystick.cpp" />
+    <ClCompile Include="..\..\src\device_joystick_settings.cpp" />
+    <ClCompile Include="..\..\src\device_keyboard.cpp" />
+    <ClCompile Include="..\..\src\device_mouse.cpp" />
+    <ClCompile Include="..\..\src\device_touch.cpp" />
+    <ClCompile Include="..\..\src\device_touch_settings.cpp" />
+    <ClCompile Include="..\..\src\editor.cpp" />
+    <ClCompile Include="..\..\src\event_receiver_base.cpp" />
+    <ClCompile Include="..\..\src\font_manager.cpp" />
+    <ClCompile Include="..\..\src\game.cpp" />
+    <ClCompile Include="..\..\src\grid_triangle_selector.cpp" />
+    <ClCompile Include="..\..\src\gui.cpp" />
+    <ClCompile Include="..\..\src\gui_dialog.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_ai.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_controller_display.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_developer_settings.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_dlg_okcancel.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_editor.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_game.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_helper.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_hud.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_intro.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_levelmanager.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_analog.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_arcade.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship_progress.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_championship_winner.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_controls.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_credits.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend_champ.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_gameend_rivals.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_graphics.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_highscores.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_hover_unlocked.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_keyboard.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_licenses.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_loadingscreen.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_main.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_nagscreen.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_newprofile.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_options.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_pause.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_profiles.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_replaytheatre.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_rivals.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_rivals_score.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_selecthover.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_timeattack.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_menu_tutorial3.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_modellist.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_nodemanager.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_touch.cpp" />
+    <ClCompile Include="..\..\src\gui_dialogs\gui_user_controls.cpp" />
+    <ClCompile Include="..\..\src\gui_freetype_font.cpp" />
+    <ClCompile Include="..\..\src\helper_file.cpp" />
+    <ClCompile Include="..\..\src\helper_irr.cpp" />
+    <ClCompile Include="..\..\src\helper_math.cpp" />
+    <ClCompile Include="..\..\src\helper_str.cpp" />
+    <ClCompile Include="..\..\src\helper_xml.cpp" />
+    <ClCompile Include="..\..\src\highscores.cpp" />
+    <ClCompile Include="..\..\src\hover.cpp" />
+    <ClCompile Include="..\..\src\input_device.cpp" />
+    <ClCompile Include="..\..\src\input_device_manager.cpp" />
+    <ClCompile Include="..\..\src\irrlicht_manager.cpp" />
+    <ClCompile Include="..\..\src\keycode_strings.cpp" />
+    <ClCompile Include="..\..\src\level.cpp" />
+    <ClCompile Include="..\..\src\level_manager.cpp" />
+    <ClCompile Include="..\..\src\logging.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\mesh_texture_loader.cpp" />
+    <ClCompile Include="..\..\src\music_manager.cpp" />
+    <ClCompile Include="..\..\src\nn.cpp" />
+    <ClCompile Include="..\..\src\node_manager.cpp" />
+    <ClCompile Include="..\..\src\ogg_stream.cpp" />
+    <ClCompile Include="..\..\src\ogles2_materials.cpp" />
+    <ClCompile Include="..\..\src\ov_callbacks.cpp" />
+    <ClCompile Include="..\..\src\physics.cpp" />
+    <ClCompile Include="..\..\src\player.cpp" />
+    <ClCompile Include="..\..\src\profiles.cpp" />
+    <ClCompile Include="..\..\src\random.cpp" />
+    <ClCompile Include="..\..\src\recorder.cpp" />
+    <ClCompile Include="..\..\src\rivalsmode.cpp" />
+    <ClCompile Include="..\..\src\sound_openal.cpp" />
+    <ClCompile Include="..\..\src\sound_settings.cpp" />
+    <ClCompile Include="..\..\src\start_browser.cpp" />
+    <ClCompile Include="..\..\src\streaming.cpp" />
+    <ClCompile Include="..\..\src\string_table.cpp" />
+    <ClCompile Include="..\..\src\timer.cpp" />
+    <ClCompile Include="..\..\src\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\..\src\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\..\src\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\..\src\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\..\src\track_marker.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\ai_track.h" />
+    <ClInclude Include="..\..\src\app_tester.h" />
+    <ClInclude Include="..\..\src\camera.h" />
+    <ClInclude Include="..\..\src\CGUIDialogRoot.h" />
+    <ClInclude Include="..\..\src\CGUITextSlider.h" />
+    <ClInclude Include="..\..\src\CGUITTFont.h" />
+    <ClInclude Include="..\..\src\championship.h" />
+    <ClInclude Include="..\..\src\CLMOMeshFileLoader.h" />
+    <ClInclude Include="..\..\src\compile_config.h" />
+    <ClInclude Include="..\..\src\config.h" />
+    <ClInclude Include="..\..\src\config_enums.h" />
+    <ClInclude Include="..\..\src\controller.h" />
+    <ClInclude Include="..\..\src\convert_utf.h" />
+    <ClInclude Include="..\..\src\device_joystick.h" />
+    <ClInclude Include="..\..\src\device_joystick_settings.h" />
+    <ClInclude Include="..\..\src\device_keyboard.h" />
+    <ClInclude Include="..\..\src\device_mouse.h" />
+    <ClInclude Include="..\..\src\device_touch.h" />
+    <ClInclude Include="..\..\src\device_touch_settings.h" />
+    <ClInclude Include="..\..\src\editor.h" />
+    <ClInclude Include="..\..\src\EGUIElementTypesHC.h" />
+    <ClInclude Include="..\..\src\EGUIEventTypesHC.h" />
+    <ClInclude Include="..\..\src\event_receiver_base.h" />
+    <ClInclude Include="..\..\src\font_manager.h" />
+    <ClInclude Include="..\..\src\game.h" />
+    <ClInclude Include="..\..\src\game_enums.h" />
+    <ClInclude Include="..\..\src\globals.h" />
+    <ClInclude Include="..\..\src\grid_triangle_selector.h" />
+    <ClInclude Include="..\..\src\gui.h" />
+    <ClInclude Include="..\..\src\gui_dialog.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_ai.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_controller_display.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_developer_settings.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_dlg_okcancel.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_editor.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_game.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_helper.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_hud.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_intro.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_levelmanager.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_analog.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_arcade.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship_progress.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_championship_winner.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_controls.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_credits.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend_champ.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_gameend_rivals.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_graphics.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_highscores.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_hover_unlocked.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_keyboard.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_licenses.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_loadingscreen.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_main.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_nagscreen.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_newprofile.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_options.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_pause.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_profiles.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_replaytheatre.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_rivals.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_rivals_score.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_selecthover.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_timeattack.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_menu_tutorial3.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_modellist.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_nodemanager.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_touch.h" />
+    <ClInclude Include="..\..\src\gui_dialogs\gui_user_controls.h" />
+    <ClInclude Include="..\..\src\gui_freetype_font.h" />
+    <ClInclude Include="..\..\src\gui_ids.h" />
+    <ClInclude Include="..\..\src\helper_file.h" />
+    <ClInclude Include="..\..\src\helper_irr.h" />
+    <ClInclude Include="..\..\src\helper_math.h" />
+    <ClInclude Include="..\..\src\helper_str.h" />
+    <ClInclude Include="..\..\src\helper_xml.h" />
+    <ClInclude Include="..\..\src\highscores.h" />
+    <ClInclude Include="..\..\src\hover.h" />
+    <ClInclude Include="..\..\src\IGUITextSlider.h" />
+    <ClInclude Include="..\..\src\input_device.h" />
+    <ClInclude Include="..\..\src\input_device_manager.h" />
+    <ClInclude Include="..\..\src\irrlicht_manager.h" />
+    <ClInclude Include="..\..\src\keycode_strings.h" />
+    <ClInclude Include="..\..\src\level.h" />
+    <ClInclude Include="..\..\src\level_manager.h" />
+    <ClInclude Include="..\..\src\logging.h" />
+    <ClInclude Include="..\..\src\logging_priorities.h" />
+    <ClInclude Include="..\..\src\main.h" />
+    <ClInclude Include="..\..\src\mesh_texture_loader.h" />
+    <ClInclude Include="..\..\src\music_manager.h" />
+    <ClInclude Include="..\..\src\nn.h" />
+    <ClInclude Include="..\..\src\node_manager.h" />
+    <ClInclude Include="..\..\src\ogg_stream.h" />
+    <ClInclude Include="..\..\src\ogles2_materials.h" />
+    <ClInclude Include="..\..\src\ov_callbacks.h" />
+    <ClInclude Include="..\..\src\physics.h" />
+    <ClInclude Include="..\..\src\player.h" />
+    <ClInclude Include="..\..\src\profiles.h" />
+    <ClInclude Include="..\..\src\random.h" />
+    <ClInclude Include="..\..\src\recorder.h" />
+    <ClInclude Include="..\..\src\rivalsmode.h" />
+    <ClInclude Include="..\..\src\sound.h" />
+    <ClInclude Include="..\..\src\sound_openal.h" />
+    <ClInclude Include="..\..\src\sound_settings.h" />
+    <ClInclude Include="..\..\src\start_browser.h" />
+    <ClInclude Include="..\..\src\streaming.h" />
+    <ClInclude Include="..\..\src\string_table.h" />
+    <ClInclude Include="..\..\src\timer.h" />
+    <ClInclude Include="..\..\src\tinyxml\tinystr.h" />
+    <ClInclude Include="..\..\src\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\..\src\track_marker.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

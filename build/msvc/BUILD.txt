@@ -1,0 +1,3 @@
+Visual Studio is _not_ yet supported. The only supported compiler at this point is gcc/g++.
+If it will be supported one day I'll go over cmake or something similar.
+The reason the files are here is so I can compile the project with VS for testing, as compiling with another compiler often shows new problems.

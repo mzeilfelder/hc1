@@ -113,10 +113,10 @@ void CGUITTGlyph::cache(u32 idx_, const CGUIFreetypeFont * freetypeFont)
 				memset(texd,0,imgw*imgh*sizeof(u32));
 				u32 *texp = texd;
 				bool cflag = (freetypeFont->Driver->getDriverType() == video::EDT_DIRECT3D8);
-				for (int i = 0;i < bits.rows;i++)
+				for (unsigned int i = 0;i < bits.rows;i++)
 				{
 					u32 *rowp = texp;
-					for (int j = 0;j < bits.width;j++)
+					for (unsigned int j = 0;j < bits.width;j++)
 					{
 						if (*pt)
 						{

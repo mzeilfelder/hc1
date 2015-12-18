@@ -23,7 +23,7 @@ InitRandomGenerators::InitRandomGenerators()
 
     seconds = time( (time_t*) 0 );
     seconds += 1437372017;	// so it's not the usual number range
-#ifdef __GNUWIN32__
+#if defined(_WIN32)
     srand( (unsigned int)seconds );
 #else
     srandom( (unsigned int)seconds );
@@ -33,7 +33,7 @@ InitRandomGenerators::InitRandomGenerators()
 // ------------------------------------------------------------
 long int RandomGenerator::GetNumber() const
 {
-#ifdef __GNUWIN32__
+#if defined(_WIN32)
     return rand();
 #else
     return random();
