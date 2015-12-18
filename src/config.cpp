@@ -154,7 +154,11 @@ void Config::Init(const char *argv0_)
 {
 #ifndef __ANDROID__
     char cwd[MAXPATHLEN];
+#if defined(_MSC_VER)
     _getcwd(cwd, MAXPATHLEN);
+#else
+	getcwd(cwd, MAXPATHLEN);
+#endif
     if ( argv0_ )
     {
         std::string strCwd(cwd);
