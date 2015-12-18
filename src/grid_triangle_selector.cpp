@@ -59,32 +59,32 @@ void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::
 void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
 	irr::s32& outTriangleCount, const irr::core::aabbox3d<irr::f32>& box, const irr::core::matrix4* transform) const
 {
-	core::matrix4 mat(core::matrix4::EM4CONST_NOTHING);
-	core::aabbox3df tBox(box);
-
-	if (mSceneNode)
-	{
-		mSceneNode->getAbsoluteTransformation().getInverse(mat);
-		mat.transformBoxEx(tBox);
-	}
-	if (transform)
-		mat = *transform;
-	else
-		mat.makeIdentity();
-	if (mSceneNode)
-		mat *= mSceneNode->getAbsoluteTransformation();
-	bool isIdentityMatrix = mat.isIdentity();
-
-	// get grid-cells hit by box
-	core::rectf boxRect(box.MinEdge.X, box.MinEdge.Z, box.MaxEdge.X, box.MaxEdge.Z);
-	irr::s32 startX, startY, endX, endY;
-	getGridCoordinates(boxRect.UpperLeftCorner, startX, startY);
-	getGridCoordinates(boxRect.LowerRightCorner, endX, endY);
-
 	outTriangleCount = 0;
 
 	if ( !mGrid.empty() )
 	{
+		core::matrix4 mat(core::matrix4::EM4CONST_NOTHING);
+		core::aabbox3df tBox(box);
+
+		if (mSceneNode)
+		{
+			mSceneNode->getAbsoluteTransformation().getInverse(mat);
+			mat.transformBoxEx(tBox);
+		}
+		if (transform)
+			mat = *transform;
+		else
+			mat.makeIdentity();
+		if (mSceneNode)
+			mat *= mSceneNode->getAbsoluteTransformation();
+		bool isIdentityMatrix = mat.isIdentity();
+
+		// get grid-cells hit by box
+		core::rectf boxRect(box.MinEdge.X, box.MinEdge.Z, box.MaxEdge.X, box.MaxEdge.Z);
+		irr::s32 startX, startY, endX, endY;
+		getGridCoordinates(boxRect.UpperLeftCorner, startX, startY);
+		getGridCoordinates(boxRect.LowerRightCorner, endX, endY);
+
 		memset((void*)mUsed.pointer(), 0, sizeof(bool)*mUsed.size());
 
 		if (isIdentityMatrix)
@@ -274,22 +274,19 @@ void GridTriangleSelector::addTriangle(const irr::core::triangle3df& triangle)
 	}
 }
 
-void GridTriangleSelector::getGridCoordinates(const irr::core::vector2df& position, irr::s32& x, irr::s32& y, bool clip) const
+void GridTriangleSelector::getGridCoordinates(const irr::core::vector2df& position, irr::s32& x, irr::s32& y) const
 {
 	x = (s32)((position.X - mGridStart.X) / mCellSize);
 	y = (s32)((position.Y - mGridStart.Y) / mCellSize);
 
-	if (clip)
-	{
-		if( x >= (s32)mGridDimension.Width )
-			x = (s32)mGridDimension.Width-1;
-		if ( x < 0 )
-			x = 0;
-		if( y >= (s32)mGridDimension.Height )
-			y = (s32)mGridDimension.Height-1;
-		if ( y < 0 )
-			y = 0;
-	}
+	if( x >= (s32)mGridDimension.Width )
+		x = (s32)mGridDimension.Width-1;
+	if ( x < 0 )
+		x = 0;
+	if( y >= (s32)mGridDimension.Height )
+		y = (s32)mGridDimension.Height-1;
+	if ( y < 0 )
+		y = 0;
 }
 
 irr::core::rectf GridTriangleSelector::getCellRect(irr::s32 x, irr::s32 y) const

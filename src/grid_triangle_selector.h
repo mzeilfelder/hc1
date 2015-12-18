@@ -64,7 +64,7 @@ protected:
 	void addTriangle(const irr::core::triangle3df& triangle);
 
 	// For the given position return the x and y grid coordinates.
-	void getGridCoordinates(const irr::core::vector2df& position, irr::s32& x, irr::s32& y, bool clip=true) const;
+	inline void getGridCoordinates(const irr::core::vector2df& position, irr::s32& x, irr::s32& y) const;
 
 	// Return the rectangle making up the cell for the given grid coordinates
 	irr::core::rectf getCellRect(irr::s32 x, irr::s32 y) const;
