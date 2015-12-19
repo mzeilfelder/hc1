@@ -18,12 +18,12 @@ bool operator<(int id_, const Record &obj_)
     return id_ < obj_.mId;
 }
 
-bool operator<(IRecordable * ptr_, const RecordingObject &obj_)
+bool operator<(const IRecordable * ptr_, const RecordingObject &obj_)
 {
     return ptr_ < obj_.mRecordable;
 }
 
-bool operator<(IRecordable * ptr_, const PlayingObject &obj_)
+bool operator<(const IRecordable * ptr_, const PlayingObject &obj_)
 {
     return ptr_ < obj_.mRecordable;
 }

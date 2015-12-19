@@ -332,6 +332,9 @@
     <ClCompile Include="..\..\src\tinyxml\tinyxmlparser.cpp">
       <Filter>Source Files\tinyxml</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\mobile\app_restrictions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ai_track.h">
@@ -675,6 +678,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\tinyxml\tinyxml.h">
       <Filter>Source Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\mobile\app_restrictions.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

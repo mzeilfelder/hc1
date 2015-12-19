@@ -69,8 +69,9 @@ private:
 
 struct RecordingObject
 {
-    inline bool operator<(IRecordable * ptr_)  const { return mRecordable < ptr_; }
-    friend bool operator<(IRecordable * ptr_, const RecordingObject &obj_);
+    inline bool operator<(const IRecordable * ptr_)  const { return mRecordable < ptr_; }
+	inline bool operator<(const RecordingObject& other)  const { return mRecordable < other.mRecordable; }
+    friend bool operator<(const IRecordable * ptr_, const RecordingObject &obj_);
 
     IRecordable *   mRecordable;
     int             mRecordId;
@@ -78,8 +79,9 @@ struct RecordingObject
 
 struct PlayingObject
 {
-    bool operator<(IRecordable * ptr_) const { return mRecordable < ptr_; }
-    friend bool operator<(IRecordable * ptr_, const PlayingObject &obj_);
+    bool operator<(const IRecordable * ptr_) const { return mRecordable < ptr_; }
+	bool operator<(const PlayingObject& other) const { return mRecordable < other.mRecordable; }
+    friend bool operator<(const IRecordable * ptr_, const PlayingObject &obj_);
 
     IRecordable *   mRecordable;
     int             mRecordId;

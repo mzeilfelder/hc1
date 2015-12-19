@@ -18,6 +18,7 @@ syntax: glob
 *.sdf
 *.ilk
 *.exp
+*.user
 *~
 *.depend
 *.manifest
