@@ -581,7 +581,7 @@ void Game::ResetHud()
     if ( mSettings.mTargetTime == 0 )
         hud->SetPosition(0, mSettings.mNrOfBots+1);
     else
-        hud->SetReverseTime(-mSettings.mTargetTime);
+        hud->SetReverseTime(-(irr::s32)mSettings.mTargetTime);
     hud->SetSpecialText1(L"");
     hud->SetSpecialText2(L"");
     hud->SetGap(L"");

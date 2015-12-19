@@ -17,8 +17,6 @@
 #include "gui_menu_tutorial3.h"
 #include "gui_menu_rivals_score.h"
 #include "gui_menu_hover_unlocked.h"
-#include <sstream>
-#include <iomanip>
 #include <cstdlib>
 
 using namespace irr;
@@ -172,7 +170,6 @@ void GuiHelper::SetGameModeMenu(GAME_TYPE gameType_)
 
 std::wstring GuiHelper::MakeTimeString(s32 time_, bool showPlusSign_, int signOnZero_)
 {
-    std::ostringstream stream;  // wostringstream would be nicer, but might cause problems on mingw, and i don't wanna reboot and test now
     u32 timeAbs = abs(time_);
     int minutes = timeAbs / 60000;
     timeAbs -= minutes * 60000;
@@ -190,35 +187,53 @@ std::wstring GuiHelper::MakeTimeString(s32 time_, bool showPlusSign_, int signOn
 	    }
     }
 
-    if ( time_ == (int)Game::TIME_UNUSED )
+    if ( minutes > 99 )	// allow maximal 2 digits
+	{
+		return std::wstring(L"99.99.99");
+	}
+	else if ( time_ == Game::TIME_UNUSED )
+	{
+		return std::wstring(L"--.--.--");
+	}
+	else if ( time_ == 0 )
     {
-        stream  << std::setw(2) << std::setfill('0') << "--" << '.'
-                << std::setw(2) << std::setfill('0') << "--" << '.'
-                << std::setw(2) << std::setfill('0') << "--";
-    }
-    else
+		if ( signOnZero_ < 0 )
+			return std::wstring(L"-00.00.00");
+		else if ( signOnZero_ > 0 )
+			return std::wstring(L"+00.00.00");
+		return std::wstring(L"00.00.00");
+	}
+
+	int idx = 0;
+	std::wstring timeStr;
+	if ( time_ < 0 )    // minus sign for negative times
+	{
+		timeStr = L"-00.00.00";
+		idx = 1;
+	}
+	else if ( time_ > 0 )
     {
-        if ( time_ < 0 )    // minus sign for negative times
-            stream << "-";
-        else if ( time_ > 0 && showPlusSign_ )
-        {
-            stream << "+";
-        }
-        else if ( time_ == 0 )
-        {
-            if ( signOnZero_ < 0 )
-                stream << "-";
-            else if ( signOnZero_ > 0 )
-                stream << "+";
-        }
-
-        stream  << std::setw(2) << std::setfill('0') << minutes << '.'
-                << std::setw(2) << std::setfill('0') << seconds << '.'
-                << std::setw(2) << std::setfill('0') << centiseconds;
+    	if ( showPlusSign_ )
+		{
+			timeStr = L"+00.00.00";
+			idx = 1;
+		}
+		else
+		{
+			timeStr = L"00.00.00";
+		}
     }
-    std::string str(stream.str());
 
-    return std::wstring( str.begin(), str.end() );
+	timeStr[idx] = 48+minutes/10;
+	timeStr[idx+1] = 48+minutes%10;
+
+	timeStr[idx+3] = 48+seconds/10;
+	timeStr[idx+4] = 48+seconds%10;
+
+	timeStr[idx+6] = 48+centiseconds/10;
+	timeStr[idx+7] = 48+centiseconds%10;
+
+    return timeStr;
 }
 
 u32 GuiHelper::GetTimeFromTimeString(const std::wstring &strTime_)
@@ -227,7 +242,7 @@ u32 GuiHelper::GetTimeFromTimeString(const std::wstring &strTime_)
         return 0;
 
     u32 time = 0;
-    std::string strTime(strTime_.begin(), strTime_.end());  // working with string because of plattform portability problems
+    std::string strTime(strTime_.begin(), strTime_.end());  // working with string because of platform portability problems converting wide-strings to integers
     std::string::size_type p1 = 0;
     std::string::size_type p2 = strTime.find_first_of('.', 0);
     std::string tok( strTime.substr(p1, p2-p1) );
