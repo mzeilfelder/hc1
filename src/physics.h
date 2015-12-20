@@ -8,6 +8,8 @@
 #include <map>
 
 
+#define PHYSICS_MAX_COLLISION_TRIANGLES 4000
+
 /*
     v=velocity: m/s
     m=mass: kg
@@ -57,6 +59,35 @@ struct PhysicsTrackBorderInfo
 	irr::core::vector3df mNearestTrackCenter;
 	float mDistanceTrackCenter;
 	irr::core::vector3df mTrackDir;
+};
+
+struct PhysicsCollisionArea
+{
+	explicit PhysicsCollisionArea(const irr::core::aabbox3d<irr::f32> &box) : mBox(box), mCollisionTrianglesSize(0) {}
+	PhysicsCollisionArea() : mCollisionTrianglesSize(0) {}
+
+	irr::core::aabbox3d<irr::f32> mBox;	// Box used to find the triangles
+    int mCollisionTrianglesSize;    	// Nr of collision triangles which we have
+    irr::core::triangle3df mCollisionTriangles[PHYSICS_MAX_COLLISION_TRIANGLES];  // triangles we found
+
+    // Caching some values which need to be calculated regularly otherwise for getIntersectionOfPlaneWithLine
+    /* TODO: work in process
+    void PrepareTriangles()
+    {
+    	using namespace irr;
+    	for ( int i=0; i<mCollisionTrianglesSize; ++i)
+		{
+			const irr::core::triangle3df& t = mCollisionTriangles[i];
+			mCollisionTrianglesD[i].pointA.set(t.pointA.X, t.pointA.Y, t.pointA.Z);
+			mCollisionTrianglesD[i].pointB.set(t.pointB.X, t.pointB.Y, t.pointB.Z);
+			mCollisionTrianglesD[i].pointC.set(t.pointC.X, t.pointC.Y, t.pointC.Z);
+			mCollisionTriangleNormalsD[i] =mCollisionTrianglesD[i].getNormal().normalize();
+		}
+    }
+
+    irr::core::triangle3d<irr::f64> mCollisionTrianglesD[PHYSICS_MAX_COLLISION_TRIANGLES];
+	const vector3d<irr::f64> mCollisionTriangleNormalsD[PHYSICS_MAX_COLLISION_TRIANGLES];
+	*/
 };
 
 struct PhysicsObject
@@ -130,7 +161,7 @@ private:
     bool                	mHasTouchedWall;    // internal value, can be set/unset several times within one update
     bool                	mHasTouchedObject;  // internal value. collisions with other physics object
 
-//    irr::core::triangle3df  mNearestTriangle;   // nearest triangle from last collision
+    irr::core::triangle3df  mNearestTriangle;   // nearest triangle from last collision
     irr::core::vector3df    mRepulsionNormal;   // repulsion normal for sliding plane from last collision
 
 	float mCushioning;	  // how much did cushions affect the hover this frame
@@ -181,8 +212,6 @@ private:
     T*          mObj;
 };
 
-#define PHYSICS_MAX_COLLISION_TRIANGLES 4000
-
 class Physics
 {
 public:
@@ -228,10 +257,13 @@ public:
     void RemoveTickFunctor(int id_);
 
 protected:
+	void HandleCollision(PhysicsObject& physObj);
     bool HandleCollision(irr::core::vector3df &center_, float radius_, irr::core::triangle3df &nearestTriangle_, irr::core::vector3df &repulsionNormal_);
     void HandleCushions(PhysicsObject& obj, irr::core::vector3df& step);
     void HandleObjObjCollision();
-    void FindCollisionTriangles( const irr::core::aabbox3d<irr::f32> &box_);
+
+    // Find polygons in that area. area.box must be set
+    void FindCollisionArea(PhysicsCollisionArea& area) const;
 
 private:
     int mNextObjectId;
@@ -252,10 +284,6 @@ private:
 
     typedef std::vector<std::pair<int, IPhysicsTickFunctor*> > TickFunctorMap;
     TickFunctorMap   mTickFunctors;
-
-    irr::core::triangle3df mCollisionTriangles[PHYSICS_MAX_COLLISION_TRIANGLES];  // triangles used in collision checks
-    int mCollisionTrianglesSize;    // nr of collision triangles which are used
-
 };
 
 #endif // PHYSICS_H

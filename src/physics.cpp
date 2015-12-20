@@ -154,7 +154,6 @@ void PhysicsSettings::WriteToXml(TiXmlElement * settings_) const
 // --------------------------------------------------------
 Physics::Physics()
 {
-    mCollisionTrianglesSize = 0;
     mNextObjectId = 0;
     mDebuggingEnabled = false;
     mTimeRest = 0.f;
@@ -279,17 +278,17 @@ bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vecto
     PROFILE_START(301);
     core::aabbox3d<f32> box(line_.start);
     box.addInternalPoint(line_.end);
-
-    FindCollisionTriangles( box );
+    PhysicsCollisionArea collArea(box);
+    FindCollisionArea(collArea);
 
     double nearestDist = FLT_MAX;
 
     // find nearest collision
     bool found = false;
-    for ( int i=0; i < mCollisionTrianglesSize; i++ )
+    for ( int i=0; i < collArea.mCollisionTrianglesSize; i++ )
     {
         core::vector3df pointOnPlane;
-        if ( mCollisionTriangles[i].getIntersectionWithLimitedLine (line_, pointOnPlane) )
+        if ( collArea.mCollisionTriangles[i].getIntersectionWithLimitedLine (line_, pointOnPlane) )
         {
             double dist = searchPos_.getDistanceFromSQ(pointOnPlane);
             if ( dist < nearestDist )
@@ -301,7 +300,7 @@ bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vecto
         }
     }
 
-     if ( mDebuggingEnabled )
+    if ( mDebuggingEnabled )
     {
         video::IVideoDriver * driver = APP.GetIrrlichtManager()->GetVideoDriver();
         APP.GetIrrlichtManager()->SetDriverDrawMode();
@@ -319,17 +318,44 @@ bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vecto
     return found;
 }
 
-void Physics::FindCollisionTriangles( const core::aabbox3d<f32> &box_)
+void Physics::FindCollisionArea(PhysicsCollisionArea& area) const
 {
-    mCollisionTrianglesSize = 0;
+    area.mCollisionTrianglesSize = 0;
     for ( size_t i=0; i<mCollisionSelectors.size(); ++i )
     {
         scene::ITriangleSelector* selector = mCollisionSelectors[i];
         int trianglesReceived = 0;
 
-        selector->getTriangles( &mCollisionTriangles[mCollisionTrianglesSize], PHYSICS_MAX_COLLISION_TRIANGLES-mCollisionTrianglesSize, trianglesReceived, box_, /*transform*/ 0 );
-        mCollisionTrianglesSize += trianglesReceived;
+        selector->getTriangles( &area.mCollisionTriangles[area.mCollisionTrianglesSize], PHYSICS_MAX_COLLISION_TRIANGLES-area.mCollisionTrianglesSize, trianglesReceived, area.mBox, /*transform*/ 0 );
+        area.mCollisionTrianglesSize += trianglesReceived;
     }
+}
+
+void Physics::HandleCollision(PhysicsObject& obj)
+{
+	obj.mHasTouchedWorldGeometry = HandleCollision(obj.mCurrentStepCollCenter, obj.mRadius, obj.mNearestTriangle, obj.mRepulsionNormal);
+	if ( obj.mHasTouchedWorldGeometry )
+	{
+		obj.mHasTouchedWorldGeometryLastUpdate = true;
+		obj.mHasTouchedWall = fabs(mWallNormal.Y) < mSettings.mWallBoundary ? true : false;
+
+		if( obj.mHasTouchedWall )
+		{
+			// check if we're above a floor
+			core::line3d<f32> ray;
+			ray.start = obj.mCurrentStepCollCenter;
+			ray.end = obj.mCurrentStepCollCenter + core::vector3df(0, -1000, 0); // below
+			if ( !HasCollision( ray ) )
+			{
+				obj.mHasTouchedWall = false;
+			}
+		}
+
+		if ( obj.mHasTouchedWall )
+		{
+			obj.mHasTouchedWallLastUpdate = true;
+		}
+	}
 }
 
 bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::triangle3df &nearestTriangle_, core::vector3df &repulsionNormal_)
@@ -349,7 +375,9 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
         driver->draw3DBox (box, video::SColor(255, 255, 255, 255));
     }
 
-    FindCollisionTriangles( box );
+    PhysicsCollisionArea collArea(box);
+    FindCollisionArea( collArea );
+    //collArea.PrepareTriangles();
     PROFILE_STOP(303);
 
     bool findMoreCollisions = true;
@@ -365,28 +393,27 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
         core::triangle3df triangleNearest;
 
         // find nearest collision
-        for ( int i=0; i < mCollisionTrianglesSize; i++ )
+        for ( int i=0; i < collArea.mCollisionTrianglesSize; i++ )
         {
-            // debug
-            if ( mDebuggingEnabled )
-            {
-                driver->draw3DTriangle(mCollisionTriangles[i], video::SColor(0, 255, 0,127));
-            }
+            //if ( mDebuggingEnabled )
+            //{
+            //   driver->draw3DTriangle(mCollisionTriangles[i], video::SColor(0, 255, 0,127));
+            //}
 
             core::vector3df pointOnPlane;
-            if ( mCollisionTriangles[i].getIntersectionOfPlaneWithLine (center_, mCollisionTriangles[i].getPlane().Normal, pointOnPlane) )
+            if ( collArea.mCollisionTriangles[i].getIntersectionOfPlaneWithLine (center_, collArea.mCollisionTriangles[i].getPlane().Normal, pointOnPlane) )
             {
                 core::vector3df pointOnTriangle;
-                if ( mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
+                if ( collArea.mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
                     pointOnTriangle = pointOnPlane;
                 else
-                    pointOnTriangle = mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
+                    pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
                 double dist = center_.getDistanceFromSQ(pointOnTriangle);
                 if ( dist < nearestDist )
                 {
                     findMoreCollisions = true;
                     nearestDist = dist;
-                    triangleNearest = mCollisionTriangles[i];
+                    triangleNearest = collArea.mCollisionTriangles[i];
                     repulsion =  (center_ - pointOnTriangle);
                     nearestPoint = pointOnTriangle;
                 }
@@ -840,32 +867,8 @@ void Physics::Update(f32 timeDelta, bool enableObjObjCollision)
             obj.mCurrentStepCollCenter += step;
             core::triangle3df collTriangle;
             core::vector3df repulsion;
-            obj.mHasTouchedWorldGeometry = HandleCollision(obj.mCurrentStepCollCenter, obj.mRadius, collTriangle, repulsion);
-            if ( obj.mHasTouchedWorldGeometry )
-            {
-                obj.mHasTouchedWorldGeometryLastUpdate = true;
-                obj.mHasTouchedWall = fabs(mWallNormal.Y) < mSettings.mWallBoundary ? true : false;
+            HandleCollision(obj);
 
-                if( obj.mHasTouchedWall )
-                {
-                    // check if we're above a floor
-                    core::line3d<f32> ray;
-                    ray.start = obj.mCurrentStepCollCenter;
-                    ray.end = obj.mCurrentStepCollCenter + core::vector3df(0, -1000, 0); // below
-                    if ( !HasCollision( ray ) )
-                    {
-                        obj.mHasTouchedWall = false;
-                    }
-                }
-
-                if ( obj.mHasTouchedWall )
-                {
-                    obj.mHasTouchedWallLastUpdate = true;
-                }
-            }
-
-//            obj.mNearestTriangle = collTriangle;
-            obj.mRepulsionNormal = repulsion;
             core::vector3df realStep(obj.mCurrentStepCollCenter - obj.mLastStepCollCenter);
             if ( realStep.getLengthSQ() > obj.mRadius * obj.mRadius )
             {
