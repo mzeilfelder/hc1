@@ -63,30 +63,39 @@ struct PhysicsTrackBorderInfo
 
 struct PhysicsCollisionArea
 {
-	explicit PhysicsCollisionArea(const irr::core::aabbox3d<irr::f32> &box) : mBox(box), mCollisionTrianglesSize(0) {}
-	PhysicsCollisionArea() : mCollisionTrianglesSize(0) {}
+	PhysicsCollisionArea() : mCollisionTrianglesSize(0)
+	{}
+
+	PhysicsCollisionArea(const irr::core::line3d<float>& line) : mCollisionTrianglesSize(0)
+	{
+		mBox.reset(line.start);
+		mBox.addInternalPoint(line.end);
+	}
+
+
+	void set(const irr::core::vector3df& center, const irr::core::aabbox3d<irr::f32> &box)
+	{
+		mBox = box;
+	}
+
+	void set(const irr::core::vector3df& center, irr::f32 boxBoundingRadius)
+	{
+		mBox = irr::core::aabbox3d<irr::f32>(center.X-boxBoundingRadius, center.Y-boxBoundingRadius, center.Z-boxBoundingRadius, center.X+boxBoundingRadius, center.Y+boxBoundingRadius, center.Z+boxBoundingRadius);
+	}
 
 	irr::core::aabbox3d<irr::f32> mBox;	// Box used to find the triangles
     int mCollisionTrianglesSize;    	// Nr of collision triangles which we have
     irr::core::triangle3df mCollisionTriangles[PHYSICS_MAX_COLLISION_TRIANGLES];  // triangles we found
 
-    // Caching some values which need to be calculated regularly otherwise for getIntersectionOfPlaneWithLine
-    /* TODO: work in process
-    void PrepareTriangles()
+    /*
+    void makeTriangleNormals()
     {
-    	using namespace irr;
     	for ( int i=0; i<mCollisionTrianglesSize; ++i)
 		{
-			const irr::core::triangle3df& t = mCollisionTriangles[i];
-			mCollisionTrianglesD[i].pointA.set(t.pointA.X, t.pointA.Y, t.pointA.Z);
-			mCollisionTrianglesD[i].pointB.set(t.pointB.X, t.pointB.Y, t.pointB.Z);
-			mCollisionTrianglesD[i].pointC.set(t.pointC.X, t.pointC.Y, t.pointC.Z);
-			mCollisionTriangleNormalsD[i] =mCollisionTrianglesD[i].getNormal().normalize();
+			mCollisionTriangleNormals[i] = mCollisionTriangles[i].getNormal().normalize();
 		}
     }
-
-    irr::core::triangle3d<irr::f64> mCollisionTrianglesD[PHYSICS_MAX_COLLISION_TRIANGLES];
-	const vector3d<irr::f64> mCollisionTriangleNormalsD[PHYSICS_MAX_COLLISION_TRIANGLES];
+	const vector3d<irr::f32> mCollisionTriangleNormals[PHYSICS_MAX_COLLISION_TRIANGLES];
 	*/
 };
 
@@ -129,6 +138,9 @@ struct PhysicsObject
     const irr::core::vector3df& GetLastStepCollCenter() const       { return mLastStepCollCenter; }
     float GetCushioningLastFrame() const                            { return mCushioning; }
 
+    const PhysicsCollisionArea& GetCollisionArea() const            { return  mCollArea; }
+    PhysicsCollisionArea& GetCollisionArea()                        { return  mCollArea; }
+
     void ForcePositionUpdate(); // losing interpolation for a step. Do it when situations change extrem (like teleporting)
 
 
@@ -166,6 +178,8 @@ private:
 
 	float mCushioning;	  // how much did cushions affect the hover this frame
 	float mCushionErosion; // factor between 0 and 1 how much cushioning get's reduced when it's used too much for a while.
+
+	PhysicsCollisionArea mCollArea;	// polygons used for last collision
 };
 
 struct PhysicsSettings
@@ -258,12 +272,12 @@ public:
 
 protected:
 	void HandleCollision(PhysicsObject& physObj);
-    bool HandleCollision(irr::core::vector3df &center_, float radius_, irr::core::triangle3df &nearestTriangle_, irr::core::vector3df &repulsionNormal_);
+    bool HandleSphereCollision(const PhysicsCollisionArea& collArea, irr::core::vector3df &center_, float radius_, irr::core::triangle3df &nearestTriangle_, irr::core::vector3df &repulsionNormal_);
     void HandleCushions(PhysicsObject& obj, irr::core::vector3df& step);
     void HandleObjObjCollision();
 
     // Find polygons in that area. area.box must be set
-    void FindCollisionArea(PhysicsCollisionArea& area) const;
+    void FillCollisionArea(PhysicsCollisionArea& area) const;
 
 private:
     int mNextObjectId;

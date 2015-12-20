@@ -171,7 +171,7 @@ Physics::Physics()
     PROFILE_ADD(300, PGROUP_PHYSICS, "ph update");
     PROFILE_ADD(301, PGROUP_PHYSICS, "ph trackinters");
     PROFILE_ADD(302, PGROUP_PHYSICS, "ph coll");
-    PROFILE_ADD(303, PGROUP_PHYSICS, "ph collTri1");
+    PROFILE_ADD(303, PGROUP_PHYSICS, "ph findarea");
     PROFILE_ADD(304, PGROUP_PHYSICS, "ph collTri2");
     PROFILE_ADD(305, PGROUP_PHYSICS, "ph collTri3");
     PROFILE_ADD(306, PGROUP_PHYSICS, "ph update2");
@@ -276,10 +276,8 @@ scene::ITriangleSelector* Physics::GetTriangleSelector(size_t index_) const
 bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vector3df &searchPos_, core::vector3df & result_)
 {
     PROFILE_START(301);
-    core::aabbox3d<f32> box(line_.start);
-    box.addInternalPoint(line_.end);
-    PhysicsCollisionArea collArea(box);
-    FindCollisionArea(collArea);
+    PhysicsCollisionArea collArea(line_);
+    FillCollisionArea(collArea);
 
     double nearestDist = FLT_MAX;
 
@@ -318,8 +316,9 @@ bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vecto
     return found;
 }
 
-void Physics::FindCollisionArea(PhysicsCollisionArea& area) const
+void Physics::FillCollisionArea(PhysicsCollisionArea& area) const
 {
+    PROFILE_START(303);
     area.mCollisionTrianglesSize = 0;
     for ( size_t i=0; i<mCollisionSelectors.size(); ++i )
     {
@@ -329,11 +328,18 @@ void Physics::FindCollisionArea(PhysicsCollisionArea& area) const
         selector->getTriangles( &area.mCollisionTriangles[area.mCollisionTrianglesSize], PHYSICS_MAX_COLLISION_TRIANGLES-area.mCollisionTrianglesSize, trianglesReceived, area.mBox, /*transform*/ 0 );
         area.mCollisionTrianglesSize += trianglesReceived;
     }
+    PROFILE_STOP(303);
 }
 
 void Physics::HandleCollision(PhysicsObject& obj)
 {
-	obj.mHasTouchedWorldGeometry = HandleCollision(obj.mCurrentStepCollCenter, obj.mRadius, obj.mNearestTriangle, obj.mRepulsionNormal);
+    PhysicsCollisionArea& collArea = obj.GetCollisionArea();
+    const float BOX_SPACING = 2*obj.mRadius; // we get the collision triangles just once - therefore make it bigger than the radius
+    collArea.set(obj.mCurrentStepCollCenter, BOX_SPACING);
+    FillCollisionArea( collArea );
+
+	obj.mHasTouchedWorldGeometry = HandleSphereCollision(collArea, obj.mCurrentStepCollCenter, obj.mRadius, obj.mNearestTriangle, obj.mRepulsionNormal);
+
 	if ( obj.mHasTouchedWorldGeometry )
 	{
 		obj.mHasTouchedWorldGeometryLastUpdate = true;
@@ -358,28 +364,19 @@ void Physics::HandleCollision(PhysicsObject& obj)
 	}
 }
 
-bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::triangle3df &nearestTriangle_, core::vector3df &repulsionNormal_)
+bool Physics::HandleSphereCollision(const PhysicsCollisionArea& collArea, core::vector3df &center_, float radius_, core::triangle3df &nearestTriangle_, core::vector3df &repulsionNormal_)
 {
     PROFILE_START(302);
-    // for debug output
-    video::IVideoDriver * driver = APP.GetIrrlichtManager()->GetVideoDriver();
+
+    video::IVideoDriver * driver = NULL;	    // for debug output
+    if ( mDebuggingEnabled )
+	{
+		driver = APP.GetIrrlichtManager()->GetVideoDriver();
+		APP.GetIrrlichtManager()->SetDriverDrawMode();
+		driver->draw3DBox (collArea.mBox, video::SColor(255, 255, 255, 255));
+	}
 
     bool hasCollision = false;
-
-    PROFILE_START(303);
-    const float BOX_SPACING = 2*radius_; // we get the collision triangles just once - therefore make it bigger than the radius
-    core::aabbox3d<f32> box(center_.X-BOX_SPACING, center_.Y-BOX_SPACING, center_.Z-BOX_SPACING, center_.X+BOX_SPACING, center_.Y+BOX_SPACING, center_.Z+BOX_SPACING);
-    if ( mDebuggingEnabled )
-    {
-        APP.GetIrrlichtManager()->SetDriverDrawMode();
-        driver->draw3DBox (box, video::SColor(255, 255, 255, 255));
-    }
-
-    PhysicsCollisionArea collArea(box);
-    FindCollisionArea( collArea );
-    //collArea.PrepareTriangles();
-    PROFILE_STOP(303);
-
     bool findMoreCollisions = true;
     int triesCountdown = 20;
     while ( findMoreCollisions && triesCountdown >= 0 )
@@ -387,7 +384,7 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
         --triesCountdown;
         findMoreCollisions = false;
 
-        double nearestDist = radius_*radius_;
+        double nearestDistSq = radius_*radius_;
         core::vector3df nearestPoint;
         core::vector3df repulsion;
         core::triangle3df triangleNearest;
@@ -408,11 +405,11 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
                     pointOnTriangle = pointOnPlane;
                 else
                     pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
-                double dist = center_.getDistanceFromSQ(pointOnTriangle);
-                if ( dist < nearestDist )
+                double distSq = center_.getDistanceFromSQ(pointOnTriangle);
+                if ( distSq < nearestDistSq )
                 {
                     findMoreCollisions = true;
-                    nearestDist = dist;
+                    nearestDistSq = distSq;
                     triangleNearest = collArea.mCollisionTriangles[i];
                     repulsion =  (center_ - pointOnTriangle);
                     nearestPoint = pointOnTriangle;
@@ -434,10 +431,10 @@ bool Physics::HandleCollision(core::vector3df &center_, float radius_, core::tri
                 mWallNormal = repulsionNormal_;
             }
 //          core::plane3df collisionPlane(nearestPoint, lineToTriangle);
-            repulsion.setLength(0.001f+radius_-sqrt(nearestDist));
+            repulsion.setLength(0.001f+radius_-sqrt(nearestDistSq));
 
             center_ += repulsion;
-//          printf("radius: %.2f nearestDist:%.2f sqrt(nearestDist):%.2f\n", radius_, nearestDist, sqrt(nearestDist));
+//          printf("radius: %.2f nearestDistSq:%.2f sqrt(nearestDistSq):%.2f\n", radius_, nearestDistSq, sqrt(nearestDistSq));
 
             // debug
             if ( mDebuggingEnabled )
@@ -575,7 +572,13 @@ bool Physics::CalcSphereAboveTrack(const core::vector3df &pos_, core::vector3df 
         repulsion_ = core::vector3df(0, 1, 0);
         core::triangle3df tri;
         target_.Y += radius_;
-        HandleCollision(target_, radius_, tri, repulsion_);
+
+		const float BOX_SPACING = 2.f*radius_;	// sphere might move through collision somewhat
+		PhysicsCollisionArea collArea;
+		collArea.set(target_, BOX_SPACING);
+		FillCollisionArea( collArea );
+
+        HandleSphereCollision(collArea, target_, radius_, tri, repulsion_);
     }
 
     return hasTarget;
