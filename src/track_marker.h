@@ -14,7 +14,7 @@ struct TrackStartSettings
     void WriteToXml(TiXmlElement * settings_) const;
     void Reset()    { mIsValid = false; }
 
-    bool            mIsValid;
+    bool mIsValid;
     irr::core::vector3df mCenter;
     irr::core::vector3df mRotation;
 };
@@ -27,20 +27,20 @@ struct TrackMarkerSettings
     void Reset();
     void EnableWalls();
 
-    bool            mIsValid;
+    bool  mIsValid;
     irr::core::vector3df mCenter;
-    irr::core::vector3df mUpVector;
+    irr::core::vector3df mUpVector;	// Bad name, it's usually the normal to the track (nearest point on collision triangle to sphere-center used for collision)
     irr::core::vector3df mRotation;
-    bool            mRelocate;  // hover can teleport to this track when he drops off
-    bool            mUseDefaultSizes;
-    float           mLeft;
-    float           mRight;
-    float           mTop;
-    float           mBottom;
+    bool  mRelocate;  // hover can teleport to this track when he drops off
+    bool  mUseDefaultSizes;
+    float mLeft;
+    float mRight;
+    float mTop;
+    float mBottom;
 
-    bool            mHasLeftWall;
-    bool            mHasRightWall;
-    bool            mHasBottomWall;
+    bool mHasLeftWall;
+    bool mHasRightWall;
+    bool mHasBottomWall;
 };
 
 struct TrackStart
