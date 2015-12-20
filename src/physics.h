@@ -141,7 +141,7 @@ struct PhysicsObject
     const PhysicsCollisionArea& GetCollisionArea() const            { return  mCollArea; }
     PhysicsCollisionArea& GetCollisionArea()                        { return  mCollArea; }
 
-    void ForcePositionUpdate(); // losing interpolation for a step. Do it when situations change extrem (like teleporting)
+    void ForcePositionUpdate(); // losing interpolation for a step. Do it when situations change extreme (like teleporting)
 
 
     PhysicsObjectSettings    mSettings;
@@ -157,8 +157,8 @@ private:
 	bool					mIsHumanPlayer;	// damn humans get all the special treatments
     CollisionTypes      	mCollType;
 
-    irr::core::vector3df    mCurrentStepCollCenter;     // actuall result from current physik step
-    irr::core::vector3df    mLastStepCollCenter;        // result from former physik step (needed for interpolation)
+    irr::core::vector3df    mCurrentStepCollCenter;     // actual result from current physics step
+    irr::core::vector3df    mLastStepCollCenter;        // result from former physics step (needed for interpolation)
     irr::core::vector3df    mModelCollCenter;           // the value we get from the model at the start of update
     irr::core::vector3df    mInterpolatedCollCenter;    // the interpolation value we found in last update
 
