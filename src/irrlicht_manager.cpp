@@ -1215,7 +1215,10 @@ void IrrlichtManager::SetDriverDrawMode()
 {
     video::SMaterial material;
     material.Lighting = false;
-    mVideoDriver->setTransform(video::ETS_WORLD, core::matrix4());
+    material.BackfaceCulling = false;
+    material.ZBuffer = video::ECFN_ALWAYS;	// TODO: drawing some lines like that messes up polygon drawing for unknown reasons
+    material.Thickness = 2.f;
+    mVideoDriver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
     mVideoDriver->setMaterial(material);
 }
 

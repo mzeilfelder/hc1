@@ -273,23 +273,55 @@ scene::ITriangleSelector* Physics::GetTriangleSelector(size_t index_) const
 	return mCollisionSelectors[index_];
 }
 
+bool Physics::GetTrackIntersection(const PhysicsObject& physObj, irr::core::vector3df & result_)
+{
+	core::line3df lineToFloor;
+	lineToFloor.start = physObj.mSceneNode->getPosition();
+	lineToFloor.end = lineToFloor.start;
+	lineToFloor.end.Y -= 200.f;
+
+	// physObj.GetCollisionArea() is not 100% up-to-date as the physics center is not at the model-center. But it takes 2*radius, so triangles should usually be there).
+	const PhysicsCollisionArea& collArea =  physObj.GetCollisionArea();
+	if ( collArea.mCollisionTrianglesSize == 0 )
+	{
+		// usually at start - because physics has not run yet. But also when jumping (in which case we will again not find triangles).
+		return GetTrackIntersection(lineToFloor, lineToFloor.start, result_);
+	}
+
+	// Find position that is mostly visible (nodes have pivot not in middle but at the front)
+	core::vector3df dir(0,0,physObj.mRadius*0.5f);	// *0 would be front and *2 would be back, so 0.5 is half to the front
+    const core::matrix4 & transform = physObj.mSceneNode->getAbsoluteTransformation();
+    transform.rotateVect(dir);
+	lineToFloor.start -= dir;
+	lineToFloor.end -= dir;
+
+	return GetTrackIntersection(collArea, lineToFloor, lineToFloor.start, result_);
+}
+
 bool Physics::GetTrackIntersection(core::line3d<float> &line_, const core::vector3df &searchPos_, core::vector3df & result_)
 {
-    PROFILE_START(301);
     PhysicsCollisionArea collArea(line_);
     FillCollisionArea(collArea);
 
+    return GetTrackIntersection(collArea, line_, searchPos_, result_);
+}
+
+bool Physics::GetTrackIntersection(const PhysicsCollisionArea& collArea, core::line3d<float> &line_, const core::vector3df &searchPos_, core::vector3df & result_)
+{
+    PROFILE_START(301);
     double nearestDist = FLT_MAX;
+    const irr::core::vector3df lineDir(line_.getVector());
 
     // find nearest collision
     bool found = false;
     for ( int i=0; i < collArea.mCollisionTrianglesSize; i++ )
     {
+    	const core::triangle3df& tri = collArea.mCollisionTriangles[i];
         core::vector3df pointOnPlane;
-        if ( collArea.mCollisionTriangles[i].getIntersectionWithLimitedLine (line_, pointOnPlane) )
+        if ( tri.getIntersectionOfPlaneWithLine(line_.start, lineDir, pointOnPlane) )
         {
             double dist = searchPos_.getDistanceFromSQ(pointOnPlane);
-            if ( dist < nearestDist )
+            if ( dist < nearestDist && tri.isPointInside(pointOnPlane))
             {
                 nearestDist = dist;
                 result_ = pointOnPlane;

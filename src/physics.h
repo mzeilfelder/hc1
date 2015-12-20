@@ -72,15 +72,23 @@ struct PhysicsCollisionArea
 		mBox.addInternalPoint(line.end);
 	}
 
+	void set(const irr::core::line3d<float>& line)
+	{
+		mBox.reset(line.start);
+		mBox.addInternalPoint(line.end);
+		mCollisionTrianglesSize = 0;
+	}
 
 	void set(const irr::core::vector3df& center, const irr::core::aabbox3d<irr::f32> &box)
 	{
 		mBox = box;
+		mCollisionTrianglesSize = 0;
 	}
 
 	void set(const irr::core::vector3df& center, irr::f32 boxBoundingRadius)
 	{
 		mBox = irr::core::aabbox3d<irr::f32>(center.X-boxBoundingRadius, center.Y-boxBoundingRadius, center.Z-boxBoundingRadius, center.X+boxBoundingRadius, center.Y+boxBoundingRadius, center.Z+boxBoundingRadius);
+		mCollisionTrianglesSize = 0;
 	}
 
 	irr::core::aabbox3d<irr::f32> mBox;	// Box used to find the triangles
@@ -136,10 +144,10 @@ struct PhysicsObject
     irr::core::vector3df GetCollisionCenterToModelPos() const       { return mSceneNode->getTransformedBoundingBox().getCenter() - mSceneNode->getPosition(); }
     const irr::core::vector3df& GetCurrentStepCollCenter() const    { return mCurrentStepCollCenter; }
     const irr::core::vector3df& GetLastStepCollCenter() const       { return mLastStepCollCenter; }
-    float GetCushioningLastFrame() const                            { return mCushioning; }
+    inline float GetCushioningLastFrame() const                     { return mCushioning; }
 
-    const PhysicsCollisionArea& GetCollisionArea() const            { return  mCollArea; }
-    PhysicsCollisionArea& GetCollisionArea()                        { return  mCollArea; }
+    inline const PhysicsCollisionArea& GetCollisionArea() const     { return  mCollArea; }
+    inline PhysicsCollisionArea& GetCollisionArea()                 { return  mCollArea; }
 
     void ForcePositionUpdate(); // losing interpolation for a step. Do it when situations change extreme (like teleporting)
 
@@ -257,7 +265,9 @@ public:
     size_t GetNumTriangleSelectors() const  { return mCollisionSelectors.size(); }
     irr::scene::ITriangleSelector* GetTriangleSelector(size_t index_) const;
 
+    bool GetTrackIntersection(const PhysicsObject& physObj, irr::core::vector3df & result_);
     bool GetTrackIntersection(irr::core::line3d<float> &line_, const irr::core::vector3df &searchPos_, irr::core::vector3df & result_);
+    bool GetTrackIntersection(const PhysicsCollisionArea& collArea, irr::core::line3d<float> &line_, const irr::core::vector3df &searchPos_, irr::core::vector3df & result_);
     bool FindBorder(const irr::core::vector3df& start_, const irr::core::vector3df& dir_, irr::core::vector3df&  target_, float radius_);
     bool CalcSphereAboveTrack(const irr::core::vector3df &pos_, irr::core::vector3df &target_, irr::core::vector3df & repulsion_, float radius_);
     bool HasCollision( const irr::core::line3d<irr::f32>& ray_);

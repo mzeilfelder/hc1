@@ -203,6 +203,7 @@ bool Player::Init()
     if ( mMeshBlobShadow )
     {
         mMeshBlobShadow->setVisible(false);
+        //mMeshBlobShadow->setMaterialType(irr::video::EMT_SOLID);	// Test for debugging to make it more visible
     }
 
     return true;
@@ -1037,18 +1038,9 @@ void Player::UpdateShadow()
             return;
         }
 
-        core::line3df lineToFloor;
-        lineToFloor.start = mMeshHover->getPosition();
-        lineToFloor.end = lineToFloor.start;
-        lineToFloor.end.Y -= 1000.f;
         core::vector3df floorPos;
-
-            // debug draw
-//            video::IVideoDriver * driver = APP.GetIrrlichtManager()->GetVideoDriver();
-//            APP.GetIrrlichtManager()->SetDriverDrawMode();
-//            driver->draw3DLine (lineToFloor.start, lineToFloor.end, video::SColor(255, 255, 255, 255));
-
-        if ( APP.GetPhysics()->GetTrackIntersection(lineToFloor, lineToFloor.start, floorPos) )
+        PhysicsObject* hoverPhysics = APP.GetPhysics()->GetPhysicsObject(mPhysicsId);
+        if ( hoverPhysics && APP.GetPhysics()->GetTrackIntersection(*hoverPhysics, floorPos) )
         {
             if ( !mMeshBlobShadow->isVisible() )
                 mMeshBlobShadow->setVisible(true);
