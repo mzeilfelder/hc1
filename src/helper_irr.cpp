@@ -427,4 +427,12 @@ irr::scene::IMesh* CreateSubMeshForNormal(irr::scene::IMesh *mesh, const irr::co
 	return clone;
 }
 
+void getNearestPointOnTrianglePlane(const irr::core::triangle3df& triangle, const irr::core::vector3df& linePoint, irr::core::vector3df& outIntersection)
+{
+	const irr::core::vector3df normal = triangle.getNormal().normalize();
+	irr::f32 d = triangle.pointA.dotProduct(normal);
+	irr::f32 t = -(normal.dotProduct(linePoint) - d);
+	outIntersection = linePoint + (normal * t);
+}
+
 }; // namespace ExtIrr

@@ -410,7 +410,7 @@ bool Physics::HandleSphereCollision(const PhysicsCollisionArea& collArea, core::
 
     bool hasCollision = false;
     bool findMoreCollisions = true;
-    int triesCountdown = 20;
+    int triesCountdown = 20;	// getting out of one collision can mean getting into another collision
     while ( findMoreCollisions && triesCountdown >= 0 )
     {
         --triesCountdown;
@@ -430,23 +430,22 @@ bool Physics::HandleSphereCollision(const PhysicsCollisionArea& collArea, core::
             //}
 
             core::vector3df pointOnPlane;
-            if ( collArea.mCollisionTriangles[i].getIntersectionOfPlaneWithLine (center_, collArea.mCollisionTriangles[i].getPlane().Normal, pointOnPlane) )
-            {
-                core::vector3df pointOnTriangle;
-                if ( collArea.mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
-                    pointOnTriangle = pointOnPlane;
-                else
-                    pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
-                double distSq = center_.getDistanceFromSQ(pointOnTriangle);
-                if ( distSq < nearestDistSq )
-                {
-                    findMoreCollisions = true;
-                    nearestDistSq = distSq;
-                    triangleNearest = collArea.mCollisionTriangles[i];
-                    repulsion =  (center_ - pointOnTriangle);
-                    nearestPoint = pointOnTriangle;
-                }
-            }
+            ExtIrr::getNearestPointOnTrianglePlane(collArea.mCollisionTriangles[i], center_, pointOnPlane);
+
+			core::vector3df pointOnTriangle;
+			if ( collArea.mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
+				pointOnTriangle = pointOnPlane;
+			else
+				pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
+			double distSq = center_.getDistanceFromSQ(pointOnTriangle);
+			if ( distSq < nearestDistSq )	// nearest collision inside the sphere radius
+			{
+				findMoreCollisions = true;
+				nearestDistSq = distSq;
+				triangleNearest = collArea.mCollisionTriangles[i];
+				repulsion =  (center_ - pointOnTriangle);
+				nearestPoint = pointOnTriangle;
+			}
         }
         if ( findMoreCollisions )
         {

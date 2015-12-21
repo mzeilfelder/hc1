@@ -47,6 +47,9 @@ extern irr::scene::IMesh* CreateMeshWelded(irr::scene::IMesh *mesh);
 // For checking the dot-product is used - anything below minDot is removed.
 // So minDot > 1 keeps all faces and < -1 removes all faces. 0 Would will keep faces with a normal up to a 90° angle compared to targetNormal.
 extern irr::scene::IMesh* CreateSubMeshForNormal(irr::scene::IMesh *mesh, const irr::core::vector3df& targetNormal, float minDot=0.f);
+
+// Find the nearest point on the triangle plane to linePoint
+extern void getNearestPointOnTrianglePlane(const irr::core::triangle3df& triangle, const irr::core::vector3df& linePoint, irr::core::vector3df& outIntersection);
 };
 
 #endif
