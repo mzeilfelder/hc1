@@ -22,6 +22,17 @@ class MeshTextureLoader;
 // Does also handle cameras
 class IrrlichtManager
 {
+	enum ECameraType
+	{
+		ECT_MAYA,
+		ECT_FPS,
+		ECT_GAME,
+		ECT_EDITOR,
+		ECT_GUI,
+
+		ECT_COUNT
+	};
+
 public:
     IrrlichtManager();
     ~IrrlichtManager();
@@ -47,9 +58,9 @@ public:
     irr::scene::ISceneNode* LoadModel(const Config& config, const irr::c8* fileModel_, irr::scene::ITriangleSelector** createSelector);
 
     irr::scene::ICameraSceneNode* GetActiveCamera() const;
-    irr::scene::ICameraSceneNode* GetGameCamera() const   { return mCameraGame; }
-    irr::scene::ICameraSceneNode* GetEditorCamera() const { return mCameraEditor; }
-    irr::scene::ICameraSceneNode* GetGuiCamera() const    { return mCameraGui; }
+    irr::scene::ICameraSceneNode* GetGameCamera() const   { return mCameras[ECT_GAME]; }
+    irr::scene::ICameraSceneNode* GetEditorCamera() const { return mCameras[ECT_EDITOR]; }
+    irr::scene::ICameraSceneNode* GetGuiCamera() const    { return mCameras[ECT_GUI]; }
     void SetCameraMaya();
     void SetCameraFPS();
     void SetCameraGame(bool hideCursor);
@@ -101,6 +112,9 @@ public:
 
 protected:
 
+	// Set this camera-type visible and all others invisible (tiny speed optimization)
+	void SetVisibleCamera(ECameraType camTypeVisible);
+
     irr::u32 getMeshVertexCount(const irr::scene::IMesh* mesh) const;
 
     void InitVideoModes(const Config& config, irr::IrrlichtDevice* device);
@@ -117,17 +131,14 @@ protected:
 	void SetSpecularMaterial(irr::scene::IAnimatedMesh* animatedMesh, int red_, int green_, int blue_, int ignore_=-1);
 
 private:
-    irr::IrrlichtDevice*             	mIrrlichtDevice;
-    irr::video::IVideoDriver*        	mVideoDriver;
-    irr::scene::ISceneManager*       	mSceneManager;
-    irr::IEventReceiver*             	mEventReceiver;
-    irr::scene::ICameraSceneNode*    	mCameraMaya;
-    irr::scene::ICameraSceneNode*    	mCameraFPS;
-    irr::scene::ICameraSceneNode*    	mCameraGame;
-    irr::scene::ICameraSceneNode*    	mCameraEditor;
-    irr::scene::ICameraSceneNode*    	mCameraGui;
-    irr::video::SMaterial            	mDefaultEditorMaterial;
-    std::vector<VideoMode>      		mVideoModes;
+
+    irr::IrrlichtDevice*          mIrrlichtDevice;
+    irr::video::IVideoDriver*     mVideoDriver;
+    irr::scene::ISceneManager*    mSceneManager;
+    irr::IEventReceiver*          mEventReceiver;
+    irr::scene::ICameraSceneNode* mCameras[ECT_COUNT];	// weak pointers
+    irr::video::SMaterial mDefaultEditorMaterial;
+    std::vector<VideoMode> mVideoModes;
 
 	typedef std::map<irr::s32, irr::s32>::iterator ES2ShaderMaterialIter;
     std::map<irr::s32, irr::s32> mES2ShaderMaterials;	// key is orig material id, value is shader material id

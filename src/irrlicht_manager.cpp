@@ -31,14 +31,11 @@ IrrlichtManager::IrrlichtManager()
     , mVideoDriver(NULL)
     , mSceneManager(NULL)
     , mEventReceiver(NULL)
-    , mCameraMaya(NULL)
-    , mCameraFPS(NULL)
-    , mCameraGame(NULL)
-    , mCameraEditor(NULL)
-    , mCameraGui(NULL)
     , mStaticMeshTextureLoader(NULL)
     , mDynamicMeshTextureLoader(NULL)
 {
+	for ( int i=0; i < ECT_COUNT; ++i )
+		mCameras[i] = NULL;
     mDefaultEditorMaterial.DiffuseColor = video::SColor(130, 200, 200, 200);
     mDefaultEditorMaterial.AmbientColor = video::SColor(255, 255, 255, 255);
     mDefaultEditorMaterial.MaterialType = video::EMT_SOLID;
@@ -316,20 +313,20 @@ bool IrrlichtManager::Init(const Config& config)
 	irr::scene::CLMOMeshFileLoader* lmoMeshFileLoader = new scene::CLMOMeshFileLoader(mSceneManager, mIrrlichtDevice->getFileSystem(), mIrrlichtDevice->getTimer());
 	mSceneManager->addExternalMeshLoader(lmoMeshFileLoader);
 
-    mCameraMaya = mSceneManager->addCameraSceneNodeMaya();
-    mCameraMaya->setNearValue( config.GetNearClipping() );
-    mCameraMaya->setFarValue( config.GetFarClipping() );
-    mCameraFPS = mSceneManager->addCameraSceneNodeFPS(0,100.0f,1200.0f);
-    mCameraFPS->setNearValue( config.GetNearClipping() );
-    mCameraFPS->setFarValue( config.GetFarClipping() );
-    mCameraGame = mSceneManager->addCameraSceneNode();
-    mCameraGame->setNearValue( config.GetNearClipping() );
-    mCameraGame->setFarValue( config.GetFarClipping() );
-    mCameraEditor = mSceneManager->addCameraSceneNode();
-    mCameraEditor->setNearValue( config.GetNearClipping() );
-    mCameraEditor->setFarValue( config.GetFarClipping() );
-    mCameraGui = mSceneManager->addCameraSceneNode();
-    mCameraGui->setFarValue( config.GetFarClipping() );
+    mCameras[ECT_MAYA] = mSceneManager->addCameraSceneNodeMaya();
+    mCameras[ECT_MAYA]->setNearValue( config.GetNearClipping() );
+    mCameras[ECT_MAYA]->setFarValue( config.GetFarClipping() );
+    mCameras[ECT_FPS] = mSceneManager->addCameraSceneNodeFPS(0,100.0f,1200.0f);
+    mCameras[ECT_FPS]->setNearValue( config.GetNearClipping() );
+    mCameras[ECT_FPS]->setFarValue( config.GetFarClipping() );
+    mCameras[ECT_GAME] = mSceneManager->addCameraSceneNode();
+    mCameras[ECT_GAME]->setNearValue( config.GetNearClipping() );
+    mCameras[ECT_GAME]->setFarValue( config.GetFarClipping() );
+    mCameras[ECT_EDITOR] = mSceneManager->addCameraSceneNode();
+    mCameras[ECT_EDITOR]->setNearValue( config.GetNearClipping() );
+    mCameras[ECT_EDITOR]->setFarValue( config.GetFarClipping() );
+    mCameras[ECT_GUI] = mSceneManager->addCameraSceneNode();
+    mCameras[ECT_GUI]->setFarValue( config.GetFarClipping() );
 
 #ifdef __ANDROID__
 	// The Android assets file-system does not know which sub-directories it has (blame google).
@@ -843,20 +840,31 @@ void IrrlichtManager::ForceIrrlichtUpdate()
     LOG.Debug("ForceIrrlichtUpdate done\n");
 }
 
+void IrrlichtManager::SetVisibleCamera(ECameraType camTypeVisible)
+{
+	// Having only the active camera visible avoids that Irrlicht tries to render the other ones.
+	// It notices it doesn't need non-active cameras at some point, but this is slightly faster,
+	for ( int i=0; i<ECT_COUNT; ++i )
+	{
+		mCameras[i]->setVisible(i == camTypeVisible);
+	}
+}
+
 void IrrlichtManager::SetCameraMaya()
 {
-    if ( GetActiveCamera() == mCameraFPS
-        || GetActiveCamera() == mCameraGame )
+    if ( GetActiveCamera() == mCameras[ECT_FPS]
+        || GetActiveCamera() == mCameras[ECT_GAME] )
     {
         core::vector3df oldPos(GetActiveCamera()->getPosition());
         core::vector3df oldRot(GetActiveCamera()->getRotation());
 
-        mCameraMaya->setPosition(oldPos);
-        mCameraMaya->setRotation(oldRot);
+        mCameras[ECT_MAYA]->setPosition(oldPos);
+        mCameras[ECT_MAYA]->setRotation(oldRot);
     }
     if ( mSceneManager)
     {
-        mSceneManager->setActiveCamera(mCameraMaya);
+    	SetVisibleCamera(ECT_MAYA);
+        mSceneManager->setActiveCamera(mCameras[ECT_MAYA]);
     }
 
     if ( mIrrlichtDevice )
@@ -868,17 +876,18 @@ void IrrlichtManager::SetCameraMaya()
 
 void IrrlichtManager::SetCameraFPS()
 {
-    if ( GetActiveCamera() == mCameraMaya )
+    if ( GetActiveCamera() == mCameras[ECT_MAYA] )
     {
         core::vector3df oldPos(GetActiveCamera()->getPosition());
         core::vector3df oldRot(GetActiveCamera()->getRotation());
 
-        mCameraFPS->setPosition(oldPos);
-        mCameraFPS->setRotation(oldRot);
+        mCameras[ECT_FPS]->setPosition(oldPos);
+        mCameras[ECT_FPS]->setRotation(oldRot);
     }
     if ( mSceneManager)
     {
-        mSceneManager->setActiveCamera(mCameraFPS);
+    	SetVisibleCamera(ECT_FPS);
+        mSceneManager->setActiveCamera(mCameras[ECT_FPS]);
     }
 
     if ( mIrrlichtDevice )
@@ -892,7 +901,8 @@ void IrrlichtManager::SetCameraGame(bool hideCursor)
 {
     if ( mSceneManager)
     {
-        mSceneManager->setActiveCamera(mCameraGame);
+    	SetVisibleCamera(ECT_GAME);
+        mSceneManager->setActiveCamera(mCameras[ECT_GAME]);
     }
 
     if ( mIrrlichtDevice && hideCursor)
@@ -907,14 +917,15 @@ void IrrlichtManager::SetCameraGui()
 {
     if ( GetActiveCamera() )
     {
-        mCameraGui->setPosition( GetActiveCamera()->getPosition() );
-        mCameraGui->setUpVector( GetActiveCamera()->getUpVector() );
-        mCameraGui->setTarget( GetActiveCamera()->getTarget() );
+        mCameras[ECT_GUI]->setPosition( GetActiveCamera()->getPosition() );
+        mCameras[ECT_GUI]->setUpVector( GetActiveCamera()->getUpVector() );
+        mCameras[ECT_GUI]->setTarget( GetActiveCamera()->getTarget() );
     }
 
     if ( mSceneManager)
     {
-        mSceneManager->setActiveCamera(mCameraGui);
+    	SetVisibleCamera(ECT_GUI);
+        mSceneManager->setActiveCamera(mCameras[ECT_GUI]);
     }
 
     if ( mIrrlichtDevice )
@@ -931,7 +942,8 @@ void IrrlichtManager::SetCameraEditor()
 {
     if ( mSceneManager)
     {
-        mSceneManager->setActiveCamera(mCameraEditor);
+    	SetVisibleCamera(ECT_EDITOR);
+        mSceneManager->setActiveCamera(mCameras[ECT_EDITOR]);
     }
 
     if ( mIrrlichtDevice )
