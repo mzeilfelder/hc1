@@ -429,10 +429,19 @@ irr::scene::IMesh* CreateSubMeshForNormal(irr::scene::IMesh *mesh, const irr::co
 
 void getNearestPointOnTrianglePlane(const irr::core::triangle3df& triangle, const irr::core::vector3df& linePoint, irr::core::vector3df& outIntersection)
 {
-	const irr::core::vector3df normal = triangle.getNormal().normalize();
-	irr::f32 d = triangle.pointA.dotProduct(normal);
-	irr::f32 t = -(normal.dotProduct(linePoint) - d);
-	outIntersection = linePoint + (normal * t);
+	// use doubles because we need that precision here
+	const core::vector3d<f64> linePointf64(linePoint.X, linePoint.Y, linePoint.Z);
+	core::triangle3d<irr::f64> trianglef64(core::vector3d<f64>(triangle.pointA.X, triangle.pointA.Y, triangle.pointA.Z)
+	                                     , core::vector3d<f64>(triangle.pointB.X, triangle.pointB.Y, triangle.pointB.Z)
+	                                     , core::vector3d<f64>(triangle.pointC.X, triangle.pointC.Y, triangle.pointC.Z));
+
+	core::vector3d<f64> normal(trianglef64.getNormal().normalize());
+	const f64 d = trianglef64.pointA.dotProduct(normal);
+	const f64 t = -(normal.dotProduct(linePointf64) - d);
+	normal *= t;
+	outIntersection.X = (f32)(linePoint.X + normal.X);
+	outIntersection.Y = (f32)(linePoint.Y + normal.Y);
+	outIntersection.Z = (f32)(linePoint.Z + normal.Z);
 }
 
 }; // namespace ExtIrr

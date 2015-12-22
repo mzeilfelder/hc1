@@ -430,21 +430,22 @@ bool Physics::HandleSphereCollision(const PhysicsCollisionArea& collArea, core::
             //}
 
             core::vector3df pointOnPlane;
-            ExtIrr::getNearestPointOnTrianglePlane(collArea.mCollisionTriangles[i], center_, pointOnPlane);
-
-			core::vector3df pointOnTriangle;
-			if ( collArea.mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
-				pointOnTriangle = pointOnPlane;
-			else
-				pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
-			double distSq = center_.getDistanceFromSQ(pointOnTriangle);
-			if ( distSq < nearestDistSq )	// nearest collision inside the sphere radius
+            if ( collArea.mCollisionTriangles[i].getIntersectionOfPlaneWithLine (center_, collArea.mCollisionTriangles[i].getPlane().Normal, pointOnPlane) )
 			{
-				findMoreCollisions = true;
-				nearestDistSq = distSq;
-				triangleNearest = collArea.mCollisionTriangles[i];
-				repulsion =  (center_ - pointOnTriangle);
-				nearestPoint = pointOnTriangle;
+				core::vector3df pointOnTriangle;
+				if ( collArea.mCollisionTriangles[i].isPointInsideFast(pointOnPlane) )
+					pointOnTriangle = pointOnPlane;
+				else
+					pointOnTriangle = collArea.mCollisionTriangles[i].closestPointOnTriangle(pointOnPlane);
+				double distSq = center_.getDistanceFromSQ(pointOnTriangle);
+				if ( distSq < nearestDistSq )	// nearest collision inside the sphere radius
+				{
+					findMoreCollisions = true;
+					nearestDistSq = distSq;
+					triangleNearest = collArea.mCollisionTriangles[i];
+					repulsion =  (center_ - pointOnTriangle);
+					nearestPoint = pointOnTriangle;
+				}
 			}
         }
         if ( findMoreCollisions )
