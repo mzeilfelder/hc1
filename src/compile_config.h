@@ -14,7 +14,7 @@
 // 			My Irrlicht is maybe modified - but helps having that info around.
 // IRR_REV: An internal counter for when Irrlicht is updated in the project in a way where code using it will no longer be backward compatible.
 #ifdef __ANDROID__
-	#define IRR_SVN 5063
+	#define IRR_SVN 5220
 	#define IRR_REV 4
 	#define HC1_ENABLE_SOUND
 	#define HC1_OGLES
