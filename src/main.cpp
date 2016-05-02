@@ -1,6 +1,6 @@
 // Written by Michael Zeilfelder, please check licenseHCraft.txt for the zlib-style license text.
 
-#if defined(DEBUG) && defined(__GNUC__)
+#if defined(DEBUG) && defined(__GNUC__) && !defined(__GNUWIN32__)
 // for floating point exception trapping
 #define _GNU_SOURCE 1
 #include <fenv.h>
@@ -942,7 +942,7 @@ void App::Quit()
 #ifndef __ANDROID__
 int main(int argc, char *argv[])
 {
-#if defined(DEBUG) && defined(__GNUC__)
+#if defined(DEBUG) && defined(__GNUC__) && !defined(__GNUWIN32__)
 	// floating point exception trapping
 	feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);	// TODO: |FE_UNDERFLOW crashes sound currently. Even when sound is disabled which is interesting in itself.
 #endif
