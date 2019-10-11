@@ -11,8 +11,8 @@ bool AppRestrictions::DoDisplayAds()
 {
 	PollBillingServer();
 
-    if ( ! APP.GetConfig() )
-        return false;
+	if ( ! APP.GetConfig() )
+		return false;
 
 	TiXmlElement * billingElement = APP.GetConfig()->GetBillingSettings();
 	if (!billingElement)
