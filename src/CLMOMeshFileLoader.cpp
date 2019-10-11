@@ -984,8 +984,8 @@ const c8* CLMOMeshFileLoader::goNextWord(const c8* buf, const c8* pBufEnd)
 
 const c8* CLMOMeshFileLoader::goNextLine(const c8* buf, const c8* pBufEnd)
 {
-    if ( !buf )
-        return 0;
+	if ( !buf )
+		return 0;
 	// Have to use pointer to pointer in parameter or else string address won't be changed
 	s32 i=0;
 	// look for newline characters
@@ -1021,8 +1021,8 @@ const c8* CLMOMeshFileLoader::goNextLine(const c8* buf, const c8* pBufEnd)
 
 void CLMOMeshFileLoader::copyWord(c8* outBuf, const c8* inBuf, s32 outBufLength, const c8* pBufEnd)
 {
-    if ( !outBuf )
-        return;
+	if ( !outBuf )
+		return;
 	if (!inBuf )
 	{
 	    *outBuf = 0;
@@ -1052,8 +1052,8 @@ void CLMOMeshFileLoader::copyWord(c8* outBuf, const c8* inBuf, s32 outBufLength,
 
 void CLMOMeshFileLoader::copyLine(c8* outBuf, const c8* inBuf, s32 outBufLength, const c8* pBufEnd)
 {
-    if ( !outBuf )
-        return;
+	if ( !outBuf )
+		return;
 	if (!inBuf )
 	{
 	    *outBuf = 0;

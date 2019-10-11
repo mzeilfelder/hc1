@@ -190,10 +190,10 @@ Gui::~Gui()
 
 void Gui::Init(gui::IGUIEnvironment * environment_, video::IVideoDriver* videoDriver_, irr::io::IFileSystem* fileSystem_, FontManager* fontManager)
 {
-    mEnvironment = environment_;
-    mVideoDriver = videoDriver_;
-    if ( !mEnvironment || !mVideoDriver )
-        return;
+	mEnvironment = environment_;
+	mVideoDriver = videoDriver_;
+	if ( !mEnvironment || !mVideoDriver )
+		return;
 
 	// set a nicer font (TODO: add some bitmap-font to the media-folder for that)
 	IGUISkin* skin = mEnvironment->getSkin();
@@ -981,8 +981,8 @@ void Gui::PlayOverrideClickSound(GUI_SOUNDS sound_)
 void Gui::PlayGuiSound( GUI_SOUNDS sound_)
 {
 #ifdef HC1_ENABLE_SOUND
-    if ( ! APP.GetSound() )
-        return;
+	if ( ! APP.GetSound() )
+		return;
 	if ( APP.GetMode() != MODE_GUI )
 		return;
 

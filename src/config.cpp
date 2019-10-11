@@ -466,8 +466,8 @@ void Config::WriteToString(std::string &str_)
 
 bool Config::UpdateCache()
 {
-    if ( !mXmlDocument )
-        return false;
+	if ( !mXmlDocument )
+		return false;
 
 	TiXmlNode * configNode = mXmlDocument->FirstChild("config");
 	if (!configNode)
@@ -652,8 +652,8 @@ TiXmlElement * Config::GetPhysicsSettings() const
 
 TiXmlElement * Config::GetPhysicsObjectSettings(const char * objName_) const
 {
-    if ( !objName_ || !strlen(objName_) )
-        return NULL;
+	if ( !objName_ || !strlen(objName_) )
+		return NULL;
 
 	TiXmlElement * physicsNode = GetConfigGroup("physic");	// sorry, for "physic" instead of "physics", but won't change as config's are already out there.
 	if (!physicsNode)

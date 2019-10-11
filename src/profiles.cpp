@@ -421,16 +421,16 @@ void ProfileManager::CheckUnlockLevels()
 
 void ProfileManager::AddProfile(std::wstring name_)
 {
-    PlayerProfile * profile = new PlayerProfile;
+	PlayerProfile * profile = new PlayerProfile;
 
-    profile->mName = name_;
-    profile->mChampionship.Reset();
+	profile->mName = name_;
+	profile->mChampionship.Reset();
 
-    if ( APP.GetController() )
-        profile->mControllerSettings = APP.GetController()->GetUserSettings();
+	if ( APP.GetController() )
+		profile->mControllerSettings = APP.GetController()->GetUserSettings();
 
-    if ( APP.GetInputDeviceManager() && APP.GetInputDeviceManager()->GetJoystick(0) )
-        profile->mJoystickSettings = APP.GetInputDeviceManager()->GetJoystick(0)->mSettings;
+	if ( APP.GetInputDeviceManager() && APP.GetInputDeviceManager()->GetJoystick(0) )
+		profile->mJoystickSettings = APP.GetInputDeviceManager()->GetJoystick(0)->mSettings;
 
 	if ( APP.GetInputDeviceManager() )
 	{

@@ -66,8 +66,8 @@ void Logging::CloseFile()
 
 void Logging::Log(LogPriority priority_, const wchar_t * text_)
 {
-    if ( !text_ )
-        return;
+	if ( !text_ )
+		return;
 
 	if ( mPriorityStream <= priority_ )
 	{

@@ -11,21 +11,21 @@ DeviceTouchSettings::DeviceTouchSettings()
 
 void DeviceTouchSettings::ReadFromXml(const TiXmlElement * settings_)
 {
-    if ( !settings_ )
-        return;
+	if ( !settings_ )
+		return;
 
 	int val = 0;
-    settings_->Attribute("layout", &val);
-    mLayout = (ETOUCH_LAYOUT)val;
-    settings_->Attribute("placement", &mPlacement);
+	settings_->Attribute("layout", &val);
+	mLayout = (ETOUCH_LAYOUT)val;
+	settings_->Attribute("placement", &mPlacement);
 }
 
 void DeviceTouchSettings::WriteToXml(TiXmlElement * settings_) const
 {
-    if ( !settings_ )
-        return;
+	if ( !settings_ )
+		return;
 
 	int val = mLayout;
-    settings_->SetAttribute("layout", val);
-    settings_->SetAttribute("placement", mPlacement);
+	settings_->SetAttribute("layout", val);
+	settings_->SetAttribute("placement", mPlacement);
 }

@@ -516,8 +516,8 @@ bool IrrlichtManager::IsMeshInCache(const irr::io::path &path_)
 
 void IrrlichtManager::SetMaterialTypeByTextureName(irr::scene::IAnimatedMesh* animatedMesh_, video::E_MATERIAL_TYPE type_, const char *label_)
 {
-    if ( !animatedMesh_ || !label_ || !strlen(label_))
-        return;
+	if ( !animatedMesh_ || !label_ || !strlen(label_))
+		return;
 
 	// Note that materials are frame-independent in animated meshes (at least in all formats we use so far).
 	// That's why we can just get the meshes for the first frame and they will have the same materials as the rest
@@ -598,8 +598,8 @@ void IrrlichtManager::SetRealMaterial(video::E_MATERIAL_TYPE &type)
 
 void IrrlichtManager::SetES2ShaderMaterials(irr::scene::IAnimatedMesh* animatedMesh)
 {
-    if ( !animatedMesh || mES2ShaderMaterials.empty() )
-        return;
+	if ( !animatedMesh || mES2ShaderMaterials.empty() )
+		return;
 
 	scene::IMesh * mesh = animatedMesh->getMesh(0);
     for ( u32 i=0; i < mesh->getMeshBufferCount() ; ++i )
@@ -622,8 +622,8 @@ void IrrlichtManager::SetShadersUseDynamicLight(bool enable)
 
 void IrrlichtManager::setMaterialFlags(const Config& config, irr::scene::IAnimatedMesh* animatedMesh)
 {
-    if ( !animatedMesh )
-        return;
+	if ( !animatedMesh )
+		return;
 
 	// Note that materials are frame-independent in animated meshes (at least in all formats we use so far).
 	// That's why we can just get the meshes for the first frame and they will have the same materials as the rest
@@ -639,8 +639,8 @@ void IrrlichtManager::setMaterialFlags(const Config& config, irr::scene::IAnimat
 
 scene::IAnimatedMesh* IrrlichtManager::LoadMesh(const Config& config, const c8* filename, bool animated)
 {
-    if ( !filename || !strlen(filename) )
-        return NULL;
+	if ( !filename || !strlen(filename) )
+		return NULL;
 
 	u32 beginTime = GetIrrlichtTimer()->getRealTime();
 
@@ -1149,8 +1149,8 @@ scene::SMeshBuffer* IrrlichtManager::CreateQuadradMeshBuffer(const core::vector3
 
 void IrrlichtManager::MakeGhost(scene::ISceneNode* node_)
 {
-    if ( !node_ )
-        return;
+	if ( !node_ )
+		return;
 
 	video::E_MATERIAL_TYPE solid = video::EMT_SOLID;
 	video::E_MATERIAL_TYPE transparent = video::EMT_TRANSPARENT_ADD_COLOR;
@@ -1204,8 +1204,8 @@ void IrrlichtManager::SetNodeAndChildsAmbientMaterial(scene::ISceneNode* node_, 
 
 void IrrlichtManager::SetSpecularMaterial(irr::scene::IAnimatedMesh* animatedMesh, int red_, int green_, int blue_, int ignore_)
 {
-    if ( !animatedMesh )
-        return;
+	if ( !animatedMesh )
+		return;
 
 	scene::IMesh * mesh = animatedMesh->getMesh(0);
     for ( u32 i=0; i < mesh->getMeshBufferCount() ; ++i )

@@ -806,8 +806,8 @@ void Player::PostPhysicsUpdate(u32 time_)
     mMeshHover->updateAbsolutePosition();
 
     float rotation = 0.f;
-    if ( controller )
-        rotation = -controller->GetRotation();
+	if ( controller )
+		rotation = -controller->GetRotation();
 	if ( hoverPhysics )
 		CalcRollMatrices(*hoverPhysics, rotation);
     core::matrix4 matRot( mYawMat );

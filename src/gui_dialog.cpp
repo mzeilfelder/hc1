@@ -786,8 +786,8 @@ irr::gui::IGUIElement* GuiDialog::AddButton(TiXmlElement * xmlElement_, irr::gui
     irr::core::stringw wtext(ReadText(xmlElement_));
 
     irr::gui::IGUIButton * button = env->addButton(rect, guiParent_, id, wtext.c_str());
-    if ( !button )
-        return NULL;
+	if ( !button )
+		return NULL;
 
 	button->setTabStop(true);
 	button->setTabOrder(mHighestFocusId);
@@ -1144,8 +1144,8 @@ irr::gui::IGUIElement* GuiDialog::AddTextSlider(TiXmlElement * xmlElement_, irr:
     xmlElement_->QueryFloatAttribute("btn_aspect_ratio", &buttonAspectRatio);
 
     CGUITextSlider* slider = new CGUITextSlider(env, guiParent_ ? guiParent_ : env->getRootGUIElement(), id, rect, buttonAspectRatio);
-    if ( !slider )
-        return NULL;
+	if ( !slider )
+		return NULL;
 	slider->drop(); // should be ok here because we know it's still kept by the parent and we don't want to manage it ourself.
 
 	slider->setTabStop(true);

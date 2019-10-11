@@ -42,12 +42,12 @@ CGUITextSlider::~CGUITextSlider()
 {
 	if (ButtonLeft)
 		ButtonLeft->drop();
-    if (ButtonRight)
-        ButtonRight->drop();
-    if (StaticText)
-        StaticText->drop();
-    if (FocusedImage)
-        FocusedImage->drop();
+	if (ButtonRight)
+		ButtonRight->drop();
+	if (StaticText)
+		StaticText->drop();
+	if (FocusedImage)
+		FocusedImage->drop();
 	if (LeftButtonImage)
 		LeftButtonImage->drop();
 	if (LeftButtonPressedImage)

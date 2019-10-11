@@ -123,8 +123,8 @@ SteeringSettings::SteeringSettings()
 
 void SteeringSettings::ReadFromXml(const TiXmlElement * settings_)
 {
-    if ( !settings_ )
-        return;
+	if ( !settings_ )
+		return;
 
 	settings_->QueryIntAttribute("steering_style", &mSteeringStyle);
     settings_->QueryFloatAttribute("rotation_speed", &mRotationSpeed);
@@ -145,8 +145,8 @@ void SteeringSettings::ReadFromXml(const TiXmlElement * settings_)
 
 void SteeringSettings::WriteToXml(TiXmlElement * settings_) const
 {
-    if ( !settings_ )
-        return;
+	if ( !settings_ )
+		return;
 
 	settings_->SetAttribute("steering_style", mSteeringStyle);
     settings_->SetDoubleAttribute("rotation_speed", mRotationSpeed );

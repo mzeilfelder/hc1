@@ -813,8 +813,8 @@ void AiTrack::GetPosAtDist(int origIndex_, float origDelta_, float stepDist_, in
 
 int AiTrack::GetNearestPosOnCenterLine(const core::vector3df& pos_, int index_, float &delta_, core::vector3df& nearestPos_, float &dist_) const
 {
-    if ( !mAiTrackInfo.size() )
-        return -1;
+	if ( !mAiTrackInfo.size() )
+		return -1;
 
 	if ( index_ < 0 )
 		index_ = 0;

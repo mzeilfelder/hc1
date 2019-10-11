@@ -92,24 +92,24 @@ PhysicsSettings::PhysicsSettings()
 
 void PhysicsSettings::ReadFromXml(const TiXmlElement * settings_)
 {
-    if ( !settings_ )
-        return;
+	if ( !settings_ )
+		return;
 
-    double val = 0.f;
-    if ( settings_->Attribute("timestep", &val) )
-        mTimeStep = (float)val;
-    if ( settings_->Attribute("rollfriction", &val) )
-        mRollFriction = (float)val;
-    if ( settings_->Attribute("airconst", &val) )
-        mAirConst = (float)val;
-    if ( settings_->Attribute("gravity", &val) )
-        mGravity = (float)val;
-    if ( settings_->Attribute("wallfriction", &val) )
-        mWallFriction = (float)val;
-    if ( settings_->Attribute("wallboundary", &val) )
-        mWallBoundary = (float)val;
-    if ( settings_->Attribute("collpush", &val) )
-        mCollPush = (float)val;
+	double val = 0.f;
+	if ( settings_->Attribute("timestep", &val) )
+		mTimeStep = (float)val;
+	if ( settings_->Attribute("rollfriction", &val) )
+		mRollFriction = (float)val;
+	if ( settings_->Attribute("airconst", &val) )
+		mAirConst = (float)val;
+	if ( settings_->Attribute("gravity", &val) )
+		mGravity = (float)val;
+	if ( settings_->Attribute("wallfriction", &val) )
+		mWallFriction = (float)val;
+	if ( settings_->Attribute("wallboundary", &val) )
+		mWallBoundary = (float)val;
+	if ( settings_->Attribute("collpush", &val) )
+		mCollPush = (float)val;
 	if ( settings_->Attribute("cushion", &val) )
         mCushionFactor = (float)val;
     if ( settings_->Attribute("slowfall", &val) )

@@ -860,8 +860,8 @@ bool Level::SaveTrackData()
     TiXmlDocument doc(dataFileName.c_str());
     doc.SetIrrFs(APP.GetIrrlichtManager()->GetIrrlichtDevice()->getFileSystem(), TiXmlDocument::E_ON_READ_FAIL_ANDROID);
 
-    if ( !doc.LoadFile() )
-        return false;
+	if ( !doc.LoadFile() )
+		return false;
 
 	TiXmlNode * nodeData = doc.FirstChild("data");
 	if (!nodeData)
