@@ -29,6 +29,9 @@
 */
 
 #include "CGUITTFont.h"
+
+#ifdef HC1_HAS_FREETYPE
+
 #include "globals.h"
 
 namespace irr
@@ -924,3 +927,5 @@ core::dimension2d<u32> CGUITTFont::getDimensionUntilEndOfLine(const wchar_t* p) 
 
 } // end namespace gui
 } // end namespace irr
+
+#endif
