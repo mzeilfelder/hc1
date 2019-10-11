@@ -35,8 +35,8 @@ InputDeviceType DeviceTouch::GetType() const
 
 void DeviceTouch::Update()
 {
-    if ( !IsEnabled() )
-        return;
+	if ( !IsEnabled() )
+		return;
 
 	for ( size_t i=0; i < mAxes.size(); ++i )
 	{
@@ -112,9 +112,8 @@ int DeviceTouch::GetNumButtons() const
 
 std::string DeviceTouch::GetNameAxis(int axis_) const
 {
-
-    if ( axis_ > 0 && (size_t)axis_ < mAxes.size() )
-        return mAxes[axis_].mName;
+	if ( axis_ > 0 && (size_t)axis_ < mAxes.size() )
+		return mAxes[axis_].mName;
 
 	return std::string("BAD_AXIS");
 }
