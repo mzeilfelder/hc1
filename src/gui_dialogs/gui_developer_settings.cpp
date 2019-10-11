@@ -26,8 +26,8 @@ GuiDeveloperSettings::~GuiDeveloperSettings()
 
 void GuiDeveloperSettings::CreateDeveloperSettings()
 {
-    if ( !mEnvironment )
-        return;
+	if ( !mEnvironment )
+		return;
 
 	// remove tool box if already there
 	IGUIElement* root = mEnvironment->getRootGUIElement();

@@ -95,8 +95,8 @@ void GuiMenuControls::Show()
     }
 
     Controller * controller = APP.GetController();
-    if ( !controller )
-        return;
+	if ( !controller )
+		return;
 
 	const ControllerSettings& controllerSettings = controller->GetUserSettings();
 

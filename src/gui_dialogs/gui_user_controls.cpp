@@ -120,8 +120,8 @@ void GuiUserControls::ShowWaitForUserButton()
 
 void GuiUserControls::CreateUserControls()
 {
-    if ( !mEnvironment )
-        return;
+	if ( !mEnvironment )
+		return;
 
 	// remove tool box if already there
 	IGUIElement* root = mEnvironment->getRootGUIElement();

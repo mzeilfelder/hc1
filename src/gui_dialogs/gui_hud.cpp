@@ -125,68 +125,68 @@ bool GuiHud::Load(const char* filename_, bool reloadLast_)
 
 void GuiHud::Show()
 {
-    GuiDialog::Show();
+	GuiDialog::Show();
 
-    if ( mStaticFps )
-        mStaticFps->setVisible(mFpsVisible);
+	if ( mStaticFps )
+		mStaticFps->setVisible(mFpsVisible);
 
-    bool showTrackRecord =      GT_TIMERACE == APP.GetGame()->GetSettings().mGameType
-                            ||  GT_CHAMPIONSHIP == APP.GetGame()->GetSettings().mGameType
-                            ||  GT_RIVALS == APP.GetGame()->GetSettings().mGameType
-                            ;
-    if ( mStaticTrackRecord )
-        mStaticTrackRecord->setVisible(showTrackRecord);
-    if ( mStaticTimeTrackRecord )
-        mStaticTimeTrackRecord->setVisible(showTrackRecord);
-    if ( mImageTrackRecord )
-        mImageTrackRecord->setVisible(showTrackRecord);
+	bool showTrackRecord = GT_TIMERACE == APP.GetGame()->GetSettings().mGameType
+			||  GT_CHAMPIONSHIP == APP.GetGame()->GetSettings().mGameType
+			||  GT_RIVALS == APP.GetGame()->GetSettings().mGameType
+			;
+	if ( mStaticTrackRecord )
+		mStaticTrackRecord->setVisible(showTrackRecord);
+	if ( mStaticTimeTrackRecord )
+		mStaticTimeTrackRecord->setVisible(showTrackRecord);
+	if ( mImageTrackRecord )
+		mImageTrackRecord->setVisible(showTrackRecord);
 
-    if ( mPosMarker1 )
-        mPosMarker1->setVisible( mPosMarkerVisible1 );
-    if ( mPosMarker2 )
-        mPosMarker2->setVisible( mPosMarkerVisible2 );
-    if ( mPosMarker3 )
-        mPosMarker3->setVisible( mPosMarkerVisible3 );
+	if ( mPosMarker1 )
+		mPosMarker1->setVisible( mPosMarkerVisible1 );
+	if ( mPosMarker2 )
+		mPosMarker2->setVisible( mPosMarkerVisible2 );
+	if ( mPosMarker3 )
+		mPosMarker3->setVisible( mPosMarkerVisible3 );
 
 	if ( mPosBackground )
 		mPosBackground->setVisible( mPosMarkerVisible1 || mPosMarkerVisible2 || mPosMarkerVisible3 );
 
     bool showGhostRecord = GHT_NONE != APP.GetGame()->GetSettings().mGhostType;
 
-    if ( mStaticGhostRecord )
-        mStaticGhostRecord->setVisible( showGhostRecord );
-    if ( mStaticGhostModeRecord )
-        mStaticGhostModeRecord->setVisible( showGhostRecord );
-    if ( mStaticGhostGapInfo )
-        mStaticGhostGapInfo->setVisible( showGhostRecord );
-    if ( mStaticGhostGap )
-        mStaticGhostGap->setVisible( showGhostRecord );
-    if ( mImageGhostRecord )
-        mImageGhostRecord->setVisible( showGhostRecord );
-    if ( mImageGhostGap )
-        mImageGhostGap->setVisible( showGhostRecord );
+	if ( mStaticGhostRecord )
+		mStaticGhostRecord->setVisible( showGhostRecord );
+	if ( mStaticGhostModeRecord )
+		mStaticGhostModeRecord->setVisible( showGhostRecord );
+	if ( mStaticGhostGapInfo )
+		mStaticGhostGapInfo->setVisible( showGhostRecord );
+	if ( mStaticGhostGap )
+		mStaticGhostGap->setVisible( showGhostRecord );
+	if ( mImageGhostRecord )
+		mImageGhostRecord->setVisible( showGhostRecord );
+	if ( mImageGhostGap )
+		mImageGhostGap->setVisible( showGhostRecord );
 
     bool showSession = GT_RIVALS == APP.GetGame()->GetSettings().mGameType;
-    if ( mStaticSessionRecord )
-        mStaticSessionRecord->setVisible(showSession);
+	if ( mStaticSessionRecord )
+		mStaticSessionRecord->setVisible(showSession);
 	if ( mStaticSessionModeRecord )
-        mStaticSessionModeRecord->setVisible(showSession);
+		mStaticSessionModeRecord->setVisible(showSession);
 	if ( mStaticSessionGapInfo )
-        mStaticSessionGapInfo->setVisible(showSession);
+		mStaticSessionGapInfo->setVisible(showSession);
 	if ( mStaticSessionGap )
-        mStaticSessionGap->setVisible(showSession);
+		mStaticSessionGap->setVisible(showSession);
 	if ( mStaticSessionActivePlayer )
-        mStaticSessionActivePlayer->setVisible(showSession);
+		mStaticSessionActivePlayer->setVisible(showSession);
 	if ( mStaticSessionPlayerName )
-        mStaticSessionPlayerName->setVisible(showSession);
-    if ( mImageSessionRecord )
-        mImageSessionRecord->setVisible(showSession);
+		mStaticSessionPlayerName->setVisible(showSession);
+	if ( mImageSessionRecord )
+		mImageSessionRecord->setVisible(showSession);
 	if ( mImageSessionGap )
-        mImageSessionGap->setVisible(showSession);
+		mImageSessionGap->setVisible(showSession);
 	if ( mImageSessionGap2 )
-        mImageSessionGap2->setVisible(showSession);
-    if ( mStaticCamera )
-        mStaticCamera->setText(L"");
+		mImageSessionGap2->setVisible(showSession);
+	if ( mStaticCamera )
+		mStaticCamera->setText(L"");
 
 	if ( GetConfig().GetUseTouchInput() != ETI_NO_TOUCH && APP.GetGui()->GetGuiTouch() )
 	{
@@ -370,8 +370,8 @@ void GuiHud::SetLapCount(u32 lap_, u32 maxLaps_)
 
 void GuiHud::SetPosition(u32 pos_, u32 players_)
 {
-    if ( !mStaticPosition )
-        return;
+	if ( !mStaticPosition )
+		return;
 
 	core::stringw text(APP.GetStringTable()->Get("id_hdposition"));
 	text += L' ';
@@ -460,8 +460,8 @@ void GuiHud::SetFpsVisible(bool enable_)
 
 void GuiHud::SetFps(int fps_)
 {
-    if ( !mStaticFps )
-        return;
+	if ( !mStaticFps )
+		return;
 
 	core::stringw text(L"FPS ");
 	text += core::stringw(fps_);
@@ -517,8 +517,8 @@ void GuiHud::SetTimeSessionRecord(u32 time_)
 
 void GuiHud::SetSessionPlayerName(const wchar_t * text_)
 {
-    if ( !mStaticSessionPlayerName )
-        return;
+	if ( !mStaticSessionPlayerName )
+		return;
 	mStaticSessionPlayerName->setText(text_);
 }
 

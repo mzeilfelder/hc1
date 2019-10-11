@@ -561,8 +561,8 @@ void GuiTouch::SetTouchPos(float xAxis, float yAxis, ETOUCH_LAYOUT layout)
 
 bool GuiTouch::OnSliderAndroidControl(const irr::SEvent &event_)
 {
-    if ( event_.GUIEvent.EventType != (gui::EGUI_EVENT_TYPE)EGET_TEXTSLIDER_CHANGED )
-        return false;
+	if ( event_.GUIEvent.EventType != (gui::EGUI_EVENT_TYPE)EGET_TEXTSLIDER_CHANGED )
+		return false;
 
 	if ( mAndroidControlSlider )
 	{
@@ -606,8 +606,8 @@ void GuiTouch::UpdateControlsPos()
 
 bool GuiTouch::OnSliderControlsPos(const irr::SEvent &event_)
 {
-    if ( event_.GUIEvent.EventType != (gui::EGUI_EVENT_TYPE)EGET_TEXTSLIDER_CHANGED )
-        return false;
+	if ( event_.GUIEvent.EventType != (gui::EGUI_EVENT_TYPE)EGET_TEXTSLIDER_CHANGED )
+		return false;
 
 	UpdateControlsPos();
 
