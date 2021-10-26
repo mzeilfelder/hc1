@@ -69,14 +69,16 @@
   #define s_u64  ull
 #else
 #error Please define sha2_64t as an unsigned 64 bit type in sha2.h
-#endif
-#else
+#endif /* _MSC_VER < 1300 || __BORLANDC__ < 0x582 */
+#else /* defined(_MSC_VER) || defined(__BORLANDC__) */
 #ifdef _IRR_SOLARIS_PLATFORM_
 #include <sys/int_types.h>
+typedef uint64_t sha2_64t;
 #else
 #include <stdint.h>
+typedef uint64_t sha2_64t;
 #endif
-    typedef int64_t sha2_64t;
+
 #if __WORDSIZE==64
 #define s_u64 ul
 #else
