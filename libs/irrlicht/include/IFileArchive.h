@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_FILE_ARCHIVE_H_INCLUDED__
-#define __I_FILE_ARCHIVE_H_INCLUDED__
+#ifndef IRR_I_FILE_ARCHIVE_H_INCLUDED
+#define IRR_I_FILE_ARCHIVE_H_INCLUDED
 
 #include "IReadFile.h"
 #include "IFileList.h"
@@ -14,7 +14,7 @@ namespace irr
 namespace io
 {
 
-//! FileSystemType: which Filesystem should be used for e.g. browsing
+//! FileSystemType: which filesystem should be used for e.g. browsing
 enum EFileSystemType
 {
 	FILESYSTEM_NATIVE = 0,	// Native OS FileSystem
@@ -109,7 +109,7 @@ public:
 	//! Check to see if the loader can create archives of this type.
 	/** Check based on the archive type.
 	\param fileType The archive type to check.
-	\return True if the archile loader supports this type, false if not */
+	\return True if the archive loader supports this type, false if not */
 	virtual bool isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) const =0;
 
 	//! Creates an archive from the filename
@@ -132,4 +132,3 @@ public:
 } // end namespace irr
 
 #endif
-

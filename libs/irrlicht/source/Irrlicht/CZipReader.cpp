@@ -492,8 +492,16 @@ IReadFile* CZipReader::createAndOpenFile(const io::path& filename)
 //! Used for LZMA decompression. The lib has no default memory management
 namespace
 {
-	void *SzAlloc(void *p, size_t size) { p = p; return malloc(size); }
-	void SzFree(void *p, void *address) { p = p; free(address); }
+	void *SzAlloc(void *p, size_t size)
+	{
+		(void)p; // disable unused variable warnings
+		return malloc(size);
+	}
+	void SzFree(void *p, void *address)
+	{
+		(void)p; // disable unused variable warnings
+		free(address);
+	}
 	ISzAlloc lzmaAlloc = { SzAlloc, SzFree };
 }
 #endif
@@ -620,7 +628,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			c8* pBuf = new c8[ uncompressedSize ];
 			if (!pBuf)
 			{
-				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+				swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 				os::Printer::log( buf, ELL_ERROR);
 				if (decrypted)
 					decrypted->drop();
@@ -633,7 +641,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 				pcData = new u8[decryptedSize];
 				if (!pcData)
 				{
-					swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+					swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 					os::Printer::log( buf, ELL_ERROR);
 					delete [] pBuf;
 					return 0;
@@ -674,7 +682,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 
 			if (err != Z_OK)
 			{
-				swprintf ( buf, 64, L"Error decompressing %s", Files[index].FullName.c_str() );
+				swprintf_irr ( buf, 64, L"Error decompressing %s", core::stringw(Files[index].FullName).c_str() );
 				os::Printer::log( buf, ELL_ERROR);
 				delete [] pBuf;
 				return 0;
@@ -694,7 +702,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			c8* pBuf = new c8[ uncompressedSize ];
 			if (!pBuf)
 			{
-				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+				swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 				os::Printer::log( buf, ELL_ERROR);
 				if (decrypted)
 					decrypted->drop();
@@ -707,7 +715,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 				pcData = new u8[decryptedSize];
 				if (!pcData)
 				{
-					swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+					swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 					os::Printer::log( buf, ELL_ERROR);
 					delete [] pBuf;
 					return 0;
@@ -718,7 +726,8 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 				File->read(pcData, decryptedSize);
 			}
 
-			bz_stream bz_ctx={0};
+			bz_stream bz_ctx;
+			memset(&bz_ctx, 0, sizeof(bz_ctx));
 			/* use BZIP2's default memory allocation
 			bz_ctx->bzalloc = NULL;
 			bz_ctx->bzfree  = NULL;
@@ -745,7 +754,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 
 			if (err != BZ_OK)
 			{
-				swprintf ( buf, 64, L"Error decompressing %s", Files[index].FullName.c_str() );
+				swprintf_irr ( buf, 64, L"Error decompressing %s", core::stringw(Files[index].FullName).c_str() );
 				os::Printer::log( buf, ELL_ERROR);
 				delete [] pBuf;
 				return 0;
@@ -766,7 +775,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 			c8* pBuf = new c8[ uncompressedSize ];
 			if (!pBuf)
 			{
-				swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+				swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 				os::Printer::log( buf, ELL_ERROR);
 				if (decrypted)
 					decrypted->drop();
@@ -779,7 +788,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 				pcData = new u8[decryptedSize];
 				if (!pcData)
 				{
-					swprintf ( buf, 64, L"Not enough memory for decompressing %s", Files[index].FullName.c_str() );
+					swprintf_irr ( buf, 64, L"Not enough memory for decompressing %s", core::stringw(Files[index].FullName).c_str() );
 					os::Printer::log( buf, ELL_ERROR);
 					delete [] pBuf;
 					return 0;
@@ -826,7 +835,7 @@ IReadFile* CZipReader::createAndOpenFile(u32 index)
 		os::Printer::log("Decryption support not enabled. File cannot be read.", ELL_ERROR);
 		return 0;
 	default:
-		swprintf ( buf, 64, L"file has unsupported compression method. %s", Files[index].FullName.c_str() );
+		swprintf_irr ( buf, 64, L"file has unsupported compression method. %s", core::stringw(Files[index].FullName).c_str() );
 		os::Printer::log( buf, ELL_ERROR);
 		return 0;
 	};

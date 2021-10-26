@@ -4,7 +4,7 @@
 
 #include "IrrCompileConfig.h"
 
-static const char* const copyright = "Irrlicht Engine (c) 2002-2012 Nikolaus Gebhardt";
+static const char* const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Gebhardt";	// put string in binary
 
 #ifdef _IRR_WINDOWS_
 	#include <windows.h>
@@ -18,16 +18,12 @@ static const char* const copyright = "Irrlicht Engine (c) 2002-2012 Nikolaus Geb
 #include "CIrrDeviceWin32.h"
 #endif
 
-#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
-#include "MacOSX/CIrrDeviceMacOSX.h"
-#endif
-
-#ifdef _IRR_COMPILE_WITH_WINDOWS_CE_DEVICE_
-#include "CIrrDeviceWinCE.h"
-#endif
-
 #ifdef _IRR_COMPILE_WITH_X11_DEVICE_
 #include "CIrrDeviceLinux.h"
+#endif
+
+#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
+#include "CIrrDeviceOSX.h"
 #endif
 
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
@@ -50,6 +46,8 @@ namespace irr
 			u32 bits, bool fullscreen,
 			bool stencilbuffer, bool vsync, IEventReceiver* res)
 	{
+		(void)copyright;	// prevent unused variable warning
+
 		SIrrlichtCreationParameters p;
 		p.DriverType = driverType;
 		p.WindowSize = windowSize;
@@ -75,11 +73,6 @@ namespace irr
 #ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
 		if (params.DeviceType == EIDT_OSX || (!dev && params.DeviceType == EIDT_BEST))
 			dev = new CIrrDeviceMacOSX(params);
-#endif
-
-#ifdef _IRR_COMPILE_WITH_WINDOWS_CE_DEVICE_
-		if (params.DeviceType == EIDT_WINCE || (!dev && params.DeviceType == EIDT_BEST))
-			dev = new CIrrDeviceWinCE(params);
 #endif
 
 #ifdef _IRR_COMPILE_WITH_X11_DEVICE_
@@ -122,6 +115,7 @@ namespace core
 namespace video
 {
 	SMaterial IdentityMaterial;
+	u32 MATERIAL_MAX_TEXTURES_USED = MATERIAL_MAX_TEXTURES;
 }
 
 } // end namespace irr

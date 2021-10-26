@@ -6,6 +6,7 @@
 #ifdef _IRR_COMPILE_WITH_SOFTWARE_
 
 #include "CSoftwareTexture.h"
+#include "CSoftwareDriver.h"
 #include "os.h"
 
 namespace irr
@@ -14,33 +15,37 @@ namespace video
 {
 
 //! constructor
-CSoftwareTexture::CSoftwareTexture(IImage* image, const io::path& name,
-		bool renderTarget, void* mipmapData)
-: ITexture(name), Texture(0), IsRenderTarget(renderTarget)
+CSoftwareTexture::CSoftwareTexture(IImage* image, const io::path& name, bool renderTarget)
+	: ITexture(name, ETT_2D), Texture(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CSoftwareTexture");
 	#endif
 
+	DriverType = EDT_SOFTWARE;
+	ColorFormat = ECF_A1R5G5B5;
+	HasMipMaps = false;
+	IsRenderTarget = renderTarget;
+
 	if (image)
 	{
 		bool IsCompressed = false;
 
-		if(image->getColorFormat() == ECF_DXT1 || image->getColorFormat() == ECF_DXT2 || image->getColorFormat() == ECF_DXT3 || image->getColorFormat() == ECF_DXT4 || image->getColorFormat() == ECF_DXT5)
+		if(IImage::isCompressedFormat(image->getColorFormat()))
 		{
-			os::Printer::log("DXT texture compression not available.", ELL_ERROR);
+			os::Printer::log("Texture compression not available.", ELL_ERROR);
 			IsCompressed = true;
 		}
 
-		OrigSize = image->getDimension();
-		core::dimension2d<u32> optSize=OrigSize.getOptimalSize();
+		OriginalSize = image->getDimension();
+		core::dimension2d<u32> optSize = OriginalSize.getOptimalSize();
 
-		Image = new CImage(ECF_A1R5G5B5, OrigSize);
+		Image = new CImage(ECF_A1R5G5B5, OriginalSize);
 
 		if (!IsCompressed)
 			image->copyTo(Image);
 
-		if (optSize == OrigSize)
+		if (optSize == OriginalSize)
 		{
 			Texture = Image;
 			Texture->grab();
@@ -50,6 +55,9 @@ CSoftwareTexture::CSoftwareTexture(IImage* image, const io::path& name,
 			Texture = new CImage(ECF_A1R5G5B5, optSize);
 			Image->copyToScaling(Texture);
 		}
+
+		Size = Texture->getDimension();
+		Pitch = Texture->getDimension().Width * 2;
 	}
 }
 
@@ -68,9 +76,9 @@ CSoftwareTexture::~CSoftwareTexture()
 
 
 //! lock function
-void* CSoftwareTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
+void* CSoftwareTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel, u32 layer, E_TEXTURE_LOCK_FLAGS lockFlags)
 {
-	return Image->lock();
+	return Image->getData();
 }
 
 
@@ -83,22 +91,6 @@ void CSoftwareTexture::unlock()
 		os::Printer::log("Performance warning, slow unlock of non power of 2 texture.", ELL_WARNING);
 		Image->copyToScaling(Texture);
 	}
-
-	Image->unlock();
-}
-
-
-//! Returns original size of the texture.
-const core::dimension2d<u32>& CSoftwareTexture::getOriginalSize() const
-{
-	return OrigSize;
-}
-
-
-//! Returns (=size) of the texture.
-const core::dimension2d<u32>& CSoftwareTexture::getSize() const
-{
-	return Image->getDimension();
 }
 
 
@@ -109,48 +101,65 @@ CImage* CSoftwareTexture::getImage()
 }
 
 
-
 //! returns texture surface
 CImage* CSoftwareTexture::getTexture()
 {
 	return Texture;
 }
 
-
-
-//! returns driver type of texture (=the driver, who created the texture)
-E_DRIVER_TYPE CSoftwareTexture::getDriverType() const
-{
-	return EDT_SOFTWARE;
-}
-
-
-
-//! returns color format of texture
-ECOLOR_FORMAT CSoftwareTexture::getColorFormat() const
-{
-	return ECF_A1R5G5B5;
-}
-
-
-
-//! returns pitch of texture (in bytes)
-u32 CSoftwareTexture::getPitch() const
-{
-	return Image->getDimension().Width * 2;
-}
-
-
-//! Regenerates the mip map levels of the texture. Useful after locking and
-//! modifying the texture
-void CSoftwareTexture::regenerateMipMapLevels(void* mipmapData)
+void CSoftwareTexture::regenerateMipMapLevels(void* data, u32 layer)
 {
 	// our software textures don't have mip maps
 }
 
-bool CSoftwareTexture::isRenderTarget() const
+
+/* Software Render Target */
+
+CSoftwareRenderTarget::CSoftwareRenderTarget(CSoftwareDriver* driver) : Driver(driver)
 {
-	return IsRenderTarget;
+	DriverType = EDT_SOFTWARE;
+
+	Textures.set_used(1);
+	Textures[0] = 0;
+}
+
+CSoftwareRenderTarget::~CSoftwareRenderTarget()
+{
+	if (Textures[0])
+		Textures[0]->drop();
+}
+
+void CSoftwareRenderTarget::setTextures(ITexture* const * textures, u32 numTextures, ITexture* depthStencil, const E_CUBE_SURFACE* cubeSurfaces, u32 numCubeSurfaces)
+{
+	if (!Textures.equals(textures, numTextures))
+	{
+		ITexture* prevTexture = Textures[0];
+
+		bool textureDetected = false;
+
+		for (u32 i = 0; i < numTextures; ++i)
+		{
+			if (textures[i] && textures[i]->getDriverType() == EDT_SOFTWARE)
+			{
+				Textures[0] = textures[i];
+				Textures[0]->grab();
+				textureDetected = true;
+
+				break;
+			}
+		}
+
+		if (prevTexture)
+			prevTexture->drop();
+
+		if (!textureDetected)
+			Textures[0] = 0;
+	}
+}
+
+ITexture* CSoftwareRenderTarget::getTexture() const
+{
+	return Textures[0];
 }
 
 

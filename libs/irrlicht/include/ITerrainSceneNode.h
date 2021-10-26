@@ -7,8 +7,8 @@
 // code available for Irrlicht and allowed it to be distributed under this
 // licence. I only modified some parts. A lot of thanks go to them.
 
-#ifndef __I_TERRAIN_SCENE_NODE_H__
-#define __I_TERRAIN_SCENE_NODE_H__
+#ifndef IRR_I_TERRAIN_SCENE_NODE_H
+#define IRR_I_TERRAIN_SCENE_NODE_H
 
 #include "ETerrainElements.h"
 #include "ISceneNode.h"
@@ -41,7 +41,7 @@ namespace scene
 	 * of the indices to draw all the triangles at the max detail for a patch. As each LOD goes up by 1
 	 * the step taken, in generating indices increases by - 2^LOD, so for LOD 1, the step taken is 2, for
 	 * LOD 2, the step taken is 4, LOD 3 - 8, etc. The step can be no larger than the size of the patch,
-	 * so having a LOD of 8, with a patch size of 17, is asking the algoritm to generate indices every
+	 * so having a LOD of 8, with a patch size of 17, is asking the algorithm to generate indices every
 	 * 2^8 ( 256 ) vertices, which is not possible with a patch size of 17. The maximum LOD for a patch
 	 * size of 17 is 2^4 ( 16 ). So, with a MaxLOD of 5, you'll have LOD 0 ( full detail ), LOD 1 ( every
 	 * 2 vertices ), LOD 2 ( every 4 vertices ), LOD 3 ( every 8 vertices ) and LOD 4 ( every 16 vertices ).
@@ -100,7 +100,9 @@ namespace scene
 		virtual s32 getCurrentLODOfPatches(core::array<s32>& LODs) const =0;
 
 		//! Manually sets the LOD of a patch
-		/** \param patchX Patch x coordinate.
+		/** NOTE: Any values set here are overwritten again in the automatic
+		recalculations when the camera changes.
+		\param patchX Patch x coordinate.
 		\param patchZ Patch z coordinate.
 		\param LOD The level of detail to set the patch to. */
 		virtual void setLODOfPatch(s32 patchX, s32 patchZ, s32 LOD=0) =0;
@@ -172,11 +174,16 @@ namespace scene
 			video::SColor vertexColor=video::SColor(255,255,255,255),
 			s32 smoothFactor=0) =0;
 
+		//! Force node to use a fixed LOD level at the borders of the terrain.
+		/** This can be useful when several TerrainSceneNodes are connected.
+		\param borderLOD When >= 0 all patches at the 4 borders will use the 
+		given LOD. When < 0 borders are just regular patches (that's default).	*/
+		virtual void setFixedBorderLOD(irr::s32 borderLOD=0) = 0;
+
 	};
 
 } // end namespace scene
 } // end namespace irr
 
 
-#endif // __I_TERRAIN_SCENE_NODE_H__
-
+#endif // IRR_I_TERRAIN_SCENE_NODE_H

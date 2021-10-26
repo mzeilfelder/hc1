@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_EXPOSED_VIDEO_DATA_H_INCLUDED__
-#define __S_EXPOSED_VIDEO_DATA_H_INCLUDED__
+#ifndef S_EXPOSED_VIDEO_DATA_H_INCLUDED
+#define S_EXPOSED_VIDEO_DATA_H_INCLUDED
 
 // forward declarations for internal pointers
 struct IDirect3D9;
@@ -17,7 +17,7 @@ namespace video
 {
 
 //! structure for holding data describing a driver and operating system specific data.
-/** This data can be retrived by IVideoDriver::getExposedVideoData(). Use this with caution.
+/** This data can be retrieved by IVideoDriver::getExposedVideoData(). Use this with caution.
 This only should be used to make it possible to extend the engine easily without
 modification of its source. Note that this structure does not contain any valid data, if
 you are using the software or the null device.
@@ -37,19 +37,6 @@ struct SExposedVideoData
 
 		//! Window handle.
 		/** Get with for example HWND h = reinterpret_cast<HWND>(exposedData.D3D9.HWnd) */
-		void* HWnd;
-	};
-
-	struct SD3D8
-	{
-		//! Pointer to the IDirect3D8 interface
-		IDirect3D8* D3D8;
-
-		//! Pointer to the IDirect3DDevice8 interface
-		IDirect3DDevice8* D3DDev8;
-
-		//! Window handle.
-		/** Get with for example with: HWND h = reinterpret_cast<HWND>(exposedData.D3D8.HWnd) */
 		void* HWnd;
 	};
 
@@ -76,18 +63,25 @@ struct SExposedVideoData
 		unsigned long X11Window;
 	};
 
+    struct SOpenGLOSX
+    {
+        //! The NSOpenGLContext object.
+        void* Context;
+
+        //! The NSWindow object.
+        void* Window;
+    };
+
 	union
 	{
 		SD3D9 D3D9;
-		SD3D8 D3D8;
 		SOpenGLWin32 OpenGLWin32;
 		SOpenGLLinux OpenGLLinux;
+        SOpenGLOSX OpenGLOSX;
 	};
 };
 
 } // end namespace video
 } // end namespace irr
 
-
 #endif
-

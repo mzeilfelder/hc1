@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_MATERIAL_FLAGS_H_INCLUDED__
-#define __E_MATERIAL_FLAGS_H_INCLUDED__
+#ifndef IRR_E_MATERIAL_FLAGS_H_INCLUDED
+#define IRR_E_MATERIAL_FLAGS_H_INCLUDED
 
 namespace irr
 {
@@ -66,6 +66,9 @@ namespace video
 		EMF_NORMALIZE_NORMALS = 0x1000,
 
 		//! Access to all layers texture wrap settings. Overwrites separate layer settings.
+		/** Note that if you want to change TextureWrapU, TextureWrapV, TextureWrapW 
+		independently, then you can't work with this flag, but will have to set the variables
+		directly. */
 		EMF_TEXTURE_WRAP = 0x2000,
 
 		//! AntiAliasing mode
@@ -93,6 +96,4 @@ namespace video
 } // end namespace video
 } // end namespace irr
 
-
-#endif // __E_MATERIAL_FLAGS_H_INCLUDED__
-
+#endif // IRR_E_MATERIAL_FLAGS_H_INCLUDED

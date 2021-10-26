@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_D3D9_HLSL_MATERIAL_RENDERER_H_INCLUDED__
-#define __C_D3D9_HLSL_MATERIAL_RENDERER_H_INCLUDED__
+#ifndef IRR_C_D3D9_HLSL_MATERIAL_RENDERER_H_INCLUDED
+#define IRR_C_D3D9_HLSL_MATERIAL_RENDERER_H_INCLUDED
 
 #include "IrrCompileConfig.h"
 #ifdef _IRR_WINDOWS_
@@ -56,7 +56,10 @@ public:
 	//! Int interface for the above.
 	virtual bool setVariable(bool vertexShader, s32 index, const s32* ints, int count);
 
-	bool OnRender(IMaterialRendererServices* service, E_VERTEX_TYPE vtxtype);
+	//! Uint interface for the above.
+	virtual bool setVariable(bool vertexShader, s32 index, const u32* ints, int count);
+
+	bool OnRender(IMaterialRendererServices* service, E_VERTEX_TYPE vtxtype) IRR_OVERRIDE;
 
 protected:
 
@@ -81,4 +84,3 @@ protected:
 #endif
 #endif
 #endif
-

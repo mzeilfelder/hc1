@@ -91,7 +91,7 @@ static bool testCalculation_atof(const char * valueString)
 		valueString, newFastValue, oldFastValue, atofValue);
 
 	const f32 diffNew = fabs(newFastValue - atofValue) ;
-	const f32 diffOld = fabs(newFastValue - atofValue) ;
+	const f32 diffOld = fabs(oldFastValue - atofValue) ;
 	bool accurate = diffNew <= diffOld || equalsByUlp(diffNew, diffOld, 1);
 
 	if(!accurate)
@@ -148,6 +148,8 @@ bool test_fast_atof(void)
 	accurate &= testCalculation_atof("0000123456.789");
 	accurate &= testCalculation_atof("-0000123456.789");
 	accurate &= testCalculation_atof("-0.0690462109446526");
+	accurate &= testCalculation_atof("0.11999999731779099"); // more numbers past dot than in lookup table
+	accurate &= testCalculation_atof("0.119999997317790999");
 
 	if (!accurate)
 	{

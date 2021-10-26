@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_SOFTWARE2_MATERIAL_RENDERER_H_INCLUDED__
-#define __C_SOFTWARE2_MATERIAL_RENDERER_H_INCLUDED__
+#ifndef IRR_C_SOFTWARE2_MATERIAL_RENDERER_H_INCLUDED
+#define IRR_C_SOFTWARE2_MATERIAL_RENDERER_H_INCLUDED
 
 #include "SoftwareDriver2_compile_config.h"
 
@@ -26,6 +26,13 @@ public:
 	{
 	}
 
+	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
+	{
+		if (Driver)
+			Driver->setFallback_Material(material.MaterialType);
+	}
+
 protected:
 
 	video::CBurningVideoDriver* Driver;
@@ -39,13 +46,12 @@ public:
 		:CSoftware2MaterialRenderer ( driver ) {}
 
 	//! Returns if the material is transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return false;
 	}
 
 };
-
 
 
 //! Transparent material renderer
@@ -57,7 +63,7 @@ public:
 
 
 	//! Returns if the material is transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -71,41 +77,7 @@ public:
 	CSoftware2MaterialRenderer_UNSUPPORTED ( video::CBurningVideoDriver* driver )
 		: CSoftware2MaterialRenderer ( driver ) {}
 
-	virtual s32 getRenderCapability() const _IRR_OVERRIDE_ { return 1; }
-
-};
-
-//! unsupported material renderer
-class CBurningShader_REFERENCE : public CSoftware2MaterialRenderer
-{
-public:
-	CBurningShader_REFERENCE ( video::CBurningVideoDriver* driver )
-		: CSoftware2MaterialRenderer ( driver ) {}
-
-	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
-	{
-	}
-
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
-	{
-	}
-
-	virtual bool isTransparent() const _IRR_OVERRIDE_
-	{
-		return false;
-	}
-
-	virtual bool OnRender(IMaterialRendererServices* service, E_VERTEX_TYPE vtxtype) _IRR_OVERRIDE_
-	{
-		return true;
-	};
-
-
-	virtual s32 getRenderCapability() const _IRR_OVERRIDE_
-	{
-		return 1;
-	}
+	virtual s32 getRenderCapability() const IRR_OVERRIDE { return 1; }
 
 };
 
@@ -115,4 +87,3 @@ public:
 } // end namespace irr
 
 #endif
-

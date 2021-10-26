@@ -18,7 +18,7 @@ namespace gui
 //! constructor
 CGUIImage::CGUIImage(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
 : IGUIImage(environment, parent, id, rectangle), Texture(0), Color(255,255,255,255),
-	UseAlphaChannel(false), ScaleImage(false), DrawBounds(0.f, 0.f, 1.f, 1.f)
+	UseAlphaChannel(false), ScaleImage(false), DrawBounds(0.f, 0.f, 1.f, 1.f), DrawBackground(true)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIImage");
@@ -81,7 +81,7 @@ void CGUIImage::draw()
 		core::rect<s32> sourceRect(SourceRect);
 		if (sourceRect.getWidth() == 0 || sourceRect.getHeight() == 0)
 		{
-			sourceRect = core::rect<s32>(core::position2d<s32>(0,0), core::dimension2di(Texture->getOriginalSize()));
+			sourceRect = core::rect<s32>(core::dimension2di(Texture->getOriginalSize()));
 		}
 
 		if (ScaleImage)
@@ -104,7 +104,7 @@ void CGUIImage::draw()
 				&clippingRect, Color, UseAlphaChannel);
 		}
 	}
-	else
+	else if ( DrawBackground )
 	{
 		core::rect<s32> clippingRect(AbsoluteClippingRect);
 		checkBounds(clippingRect);
@@ -133,14 +133,12 @@ void CGUIImage::setScaleImage(bool scale)
 //! Returns true if the image is scaled to fit, false if not
 bool CGUIImage::isImageScaled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ScaleImage;
 }
 
 //! Returns true if the image is using the alpha channel, false if not
 bool CGUIImage::isAlphaChannelUsed() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return UseAlphaChannel;
 }
 
@@ -190,6 +188,7 @@ void CGUIImage::serializeAttributes(io::IAttributes* out, io::SAttributeReadWrit
 	out->addFloat   ("DrawBoundsY1", DrawBounds.UpperLeftCorner.Y);
 	out->addFloat   ("DrawBoundsX2", DrawBounds.LowerRightCorner.X);
 	out->addFloat   ("DrawBoundsY2", DrawBounds.LowerRightCorner.Y);
+	out->addBool    ("DrawBackground", DrawBackground);
 }
 
 
@@ -201,7 +200,7 @@ void CGUIImage::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWri
 	setImage(in->getAttributeAsTexture("Texture", Texture));
 	setUseAlphaChannel(in->getAttributeAsBool("UseAlphaChannel", UseAlphaChannel));
 	setColor(in->getAttributeAsColor("Color", Color));
-	setScaleImage(in->getAttributeAsBool("ScaleImage", UseAlphaChannel));
+	setScaleImage(in->getAttributeAsBool("ScaleImage", ScaleImage));
 	setSourceRect(in->getAttributeAsRect("SourceRect", SourceRect));
 
 	DrawBounds.UpperLeftCorner.X = in->getAttributeAsFloat("DrawBoundsX1", DrawBounds.UpperLeftCorner.X);
@@ -209,6 +208,8 @@ void CGUIImage::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWri
 	DrawBounds.LowerRightCorner.X = in->getAttributeAsFloat("DrawBoundsX2", DrawBounds.LowerRightCorner.X);
 	DrawBounds.LowerRightCorner.Y = in->getAttributeAsFloat("DrawBoundsY2", DrawBounds.LowerRightCorner.Y);
 	setDrawBounds(DrawBounds);
+
+	setDrawBackground(in->getAttributeAsBool("DrawBackground", DrawBackground));
 }
 
 

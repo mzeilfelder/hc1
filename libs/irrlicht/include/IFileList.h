@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_FILE_LIST_H_INCLUDED__
-#define __I_FILE_LIST_H_INCLUDED__
+#ifndef IRR_I_FILE_LIST_H_INCLUDED
+#define IRR_I_FILE_LIST_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "path.h"
@@ -27,13 +27,13 @@ public:
 	/** The path is not included in this name. Use getFullFileName for this.
 	\param index is the zero based index of the file which name should
 	be returned. The index must be less than the amount getFileCount() returns.
-	\return File name of the file. Returns 0, if an error occured. */
+	\return File name of the file. Returns 0, if an error occurred. */
 	virtual const io::path& getFileName(u32 index) const = 0;
 
 	//! Gets the full name of a file in the list including the path, based on an index.
 	/** \param index is the zero based index of the file which name should
 	be returned. The index must be less than the amount getFileCount() returns.
-	\return File name of the file. Returns 0 if an error occured. */
+	\return File name of the file. Returns 0 if an error occurred. */
 	virtual const io::path& getFullFileName(u32 index) const = 0;
 
 	//! Returns the size of a file in the file list, based on an index.
@@ -89,6 +89,4 @@ public:
 } // end namespace irr
 } // end namespace io
 
-
 #endif
-

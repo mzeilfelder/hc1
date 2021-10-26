@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_GUI_LIST_BOX_H_INCLUDED__
-#define __I_GUI_LIST_BOX_H_INCLUDED__
+#ifndef IRR_I_GUI_LIST_BOX_H_INCLUDED
+#define IRR_I_GUI_LIST_BOX_H_INCLUDED
 
 #include "IGUIElement.h"
 #include "SColor.h"
@@ -62,7 +62,7 @@ namespace gui
 		virtual void removeItem(u32 index) = 0;
 
 		//! get the the id of the item at the given absolute coordinates
-		/** \return The id of the listitem or -1 when no item is at those coordinates*/
+		/** \return The id of the list item or -1 when no item is at those coordinates*/
 		virtual s32 getItemAt(s32 xpos, s32 ypos) const = 0;
 
 		//! Returns the icon of an item
@@ -139,4 +139,3 @@ namespace gui
 } // end namespace irr
 
 #endif
-

@@ -105,7 +105,7 @@ void CGUISpinBox::setValue(f32 val)
 {
 	wchar_t str[100];
 
-	swprintf(str, 99, FormatString.c_str(), val);
+	swprintf_irr(str, 99, FormatString.c_str(), val);
 	EditBox->setText(str);
 	verifyValueRange();
 }
@@ -130,9 +130,9 @@ void CGUISpinBox::setRange(f32 min, f32 max)
 
 	// we have to round the range - otherwise we can get into an infinte setValue/verifyValueRange cycle.
 	wchar_t str[100];
-	swprintf(str, 99, FormatString.c_str(), RangeMin);
+	swprintf_irr(str, 99, FormatString.c_str(), RangeMin);
 	RangeMin = core::fast_atof(core::stringc(str).c_str());
-	swprintf(str, 99, FormatString.c_str(), RangeMax);
+	swprintf_irr(str, 99, FormatString.c_str(), RangeMax);
 	RangeMax = core::fast_atof(core::stringc(str).c_str());
 
 	verifyValueRange();
@@ -332,9 +332,9 @@ void CGUISpinBox::serializeAttributes(io::IAttributes* out, io::SAttributeReadWr
 void CGUISpinBox::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options)
 {
 	IGUIElement::deserializeAttributes(in, options);
-	setRange(in->getAttributeAsFloat("Min"), in->getAttributeAsFloat("Max"));
-	setStepSize(in->getAttributeAsFloat("Step"));
-	setDecimalPlaces(in->getAttributeAsInt("DecimalPlaces"));
+	setRange(in->getAttributeAsFloat("Min", RangeMin), in->getAttributeAsFloat("Max", RangeMax));
+	setStepSize(in->getAttributeAsFloat("Step", StepSize));
+	setDecimalPlaces(in->getAttributeAsInt("DecimalPlaces", DecimalPlaces));
 	setValidateOn((u32)in->getAttributeAsInt("ValidateOn", (s32)ValidateOn) );
 }
 

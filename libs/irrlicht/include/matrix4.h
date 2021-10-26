@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_MATRIX_H_INCLUDED__
-#define __IRR_MATRIX_H_INCLUDED__
+#ifndef IRR_MATRIX_H_INCLUDED
+#define IRR_MATRIX_H_INCLUDED
 
 #include "irrMath.h"
 #include "vector3d.h"
@@ -14,7 +14,7 @@
 #include "irrString.h"
 
 // enable this to keep track of changes to the matrix
-// and make simpler identity check for seldomly changing matrices
+// and make simpler identity check for seldom changing matrices
 // otherwise identity check will always compare the elements
 //#define USE_MATRIX_TEST
 
@@ -60,6 +60,19 @@ namespace core
 			//! Default constructor
 			/** \param constructor Choose the initialization style */
 			CMatrix4( eConstructor constructor = EM4CONST_IDENTITY );
+
+			//! Constructor with value initialization
+			CMatrix4(const T& r0c0, const T& r0c1, const T& r0c2, const T& r0c3,
+			         const T& r1c0, const T& r1c1, const T& r1c2, const T& r1c3,
+			         const T& r2c0, const T& r2c1, const T& r2c2, const T& r2c3,
+			         const T& r3c0, const T& r3c1, const T& r3c2, const T& r3c3)
+			{
+				M[0]  = r0c0; M[1]  = r0c1; M[2]  = r0c2; M[3]  = r0c3;
+				M[4]  = r1c0; M[5]  = r1c1; M[6]  = r1c2; M[7]  = r1c3;
+				M[8]  = r2c0; M[9]  = r2c1; M[10] = r2c2; M[11] = r2c3;
+				M[12] = r3c0; M[13] = r3c1; M[14] = r3c2; M[15] = r3c3;
+			}
+
 			//! Copy constructor
 			/** \param other Other matrix to copy from
 			\param constructor Choose the initialization style */
@@ -221,18 +234,28 @@ namespace core
 			void rotateVect(T *out,const core::vector3df &in) const;
 
 			//! Transforms the vector by this matrix
+			/** This operation is performed as if the vector was 4d with the 4th component =1 */
 			void transformVect( vector3df& vect) const;
 
 			//! Transforms input vector by this matrix and stores result in output vector
+			/** This operation is performed as if the vector was 4d with the 4th component =1 */
 			void transformVect( vector3df& out, const vector3df& in ) const;
 
 			//! An alternate transform vector method, writing into an array of 4 floats
+			/** This operation is performed as if the vector was 4d with the 4th component =1.
+				NOTE: out[3] will be written to (4th vector component)*/
 			void transformVect(T *out,const core::vector3df &in) const;
 
 			//! An alternate transform vector method, reading from and writing to an array of 3 floats
+			/** This operation is performed as if the vector was 4d with the 4th component =1
+				NOTE: out[3] will be written to (4th vector component)*/
 			void transformVec3(T *out, const T * in) const;
 
+			//! An alternate transform vector method, reading from and writing to an array of 4 floats
+			void transformVec4(T *out, const T * in) const;
+
 			//! Translate a vector by the translation part of this matrix.
+			/** This operation is performed as if the vector was 4d with the 4th component =1 */
 			void translateVect( vector3df& vect ) const;
 
 			//! Transforms a plane by this matrix
@@ -247,7 +270,7 @@ namespace core
 			void transformBox(core::aabbox3d<f32>& box) const;
 
 			//! Transforms a axis aligned bounding box
-			/** The result box of this operation should by accurate, but this operation
+			/** The result box of this operation should be accurate, but this operation
 			is slower than transformBox(). */
 			void transformBoxEx(core::aabbox3d<f32>& box) const;
 
@@ -263,31 +286,33 @@ namespace core
 			/** \param out: where result matrix is written to. */
 			bool getInversePrimitive ( CMatrix4<T>& out ) const;
 
-			//! Gets the inversed matrix of this one
+			//! Gets the inverse matrix of this one
 			/** \param out: where result matrix is written to.
 			\return Returns false if there is no inverse matrix. */
 			bool getInverse(CMatrix4<T>& out) const;
 
 			//! Builds a right-handed perspective projection matrix based on a field of view
-			CMatrix4<T>& buildProjectionMatrixPerspectiveFovRH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar);
+			//\param zClipFromZero: Clipping of z can be projected from 0 to w when true (D3D style) and from -w to w when false (OGL style).
+			CMatrix4<T>& buildProjectionMatrixPerspectiveFovRH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a left-handed perspective projection matrix based on a field of view
-			CMatrix4<T>& buildProjectionMatrixPerspectiveFovLH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar);
+			CMatrix4<T>& buildProjectionMatrixPerspectiveFovLH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a left-handed perspective projection matrix based on a field of view, with far plane at infinity
 			CMatrix4<T>& buildProjectionMatrixPerspectiveFovInfinityLH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 epsilon=0);
 
 			//! Builds a right-handed perspective projection matrix.
-			CMatrix4<T>& buildProjectionMatrixPerspectiveRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar);
+			CMatrix4<T>& buildProjectionMatrixPerspectiveRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a left-handed perspective projection matrix.
-			CMatrix4<T>& buildProjectionMatrixPerspectiveLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar);
+			CMatrix4<T>& buildProjectionMatrixPerspectiveLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a left-handed orthogonal projection matrix.
-			CMatrix4<T>& buildProjectionMatrixOrthoLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar);
+			//\param zClipFromZero: Clipping of z can be projected from 0 to 1 when true (D3D style) and from -1 to 1 when false (OGL style).
+			CMatrix4<T>& buildProjectionMatrixOrthoLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a right-handed orthogonal projection matrix.
-			CMatrix4<T>& buildProjectionMatrixOrthoRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar);
+			CMatrix4<T>& buildProjectionMatrixOrthoRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero=true);
 
 			//! Builds a left-handed look-at matrix.
 			CMatrix4<T>& buildCameraLookAtMatrixLH(
@@ -372,6 +397,11 @@ namespace core
 			\return Altered matrix */
 			CMatrix4<T>& setTextureTranslate( f32 x, f32 y );
 
+			//! Get texture transformation translation
+			/** \param x returns offset on x axis
+			\param y returns offset on y axis */
+			void getTextureTranslate( f32& x, f32& y ) const;
+
 			//! Set texture transformation translation, using a transposed representation
 			/** Doesn't clear other elements than those affected.
 			\param x Offset on x axis
@@ -385,6 +415,11 @@ namespace core
 			\param sy Scale factor on y axis
 			\return Altered matrix. */
 			CMatrix4<T>& setTextureScale( f32 sx, f32 sy );
+
+			//! Get texture transformation scale
+			/** \param sx Returns x axis scale factor
+			\param sy Returns y axis scale factor */
+			void getTextureScale( f32& sx, f32& sy ) const;
 
 			//! Set texture transformation scale, and recenter at (0.5,0.5)
 			/** Doesn't clear other elements than those affected.
@@ -862,8 +897,8 @@ namespace core
 	//! Returns a rotation that is equivalent to that set by setRotationDegrees().
 	/** This code was sent in by Chev.  Note that it does not necessarily return
 	the *same* Euler angles as those set by setRotationDegrees(), but the rotation will
-	be equivalent, i.e. will have the same result when used to rotate a vector or node. 
-	This code was orginally written by by Chev. 
+	be equivalent, i.e. will have the same result when used to rotate a vector or node.
+	This code was originally written by by Chev.
 	*/
 	template <class T>
 	inline core::vector3d<T> CMatrix4<T>::getRotationDegrees(const vector3d<T>& scale_) const
@@ -923,8 +958,8 @@ namespace core
 	//! Returns a rotation that is equivalent to that set by setRotationDegrees().
 	/** This code was sent in by Chev.  Note that it does not necessarily return
 	the *same* Euler angles as those set by setRotationDegrees(), but the rotation will
-	be equivalent, i.e. will have the same result when used to rotate a vector or node. 
-	This code was orginally written by by Chev. */
+	be equivalent, i.e. will have the same result when used to rotate a vector or node.
+	This code was originally written by by Chev. */
 	template <class T>
 	inline core::vector3d<T> CMatrix4<T>::getRotationDegrees() const
 	{
@@ -1193,6 +1228,15 @@ namespace core
 		out[2] = in[0]*M[2] + in[1]*M[6] + in[2]*M[10] + M[14];
 	}
 
+	template <class T>
+	inline void CMatrix4<T>::transformVec4(T *out, const T * in) const
+	{
+		out[0] = in[0]*M[0] + in[1]*M[4] + in[2]*M[8] + in[3]*M[12];
+		out[1] = in[0]*M[1] + in[1]*M[5] + in[2]*M[9] + in[3]*M[13];
+		out[2] = in[0]*M[2] + in[1]*M[6] + in[2]*M[10] + in[3]*M[14];
+		out[3] = in[0]*M[3] + in[1]*M[7] + in[2]*M[11] + in[3]*M[15];
+	}
+
 
 	//! Transforms a plane by this matrix
 	template <class T>
@@ -1205,9 +1249,8 @@ namespace core
 		// Transform the normal by the transposed inverse of the matrix
 		CMatrix4<T> transposedInverse(*this, EM4CONST_INVERSE_TRANSPOSED);
 		vector3df normal = plane.Normal;
-		transposedInverse.transformVect(normal);
-
-		plane.setPlane(member, normal);
+		transposedInverse.rotateVect(normal);
+		plane.setPlane(member, normal.normalize());
 	}
 
 	//! Transforms a plane by this matrix
@@ -1218,9 +1261,11 @@ namespace core
 		transformPlane( out );
 	}
 
-	//! Transforms a axis aligned bounding box
+	//! Transforms the edge-points of a bounding box
+	//! Deprecated as it's usually not what people need (regards only 2 corners, but other corners might be outside the box after transformation)
+	//! Use transformBoxEx instead.
 	template <class T>
-	inline void CMatrix4<T>::transformBox(core::aabbox3d<f32>& box) const
+	IRR_DEPRECATED inline void CMatrix4<T>::transformBox(core::aabbox3d<f32>& box) const
 	{
 #if defined ( USE_MATRIX_TEST )
 		if (isIdentity())
@@ -1339,66 +1384,66 @@ namespace core
 #endif
 		const CMatrix4<T> &m = *this;
 
-		f32 d = (m(0, 0) * m(1, 1) - m(0, 1) * m(1, 0)) * (m(2, 2) * m(3, 3) - m(2, 3) * m(3, 2)) -
-			(m(0, 0) * m(1, 2) - m(0, 2) * m(1, 0)) * (m(2, 1) * m(3, 3) - m(2, 3) * m(3, 1)) +
-			(m(0, 0) * m(1, 3) - m(0, 3) * m(1, 0)) * (m(2, 1) * m(3, 2) - m(2, 2) * m(3, 1)) +
-			(m(0, 1) * m(1, 2) - m(0, 2) * m(1, 1)) * (m(2, 0) * m(3, 3) - m(2, 3) * m(3, 0)) -
-			(m(0, 1) * m(1, 3) - m(0, 3) * m(1, 1)) * (m(2, 0) * m(3, 2) - m(2, 2) * m(3, 0)) +
-			(m(0, 2) * m(1, 3) - m(0, 3) * m(1, 2)) * (m(2, 0) * m(3, 1) - m(2, 1) * m(3, 0));
+		f32 d = (m[0] * m[5] - m[1] * m[4]) * (m[10] * m[15] - m[11] * m[14]) -
+			(m[0] * m[6] - m[2] * m[4]) * (m[9] * m[15] - m[11] * m[13]) +
+			(m[0] * m[7] - m[3] * m[4]) * (m[9] * m[14] - m[10] * m[13]) +
+			(m[1] * m[6] - m[2] * m[5]) * (m[8] * m[15] - m[11] * m[12]) -
+			(m[1] * m[7] - m[3] * m[5]) * (m[8] * m[14] - m[10] * m[12]) +
+			(m[2] * m[7] - m[3] * m[6]) * (m[8] * m[13] - m[9] * m[12]);
 
 		if( core::iszero ( d, FLT_MIN ) )
 			return false;
 
 		d = core::reciprocal ( d );
 
-		out(0, 0) = d * (m(1, 1) * (m(2, 2) * m(3, 3) - m(2, 3) * m(3, 2)) +
-				m(1, 2) * (m(2, 3) * m(3, 1) - m(2, 1) * m(3, 3)) +
-				m(1, 3) * (m(2, 1) * m(3, 2) - m(2, 2) * m(3, 1)));
-		out(0, 1) = d * (m(2, 1) * (m(0, 2) * m(3, 3) - m(0, 3) * m(3, 2)) +
-				m(2, 2) * (m(0, 3) * m(3, 1) - m(0, 1) * m(3, 3)) +
-				m(2, 3) * (m(0, 1) * m(3, 2) - m(0, 2) * m(3, 1)));
-		out(0, 2) = d * (m(3, 1) * (m(0, 2) * m(1, 3) - m(0, 3) * m(1, 2)) +
-				m(3, 2) * (m(0, 3) * m(1, 1) - m(0, 1) * m(1, 3)) +
-				m(3, 3) * (m(0, 1) * m(1, 2) - m(0, 2) * m(1, 1)));
-		out(0, 3) = d * (m(0, 1) * (m(1, 3) * m(2, 2) - m(1, 2) * m(2, 3)) +
-				m(0, 2) * (m(1, 1) * m(2, 3) - m(1, 3) * m(2, 1)) +
-				m(0, 3) * (m(1, 2) * m(2, 1) - m(1, 1) * m(2, 2)));
-		out(1, 0) = d * (m(1, 2) * (m(2, 0) * m(3, 3) - m(2, 3) * m(3, 0)) +
-				m(1, 3) * (m(2, 2) * m(3, 0) - m(2, 0) * m(3, 2)) +
-				m(1, 0) * (m(2, 3) * m(3, 2) - m(2, 2) * m(3, 3)));
-		out(1, 1) = d * (m(2, 2) * (m(0, 0) * m(3, 3) - m(0, 3) * m(3, 0)) +
-				m(2, 3) * (m(0, 2) * m(3, 0) - m(0, 0) * m(3, 2)) +
-				m(2, 0) * (m(0, 3) * m(3, 2) - m(0, 2) * m(3, 3)));
-		out(1, 2) = d * (m(3, 2) * (m(0, 0) * m(1, 3) - m(0, 3) * m(1, 0)) +
-				m(3, 3) * (m(0, 2) * m(1, 0) - m(0, 0) * m(1, 2)) +
-				m(3, 0) * (m(0, 3) * m(1, 2) - m(0, 2) * m(1, 3)));
-		out(1, 3) = d * (m(0, 2) * (m(1, 3) * m(2, 0) - m(1, 0) * m(2, 3)) +
-				m(0, 3) * (m(1, 0) * m(2, 2) - m(1, 2) * m(2, 0)) +
-				m(0, 0) * (m(1, 2) * m(2, 3) - m(1, 3) * m(2, 2)));
-		out(2, 0) = d * (m(1, 3) * (m(2, 0) * m(3, 1) - m(2, 1) * m(3, 0)) +
-				m(1, 0) * (m(2, 1) * m(3, 3) - m(2, 3) * m(3, 1)) +
-				m(1, 1) * (m(2, 3) * m(3, 0) - m(2, 0) * m(3, 3)));
-		out(2, 1) = d * (m(2, 3) * (m(0, 0) * m(3, 1) - m(0, 1) * m(3, 0)) +
-				m(2, 0) * (m(0, 1) * m(3, 3) - m(0, 3) * m(3, 1)) +
-				m(2, 1) * (m(0, 3) * m(3, 0) - m(0, 0) * m(3, 3)));
-		out(2, 2) = d * (m(3, 3) * (m(0, 0) * m(1, 1) - m(0, 1) * m(1, 0)) +
-				m(3, 0) * (m(0, 1) * m(1, 3) - m(0, 3) * m(1, 1)) +
-				m(3, 1) * (m(0, 3) * m(1, 0) - m(0, 0) * m(1, 3)));
-		out(2, 3) = d * (m(0, 3) * (m(1, 1) * m(2, 0) - m(1, 0) * m(2, 1)) +
-				m(0, 0) * (m(1, 3) * m(2, 1) - m(1, 1) * m(2, 3)) +
-				m(0, 1) * (m(1, 0) * m(2, 3) - m(1, 3) * m(2, 0)));
-		out(3, 0) = d * (m(1, 0) * (m(2, 2) * m(3, 1) - m(2, 1) * m(3, 2)) +
-				m(1, 1) * (m(2, 0) * m(3, 2) - m(2, 2) * m(3, 0)) +
-				m(1, 2) * (m(2, 1) * m(3, 0) - m(2, 0) * m(3, 1)));
-		out(3, 1) = d * (m(2, 0) * (m(0, 2) * m(3, 1) - m(0, 1) * m(3, 2)) +
-				m(2, 1) * (m(0, 0) * m(3, 2) - m(0, 2) * m(3, 0)) +
-				m(2, 2) * (m(0, 1) * m(3, 0) - m(0, 0) * m(3, 1)));
-		out(3, 2) = d * (m(3, 0) * (m(0, 2) * m(1, 1) - m(0, 1) * m(1, 2)) +
-				m(3, 1) * (m(0, 0) * m(1, 2) - m(0, 2) * m(1, 0)) +
-				m(3, 2) * (m(0, 1) * m(1, 0) - m(0, 0) * m(1, 1)));
-		out(3, 3) = d * (m(0, 0) * (m(1, 1) * m(2, 2) - m(1, 2) * m(2, 1)) +
-				m(0, 1) * (m(1, 2) * m(2, 0) - m(1, 0) * m(2, 2)) +
-				m(0, 2) * (m(1, 0) * m(2, 1) - m(1, 1) * m(2, 0)));
+		out[0] = d * (m[5] * (m[10] * m[15] - m[11] * m[14]) +
+				m[6] * (m[11] * m[13] - m[9] * m[15]) +
+				m[7] * (m[9] * m[14] - m[10] * m[13]));
+		out[1] = d * (m[9] * (m[2] * m[15] - m[3] * m[14]) +
+				m[10] * (m[3] * m[13] - m[1] * m[15]) +
+				m[11] * (m[1] * m[14] - m[2] * m[13]));
+		out[2] = d * (m[13] * (m[2] * m[7] - m[3] * m[6]) +
+				m[14] * (m[3] * m[5] - m[1] * m[7]) +
+				m[15] * (m[1] * m[6] - m[2] * m[5]));
+		out[3] = d * (m[1] * (m[7] * m[10] - m[6] * m[11]) +
+				m[2] * (m[5] * m[11] - m[7] * m[9]) +
+				m[3] * (m[6] * m[9] - m[5] * m[10]));
+		out[4] = d * (m[6] * (m[8] * m[15] - m[11] * m[12]) +
+				m[7] * (m[10] * m[12] - m[8] * m[14]) +
+				m[4] * (m[11] * m[14] - m[10] * m[15]));
+		out[5] = d * (m[10] * (m[0] * m[15] - m[3] * m[12]) +
+				m[11] * (m[2] * m[12] - m[0] * m[14]) +
+				m[8] * (m[3] * m[14] - m[2] * m[15]));
+		out[6] = d * (m[14] * (m[0] * m[7] - m[3] * m[4]) +
+				m[15] * (m[2] * m[4] - m[0] * m[6]) +
+				m[12] * (m[3] * m[6] - m[2] * m[7]));
+		out[7] = d * (m[2] * (m[7] * m[8] - m[4] * m[11]) +
+				m[3] * (m[4] * m[10] - m[6] * m[8]) +
+				m[0] * (m[6] * m[11] - m[7] * m[10]));
+		out[8] = d * (m[7] * (m[8] * m[13] - m[9] * m[12]) +
+				m[4] * (m[9] * m[15] - m[11] * m[13]) +
+				m[5] * (m[11] * m[12] - m[8] * m[15]));
+		out[9] = d * (m[11] * (m[0] * m[13] - m[1] * m[12]) +
+				m[8] * (m[1] * m[15] - m[3] * m[13]) +
+				m[9] * (m[3] * m[12] - m[0] * m[15]));
+		out[10] = d * (m[15] * (m[0] * m[5] - m[1] * m[4]) +
+				m[12] * (m[1] * m[7] - m[3] * m[5]) +
+				m[13] * (m[3] * m[4] - m[0] * m[7]));
+		out[11] = d * (m[3] * (m[5] * m[8] - m[4] * m[9]) +
+				m[0] * (m[7] * m[9] - m[5] * m[11]) +
+				m[1] * (m[4] * m[11] - m[7] * m[8]));
+		out[12] = d * (m[4] * (m[10] * m[13] - m[9] * m[14]) +
+				m[5] * (m[8] * m[14] - m[10] * m[12]) +
+				m[6] * (m[9] * m[12] - m[8] * m[13]));
+		out[13] = d * (m[8] * (m[2] * m[13] - m[1] * m[14]) +
+				m[9] * (m[0] * m[14] - m[2] * m[12]) +
+				m[10] * (m[1] * m[12] - m[0] * m[13]));
+		out[14] = d * (m[12] * (m[2] * m[5] - m[1] * m[6]) +
+				m[13] * (m[0] * m[6] - m[2] * m[4]) +
+				m[14] * (m[1] * m[4] - m[0] * m[5]));
+		out[15] = d * (m[0] * (m[5] * m[10] - m[6] * m[9]) +
+				m[1] * (m[6] * m[8] - m[4] * m[10]) +
+				m[2] * (m[4] * m[9] - m[5] * m[8]));
 
 #if defined ( USE_MATRIX_TEST )
 		out.definitelyIdentityMatrix = definitelyIdentityMatrix;
@@ -1510,13 +1555,13 @@ namespace core
 	// Builds a right-handed perspective projection matrix based on a field of view
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixPerspectiveFovRH(
-			f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar)
+			f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
 		const f64 h = reciprocal(tan(fieldOfViewRadians*0.5));
-		_IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
 		const T w = static_cast<T>(h / aspectRatio);
 
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = w;
 		M[1] = 0;
 		M[2] = 0;
@@ -1529,15 +1574,24 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(zFar/(zNear-zFar)); // DirectX version
-//		M[10] = (T)(zFar+zNear/(zNear-zFar)); // OpenGL version
+		//M[10]
 		M[11] = -1;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(zNear*zFar/(zNear-zFar)); // DirectX version
-//		M[14] = (T)(2.0f*zNear*zFar/(zNear-zFar)); // OpenGL version
+		//M[14]
 		M[15] = 0;
+
+		if ( zClipFromZero ) // DirectX version
+		{
+			M[10] = (T)(zFar/(zNear-zFar));
+			M[14] = (T)(zNear*zFar/(zNear-zFar));
+		}
+		else	// OpenGL version
+		{
+			M[10] = (T)((zFar+zNear)/(zNear-zFar));
+			M[14] = (T)(2.0f*zNear*zFar/(zNear-zFar));
+		}
 
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
@@ -1549,13 +1603,13 @@ namespace core
 	// Builds a left-handed perspective projection matrix based on a field of view
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixPerspectiveFovLH(
-			f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar)
+			f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
 		const f64 h = reciprocal(tan(fieldOfViewRadians*0.5));
-		_IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
 		const T w = static_cast<T>(h / aspectRatio);
 
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = w;
 		M[1] = 0;
 		M[2] = 0;
@@ -1568,13 +1622,24 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(zFar/(zFar-zNear));
+		//M[10]
 		M[11] = 1;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(-zNear*zFar/(zFar-zNear));
+		//M[14]
 		M[15] = 0;
+
+		if ( zClipFromZero ) // DirectX version
+		{
+			M[10] = (T)(zFar/(zFar-zNear));
+			M[14] = (T)(-zNear*zFar/(zFar-zNear));
+		}
+		else	// OpenGL version
+		{
+			M[10] = (T)((zFar+zNear)/(zFar-zNear));
+			M[14] = (T)(2.0f*zNear*zFar/(zNear-zFar));
+		}
 
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
@@ -1589,7 +1654,7 @@ namespace core
 			f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 epsilon)
 	{
 		const f64 h = reciprocal(tan(fieldOfViewRadians*0.5));
-		_IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(aspectRatio==0.f); //divide by zero
 		const T w = static_cast<T>(h / aspectRatio);
 
 		M[0] = w;
@@ -1622,11 +1687,11 @@ namespace core
 	// Builds a left-handed orthogonal projection matrix.
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixOrthoLH(
-			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar)
+			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
-		_IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = (T)(2/widthOfViewVolume);
 		M[1] = 0;
 		M[2] = 0;
@@ -1639,13 +1704,24 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(1/(zFar-zNear));
+		// M[10]
 		M[11] = 0;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(zNear/(zNear-zFar));
+		// M[14]
 		M[15] = 1;
+
+		if ( zClipFromZero )
+		{
+			M[10] = (T)(1/(zFar-zNear));
+			M[14] = (T)(zNear/(zNear-zFar));
+		}
+		else
+		{
+			M[10] = (T)(2/(zFar-zNear));
+			M[14] = (T)-(zFar+zNear)/(zFar-zNear);
+		}
 
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
@@ -1657,11 +1733,11 @@ namespace core
 	// Builds a right-handed orthogonal projection matrix.
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixOrthoRH(
-			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar)
+			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
-		_IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = (T)(2/widthOfViewVolume);
 		M[1] = 0;
 		M[2] = 0;
@@ -1674,13 +1750,24 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(1/(zNear-zFar));
+		// M[10]
 		M[11] = 0;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(zNear/(zNear-zFar));
+		// M[14]
 		M[15] = 1;
+
+		if ( zClipFromZero )
+		{
+			M[10] = (T)(1/(zNear-zFar));
+			M[14] = (T)(zNear/(zNear-zFar));
+		}
+		else
+		{
+			M[10] = (T)(2/(zNear-zFar));
+			M[14] = (T)-(zFar+zNear)/(zFar-zNear);
+		}
 
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
@@ -1692,11 +1779,11 @@ namespace core
 	// Builds a right-handed perspective projection matrix.
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixPerspectiveRH(
-			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar)
+			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
-		_IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = (T)(2*zNear/widthOfViewVolume);
 		M[1] = 0;
 		M[2] = 0;
@@ -1709,13 +1796,24 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(zFar/(zNear-zFar));
+		//M[10]
 		M[11] = -1;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(zNear*zFar/(zNear-zFar));
+		//M[14]
 		M[15] = 0;
+
+		if ( zClipFromZero ) // DirectX version
+		{
+			M[10] = (T)(zFar/(zNear-zFar));
+			M[14] = (T)(zNear*zFar/(zNear-zFar));
+		}
+		else	// OpenGL version
+		{
+			M[10] = (T)((zFar+zNear)/(zNear-zFar));
+			M[14] = (T)(2.0f*zNear*zFar/(zNear-zFar));
+		}
 
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
@@ -1727,11 +1825,11 @@ namespace core
 	// Builds a left-handed perspective projection matrix.
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::buildProjectionMatrixPerspectiveLH(
-			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar)
+			f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 	{
-		_IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
-		_IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
+		IRR_DEBUG_BREAK_IF(widthOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(heightOfViewVolume==0.f); //divide by zero
+		IRR_DEBUG_BREAK_IF(zNear==zFar); //divide by zero
 		M[0] = (T)(2*zNear/widthOfViewVolume);
 		M[1] = 0;
 		M[2] = 0;
@@ -1744,13 +1842,25 @@ namespace core
 
 		M[8] = 0;
 		M[9] = 0;
-		M[10] = (T)(zFar/(zFar-zNear));
+		//M[10]
 		M[11] = 1;
 
 		M[12] = 0;
 		M[13] = 0;
-		M[14] = (T)(zNear*zFar/(zNear-zFar));
+		//M[14] = (T)(zNear*zFar/(zNear-zFar));
 		M[15] = 0;
+
+		if ( zClipFromZero ) // DirectX version
+		{
+			M[10] = (T)(zFar/(zFar-zNear));
+			M[14] = (T)(zNear*zFar/(zNear-zFar));
+		}
+		else	// OpenGL version
+		{
+			M[10] = (T)((zFar+zNear)/(zFar-zNear));
+			M[14] = (T)(2.0f*zNear*zFar/(zNear-zFar));
+		}
+
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix=false;
 #endif
@@ -2056,7 +2166,7 @@ namespace core
 	}
 
 
-	//! Builds a combined matrix which translate to a center before rotation and translate afterwards
+	//! Builds a combined matrix which translate to a center before rotation and translate afterward
 	template <class T>
 	inline void CMatrix4<T>::setRotationCenter(const core::vector3df& center, const core::vector3df& translation)
 	{
@@ -2150,6 +2260,12 @@ namespace core
 		return *this;
 	}
 
+	template <class T>
+	inline void CMatrix4<T>::getTextureTranslate(f32& x, f32& y) const
+	{
+		x = (f32)M[8];
+		y = (f32)M[9];
+	}
 
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::setTextureTranslateTransposed ( f32 x, f32 y )
@@ -2174,6 +2290,12 @@ namespace core
 		return *this;
 	}
 
+	template <class T>
+	inline void CMatrix4<T>::getTextureScale ( f32& sx, f32& sy ) const
+	{
+		sx = (f32)M[0];
+		sy = (f32)M[5];
+	}
 
 	template <class T>
 	inline CMatrix4<T>& CMatrix4<T>::setTextureScaleCenter( f32 sx, f32 sy )
@@ -2209,6 +2331,8 @@ namespace core
 	{
 #if defined ( USE_MATRIX_TEST )
 		definitelyIdentityMatrix = isDefinitelyIdentityMatrix;
+#else
+		(void)isDefinitelyIdentityMatrix; // prevent compiler warning
 #endif
 	}
 

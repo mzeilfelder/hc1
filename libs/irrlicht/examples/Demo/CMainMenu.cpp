@@ -2,32 +2,40 @@
 // This file is not documented.
 
 #include "CMainMenu.h"
+#include "CDemo.h"
+#include "exampleHelper.h"
 
 
 
 CMainMenu::CMainMenu()
-: startButton(0), MenuDevice(0), selected(2), start(false), fullscreen(true),
-	music(true), shadows(false), additive(false), transparent(true), vsync(false), aa(false)
+: startButton(0), MenuDevice(0), selected(0), start(false),	fullscreen(false),
+#if defined(USE_IRRKLANG) || defined(USE_SDL_MIXER)
+	music(true),
+#else
+	music(false),
+#endif
+	shadows(true), additive(false), transparent(true), vsync(true), aa(true),
+#ifndef _IRR_WINDOWS_
+	driverType(video::EDT_OPENGL)
+#else
+	driverType(video::EDT_DIRECT3D9)
+#endif
+	//driverType(video::EDT_BURNINGSVIDEO)
 {
 }
 
 
-bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
-			bool& outAdditive, bool& outVSync, bool& outAA,
-			video::E_DRIVER_TYPE& outDriver)
+bool CMainMenu::run()
 {
-	//video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
-	//video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
-	video::E_DRIVER_TYPE driverType = video::EDT_BURNINGSVIDEO;
-	//video::E_DRIVER_TYPE driverType = video::EDT_SOFTWARE;
-
-	MenuDevice = createDevice(driverType,
+	MenuDevice = createDevice(video::EDT_BURNINGSVIDEO,
 		core::dimension2d<u32>(512, 384), 16, false, false, false, this);
+
+	const io::path mediaPath = getExampleMediaPath();
 
 	if (MenuDevice->getFileSystem()->existFile("irrlicht.dat"))
 		MenuDevice->getFileSystem()->addFileArchive("irrlicht.dat");
 	else
-		MenuDevice->getFileSystem()->addFileArchive("../../media/irrlicht.dat");
+		MenuDevice->getFileSystem()->addFileArchive(mediaPath + "irrlicht.dat");
 
 	video::IVideoDriver* driver = MenuDevice->getVideoDriver();
 	scene::ISceneManager* smgr = MenuDevice->getSceneManager();
@@ -43,7 +51,7 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 	newskin->drop();
 
 	// load font
-	gui::IGUIFont* font = guienv->getFont("../../media/fonthaettenschweiler.bmp");
+	gui::IGUIFont* font = guienv->getFont(mediaPath + "fonthaettenschweiler.bmp");
 	if (font)
 		guienv->getSkin()->setFont(font);
 
@@ -61,10 +69,17 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 
 	gui::IGUIListBox* box = guienv->addListBox(core::rect<int>(10,10,220,120), optTab, 1);
 	box->addItem(L"OpenGL 1.5");
-	box->addItem(L"Direct3D 8.1");
 	box->addItem(L"Direct3D 9.0c");
-	box->addItem(L"Burning's Video 0.47");
+	box->addItem(L"Burning's Video 0.52");
 	box->addItem(L"Irrlicht Software Renderer 1.0");
+	switch (driverType )
+	{
+		case video::EDT_OPENGL:        selected = 0; break;
+		case video::EDT_DIRECT3D9:     selected = 1; break;
+		case video::EDT_BURNINGSVIDEO: selected = 2; break;
+		case video::EDT_SOFTWARE:      selected = 3; break;
+		default: break;
+	}
 	box->setSelected(selected);
 
 	// add button
@@ -96,19 +111,19 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 		L"The Irrlicht Engine was written by me, Nikolaus Gebhardt. The models, "\
 		L"maps and textures were placed at my disposal by B.Collins, M.Cook and J.Marton. The music was created by "\
 		L"M.Rohde and is played back by irrKlang.\n"\
-		L"For more informations, please visit the homepage of the Irrlicht engine:\nhttp://irrlicht.sourceforge.net";
+		L"For more information, please visit the homepage of the Irrlicht engine:\nhttp://irrlicht.sourceforge.net";
 
 	guienv->addStaticText(text2, core::rect<int>(10, 10, 230, 320),
 		true, true, aboutTab);
 
 	// add md2 model
 
-	scene::IAnimatedMesh* mesh = smgr->getMesh("../../media/faerie.md2");
+	scene::IAnimatedMesh* mesh = smgr->getMesh(mediaPath + "faerie.md2");
 	scene::IAnimatedMeshSceneNode* modelNode = smgr->addAnimatedMeshSceneNode(mesh);
 	if (modelNode)
 	{
 		modelNode->setPosition( core::vector3df(0.f, 0.f, -5.f) );
-		modelNode->setMaterialTexture(0, driver->getTexture("../../media/faerie2.bmp"));
+		modelNode->setMaterialTexture(0, driver->getTexture(mediaPath + "faerie2.bmp"));
 		modelNode->setMaterialFlag(video::EMF_LIGHTING, true);
 		modelNode->getMaterial(0).Shininess = 50.f;
 		modelNode->getMaterial(0).NormalizeNormals = true;
@@ -169,7 +184,8 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 				{
 					bill->setMaterialFlag(video::EMF_LIGHTING, false);
 					bill->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-					bill->setMaterialTexture(0, driver->getTexture("../../media/particlered.bmp"));
+					bill->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+					bill->setMaterialTexture(0, driver->getTexture(mediaPath + "particlered.bmp"));
 				}
 				// add fly circle animator to the light
 				anim = smgr->createFlyCircleAnimator(core::vector3df(0.f,0.f,-5.f),20.f,
@@ -187,7 +203,8 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 				{
 					bill->setMaterialFlag(video::EMF_LIGHTING, false);
 					bill->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-					bill->setMaterialTexture(0, driver->getTexture("../../media/portal1.bmp"));
+					bill->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
+					bill->setMaterialTexture(0, driver->getTexture(mediaPath + "portal1.bmp"));
 				}
 				// add fly circle animator to the light
 				anim = smgr->createFlyCircleAnimator(core::vector3df(0.f,0.f,-5.f),20.f,
@@ -210,10 +227,10 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 	bool oldMipMapState = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
-	guienv->addImage(driver->getTexture("../../media/irrlichtlogo3.png"),
+	guienv->addImage(driver->getTexture(mediaPath + "irrlichtlogo3.png"),
 		core::position2d<s32>(5,5));
 
-	video::ITexture* irrlichtBack = driver->getTexture("../../media/demoback.jpg");
+	video::ITexture* irrlichtBack = driver->getTexture(mediaPath + "demoback.jpg");
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, oldMipMapState);
 
@@ -229,7 +246,7 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 	{
 		if (MenuDevice->isWindowActive())
 		{
-			driver->beginScene(false, true, video::SColor(0,0,0,0));
+			driver->beginScene(video::ECBF_DEPTH, video::SColor(0,0,0,0));
 
 			if (irrlichtBack)
 				driver->draw2DImage(irrlichtBack,
@@ -243,20 +260,12 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 
 	MenuDevice->drop();
 
-	outFullscreen = fullscreen;
-	outMusic = music;
-	outShadows = shadows;
-	outAdditive = additive;
-	outVSync = vsync;
-	outAA = aa;
-
 	switch(selected)
 	{
-	case 0:	outDriver = video::EDT_OPENGL; break;
-	case 1:	outDriver = video::EDT_DIRECT3D8; break;
-	case 2:	outDriver = video::EDT_DIRECT3D9; break;
-	case 3:	outDriver = video::EDT_BURNINGSVIDEO; break;
-	case 4:	outDriver = video::EDT_SOFTWARE; break;
+	case 0:	driverType = video::EDT_OPENGL; break;
+	case 1:	driverType = video::EDT_DIRECT3D9; break;
+	case 2:	driverType = video::EDT_BURNINGSVIDEO; break;
+	case 3:	driverType = video::EDT_SOFTWARE; break;
 	}
 
 	return start;

@@ -2,11 +2,12 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_FILE_SYSTEM_H_INCLUDED__
-#define __I_FILE_SYSTEM_H_INCLUDED__
+#ifndef IRR_I_FILE_SYSTEM_H_INCLUDED
+#define IRR_I_FILE_SYSTEM_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "IXMLReader.h"
+#include "IXMLWriter.h"
 #include "IFileArchive.h"
 
 namespace irr
@@ -21,7 +22,6 @@ namespace io
 class IReadFile;
 class IWriteFile;
 class IFileList;
-class IXMLWriter;
 class IAttributes;
 
 
@@ -225,7 +225,7 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.
 	\return True if the archive was added successfully, false if not. */
-	_IRR_DEPRECATED_ virtual bool addZipFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	IRR_DEPRECATED virtual bool addZipFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_ZIP);
 	}
@@ -241,7 +241,7 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.
 	\return True if the archive was added successful, false if not. */
-	_IRR_DEPRECATED_ virtual bool addFolderFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	IRR_DEPRECATED virtual bool addFolderFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_FOLDER);
 	}
@@ -259,7 +259,7 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.(should not use with Quake2 paks
 	\return True if the archive was added successful, false if not. */
-	_IRR_DEPRECATED_ virtual bool addPakFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	IRR_DEPRECATED virtual bool addPakFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_PAK);
 	}
@@ -315,7 +315,7 @@ public:
 
 	//! Determines if a file exists and could be opened.
 	/** \param filename is the string identifying the file which should be tested for existence.
-	\return True if file exists, and false if it does not exist or an error occured. */
+	\return True if file exists, and false if it does not exist or an error occurred. */
 	virtual bool existFile(const path& filename) const =0;
 
 	//! Creates a XML Reader from a file which returns all parsed strings as wide characters (wchar_t*).
@@ -354,6 +354,20 @@ public:
 	See IReferenceCounted::drop() for more information. */
 	virtual IXMLReaderUTF8* createXMLReaderUTF8(IReadFile* file) =0;
 
+	//! Creates a XML Writer from a file which will write ASCII/UTF-8 characters (char*).
+	/** \return 0, if file could not be opened, otherwise a pointer to the created
+	IXMLWriter is returned. After use, the reader
+	has to be deleted using its IXMLWriter::drop() method.
+	See IReferenceCounted::drop() for more information. */
+	virtual IXMLWriterUTF8* createXMLWriterUTF8(const path& filename) =0;
+
+	//! Creates a XML Writer from a file which will write ASCII/UTF-8 characters (char*).
+	/** \return 0, if file could not be opened, otherwise a pointer to the created
+	IXMLWriter is returned. After use, the reader
+	has to be deleted using its IXMLWriter::drop() method.
+	See IReferenceCounted::drop() for more information. */
+	virtual IXMLWriterUTF8* createXMLWriterUTF8(IWriteFile* file) =0;
+
 	//! Creates a XML Writer from a file.
 	/** \return 0, if file could not be opened, otherwise a pointer to the created
 	IXMLWriter is returned. After use, the reader
@@ -382,4 +396,3 @@ public:
 } // end namespace irr
 
 #endif
-

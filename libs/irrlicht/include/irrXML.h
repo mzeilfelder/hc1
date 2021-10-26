@@ -2,11 +2,13 @@
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and/or irrXML.h
 
-#ifndef __IRR_XML_H_INCLUDED__
-#define __IRR_XML_H_INCLUDED__
+#ifndef IRR_XML_H_INCLUDED
+#define IRR_XML_H_INCLUDED
 
 #include <stdio.h>
 #include "IrrCompileConfig.h"
+#include "irrArray.h"
+#include "irrString.h"
 
 /** \mainpage irrXML 1.2 API documentation
  <div align="center"><img src="logobig.png" ></div>
@@ -22,7 +24,7 @@
   irrXML is intended to be a high speed and easy-to-use XML Parser for C++, and
   this documentation is an important part of it. If you have any questions or
   suggestions, just send a email to the author of the engine, Nikolaus Gebhardt
-  (niko (at) irrlicht3d.org). For more informations about this parser, see \ref history.
+  (niko (at) irrlicht3d.org). For more information about this parser, see \ref history.
 
   \section features Features
 
@@ -46,7 +48,7 @@
 	to use.
 	- It has no external dependencies, it does not even need the STL.
 
-	Although irrXML has some strenghts, it currently also has the following limitations:
+	Although irrXML has some strengths, it currently also has the following limitations:
 
 	- The input xml file is not validated and assumed to be correct.
 
@@ -117,7 +119,7 @@
 
 	\section license License
 
-	The irrXML license is based on the zlib license. Basicly, this means you can do with
+	The irrXML license is based on the zlib license. Basically, this means you can do with
 	irrXML whatever you want:
 
 	Copyright (C) 2002-2012 Nikolaus Gebhardt
@@ -224,7 +226,7 @@ namespace io
 		\return Returns how much bytes were read. */
 		virtual int read(void* buffer, int sizeToRead) = 0;
 
-		//! Returns size of file in bytes
+		//! Returns size of file in bytes on success or -1L on failure.
 		virtual long getSize() const = 0;
 	};
 
@@ -232,7 +234,7 @@ namespace io
 	/** If you need another class as base class for the xml reader, you can do this by creating
 	the reader using for example new CXMLReaderImpl<char, YourBaseClass>(yourcallback);
 	The Irrlicht Engine for example needs IReferenceCounted as base class for every object to
-	let it automaticly reference countend, hence it replaces IXMLBase with IReferenceCounted.
+	let it automatically reference counted, hence it replaces IXMLBase with IReferenceCounted.
 	See irrXML.cpp on how this can be done in detail. */
 	class IXMLBase
 	{
@@ -316,27 +318,31 @@ namespace io
 
 		//! Returns the value of an attribute as integer.
 		/** \param name Name of the attribute.
-		\return Value of the attribute as integer, and 0 if an attribute with this name does not exist or
-		the value could not be interpreted as integer. */
-		virtual int getAttributeValueAsInt(const char_type* name) const = 0;
+		\param defaultNotFound Value returned when name does not exist
+		\return Value of the attribute as integer or value of defaultNotFound
+		when name was not found or 0 when value could not be interpreted as integer */
+		virtual int getAttributeValueAsInt(const char_type* name, int defaultNotFound=0) const = 0;
 
 		//! Returns the value of an attribute as integer.
 		/** \param idx: Zero based index, should be something between 0 and getAttributeCount()-1.
-		\return Value of the attribute as integer, and 0 if an attribute with this index does not exist or
-		the value could not be interpreted as integer. */
-		virtual int getAttributeValueAsInt(int idx) const = 0;
+		\param defaultNotFound Value returned when index does not exist.
+		\return Value of the attribute as integer or value of defaultNotFound parameter for invalid index
+		or 0 when value could not be interpreted as integer */
+		virtual int getAttributeValueAsInt(int idx, int defaultNotFound=0) const = 0;
 
 		//! Returns the value of an attribute as float.
 		/** \param name: Name of the attribute.
-		\return Value of the attribute as float, and 0 if an attribute with this name does not exist or
-		the value could not be interpreted as float. */
-		virtual float getAttributeValueAsFloat(const char_type* name) const = 0;
+		\param defaultNotFound Value returned when name does not exist.
+		\return Value of the attribute as float or value of defaultNotFound parameter on failure
+		or 0 when value could not be interpreted as float. */
+		virtual float getAttributeValueAsFloat(const char_type* name, float defaultNotFound=0.f) const = 0;
 
 		//! Returns the value of an attribute as float.
 		/** \param idx: Zero based index, should be something between 0 and getAttributeCount()-1.
-		\return Value of the attribute as float, and 0 if an attribute with this index does not exist or
-		the value could not be interpreted as float. */
-		virtual float getAttributeValueAsFloat(int idx) const = 0;
+		\param defaultNotFound Value returned when index does not exist.
+		\return Value of the attribute as float or value of defaultNotFound parameter on failure
+		or 0 when value could not be interpreted as float. */
+		virtual float getAttributeValueAsFloat(int idx, float defaultNotFound=0.f) const = 0;
 
 		//! Returns the name of the current node.
 		/** Only valid, if the node type is EXN_ELEMENT.
@@ -355,7 +361,7 @@ namespace io
 		/** It is not necessary to use
 		this method because the parser will convert the input file format
 		to the format wanted by the user when creating the parser. This
-		method is useful to get/display additional informations. */
+		method is useful to get/display additional information. */
 		virtual ETEXT_FORMAT getSourceFormat() const = 0;
 
 		//! Returns format of the strings returned by the parser.
@@ -364,6 +370,65 @@ namespace io
 		IrrXMLReaderUTF32. It should not be necessary to call this
 		method and only exists for informational purposes. */
 		virtual ETEXT_FORMAT getParserFormat() const = 0;
+	};
+
+	//! Interface providing methods for making it easier to write XML files.
+	template<class char_type, class super_class>
+	class IIrrXMLWriter : public super_class
+	{
+	public:
+
+		//! Destructor
+		virtual ~IIrrXMLWriter() {}
+
+		//! Writes an xml 1.0 header.
+		/** Looks like &lt;?xml version="1.0"?&gt;. This should always
+		be called before writing anything other, because also the text
+		file header for Unicode texts is written out with this method. */
+		virtual void writeXMLHeader() = 0;
+
+		//! Writes an xml element with maximal 5 attributes like "<foo />" or
+		//! &lt;foo optAttr="value" /&gt;.
+		/** The element can be empty or not.
+		\param name: Name of the element
+		\param empty: Specifies if the element should be empty. Like
+		"<foo />". If You set this to false, something like this is
+		written instead: "<foo>".
+		\param attr1Name: 1st attributes name
+		\param attr1Value: 1st attributes value
+		\param attr2Name: 2nd attributes name
+		\param attr2Value: 2nd attributes value
+		\param attr3Name: 3rd attributes name
+		\param attr3Value: 3rd attributes value
+		\param attr4Name: 4th attributes name
+		\param attr4Value: 4th attributes value
+		\param attr5Name: 5th attributes name
+		\param attr5Value: 5th attributes value */
+		virtual void writeElement(const char_type* name, bool empty=false,
+			const char_type* attr1Name = 0, const char_type* attr1Value = 0,
+			const char_type* attr2Name = 0, const char_type* attr2Value = 0,
+			const char_type* attr3Name = 0, const char_type* attr3Value = 0,
+			const char_type* attr4Name = 0, const char_type* attr4Value = 0,
+			const char_type* attr5Name = 0, const char_type* attr5Value = 0) = 0;
+
+		//! Writes an xml element with any number of attributes
+		virtual void writeElement(const char_type* name, bool empty,
+				core::array<core::string<char_type> > &names, core::array<core::string<char_type> > &values) = 0;
+
+		//! Writes a comment into the xml file
+		virtual void writeComment(const char_type* comment) = 0;
+
+		//! Writes the closing tag for an element. Like "</foo>"
+		virtual void writeClosingTag(const char_type* name) = 0;
+
+		//! Writes a text into the file.
+		/** All occurrences of special characters such as
+		& (&amp;), < (&lt;), > (&gt;), and " (&quot;) are automatically
+		replaced. */
+		virtual void writeText(const char_type* text) = 0;
+
+		//! Writes a line break
+		virtual void writeLineBreak() = 0;
 	};
 
 
@@ -375,7 +440,7 @@ namespace io
 		xmlChar<T>(char in) : c(static_cast<T>(in)) {}
 		xmlChar<T>(wchar_t in) : c(static_cast<T>(in)) {}
 #if defined(__BORLANDC__)
-		// Note - removing explicit for borland was to get it to even compile.
+		// Note - removing explicit for Borland was to get it to even compile.
 		// There haven't been any kind of tests for that besides that.
 		xmlChar<T>(unsigned char in) : c(static_cast<T>(in)) {}
 		xmlChar<T>(unsigned short in) : c(static_cast<T>(in)) {}
@@ -437,7 +502,7 @@ namespace io
 	IFileSystem::createXMLReaderUTF8() instead.
 	\param filename: Name of file to be opened.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReader* IRRCALLCONV createIrrXMLReader(const char* filename);
 
@@ -449,7 +514,7 @@ namespace io
 	\param file: Pointer to opened file, must have been opened in binary mode, e.g.
 	using fopen("foo.bar", "wb"); The file will not be closed after it has been read.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReader* IRRCALLCONV createIrrXMLReader(FILE* file);
 
@@ -462,9 +527,9 @@ namespace io
 	callback to make the xml parser read in other things than just files. See
 	IFileReadCallBack for more information about this.
 	\param deleteCallback: if true, the callback will be deleted after the file
-	has been read.  Otherwise the caller si responsible for cleaning it up.
+	has been read.  Otherwise the caller is responsible for cleaning it up.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReader* IRRCALLCONV createIrrXMLReader(IFileReadCallBack* callback,
 																bool deleteCallback = false);
@@ -477,7 +542,7 @@ namespace io
 	IFileSystem::createXMLReader() instead.
 	\param filename: Name of file to be opened.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF16* IRRCALLCONV createIrrXMLReaderUTF16(const char* filename);
 
@@ -489,7 +554,7 @@ namespace io
 	\param file: Pointer to opened file, must have been opened in binary mode, e.g.
 	using fopen("foo.bar", "wb"); The file will not be closed after it has been read.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF16* IRRCALLCONV createIrrXMLReaderUTF16(FILE* file);
 
@@ -502,9 +567,9 @@ namespace io
 	callback to make the xml parser read in other things than just files. See
 	IFileReadCallBack for more information about this.
 	\param deleteCallback: if true, the callback will be deleted after the file
-	has been read.  Otherwise the caller si responsible for cleaning it up.
+	has been read.  Otherwise the caller is responsible for cleaning it up.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF16* IRRCALLCONV createIrrXMLReaderUTF16(IFileReadCallBack* callback,
 																		bool deleteCallback = false);
@@ -517,7 +582,7 @@ namespace io
 	IFileSystem::createXMLReader() instead.
 	\param filename: Name of file to be opened.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF32* IRRCALLCONV createIrrXMLReaderUTF32(const char* filename);
 
@@ -529,7 +594,7 @@ namespace io
 	\param file: Pointer to opened file, must have been opened in binary mode, e.g.
 	using fopen("foo.bar", "wb"); The file will not be closed after it has been read.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF32* IRRCALLCONV createIrrXMLReaderUTF32(FILE* file);
 
@@ -543,9 +608,9 @@ namespace io
 	callback to make the xml parser read in other things than just files. See
 	IFileReadCallBack for more information about this.
 	\param deleteCallback: if true, the callback will be deleted after the file
-	has been read.  Otherwise the caller si responsible for cleaning it up.
+	has been read.  Otherwise the caller is responsible for cleaning it up.
 	\return Returns a pointer to the created xml parser. This pointer should be
-	deleted using 'delete' after no longer needed. Returns 0 if an error occured
+	deleted using 'delete' after no longer needed. Returns 0 if an error occurred
 	and the file could not be opened. */
 	IRRLICHT_API IrrXMLReaderUTF32* IRRCALLCONV createIrrXMLReaderUTF32(IFileReadCallBack* callback,
 																		bool deleteCallback = false);
@@ -576,5 +641,4 @@ namespace io
 } // end namespace io
 } // end namespace irr
 
-#endif // __IRR_XML_H_INCLUDED__
-
+#endif // IRR_XML_H_INCLUDED

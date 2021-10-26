@@ -1,6 +1,6 @@
 /** Example 006 2D Graphics
 
-This Tutorial shows how to do 2d graphics with the Irrlicht Engine.
+This tutorial shows how to do 2d graphics with the Irrlicht Engine.
 It shows how to draw images, keycolor based sprites,
 transparent rectangles, and different fonts. You may consider
 this useful if you want to make a 2d game with the engine, or if
@@ -11,6 +11,7 @@ and tell the linker to link with the .lib file.
 */
 #include <irrlicht.h>
 #include "driverChoice.h"
+#include "exampleHelper.h"
 
 using namespace irr;
 
@@ -30,7 +31,6 @@ int main()
 		return 1;
 
 	// create device
-
 	IrrlichtDevice *device = createDevice(driverType,
 		core::dimension2d<u32>(512, 384));
 
@@ -40,6 +40,8 @@ int main()
 	device->setWindowCaption(L"Irrlicht Engine - 2D Graphics Demo");
 
 	video::IVideoDriver* driver = device->getVideoDriver();
+
+	const io::path mediaPath = getExampleMediaPath();
 
 	/*
 	All 2d graphics in this example are put together into one texture,
@@ -54,19 +56,19 @@ int main()
 	e.g. all black pixels transparent. Please note that
 	makeColorKeyTexture just creates an alpha channel based on the color.
 	*/
-	video::ITexture* images = driver->getTexture("../../media/2ddemo.png");
+	video::ITexture* images = driver->getTexture(mediaPath + "2ddemo.png");
 	driver->makeColorKeyTexture(images, core::position2d<s32>(0,0));
 
 	/*
 	To be able to draw some text with two different fonts, we first load
-	them. Ok, we load just one. As the first font we just use the default
+	them. OK, we load just one. As the first font we just use the default
 	font which is built into the engine. Also, we define two rectangles
 	which specify the position of the images of the red imps (little flying
 	creatures) in the texture.
 	*/
 	gui::IGUIFont* font = device->getGUIEnvironment()->getBuiltInFont();
 	gui::IGUIFont* font2 =
-		device->getGUIEnvironment()->getFont("../../media/fonthaettenschweiler.bmp");
+		device->getGUIEnvironment()->getFont(mediaPath + "fonthaettenschweiler.bmp");
 
 	core::rect<s32> imp1(349,15,385,78);
 	core::rect<s32> imp2(387,15,423,78);
@@ -90,7 +92,7 @@ int main()
 		{
 			u32 time = device->getTimer()->getTime();
 
-			driver->beginScene(true, true, video::SColor(255,120,102,136));
+			driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(255,120,102,136));
 
 			/*
 			First, we draw 3 sprites, using the alpha channel we
@@ -113,7 +115,7 @@ int main()
 				(time/500 % 2) ? imp1 : imp2, 0,
 				video::SColor(255,255,255,255), true);
 
-			// draw second flying imp with colorcylce
+			// draw second flying imp with color cycle
 			driver->draw2DImage(images, core::position2d<s32>(270,105),
 				(time/500 % 2) ? imp1 : imp2, 0,
 				video::SColor(255,(time) % 255,255,255), true);

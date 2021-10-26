@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_CORE_UTIL_H_INCLUDED__
-#define __IRR_CORE_UTIL_H_INCLUDED__
+#ifndef IRR_CORE_UTIL_H_INCLUDED
+#define IRR_CORE_UTIL_H_INCLUDED
 
 #include "irrString.h"
 #include "path.h"
@@ -113,14 +113,12 @@ inline io::path& deletePathFromPath(io::path& filename, s32 pathCount)
 //! 0 means in same directory. 1 means file is direct child of path
 inline s32 isInSameDirectory ( const io::path& path, const io::path& file )
 {
-	s32 subA = 0;
-	s32 subB = 0;
-	s32 pos;
-
 	if ( path.size() && !path.equalsn ( file, path.size() ) )
 		return -1;
 
-	pos = 0;
+	s32 subA = 0;
+	s32 subB = 0;
+	s32 pos = 0;
 	while ( (pos = path.findNext ( '/', pos )) >= 0 )
 	{
 		subA += 1;
@@ -175,30 +173,27 @@ static inline void splitFilename(const io::path &name, io::path* path=0,
 static inline io::path mergeFilename(const io::path& path, const io::path& filename, const io::path& extension = "")
 {
 	io::path result(path);
-	
+
 	if ( !result.empty() )
 	{
 		fschar_t last = result.lastChar();
-		if ( last != _IRR_TEXT('/') && last != _IRR_TEXT('\\') )
-			result += _IRR_TEXT('/');
+		if ( last != IRR_TEXT('/') && last != IRR_TEXT('\\') )
+			result += IRR_TEXT('/');
 	}
 	if ( !filename.empty() )
 		result += filename;
 	if ( !extension.empty() )
 	{
-		if ( !result.empty() && extension[0] != _IRR_TEXT('.') )
-			result += _IRR_TEXT('.');
+		if ( !result.empty() && extension[0] != IRR_TEXT('.') )
+			result += IRR_TEXT('.');
 		result += extension;
 	}
-	
+
 	return result;
 }
 
 
 //! some standard function ( to remove dependencies )
-#undef isdigit
-#undef isspace
-#undef isupper
 inline s32 isdigit(s32 c) { return c >= '0' && c <= '9'; }
 inline s32 isspace(s32 c) { return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v'; }
 inline s32 isupper(s32 c) { return c >= 'A' && c <= 'Z'; }

@@ -10,6 +10,7 @@
 #include "IWriteFile.h"
 #include "CImage.h"
 #include "irrString.h"
+#include "os.h"
 
 #ifdef _IRR_COMPILE_WITH_LIBJPEG_
 #include <stdio.h> // required for jpeglib.h
@@ -72,7 +73,7 @@ static boolean jpeg_empty_output_buffer(j_compress_ptr cinfo)
 static void jpeg_term_destination(j_compress_ptr cinfo)
 {
 	mem_dest_ptr dest = (mem_dest_ptr) cinfo->dest;
-	const s32 datacount = (s32)(OUTPUT_BUF_SIZE - dest->pub.free_in_buffer);
+	const size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
 	// for now just exit upon file error
 	if (dest->file->write(dest->buffer, datacount) != datacount)
 		ERREXIT (cinfo, JERR_FILE_WRITE);
@@ -121,10 +122,9 @@ static bool writeJPEGFile(io::IWriteFile* file, IImage* image, u32 quality)
 		case ECF_R5G6B5:
 			format = CColorConverter::convert_R5G6B5toR8G8B8;
 			break;
-#ifndef _DEBUG
 		default:
+			os::Printer::log("writeJPEGFile does not support image format", ColorFormatNames[image->getColorFormat()], ELL_WARNING);
 			break;
-#endif
 	}
 
 	// couldn't find a color converter
@@ -160,7 +160,7 @@ static bool writeJPEGFile(io::IWriteFile* file, IImage* image, u32 quality)
 		JSAMPROW row_pointer[1];      /* pointer to JSAMPLE row[s] */
 		row_pointer[0] = dest;
 
-		u8* src = (u8*)image->lock();
+		u8* src = (u8*)image->getData();
 
 		while (cinfo.next_scanline < cinfo.image_height)
 		{
@@ -169,7 +169,6 @@ static bool writeJPEGFile(io::IWriteFile* file, IImage* image, u32 quality)
 			src += pitch;
 			jpeg_write_scanlines(&cinfo, row_pointer, 1);
 		}
-		image->unlock();
 
 		delete [] dest;
 

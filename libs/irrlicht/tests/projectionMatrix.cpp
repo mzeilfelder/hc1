@@ -25,13 +25,13 @@ static bool runTestWithDriver(E_DRIVER_TYPE driverType)
 
 	bool result = true;
 
-	driver->beginScene(true, false, SColor(255,0,0,0));
+	driver->beginScene(video::ECBF_COLOR, SColor(255,0,0,0));
 	                
 	SMaterial mat;
 	mat.MaterialType = EMT_SOLID;
 	mat.Lighting = false;
 	mat.ZBuffer = false;
-	mat.ZWriteEnable = false;
+	mat.ZWriteEnable = video::EZW_OFF;
 	mat.Thickness = 1;
 
 	driver->setMaterial(mat);

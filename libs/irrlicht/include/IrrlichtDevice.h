@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_IRRLICHT_DEVICE_H_INCLUDED__
-#define __I_IRRLICHT_DEVICE_H_INCLUDED__
+#ifndef IRR_I_IRRLICHT_DEVICE_H_INCLUDED
+#define IRR_I_IRRLICHT_DEVICE_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "dimension2d.h"
@@ -33,6 +33,10 @@ namespace irr
 	namespace scene {
 		class ISceneManager;
 	} // end namespace scene
+
+	namespace video {
+		class IContextManager;
+	} // end namespace video
 
 	//! The Irrlicht device. You can create it with createDevice() or createDeviceEx().
 	/** This is the most important class of the Irrlicht Engine. You can
@@ -67,7 +71,7 @@ namespace irr
 		DispatchMessage and whatever and simply don't use this method.
 		But note that Irrlicht will not be able to fetch user input
 		then. See irr::SIrrlichtCreationParameters::WindowId for more
-		informations and example code.
+		information and example code.
 		*/
 		virtual bool run() = 0;
 
@@ -78,7 +82,7 @@ namespace irr
 
 		//! Pause execution and let other processes to run for a specified amount of time.
 		/** It may not wait the full given time, as sleep may be interrupted
-		\param timeMs: Time to sleep for in milisecs.
+		\param timeMs: Time to sleep for in milliseconds.
 		\param pauseTimer: If true, pauses the device timer while sleeping
 		*/
 		virtual void sleep(u32 timeMs, bool pauseTimer=false) = 0;
@@ -108,19 +112,19 @@ namespace irr
 		virtual ILogger* getLogger() = 0;
 
 		//! Gets a list with all video modes available.
-		/** If you are confused now, because you think you have to
-		create an Irrlicht Device with a video mode before being able
-		to get the video mode list, let me tell you that there is no
-		need to start up an Irrlicht Device with EDT_DIRECT3D8,
-		EDT_OPENGL or EDT_SOFTWARE: For this (and for lots of other
-		reasons) the null driver, EDT_NULL exists.
+		/** You only need a null driver (ED_NULL) to access
+		those video modes. So you can get the available modes
+		before starting any other video driver.
 		\return Pointer to a list with all video modes supported
 		by the gfx adapter. */
 		virtual video::IVideoModeList* getVideoModeList() = 0;
 
+		//! Get context manager
+		virtual video::IContextManager* getContextManager() = 0;
+
 		//! Provides access to the operation system operator object.
 		/** The OS operator provides methods for
-		getting system specific informations and doing system
+		getting system specific information and doing system
 		specific operations, such as exchanging data with the clipboard
 		or reading the operation system version.
 		\return Pointer to the OS operator. */
@@ -170,7 +174,7 @@ namespace irr
 		\return True if window is active. */
 		virtual bool isWindowActive() const = 0;
 
-		//! Checks if the Irrlicht window has focus
+		//! Checks if the Irrlicht window has the input focus
 		/** \return True if window has focus. */
 		virtual bool isWindowFocused() const = 0;
 
@@ -314,12 +318,6 @@ namespace irr
 #else
 					return false;
 #endif
-				case video::EDT_DIRECT3D8:
-#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
-					return true;
-#else
-					return false;
-#endif
 				case video::EDT_DIRECT3D9:
 #ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
 					return true;
@@ -341,4 +339,3 @@ namespace irr
 } // end namespace irr
 
 #endif
-

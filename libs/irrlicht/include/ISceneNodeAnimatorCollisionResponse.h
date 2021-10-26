@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_SCENE_NODE_ANIMATOR_COLLISION_RESPONSE_H_INCLUDED__
-#define __I_SCENE_NODE_ANIMATOR_COLLISION_RESPONSE_H_INCLUDED__
+#ifndef IRR_I_SCENE_NODE_ANIMATOR_COLLISION_RESPONSE_H_INCLUDED
+#define IRR_I_SCENE_NODE_ANIMATOR_COLLISION_RESPONSE_H_INCLUDED
 
 #include "ISceneNode.h"
 
@@ -23,7 +23,7 @@ namespace scene
 	{
 	public:
 
-		//! Will be called when a collision occurrs.
+		//! Will be called when a collision occurs.
 		/** See ISceneNodeAnimatorCollisionResponse::setCollisionCallback for more information.
 		\param animator: Collision response animator in which the collision occurred. You can call
 		this animator's methods to find the node, collisionPoint and/or collision triangle.
@@ -168,4 +168,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

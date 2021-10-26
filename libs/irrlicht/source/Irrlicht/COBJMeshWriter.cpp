@@ -193,6 +193,39 @@ bool COBJMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 fla
 			if (mat[i]->getTexture(0))
 			{
 				file->write("map_Kd ", 7);
+
+				f32 tposX, tposY, tscaleX, tscaleY;
+				const core::matrix4& textureMatrix =  mat[i]->getTextureMatrix(0);
+				textureMatrix.getTextureTranslate(tposX, tposY);
+				textureMatrix.getTextureScale(tscaleX, tscaleY);
+
+			   //Write texture translation values
+				if ( !core::equals(tposX, 0.f) || !core::equals(tposY, 0.f) )
+				{
+					file->write("-o ", 3);
+			   		core::stringc tx(tposX);
+			   		core::stringc ty(tposY);
+
+					file->write(tx.c_str(), tx.size());
+					file->write(" ", 1);
+					file->write(ty.c_str(), ty.size());
+					file->write(" ", 1);
+				}
+
+				//Write texture scaling values
+				if ( !core::equals(tscaleX, 1.f) || !core::equals(tscaleY, 1.f) )
+				{
+					file->write("-s ", 3);
+
+					core::stringc sx(tscaleX);
+					core::stringc sy(tscaleY);
+
+					file->write(sx.c_str(), sx.size());
+					file->write(" ", 1);
+					file->write(sy.c_str(), sy.size());
+					file->write(" ", 1);
+				}
+
 				io::path tname = FileSystem->getRelativeFilename(mat[i]->getTexture(0)->getName(),
 						FileSystem->getFileDir(file->getFileName()));
 				// avoid blanks as .obj cannot handle strings with spaces
@@ -211,34 +244,25 @@ bool COBJMeshWriter::writeMesh(io::IWriteFile* file, scene::IMesh* mesh, s32 fla
 
 void COBJMeshWriter::getVectorAsStringLine(const core::vector3df& v, core::stringc& s) const
 {
-	s = core::stringc(-v.X);
-	s += " ";
-	s += core::stringc(v.Y);
-	s += " ";
-	s += core::stringc(v.Z);
-	s += "\n";
+	c8 tmpbuf[255];
+	snprintf_irr(tmpbuf, 255, "%f %f %f\n", -v.X, v.Y, v.Z);
+	s = tmpbuf;
 }
 
 
 void COBJMeshWriter::getVectorAsStringLine(const core::vector2df& v, core::stringc& s) const
 {
-	s = core::stringc(v.X);
-	s += " ";
-	s += core::stringc(1-v.Y);
-	s += "\n";
+	c8 tmpbuf[255];
+	snprintf_irr(tmpbuf, 255, "%f %f\n", v.X, 1.f-v.Y);
+	s = tmpbuf;
 }
 
 
 void COBJMeshWriter::getColorAsStringLine(const video::SColor& color, const c8* const prefix, core::stringc& s) const
 {
-	s = prefix;
-	s += " ";
-	s += core::stringc((double)(color.getRed()/255.f));
-	s += " ";
-	s += core::stringc((double)(color.getGreen()/255.f));
-	s += " ";
-	s += core::stringc((double)(color.getBlue()/255.f));
-	s += "\n";
+	c8 tmpbuf[255];
+	snprintf_irr(tmpbuf, 255, "%s %f %f %f\n", prefix, (float)(color.getRed()/255.f), (float)(color.getGreen()/255.f), (float)(color.getBlue()/255.f));
+	s = tmpbuf;
 }
 
 

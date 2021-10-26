@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_I_MESH_WRITER_H_INCLUDED__
-#define __IRR_I_MESH_WRITER_H_INCLUDED__
+#ifndef IRR_I_MESH_WRITER_H_INCLUDED
+#define IRR_I_MESH_WRITER_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "EMeshWriterEnums.h"
@@ -38,13 +38,13 @@ namespace scene
 		/** \param file File handle to write the mesh to.
 		\param mesh Pointer to mesh to be written.
 		\param flags Optional flags to set properties of the writer.
-		\return True if sucessful */
+		\return True if successful */
 		virtual bool writeMesh(io::IWriteFile* file, scene::IMesh* mesh,
 							s32 flags=EMWF_NONE) = 0;
 
 		// Writes an animated mesh
-		// for future use, no writer is able to write animated meshes currently
-		/* \return Returns true if sucessful */
+		// for future use, only b3d writer is able to write animated meshes currently and that was implemented using the writeMesh above.
+		/* \return Returns true if successful */
 		//virtual bool writeAnimatedMesh(io::IWriteFile* file,
 		// scene::IAnimatedMesh* mesh,
 		// s32 flags=EMWF_NONE) = 0;
@@ -55,4 +55,3 @@ namespace scene
 } // end namespace
 
 #endif
-

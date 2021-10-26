@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_POINT_2D_H_INCLUDED__
-#define __IRR_POINT_2D_H_INCLUDED__
+#ifndef IRR_POINT_2D_H_INCLUDED
+#define IRR_POINT_2D_H_INCLUDED
 
 #include "irrMath.h"
 #include "dimension2d.h"
@@ -15,7 +15,7 @@ namespace core
 
 
 //! 2d vector template class with lots of operators and methods.
-/** As of Irrlicht 1.6, this class supercedes position2d, which should
+/** As of Irrlicht 1.6, this class supersedes position2d, which should
 	be considered deprecated. */
 template <class T>
 class vector2d
@@ -63,6 +63,20 @@ public:
 	vector2d<T>& operator/=(const vector2d<T>& other) { X/=other.X; Y/=other.Y; return *this; }
 	vector2d<T> operator/(const T v) const { return vector2d<T>(X / v, Y / v); }
 	vector2d<T>& operator/=(const T v) { X/=v; Y/=v; return *this; }
+
+	T& operator [](u32 index)
+	{
+		IRR_DEBUG_BREAK_IF(index>1) // access violation
+
+		return *(&X+index);
+	}
+
+	const T& operator [](u32 index) const
+	{
+		IRR_DEBUG_BREAK_IF(index>1) // access violation
+
+		return *(&X+index);
+	}
 
 	//! sort in order X, Y. Equality with rounding tolerance.
 	bool operator<=(const vector2d<T>&other) const
@@ -125,6 +139,20 @@ public:
 	T dotProduct(const vector2d<T>& other) const
 	{
 		return X*other.X + Y*other.Y;
+	}
+
+	//! check if this vector is parallel to another vector
+	bool nearlyParallel( const vector2d<T> & other, const T factor = relativeErrorFactor<T>()) const
+	{
+		// https://eagergames.wordpress.com/2017/04/01/fast-parallel-lines-and-vectors-test/
+		// if a || b then  a.x/a.y = b.x/b.y (similiar triangles)
+		// if a || b then either both x are 0 or both y are 0.
+
+		return  equalsRelative( X*other.Y, other.X* Y, factor)
+		&& // a bit counterintuitive, but makes sure  that
+		   // only y or only x are 0, and at same time deals
+		   // with the case where one vector is zero vector.
+			(X*other.X + Y*other.Y) != 0;
 	}
 
 	//! Gets distance from another point.
@@ -259,15 +287,24 @@ public:
 	\return True if this vector is between begin and end, false if not. */
 	bool isBetweenPoints(const vector2d<T>& begin, const vector2d<T>& end) const
 	{
+		//             .  end
+		//            /
+		//           /
+		//          /
+		//         . begin
+		//        -
+		//       -
+		//      . this point (am I inside or outside)?
+		//
 		if (begin.X != end.X)
 		{
 			return ((begin.X <= X && X <= end.X) ||
-				(begin.X >= X && X >= end.X));
+					(begin.X >= X && X >= end.X));
 		}
 		else
 		{
 			return ((begin.Y <= Y && Y <= end.Y) ||
-				(begin.Y >= Y && Y >= end.Y));
+					(begin.Y >= Y && Y >= end.Y));
 		}
 	}
 
@@ -278,7 +315,7 @@ public:
 	\return An interpolated vector.  This vector is not modified. */
 	vector2d<T> getInterpolated(const vector2d<T>& other, f64 d) const
 	{
-		f64 inv = 1.0f - d;
+		const f64 inv = 1.0f - d;
 		return vector2d<T>((T)(other.X*inv + X*d), (T)(other.Y*inv + Y*d));
 	}
 
@@ -300,13 +337,55 @@ public:
 					(T)(Y * mul0 + v2.Y * mul1 + v3.Y * mul2));
 	}
 
+	/*! Test if this point and another 2 points taken as triplet
+		are colinear, clockwise, anticlockwise. This can be used also
+		to check winding order in triangles for 2D meshes.
+		\return 0 if points are colinear, 1 if clockwise, 2 if anticlockwise
+	*/
+	s32 checkOrientation( const vector2d<T> & b, const vector2d<T> & c) const
+	{
+		// Example of clockwise points
+		//
+		//   ^ Y
+		//   |       A
+		//   |      . .
+		//   |     .   .
+		//   |    C.....B
+		//   +---------------> X
+
+		T val = (b.Y - Y) * (c.X - b.X) -
+			(b.X - X) * (c.Y - b.Y);
+
+		if (val == 0) return 0;  // colinear
+
+		return (val > 0) ? 1 : 2; // clock or counterclock wise
+	}
+
+	/*! Returns true if points (a,b,c) are clockwise on the X,Y plane*/
+	inline bool areClockwise( const vector2d<T> & b, const vector2d<T> & c) const
+	{
+		T val = (b.Y - Y) * (c.X - b.X) -
+			(b.X - X) * (c.Y - b.Y);
+
+		return val > 0;
+	}
+
+	/*! Returns true if points (a,b,c) are counterclockwise on the X,Y plane*/
+	inline bool areCounterClockwise( const vector2d<T> & b, const vector2d<T> & c) const
+	{
+		T val = (b.Y - Y) * (c.X - b.X) -
+			(b.X - X) * (c.Y - b.Y);
+
+		return val < 0;
+	}
+
 	//! Sets this vector to the linearly interpolated vector between a and b.
 	/** \param a first vector to interpolate with, maximum at 1.0f
 	\param b second vector to interpolate with, maximum at 0.0f
 	\param d Interpolation value between 0.0f (all vector b) and 1.0f (all vector a)
 	Note that this is the opposite direction of interpolation to getInterpolated_quadratic()
 	*/
-	vector2d<T>& interpolate(const vector2d<T>& a, const vector2d<T>& b, f64 d)
+	vector2d<T>& interpolate( const vector2d<T>& a, const vector2d<T>& b, f64 d)
 	{
 		X = (T)((f64)b.X + ( ( a.X - b.X ) * d ));
 		Y = (T)((f64)b.Y + ( ( a.Y - b.Y ) * d ));
@@ -340,4 +419,3 @@ public:
 } // end namespace irr
 
 #endif
-

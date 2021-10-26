@@ -40,8 +40,8 @@ CGUIMeshViewer::~CGUIMeshViewer()
 //! sets the mesh to be shown
 void CGUIMeshViewer::setMesh(scene::IAnimatedMesh* mesh)
 {
-    if (mesh)
-        mesh->grab();
+	if (mesh)
+		mesh->grab();
 	if (Mesh)
 		Mesh->drop();
 
@@ -153,8 +153,8 @@ void CGUIMeshViewer::draw()
 			scene::IMeshBuffer* mb = m->getMeshBuffer(i);
 			driver->drawVertexPrimitiveList(mb->getVertices(),
 					mb->getVertexCount(), mb->getIndices(),
-					mb->getIndexCount()/ 3, mb->getVertexType(),
-					scene::EPT_TRIANGLES, mb->getIndexType());
+					mb->getPrimitiveCount(), mb->getVertexType(),
+					mb->getPrimitiveType(), mb->getIndexType());
 		}
 
 		driver->setViewPort(oldViewPort);

@@ -730,6 +730,7 @@ bool CB3DMeshFileLoader::readChunkKEYS(CSkinnedMesh::SJoint *inJoint)
 					oldRotKey=AnimatedMesh->addRotationKey(inJoint);
 					oldRotKey->frame = (f32)frame-1;
 					oldRot[1].set(oldRotKey->rotation.set(data[1], data[2], data[3], data[0]));
+					oldRot[1].normalize();
 				}
 			}
 			else if (oldRotKey==0 && isFirst[2])
@@ -738,6 +739,7 @@ bool CB3DMeshFileLoader::readChunkKEYS(CSkinnedMesh::SJoint *inJoint)
 				oldRotKey->frame = (f32)frame-1;
 				// meant to be in this order since b3d stores W first
 				oldRot[0].set(oldRotKey->rotation.set(data[1], data[2], data[3], data[0]));
+				oldRot[0].normalize();
 				oldRotKey=0;
 				isFirst[2]=false;
 			}
@@ -749,6 +751,7 @@ bool CB3DMeshFileLoader::readChunkKEYS(CSkinnedMesh::SJoint *inJoint)
 				oldRotKey->frame = (f32)frame-1;
 				// meant to be in this order since b3d stores W first
 				oldRot[1].set(oldRotKey->rotation.set(data[1], data[2], data[3], data[0]));
+				oldRot[1].normalize();
 			}
 		}
 	}
@@ -959,7 +962,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 		else if (B3dMaterial.Textures[0]) //One texture:
@@ -968,7 +971,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			if (B3dMaterial.Textures[0]->Flags & 0x2) //(Alpha mapped)
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 			else if (B3dMaterial.Textures[0]->Flags & 0x4) //(Masked)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF; // TODO: create color key texture
@@ -981,7 +984,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 		else //No texture:
@@ -991,7 +994,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 
@@ -1020,7 +1023,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		if (B3dMaterial.fx & 32) //force vertex alpha-blending
 		{
 			B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-			B3dMaterial.Material.ZWriteEnable = false;
+			B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 		}
 
 		B3dMaterial.Material.Shininess = B3dMaterial.shininess;
@@ -1062,6 +1065,8 @@ void CB3DMeshFileLoader::loadTextures(SB3dMaterial& material) const
 				material.Material.TextureLayer[i].TextureWrapU=video::ETC_CLAMP;
 			if (material.Textures[i]->Flags & 0x20) // Clamp V
 				material.Material.TextureLayer[i].TextureWrapV=video::ETC_CLAMP;
+			if (material.Textures[i]->Flags & 0x20) // Clamp R
+				material.Material.TextureLayer[i].TextureWrapW=video::ETC_CLAMP;
 		}
 	}
 

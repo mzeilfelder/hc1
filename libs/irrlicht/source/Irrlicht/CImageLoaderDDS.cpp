@@ -694,6 +694,7 @@ IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
 	eDDSPixelFormat pixelFormat;
 	ECOLOR_FORMAT format = ECF_UNKNOWN;
 	u32 dataSize = 0;
+	u32 mipMapsDataSize = 0;
 	bool is3D = false;
 	bool useAlpha = false;
 	u32 mipMapCount = 0;
@@ -731,7 +732,7 @@ IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
 #else
 		if (header.PixelFormat.Flags & DDPF_RGB) // Uncompressed formats
 		{
-			u32 byteCount = header.PixelFormat.RGBBitCount / 8;
+//			u32 byteCount = header.PixelFormat.RGBBitCount / 8;
 
 			if( header.Flags & DDSD_PITCH )
 				dataSize = header.PitchOrLinearSize * header.Height * header.Depth * (header.PixelFormat.RGBBitCount / 8);
@@ -796,7 +797,7 @@ IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
 			{
 				if (!is3D) // Currently 3D textures are unsupported.
 				{
-					image = new CImage(format, core::dimension2d<u32>(header.Width, header.Height ), data, true, true, false);
+					image = new CImage(format, core::dimension2d<u32>(header.Width, header.Height), data, true, true);
 				}
 			}
 			else
@@ -810,84 +811,58 @@ IImage* CImageLoaderDDS::loadImage(io::IReadFile* file) const
 			{
 				case DDS_PF_DXT1:
 				{
-					u32 curWidth = header.Width;
-					u32 curHeight = header.Height;
-
-					dataSize = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 8;
-
-					do
-					{
-						if (curWidth > 1)
-							curWidth >>= 1;
-
-						if (curHeight > 1)
-							curHeight >>= 1;
-
-						dataSize += ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 8;
-					}
-					while (curWidth != 1 || curWidth != 1);
-
 					format = ECF_DXT1;
 					break;
 				}
 				case DDS_PF_DXT2:
 				case DDS_PF_DXT3:
 				{
-					u32 curWidth = header.Width;
-					u32 curHeight = header.Height;
-
-					dataSize = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 16;
-
-					do
-					{
-						if (curWidth > 1)
-							curWidth >>= 1;
-
-						if (curHeight > 1)
-							curHeight >>= 1;
-
-						dataSize += ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 16;
-					}
-					while (curWidth != 1 || curWidth != 1);
-
 					format = ECF_DXT3;
 					break;
 				}
 				case DDS_PF_DXT4:
 				case DDS_PF_DXT5:
 				{
-					u32 curWidth = header.Width;
-					u32 curHeight = header.Height;
-
-					dataSize = ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 16;
-
-					do
-					{
-						if (curWidth > 1)
-							curWidth >>= 1;
-
-						if (curHeight > 1)
-							curHeight >>= 1;
-
-						dataSize += ((curWidth + 3) / 4) * ((curHeight + 3) / 4) * 16;
-					}
-					while (curWidth != 1 || curWidth != 1);
-
 					format = ECF_DXT5;
 					break;
 				}
+				default:	// either not compressed or unknown
+					break;
 			}
 
 			if( format != ECF_UNKNOWN )
 			{
 				if (!is3D) // Currently 3D textures are unsupported.
 				{
+					dataSize = IImage::getDataSizeFromFormat(format, header.Width, header.Height);
+
 					u8* data = new u8[dataSize];
 					file->read(data, dataSize);
 
-					bool hasMipMap = (mipMapCount > 0) ? true : false;
+					image = new CImage(format, core::dimension2d<u32>(header.Width, header.Height), data, true, true);
 
-					image = new CImage(format, core::dimension2d<u32>(header.Width, header.Height), data, true, true, true, hasMipMap);
+					if (mipMapCount > 0)
+					{
+						u32 tmpWidth = header.Width;
+						u32 tmpHeight = header.Height;
+
+						do
+						{
+							if (tmpWidth > 1)
+								tmpWidth >>= 1;
+
+							if (tmpHeight > 1)
+								tmpHeight >>= 1;
+
+							mipMapsDataSize += IImage::getDataSizeFromFormat(format, tmpWidth, tmpHeight);
+						}
+						while (tmpWidth != 1 || tmpHeight != 1);
+
+						u8* mipMapsData = new u8[mipMapsDataSize];
+						file->read(mipMapsData, mipMapsDataSize);
+
+						image->setMipMapsData(mipMapsData, true, true);
+					}
 				}
 			}
 		}

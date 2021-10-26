@@ -46,7 +46,7 @@
 	#undef SUBTEXEL
 #endif
 
-#ifndef SOFTWARE_DRIVER_2_USE_VERTEX_COLOR
+#if BURNING_MATERIAL_MAX_COLORS < 1
 	#undef IPOL_C0
 #endif
 
@@ -84,14 +84,11 @@ public:
 	CTRGouraudAlpha2(CBurningVideoDriver* driver);
 
 	//! draws an indexed triangle list
-	virtual void drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c );
+	virtual void drawTriangle ( const s4DVertex* burning_restrict a,const s4DVertex* burning_restrict b,const s4DVertex* burning_restrict c ) IRR_OVERRIDE;
 
 
 private:
-	void scanline_bilinear ();
-
-	sScanConvertData scan;
-	sScanLineData line;
+	void fragmentShader();
 
 };
 
@@ -108,7 +105,7 @@ CTRGouraudAlpha2::CTRGouraudAlpha2(CBurningVideoDriver* driver)
 
 /*!
 */
-void CTRGouraudAlpha2::scanline_bilinear ()
+void CTRGouraudAlpha2::fragmentShader()
 {
 	tVideoSample *dst;
 
@@ -142,8 +139,8 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 #endif
 
 	// apply top-left fill-convention, left
-	xStart = core::ceil32( line.x[0] );
-	xEnd = core::ceil32( line.x[1] ) - 1;
+	xStart = fill_convention_left( line.x[0] );
+	xEnd = fill_convention_right( line.x[1] );
 
 	dx = xEnd - xStart;
 
@@ -151,7 +148,7 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 		return;
 
 	// slopes
-	const f32 invDeltaX = core::reciprocal_approxim ( line.x[1] - line.x[0] );
+	const f32 invDeltaX = fill_step_x( line.x[1] - line.x[0] );
 
 #ifdef IPOL_Z
 	slopeZ = (line.z[1] - line.z[0]) * invDeltaX;
@@ -188,7 +185,8 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 #endif
 #endif
 
-	dst = (tVideoSample*)RenderTarget->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
+	SOFTWARE_DRIVER_2_CLIPCHECK;
+	dst = (tVideoSample*)RenderTarget->getData() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
 
 #ifdef USE_ZBUFFER
 	z = (fp24*) DepthBuffer->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
@@ -198,9 +196,7 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 
 #ifdef IPOL_C0
 
-#ifdef INVERSE_W
-	f32 inversew;
-#endif
+	f32 inversew = FIX_POINT_F32_MUL;
 
 	tFixPoint a0;
 	tFixPoint r0, g0, b0;
@@ -208,7 +204,7 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 	tFixPoint r2, g2, b2;
 #endif
 
-	for ( s32 i = 0; i <= dx; ++i )
+	for ( s32 i = 0; i <= dx; i += SOFTWARE_DRIVER_2_STEP_X)
 	{
 #ifdef CMP_Z
 		if ( line.z[0] < z[i] )
@@ -220,22 +216,20 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 		{
 #ifdef IPOL_C0
 #ifdef INVERSE_W
-			inversew = core::reciprocal ( line.w[0] );
-
-			getSample_color ( a0, r0, g0, b0, line.c[0][0] * inversew );
-#else
-			getSample_color ( a0, r0, g0, b0, line.c[0][0] );
+			inversew = reciprocal_zero_no ( line.w[0] );
 #endif
+			vec4_to_fix( a0, r0, g0, b0, line.c[0][0],inversew );
 
 			color_to_fix ( r1, g1, b1, dst[i] );
 
+			fix_color_norm(a0);
 			r2 = r1 + imulFix ( a0, r0 - r1 );
 			g2 = g1 + imulFix ( a0, g0 - g1 );
 			b2 = b1 + imulFix ( a0, b0 - b1 );
 
-			dst[i] = fix_to_color ( r2, g2, b2 );
+			dst[i] = fix4_to_sample( a0,r2, g2, b2 );
 #else
-			dst[i] = COLOR_BRIGHT_WHITE;
+			dst[i] = PrimitiveColor;
 #endif
 #ifdef WRITE_Z
 			z[i] = line.z[0];
@@ -265,7 +259,7 @@ void CTRGouraudAlpha2::scanline_bilinear ()
 
 }
 
-void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c )
+void CTRGouraudAlpha2::drawTriangle(const s4DVertex* burning_restrict a, const s4DVertex* burning_restrict b, const s4DVertex* burning_restrict c)
 {
 	// sort on height, y
 	if ( F32_A_GREATER_B ( a->Pos.y , b->Pos.y ) ) swapVertexPointer(&a, &b);
@@ -276,9 +270,9 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 	const f32 ba = b->Pos.y - a->Pos.y;
 	const f32 cb = c->Pos.y - b->Pos.y;
 	// calculate delta y of the edges
-	scan.invDeltaY[0] = core::reciprocal( ca );
-	scan.invDeltaY[1] = core::reciprocal( ba );
-	scan.invDeltaY[2] = core::reciprocal( cb );
+	scan.invDeltaY[0] = fill_step_y( ca );
+	scan.invDeltaY[1] = fill_step_y( ba );
+	scan.invDeltaY[2] = fill_step_y( cb );
 
 	if ( F32_LOWER_EQUAL_0 ( scan.invDeltaY[0] ) )
 		return;
@@ -365,8 +359,8 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( a->Pos.y );
-		yEnd = core::ceil32( b->Pos.y ) - 1;
+		yStart = fill_convention_left( a->Pos.y );
+		yEnd = fill_convention_right( b->Pos.y );
 
 #ifdef SUBTEXEL
 		subPixel = ( (f32) yStart ) - a->Pos.y;
@@ -403,7 +397,7 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -434,7 +428,7 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 			// render a scanline
-			scanline_bilinear ( );
+			interlace_scanline fragmentShader();
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];
@@ -524,11 +518,10 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( b->Pos.y );
-		yEnd = core::ceil32( c->Pos.y ) - 1;
+		yStart = fill_convention_left( b->Pos.y );
+		yEnd = fill_convention_right( c->Pos.y );
 
 #ifdef SUBTEXEL
-
 		subPixel = ( (f32) yStart ) - b->Pos.y;
 
 		// correct to pixel center
@@ -563,7 +556,7 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -594,7 +587,7 @@ void CTRGouraudAlpha2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,cons
 #endif
 
 			// render a scanline
-			scanline_bilinear ( );
+			interlace_scanline fragmentShader();
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];
@@ -642,6 +635,7 @@ namespace video
 //! creates a flat triangle renderer
 IBurningShader* createTriangleRendererGouraudAlpha2(CBurningVideoDriver* driver)
 {
+	// ETR_GOURAUD_ALPHA unused
 	#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
 	return new CTRGouraudAlpha2(driver);
 	#else

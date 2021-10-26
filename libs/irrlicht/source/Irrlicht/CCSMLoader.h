@@ -33,7 +33,7 @@
 //  * Presents the loaded file as irr::scene::IAnimatedMesh for easy creation of IOctreeSceneNode
 //  * Loads the textures given the correct texture root. hence map and textures can be in separate directories
 //
-// For more informations go to http://www.geocities.com/standard_template/irrcsm/downloads.html
+// For more information go to http://www.geocities.com/standard_template/irrcsm/downloads.html
 
 #ifndef __CSM_LOADER_H_INCLUDED__
 #define __CSM_LOADER_H_INCLUDED__
@@ -59,10 +59,10 @@ namespace scene
 
 		//! returns true if the file maybe is able to be loaded by this class
 		//! based on the file extension (e.g. ".bsp")
-		virtual bool isALoadableFileExtension(const io::path& filename) const _IRR_OVERRIDE_;
+		virtual bool isALoadableFileExtension(const io::path& filename) const IRR_OVERRIDE;
 
 		//! creates/loads an animated mesh from the file.
-		virtual IAnimatedMesh* createMesh(io::IReadFile* file) _IRR_OVERRIDE_;
+		virtual IAnimatedMesh* createMesh(io::IReadFile* file) IRR_OVERRIDE;
 
 	private:
 

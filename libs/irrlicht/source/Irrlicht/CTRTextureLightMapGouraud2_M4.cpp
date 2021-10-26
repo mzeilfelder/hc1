@@ -46,7 +46,7 @@
 	#undef SUBTEXEL
 #endif
 
-#ifndef SOFTWARE_DRIVER_2_USE_VERTEX_COLOR
+#if BURNING_MATERIAL_MAX_COLORS < 1
 	#undef IPOL_C0
 #endif
 
@@ -82,14 +82,11 @@ public:
 	CTRGTextureLightMap2_M4(CBurningVideoDriver* driver);
 
 	//! draws an indexed triangle list
-	virtual void drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c );
+	virtual void drawTriangle(const s4DVertex* burning_restrict a, const s4DVertex* burning_restrict b, const s4DVertex* burning_restrict c) IRR_OVERRIDE;
 
 
 private:
-	void scanline_bilinear ();
-
-	sScanConvertData scan;
-	sScanLineData line;
+	void fragmentShader();
 
 };
 
@@ -106,7 +103,7 @@ CTRGTextureLightMap2_M4::CTRGTextureLightMap2_M4(CBurningVideoDriver* driver)
 
 /*!
 */
-void CTRGTextureLightMap2_M4::scanline_bilinear ()
+void CTRGTextureLightMap2_M4::fragmentShader()
 {
 	tVideoSample *dst;
 
@@ -137,8 +134,8 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 #endif
 
 	// apply top-left fill-convention, left
-	xStart = core::ceil32( line.x[0] );
-	xEnd = core::ceil32( line.x[1] ) - 1;
+	xStart = fill_convention_left( line.x[0] );
+	xEnd = fill_convention_right( line.x[1] );
 
 	dx = xEnd - xStart;
 
@@ -146,7 +143,7 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 		return;
 
 	// slopes
-	const f32 invDeltaX = core::reciprocal_approxim ( line.x[1] - line.x[0] );
+	const f32 invDeltaX = fill_step_x( line.x[1] - line.x[0] );
 
 #ifdef IPOL_Z
 	slopeZ = (line.z[1] - line.z[0]) * invDeltaX;
@@ -183,16 +180,15 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 #endif
 #endif
 
-	dst = (tVideoSample*)RenderTarget->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
+	SOFTWARE_DRIVER_2_CLIPCHECK;
+	dst = (tVideoSample*)RenderTarget->getData() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
 
 #ifdef USE_ZBUFFER
 	z = (fp24*) DepthBuffer->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
 #endif
 
 
-#ifdef INVERSE_W
-	f32 inversew;
-#endif
+	f32 inversew = FIX_POINT_F32_MUL;
 
 	tFixPoint tx0, tx1;
 	tFixPoint ty0, ty1;
@@ -205,7 +201,7 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 	tFixPoint r3, g3, b3;
 #endif
 
-	for ( s32 i = 0; i <= dx; i++ )
+	for ( s32 i = 0; i <= dx; i += SOFTWARE_DRIVER_2_STEP_X )
 	{
 #ifdef CMP_Z
 		if ( line.z[0] < z[i] )
@@ -216,7 +212,7 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 		{
 #ifdef INVERSE_W
 			inversew = fix_inverse32 ( line.w[0] );
-
+#endif
 			tx0 = tofix ( line.t[0][0].x,inversew);
 			ty0 = tofix ( line.t[0][0].y,inversew);
 			tx1 = tofix ( line.t[1][0].x,inversew);
@@ -228,43 +224,26 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 			b3 = tofix ( line.c[0][0].w ,inversew );
 #endif
 
-#else
-			tx0 = tofix ( line.t[0][0].x );
-			ty0 = tofix ( line.t[0][0].y );
-			tx1 = tofix ( line.t[1][0].x );
-			ty1 = tofix ( line.t[1][0].y );
-
-#ifdef IPOL_C0
-			r3 = tofix ( line.c[0][0].y );
-			g3 = tofix ( line.c[0][0].z );
-			b3 = tofix ( line.c[0][0].w );
-#endif
-
-#endif
 			getSample_texture ( r0, g0, b0, &IT[0], tx0, ty0 );
 			getSample_texture ( r1, g1, b1, &IT[1], tx1, ty1 );
 
 #ifdef IPOL_C0
-			r2 = imulFix ( r0, r3 );
-			g2 = imulFix ( g0, g3 );
-			b2 = imulFix ( b0, b3 );
+			r2 = imulFix_simple( r0, r3 );
+			g2 = imulFix_simple( g0, g3 );
+			b2 = imulFix_simple( b0, b3 );
 
-			r2 = clampfix_maxcolor ( imulFix_tex4 ( r2, r1 ) );
-			g2 = clampfix_maxcolor ( imulFix_tex4 ( g2, g1 ) );
-			b2 = clampfix_maxcolor ( imulFix_tex4 ( b2, b1 ) );
-/*
-			r2 = r3 << 8;
-			g2 = g3 << 8;
-			b2 = b3 << 8;
-*/
+			r2 = imulFix_tex4 ( r2, r1 );
+			g2 = imulFix_tex4 ( g2, g1 );
+			b2 = imulFix_tex4 ( b2, b1 );
+
 #else
-			r2 = clampfix_maxcolor ( imulFix_tex4 ( r0, r1 ) );
-			g2 = clampfix_maxcolor ( imulFix_tex4 ( g0, g1 ) );
-			b2 = clampfix_maxcolor ( imulFix_tex4 ( b0, b1 ) );
+			r2 = imulFix_tex4 ( r0, r1 );
+			g2 = imulFix_tex4 ( g0, g1 );
+			b2 = imulFix_tex4 ( b0, b1 );
 #endif
 
 
-			dst[i] = fix_to_color ( r2, g2, b2 );
+			dst[i] = fix_to_sample( r2, g2, b2 );
 
 #ifdef WRITE_Z
 			z[i] = line.z[0];
@@ -293,7 +272,7 @@ void CTRGTextureLightMap2_M4::scanline_bilinear ()
 
 }
 
-void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c )
+void CTRGTextureLightMap2_M4::drawTriangle(const s4DVertex* burning_restrict a, const s4DVertex* burning_restrict b, const s4DVertex* burning_restrict c)
 {
 	// sort on height, y
 	if ( F32_A_GREATER_B ( a->Pos.y , b->Pos.y ) ) swapVertexPointer(&a, &b);
@@ -304,9 +283,9 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 	const f32 ba = b->Pos.y - a->Pos.y;
 	const f32 cb = c->Pos.y - b->Pos.y;
 	// calculate delta y of the edges
-	scan.invDeltaY[0] = core::reciprocal( ca );
-	scan.invDeltaY[1] = core::reciprocal( ba );
-	scan.invDeltaY[2] = core::reciprocal( cb );
+	scan.invDeltaY[0] = fill_step_y( ca );
+	scan.invDeltaY[1] = fill_step_y( ba );
+	scan.invDeltaY[2] = fill_step_y( cb );
 
 	if ( F32_LOWER_0 ( scan.invDeltaY[0] )  )
 		return;
@@ -394,8 +373,8 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( a->Pos.y );
-		yEnd = core::ceil32( b->Pos.y ) - 1;
+		yStart = fill_convention_left( a->Pos.y );
+		yEnd = fill_convention_right( b->Pos.y );
 
 #ifdef SUBTEXEL
 		subPixel = ( (f32) yStart ) - a->Pos.y;
@@ -432,7 +411,7 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -463,7 +442,7 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 			// render a scanline
-			scanline_bilinear ();
+			interlace_scanline fragmentShader();
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];
@@ -555,8 +534,8 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( b->Pos.y );
-		yEnd = core::ceil32( c->Pos.y ) - 1;
+		yStart = fill_convention_left( b->Pos.y );
+		yEnd = fill_convention_right( c->Pos.y );
 
 #ifdef SUBTEXEL
 
@@ -594,7 +573,7 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -625,7 +604,7 @@ void CTRGTextureLightMap2_M4::drawTriangle ( const s4DVertex *a,const s4DVertex 
 #endif
 
 			// render a scanline
-			scanline_bilinear ();
+			interlace_scanline fragmentShader();
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];

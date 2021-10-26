@@ -25,6 +25,10 @@
 #include "CWriteFile.h"
 #include "irrList.h"
 
+#if defined (__STRICT_ANSI__)
+    #error Compiling with __STRICT_ANSI__ not supported. g++ does set this when compiling with -std=c++11 or -std=c++0x. Use instead -std=gnu++11 or -std=gnu++0x. Or use -U__STRICT_ANSI__ to disable strict ansi.
+#endif
+
 #if defined (_IRR_WINDOWS_API_)
 	#if !defined ( _WIN32_WCE )
 		#include <direct.h> // for _chdir
@@ -107,6 +111,9 @@ CFileSystem::~CFileSystem()
 //! opens a file for read access
 IReadFile* CFileSystem::createAndOpenFile(const io::path& filename)
 {
+	if ( filename.empty() )
+		return 0;
+
 	IReadFile* file = 0;
 	u32 i;
 
@@ -315,7 +322,6 @@ bool CFileSystem::addFileArchive(const io::path& filename, bool ignoreCase,
 		os::Printer::log("Could not create archive for", filename, ELL_ERROR);
 	}
 
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
 }
 
@@ -330,7 +336,7 @@ bool CFileSystem::changeArchivePassword(const path& filename,
 		// We need to check for directory names with trailing slash and without
 		const path absPath = getAbsolutePath(filename);
 		const path arcPath = FileArchives[idx]->getFileList()->getPath();
-		if ((absPath == arcPath) || ((absPath+_IRR_TEXT("/")) == arcPath))
+		if ((absPath == arcPath) || ((absPath+IRR_TEXT("/")) == arcPath))
 		{
 			if (password.size())
 				FileArchives[idx]->Password=password;
@@ -429,16 +435,22 @@ bool CFileSystem::addFileArchive(IReadFile* file, bool ignoreCase,
 //! Adds an archive to the file system.
 bool CFileSystem::addFileArchive(IFileArchive* archive)
 {
-	for (u32 i=0; i < FileArchives.size(); ++i)
+	if ( archive )
 	{
-		if (archive == FileArchives[i])
+		for (u32 i=0; i < FileArchives.size(); ++i)
 		{
-			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
-			return false;
+			if (archive == FileArchives[i])
+			{
+				return false;
+			}
 		}
+		FileArchives.push_back(archive);
+		archive->grab();
+
+		return true;
 	}
-	FileArchives.push_back(archive);
-	return true;
+
+	return false;
 }
 
 
@@ -452,7 +464,6 @@ bool CFileSystem::removeFileArchive(u32 index)
 		FileArchives.erase(index);
 		ret = true;
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ret;
 }
 
@@ -466,7 +477,6 @@ bool CFileSystem::removeFileArchive(const io::path& filename)
 		if (absPath == FileArchives[i]->getFileList()->getPath())
 			return removeFileArchive(i);
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return false;
 }
 
@@ -478,11 +488,9 @@ bool CFileSystem::removeFileArchive(const IFileArchive* archive)
 	{
 		if (archive == FileArchives[i])
 		{
-			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 			return removeFileArchive(i);
 		}
 	}
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return false;
 }
 
@@ -511,9 +519,7 @@ const io::path& CFileSystem::getWorkingDirectory()
 	}
 	else
 	{
-		#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-		// does not need this
-		#elif defined(_IRR_WINDOWS_API_)
+		#if defined(_IRR_WINDOWS_API_)
 			fschar_t tmp[_MAX_PATH];
 			#if defined(_IRR_WCHAR_FILESYSTEM )
 				_wgetcwd(tmp, _MAX_PATH);
@@ -579,16 +585,14 @@ bool CFileSystem::changeWorkingDirectoryTo(const io::path& newDirectory)
 	{
 		WorkingDirectory[FILESYSTEM_VIRTUAL] = newDirectory;
 		// is this empty string constant really intended?
-		flattenFilename(WorkingDirectory[FILESYSTEM_VIRTUAL], _IRR_TEXT(""));
+		flattenFilename(WorkingDirectory[FILESYSTEM_VIRTUAL], IRR_TEXT(""));
 		success = true;
 	}
 	else
 	{
 		WorkingDirectory[FILESYSTEM_NATIVE] = newDirectory;
 
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-		success = true;
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 	#if defined(_IRR_WCHAR_FILESYSTEM)
 		success = (_wchdir(newDirectory.c_str()) == 0);
 	#else
@@ -609,9 +613,9 @@ bool CFileSystem::changeWorkingDirectoryTo(const io::path& newDirectory)
 
 io::path CFileSystem::getAbsolutePath(const io::path& filename) const
 {
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-	return filename;
-#elif defined(_IRR_WINDOWS_API_)
+	if ( filename.empty() )
+		return filename;
+#if defined(_IRR_WINDOWS_API_)
 	fschar_t *p=0;
 	fschar_t fpath[_MAX_PATH];
 	#if defined(_IRR_WCHAR_FILESYSTEM )
@@ -641,7 +645,7 @@ io::path CFileSystem::getAbsolutePath(const io::path& filename) const
 			return io::path(fpath);
 	}
 	if (filename[filename.size()-1]=='/')
-		return io::path(p)+_IRR_TEXT("/");
+		return io::path(p)+IRR_TEXT("/");
 	else
 		return io::path(p);
 #else
@@ -663,7 +667,7 @@ io::path CFileSystem::getFileDir(const io::path& filename) const
 	if ((u32)lastSlash < filename.size())
 		return filename.subString(0, lastSlash);
 	else
-		return _IRR_TEXT(".");
+		return IRR_TEXT(".");
 }
 
 
@@ -716,7 +720,7 @@ io::path& CFileSystem::flattenFilename(io::path& directory, const io::path& root
 	{
 		subdir = directory.subString(lastpos, pos - lastpos + 1);
 
-		if (subdir == _IRR_TEXT("../"))
+		if (subdir == IRR_TEXT("../"))
 		{
 			if (lastWasRealDir)
 			{
@@ -729,11 +733,11 @@ io::path& CFileSystem::flattenFilename(io::path& directory, const io::path& root
 				lastWasRealDir=false;
 			}
 		}
-		else if (subdir == _IRR_TEXT("/"))
+		else if (subdir == IRR_TEXT("/"))
 		{
 			dir = root;
 		}
-		else if (subdir != _IRR_TEXT("./"))
+		else if (subdir != IRR_TEXT("./"))
 		{
 			dir.append(subdir);
 			lastWasRealDir=true;
@@ -756,8 +760,8 @@ path CFileSystem::getRelativeFilename(const path& filename, const path& director
 	core::splitFilename(getAbsolutePath(filename), &path1, &file, &ext);
 	io::path path2(getAbsolutePath(directory));
 	core::list<io::path> list1, list2;
-	path1.split(list1, _IRR_TEXT("/\\"), 2);
-	path2.split(list2, _IRR_TEXT("/\\"), 2);
+	path1.split(list1, IRR_TEXT("/\\"), 2);
+	path2.split(list2, IRR_TEXT("/\\"), 2);
 	u32 i=0;
 	core::list<io::path>::ConstIterator it1,it2;
 	it1=list1.begin();
@@ -770,9 +774,9 @@ path CFileSystem::getRelativeFilename(const path& filename, const path& director
 		prefix1 = *it1;
 	if ( it2 != list2.end() )
 		prefix2 = *it2;
-	if ( prefix1.size() > 1 && prefix1[1] == _IRR_TEXT(':') )
+	if ( prefix1.size() > 1 && prefix1[1] == IRR_TEXT(':') )
 		partition1 = core::locale_lower(prefix1[0]);
-	if ( prefix2.size() > 1 && prefix2[1] == _IRR_TEXT(':') )
+	if ( prefix2.size() > 1 && prefix2[1] == IRR_TEXT(':') )
 		partition2 = core::locale_lower(prefix2[0]);
 
 	// must have the same prefix or we can't resolve it to a relative filename
@@ -794,18 +798,18 @@ path CFileSystem::getRelativeFilename(const path& filename, const path& director
 		++it1;
 		++it2;
 	}
-	path1=_IRR_TEXT("");
+	path1=IRR_TEXT("");
 	for (; i<list2.size(); ++i)
-		path1 += _IRR_TEXT("../");
+		path1 += IRR_TEXT("../");
 	while (it1 != list1.end())
 	{
 		path1 += *it1++;
-		path1 += _IRR_TEXT('/');
+		path1 += IRR_TEXT('/');
 	}
 	path1 += file;
 	if (ext.size())
 	{
-		path1 += _IRR_TEXT('.');
+		path1 += IRR_TEXT('.');
 		path1 += ext;
 	}
 	return path1;
@@ -827,7 +831,7 @@ IFileList* CFileSystem::createFileList()
 	CFileList* r = 0;
 	io::path Path = getWorkingDirectory();
 	Path.replace('\\', '/');
-	if (Path.lastChar() != '/')
+	if (!Path.empty() && Path.lastChar() != '/')
 		Path.append('/');
 
 	//! Construct from native filesystem
@@ -873,7 +877,7 @@ IFileList* CFileSystem::createFileList()
 
 		r = new CFileList(Path, false, false);
 
-		r->addItem(Path + _IRR_TEXT(".."), 0, 0, true, 0);
+		r->addItem(Path + IRR_TEXT(".."), 0, 0, true, 0);
 
 		//! We use the POSIX compliant methods instead of scandir
 		DIR* dirHandle=opendir(Path.c_str());
@@ -920,10 +924,10 @@ IFileList* CFileSystem::createFileList()
 		SFileListEntry e3;
 
 		//! PWD
-		r->addItem(Path + _IRR_TEXT("."), 0, 0, true, 0);
+		r->addItem(Path + IRR_TEXT("."), 0, 0, true, 0);
 
 		//! parent
-		r->addItem(Path + _IRR_TEXT(".."), 0, 0, true, 0);
+		r->addItem(Path + IRR_TEXT(".."), 0, 0, true, 0);
 
 		//! merge archives
 		for (u32 i=0; i < FileArchives.size(); ++i)
@@ -959,21 +963,6 @@ bool CFileSystem::existFile(const io::path& filename) const
 		if (FileArchives[i]->getFileList()->findFile(filename)!=-1)
 			return true;
 
-#if defined(_IRR_WINDOWS_CE_PLATFORM_)
-#if defined(_IRR_WCHAR_FILESYSTEM)
-	HANDLE hFile = CreateFileW(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-#else
-	HANDLE hFile = CreateFileW(core::stringw(filename).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-#endif
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-	else
-	{
-		CloseHandle(hFile);
-		return true;
-	}
-#else
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 #if defined(_MSC_VER)
 	#if defined(_IRR_WCHAR_FILESYSTEM)
 		return (_waccess(filename.c_str(), 0) != -1);
@@ -988,7 +977,6 @@ bool CFileSystem::existFile(const io::path& filename) const
 	#endif
 #else
 	return (access(filename.c_str(), 0) != -1);
-#endif
 #endif
 }
 
@@ -1082,7 +1070,37 @@ IXMLWriter* CFileSystem::createXMLWriter(const io::path& filename)
 IXMLWriter* CFileSystem::createXMLWriter(IWriteFile* file)
 {
 #ifdef _IRR_COMPILE_WITH_XML_
-	return new CXMLWriter(file);
+	return createIXMLWriter(file);
+#else
+	noXML();
+	return 0;
+#endif
+}
+
+//! Creates a XML Writer from a file.
+IXMLWriterUTF8* CFileSystem::createXMLWriterUTF8(const io::path& filename)
+{
+#ifdef _IRR_COMPILE_WITH_XML_
+	IWriteFile* file = createAndWriteFile(filename);
+	IXMLWriterUTF8* writer = 0;
+	if (file)
+	{
+		writer = createXMLWriterUTF8(file);
+		file->drop();
+	}
+	return writer;
+#else
+	noXML();
+	return 0;
+#endif
+}
+
+
+//! Creates a XML Writer from a file.
+IXMLWriterUTF8* CFileSystem::createXMLWriterUTF8(IWriteFile* file)
+{
+#ifdef _IRR_COMPILE_WITH_XML_
+	return createIXMLWriterUTF8(file);
 #else
 	noXML();
 	return 0;
@@ -1107,4 +1125,3 @@ IAttributes* CFileSystem::createEmptyAttributes(video::IVideoDriver* driver)
 
 } // end namespace irr
 } // end namespace io
-

@@ -2,10 +2,11 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_LIGHT_H_INCLUDED__
-#define __S_LIGHT_H_INCLUDED__
+#ifndef S_LIGHT_H_INCLUDED
+#define S_LIGHT_H_INCLUDED
 
 #include "SColor.h"
+#include "vector3d.h"
 
 namespace irr
 {
@@ -70,7 +71,7 @@ struct SLight
 	//! The angle of the spot's inner cone. Ignored for other lights.
 	f32 InnerCone;
 
-	//! The light strength's decrease between Outer and Inner cone.
+	//! The light strength's decrease between Outer and Inner cone. Only for spot lights
 	f32 Falloff;
 
 	//! Read-ONLY! Position of the light.
@@ -82,6 +83,9 @@ struct SLight
 	core::vector3df Direction;
 
 	//! Read-ONLY! Radius of light. Everything within this radius will be lighted.
+	/** On OpenGL light doesn't stop at radius. To get same light as in OpenGL in other drivers
+	do set the radius to a large value like sqrt(FLT_MAX) and then set the Attenuation afterwards.
+	*/
 	f32 Radius;
 
 	//! Read-ONLY! Type of the light. Default: ELT_POINT
@@ -95,4 +99,3 @@ struct SLight
 } // end namespace irr
 
 #endif
-

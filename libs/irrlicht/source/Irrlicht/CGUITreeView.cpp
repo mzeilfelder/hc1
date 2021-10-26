@@ -264,9 +264,7 @@ IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 IGUITreeViewNode* CGUITreeViewNode::getNextVisible() const
 {
 	IGUITreeViewNode*	next = 0;
-	IGUITreeViewNode*	node = 0;
-
-	node = const_cast<CGUITreeViewNode*>( this );
+	const IGUITreeViewNode*	node = this;
 
 	if( node->getExpanded() && node->hasChildren() )
 	{
@@ -432,7 +430,9 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	IndentWidth( 0 ),
 	TotalItemHeight( 0 ),
 	TotalItemWidth ( 0 ),
+	ScrollBarSize( 0 ),
 	Font( 0 ),
+	OverrideFont( 0 ),
 	IconFont( 0 ),
 	ScrollBarH( 0 ),
 	ScrollBarV( 0 ),
@@ -449,15 +449,15 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 #endif
 
 	IGUISkin* skin = Environment->getSkin();
-	s32 s = skin->getSize( EGDS_SCROLLBAR_SIZE );
+	ScrollBarSize = skin->getSize( EGDS_SCROLLBAR_SIZE );
 
 	if ( scrollBarVertical )
 	{
 		ScrollBarV = new CGUIScrollBar( false, Environment, this, -1,
-			core::rect<s32>(	RelativeRect.getWidth() - s,
+			core::rect<s32>(	RelativeRect.getWidth() - ScrollBarSize,
 								0,
 								RelativeRect.getWidth(),
-								RelativeRect.getHeight() - s
+								RelativeRect.getHeight() - ScrollBarSize
 			), !clip );
 		ScrollBarV->drop();
 
@@ -470,8 +470,8 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	{
 		ScrollBarH = new CGUIScrollBar( true, Environment, this, -1,
 			core::rect<s32>(	0,
-								RelativeRect.getHeight() - s,
-								RelativeRect.getWidth() - s,
+								RelativeRect.getHeight() - ScrollBarSize,
+								RelativeRect.getWidth() - ScrollBarSize,
 								RelativeRect.getHeight()
 			), !clip );
 		ScrollBarH->drop();
@@ -522,19 +522,50 @@ CGUITreeView::~CGUITreeView()
 	}
 }
 
+//! Sets another skin independent font.
+void CGUITreeView::setOverrideFont(IGUIFont* font)
+{
+	if (OverrideFont == font)
+		return;
+
+	if (OverrideFont)
+		OverrideFont->drop();
+
+	OverrideFont = font;
+
+	if (OverrideFont)
+		OverrideFont->grab();
+
+	recalculateItemHeight();
+}
+
+//! Gets the override font (if any)
+IGUIFont * CGUITreeView::getOverrideFont() const
+{
+	return OverrideFont;
+}
+
+//! Get the font which is used right now for drawing
+IGUIFont* CGUITreeView::getActiveFont() const
+{
+	if ( OverrideFont )
+		return OverrideFont;
+	IGUISkin* skin = Environment->getSkin();
+	if (skin)
+		return skin->getFont();
+	return 0;
+}
+
 void CGUITreeView::recalculateItemHeight()
 {
-	IGUISkin*		skin = Environment->getSkin();
-	IGUITreeViewNode*	node;
-
-	if( Font != skin->getFont() )
+	if( Font != getActiveFont() )
 	{
 		if( Font )
 		{
 			Font->drop();
 		}
 
-		Font = skin->getFont();
+		Font = getActiveFont();
 		ItemHeight = 0;
 
 		if( Font )
@@ -579,7 +610,7 @@ void CGUITreeView::recalculateItemHeight()
 
 	TotalItemHeight = 0;
 	TotalItemWidth = AbsoluteRect.getWidth() * 2;
-	node = Root->getFirstChild();
+	IGUITreeViewNode* node = Root->getFirstChild();
 	while( node )
 	{
 		TotalItemHeight += ItemHeight;
@@ -606,6 +637,28 @@ void CGUITreeView::recalculateItemHeight()
 		ScrollBarH->setMax( core::max_( 0, diffVert ) );
 	}
 
+}
+
+void CGUITreeView::updateScrollBarSize(s32 size)
+{
+	if ( size != ScrollBarSize )
+	{
+		ScrollBarSize = size;
+
+		if ( ScrollBarV )
+		{
+			core::recti r(RelativeRect.getWidth() - ScrollBarSize, 0,
+			              RelativeRect.getWidth(), RelativeRect.getHeight() - ScrollBarSize);
+			ScrollBarV->setRelativePosition(r);
+		}
+
+		if ( ScrollBarH ) 
+		{
+			core::recti r(0, RelativeRect.getHeight() - ScrollBarSize,
+			              RelativeRect.getWidth() - ScrollBarSize, RelativeRect.getHeight());
+			ScrollBarH->setRelativePosition(r);
+		}
+	}
 }
 
 //! called if an event happened.
@@ -701,10 +754,7 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 {
 	IGUITreeViewNode*		oldSelected = Selected;
-	IGUITreeViewNode*		hitNode = 0;
 	s32						selIdx=-1;
-	s32						n;
-	IGUITreeViewNode*		node;
 	SEvent					event;
 
 	event.EventType			= EET_GUI_EVENT;
@@ -721,9 +771,9 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 		selIdx = ( ( ypos - 1 ) + scrollBarVPos ) / ItemHeight;
 	}
 
-	hitNode = 0;
-	node = Root->getFirstChild();
-	n = 0;
+	IGUITreeViewNode* hitNode = 0;
+	IGUITreeViewNode* node = Root->getFirstChild();
+	s32	n = 0;
 	while( node )
 	{
 		if( selIdx == n )
@@ -797,9 +847,11 @@ void CGUITreeView::draw()
 		return;
 	}
 
+	IGUISkin* skin = Environment->getSkin();
+
+	updateScrollBarSize(skin->getSize(EGDS_SCROLLBAR_SIZE));
 	recalculateItemHeight(); // if the font changed
 
-	IGUISkin* skin = Environment->getSkin();
 	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
 
 	core::rect<s32>* clipRect = 0;
@@ -844,9 +896,9 @@ void CGUITreeView::draw()
 	clientClip.LowerRightCorner.Y -= 1;
 
 	if ( ScrollBarV )
-		clientClip.LowerRightCorner.X -= skin->getSize( EGDS_SCROLLBAR_SIZE );
+		clientClip.LowerRightCorner.X -= ScrollBarSize;
 	if ( ScrollBarH )
-		clientClip.LowerRightCorner.Y -= skin->getSize( EGDS_SCROLLBAR_SIZE );
+		clientClip.LowerRightCorner.Y -= ScrollBarSize;
 
 	if( clipRect )
 	{
@@ -854,7 +906,7 @@ void CGUITreeView::draw()
 	}
 
 	frameRect = AbsoluteRect;
-	frameRect.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X - skin->getSize( EGDS_SCROLLBAR_SIZE );
+	frameRect.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X - ScrollBarSize;
 	frameRect.LowerRightCorner.Y = AbsoluteRect.UpperLeftCorner.Y + ItemHeight;
 
 	if ( ScrollBarV )
@@ -969,7 +1021,7 @@ void CGUITreeView::draw()
 						iconWidth += ImageList->getImageSize().Width + 3;
 						textRect.UpperLeftCorner.X += ImageList->getImageSize().Width + 3;
 					}
-					else if( ( IconFont && reinterpret_cast<CGUITreeViewNode*>( node )->Icon.size() )
+					else if( ( IconFont && static_cast<CGUITreeViewNode*>( node )->Icon.size() )
 						&& ( ( ImageLeftOfIcon && n == 1 )
 						|| ( !ImageLeftOfIcon && n == 0 ) ) )
 					{
@@ -1051,8 +1103,8 @@ void CGUITreeView::setIconFont( IGUIFont* font )
 {
 	s32	height;
 
-    if ( font )
-        font->grab();
+	if ( font )
+		font->grab();
 	if ( IconFont )
 	{
 		IconFont->drop();
@@ -1073,8 +1125,8 @@ void CGUITreeView::setIconFont( IGUIFont* font )
 //! The default is 0 (no images).
 void CGUITreeView::setImageList( IGUIImageList* imageList )
 {
-    if (imageList )
-        imageList->grab();
+	if (imageList )
+		imageList->grab();
 	if( ImageList )
 	{
 		ImageList->drop();

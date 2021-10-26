@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_DEVICE_TYPES_H_INCLUDED__
-#define __E_DEVICE_TYPES_H_INCLUDED__
+#ifndef IRR_E_DEVICE_TYPES_H_INCLUDED
+#define IRR_E_DEVICE_TYPES_H_INCLUDED
 
 namespace irr
 {
@@ -31,7 +31,7 @@ namespace irr
 
 		//! A device which uses Simple DirectMedia Layer
 		/** The SDL device works under all platforms supported by SDL but first must be compiled
-		in by defining the IRR_USE_SDL_DEVICE macro in IrrCompileConfig.h */
+		in by defining the _IRR_COMPILE_WITH_SDL_DEVICE_ macro in IrrCompileConfig.h */
 		EIDT_SDL,
 
 		//! A device for raw framebuffer access
@@ -56,5 +56,4 @@ namespace irr
 
 } // end namespace irr
 
-#endif // __E_DEVICE_TYPES_H_INCLUDED__
-
+#endif // IRR_E_DEVICE_TYPES_H_INCLUDED

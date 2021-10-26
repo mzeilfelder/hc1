@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_GUI_COMBO_BOX_H_INCLUDED__
-#define __I_GUI_COMBO_BOX_H_INCLUDED__
+#ifndef IRR_I_GUI_COMBO_BOX_H_INCLUDED
+#define IRR_I_GUI_COMBO_BOX_H_INCLUDED
 
 #include "IGUIElement.h"
 
@@ -62,7 +62,7 @@ namespace gui
 		//! Set the maximal number of rows for the selection listbox
 		virtual void setMaxSelectionRows(u32 max) = 0;
 
-		//! Get the maximimal number of rows for the selection listbox
+		//! Get the maximal number of rows for the selection listbox
 		virtual u32 getMaxSelectionRows() const = 0;
 	};
 
@@ -71,4 +71,3 @@ namespace gui
 } // end namespace irr
 
 #endif
-

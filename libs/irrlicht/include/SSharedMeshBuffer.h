@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_SHARED_MESH_BUFFER_H_INCLUDED__
-#define __S_SHARED_MESH_BUFFER_H_INCLUDED__
+#ifndef S_SHARED_MESH_BUFFER_H_INCLUDED
+#define S_SHARED_MESH_BUFFER_H_INCLUDED
 
 #include "irrArray.h"
 #include "IMeshBuffer.h"
@@ -16,7 +16,11 @@ namespace scene
 	struct SSharedMeshBuffer : public IMeshBuffer
 	{
 		//! constructor
-		SSharedMeshBuffer() : IMeshBuffer(), Vertices(0), ChangedID_Vertex(1), ChangedID_Index(1), MappingHintVertex(EHM_NEVER), MappingHintIndex(EHM_NEVER)
+		SSharedMeshBuffer() 
+			: IMeshBuffer()
+			, Vertices(0), ChangedID_Vertex(1), ChangedID_Index(1)
+			, MappingHintVertex(EHM_NEVER), MappingHintIndex(EHM_NEVER)
+			, PrimitiveType(EPT_TRIANGLES)
 		{
 			#ifdef _DEBUG
 			setDebugName("SSharedMeshBuffer");
@@ -32,19 +36,19 @@ namespace scene
 		}
 
 		//! returns the material of this meshbuffer
-		virtual const video::SMaterial& getMaterial() const
+		virtual const video::SMaterial& getMaterial() const IRR_OVERRIDE
 		{
 			return Material;
 		}
 
 		//! returns the material of this meshbuffer
-		virtual video::SMaterial& getMaterial()
+		virtual video::SMaterial& getMaterial() IRR_OVERRIDE
 		{
 			return Material;
 		}
 
 		//! returns pointer to vertices
-		virtual const void* getVertices() const
+		virtual const void* getVertices() const IRR_OVERRIDE
 		{
 			if (Vertices)
 				return Vertices->const_pointer();
@@ -53,7 +57,7 @@ namespace scene
 		}
 
 		//! returns pointer to vertices
-		virtual void* getVertices()
+		virtual void* getVertices() IRR_OVERRIDE
 		{
 			if (Vertices)
 				return Vertices->pointer();
@@ -62,7 +66,7 @@ namespace scene
 		}
 
 		//! returns amount of vertices
-		virtual u32 getVertexCount() const
+		virtual u32 getVertexCount() const IRR_OVERRIDE
 		{
 			if (Vertices)
 				return Vertices->size();
@@ -70,50 +74,50 @@ namespace scene
 				return 0;
 		}
 
-		//! returns pointer to Indices
-		virtual const u16* getIndices() const
+		//! returns pointer to indices
+		virtual const u16* getIndices() const IRR_OVERRIDE
 		{
 			return Indices.const_pointer();
 		}
 
-		//! returns pointer to Indices
-		virtual u16* getIndices()
+		//! returns pointer to indices
+		virtual u16* getIndices() IRR_OVERRIDE
 		{
 			return Indices.pointer();
 		}
 
 		//! returns amount of indices
-		virtual u32 getIndexCount() const
+		virtual u32 getIndexCount() const IRR_OVERRIDE
 		{
 			return Indices.size();
 		}
 
 		//! Get type of index data which is stored in this meshbuffer.
-		virtual video::E_INDEX_TYPE getIndexType() const
+		virtual video::E_INDEX_TYPE getIndexType() const IRR_OVERRIDE
 		{
 			return video::EIT_16BIT;
 		}
 
 		//! returns an axis aligned bounding box
-		virtual const core::aabbox3d<f32>& getBoundingBox() const
+		virtual const core::aabbox3d<f32>& getBoundingBox() const IRR_OVERRIDE
 		{
 			return BoundingBox;
 		}
 
 		//! set user axis aligned bounding box
-		virtual void setBoundingBox( const core::aabbox3df& box)
+		virtual void setBoundingBox( const core::aabbox3df& box) IRR_OVERRIDE
 		{
 			BoundingBox = box;
 		}
 
 		//! returns which type of vertex data is stored.
-		virtual video::E_VERTEX_TYPE getVertexType() const
+		virtual video::E_VERTEX_TYPE getVertexType() const IRR_OVERRIDE
 		{
 			return video::EVT_STANDARD;
 		}
 
 		//! recalculates the bounding box. should be called if the mesh changed.
-		virtual void recalculateBoundingBox()
+		virtual void recalculateBoundingBox() IRR_OVERRIDE
 		{
 			if (!Vertices || Vertices->empty() || Indices.empty())
 				BoundingBox.reset(0,0,0);
@@ -126,67 +130,66 @@ namespace scene
 		}
 
 		//! returns position of vertex i
-		virtual const core::vector3df& getPosition(u32 i) const
+		virtual const core::vector3df& getPosition(u32 i) const IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].Pos;
 		}
 
 		//! returns position of vertex i
-		virtual core::vector3df& getPosition(u32 i)
+		virtual core::vector3df& getPosition(u32 i) IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].Pos;
 		}
 
 		//! returns normal of vertex i
-		virtual const core::vector3df& getNormal(u32 i) const
+		virtual const core::vector3df& getNormal(u32 i) const IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].Normal;
 		}
 
 		//! returns normal of vertex i
-		virtual core::vector3df& getNormal(u32 i)
+		virtual core::vector3df& getNormal(u32 i) IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].Normal;
 		}
 
 		//! returns texture coord of vertex i
-		virtual const core::vector2df& getTCoords(u32 i) const
+		virtual const core::vector2df& getTCoords(u32 i) const IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].TCoords;
 		}
 
 		//! returns texture coord of vertex i
-		virtual core::vector2df& getTCoords(u32 i)
+		virtual core::vector2df& getTCoords(u32 i) IRR_OVERRIDE
 		{
-			_IRR_DEBUG_BREAK_IF(!Vertices);
+			IRR_DEBUG_BREAK_IF(!Vertices);
 			return (*Vertices)[Indices[i]].TCoords;
 		}
 
 		//! append the vertices and indices to the current buffer
-		virtual void append(const void* const vertices, u32 numVertices, const u16* const indices, u32 numIndices) {}
-
+		virtual void append(const void* const vertices, u32 numVertices, const u16* const indices, u32 numIndices)  IRR_OVERRIDE {}
 		//! append the meshbuffer to the current buffer
-		virtual void append(const IMeshBuffer* const other) {}
+		virtual void append(const IMeshBuffer* const other) IRR_OVERRIDE {}
 
 		//! get the current hardware mapping hint
-		virtual E_HARDWARE_MAPPING getHardwareMappingHint_Vertex() const
+		virtual E_HARDWARE_MAPPING getHardwareMappingHint_Vertex() const IRR_OVERRIDE
 		{
 			return MappingHintVertex;
 		}
 
 		//! get the current hardware mapping hint
-		virtual E_HARDWARE_MAPPING getHardwareMappingHint_Index() const
+		virtual E_HARDWARE_MAPPING getHardwareMappingHint_Index() const IRR_OVERRIDE
 		{
 			return MappingHintIndex;
 		}
 
 		//! set the hardware mapping hint, for driver
-		virtual void setHardwareMappingHint( E_HARDWARE_MAPPING NewMappingHint, E_BUFFER_TYPE buffer=EBT_VERTEX_AND_INDEX )
+		virtual void setHardwareMappingHint( E_HARDWARE_MAPPING NewMappingHint, E_BUFFER_TYPE buffer=EBT_VERTEX_AND_INDEX ) IRR_OVERRIDE
 		{
 			if (buffer==EBT_VERTEX_AND_INDEX || buffer==EBT_VERTEX)
 				MappingHintVertex=NewMappingHint;
@@ -194,8 +197,20 @@ namespace scene
 				MappingHintIndex=NewMappingHint;
 		}
 
+		//! Describe what kind of primitive geometry is used by the meshbuffer
+		virtual void setPrimitiveType(E_PRIMITIVE_TYPE type) IRR_OVERRIDE
+		{
+			PrimitiveType = type;
+		}
+
+		//! Get the kind of primitive geometry which is used by the meshbuffer
+		virtual E_PRIMITIVE_TYPE getPrimitiveType() const IRR_OVERRIDE
+		{
+			return PrimitiveType;
+		}
+
 		//! flags the mesh as changed, reloads hardware buffers
-		virtual void setDirty(E_BUFFER_TYPE buffer=EBT_VERTEX_AND_INDEX)
+		virtual void setDirty(E_BUFFER_TYPE buffer=EBT_VERTEX_AND_INDEX) IRR_OVERRIDE
 		{
 			if (buffer==EBT_VERTEX_AND_INDEX || buffer==EBT_VERTEX)
 				++ChangedID_Vertex;
@@ -205,11 +220,11 @@ namespace scene
 
 		//! Get the currently used ID for identification of changes.
 		/** This shouldn't be used for anything outside the VideoDriver. */
-		virtual u32 getChangedID_Vertex() const {return ChangedID_Vertex;}
+		virtual u32 getChangedID_Vertex() const IRR_OVERRIDE {return ChangedID_Vertex;}
 
 		//! Get the currently used ID for identification of changes.
 		/** This shouldn't be used for anything outside the VideoDriver. */
-		virtual u32 getChangedID_Index() const {return ChangedID_Index;}
+		virtual u32 getChangedID_Index() const IRR_OVERRIDE {return ChangedID_Index;}
 
 		//! Material of this meshBuffer
 		video::SMaterial Material;
@@ -217,7 +232,7 @@ namespace scene
 		//! Shared Array of vertices
 		core::array<video::S3DVertex> *Vertices;
 
-		//! Array of Indices
+		//! Array of indices
 		core::array<u16> Indices;
 
 		//! ID used for hardware buffer management
@@ -232,6 +247,9 @@ namespace scene
 		//! hardware mapping hint
 		E_HARDWARE_MAPPING MappingHintVertex;
 		E_HARDWARE_MAPPING MappingHintIndex;
+
+		//! Primitive type used for rendering (triangles, lines, ...)
+		E_PRIMITIVE_TYPE PrimitiveType;
 	};
 
 
@@ -239,4 +257,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

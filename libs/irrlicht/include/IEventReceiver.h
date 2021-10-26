@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_EVENT_RECEIVER_H_INCLUDED__
-#define __I_EVENT_RECEIVER_H_INCLUDED__
+#ifndef IRR_I_EVENT_RECEIVER_H_INCLUDED
+#define IRR_I_EVENT_RECEIVER_H_INCLUDED
 
 #include "ILogger.h"
 #include "Keycodes.h"
@@ -34,6 +34,9 @@ namespace irr
 		IrrlichtDevice::postEventFromUser. They take the same path as mouse events. */
 		EET_KEY_INPUT_EVENT,
 
+        //! A touch input event.
+		EET_TOUCH_INPUT_EVENT,
+
 		//! A joystick (joypad, gamepad) input event.
 		/** Joystick events are created by polling all connected joysticks once per
 		device run() and then passing the events to IrrlichtDevice::postEventFromUser.
@@ -59,7 +62,7 @@ namespace irr
 			UserData1 and UserData2 members of the SUserEvent.
 		Linux: send a ClientMessage via XSendEvent to the Irrlicht
 			Window; the data.l[0] and data.l[1] members will be
-			casted to s32 and used as UserData1 and UserData2.
+			cast to s32 and used as UserData1 and UserData2.
 		MacOS: Not yet implemented
 		*/
 		EET_USER_EVENT,
@@ -142,6 +145,22 @@ namespace irr
 		EMBSM_FORCE_32_BIT = 0x7fffffff
 	};
 
+    //! Enumeration for all touch input events
+	enum ETOUCH_INPUT_EVENT
+	{
+		//! Touch was pressed down.
+		ETIE_PRESSED_DOWN = 0,
+
+		//! Touch was left up.
+		ETIE_LEFT_UP,
+
+		//! The touch changed its position.
+		ETIE_MOVED,
+
+		//! No real event. Just for convenience to get number of events
+		ETIE_COUNT
+	};
+
 	namespace gui
 	{
 
@@ -169,7 +188,7 @@ namespace irr
 
 			//! An element would like to close.
 			/** Windows and context menus use this event when they would like to close,
-			this can be cancelled by absorbing the event. */
+			this can be canceled by absorbing the event. */
 			EGET_ELEMENT_CLOSED,
 
 			//! A button was clicked.
@@ -275,6 +294,22 @@ struct SEvent
 
 	};
 
+    //! Any kind of touch event.
+	struct STouchInput
+	{
+        // Touch ID.
+        size_t ID;
+
+        // X position of simple touch.
+		s32 X;
+
+        // Y position of simple touch.
+		s32 Y;
+
+		//! Type of touch event.
+		ETOUCH_INPUT_EVENT Event;
+	};
+
 	//! Any kind of mouse event.
 	struct SMouseInput
 	{
@@ -331,6 +366,7 @@ struct SEvent
 		bool Control:1;
 	};
 
+
 	//! A joystick event.
 	/** Unlike other events, joystick events represent the result of polling
 	 * each connected joystick once per run() of the device. Joystick events will
@@ -351,7 +387,7 @@ struct SEvent
 			AXIS_R,		// e.g. rudder, or analog 2 stick 2 top to bottom
 			AXIS_U,
 			AXIS_V,
-			NUMBER_OF_AXES
+			NUMBER_OF_AXES=18	// (please tell Irrlicht maintainers if you absolutely need more axes)
 		};
 
 		/** A bitmap of button states.  You can use IsButtonPressed() to
@@ -405,10 +441,10 @@ struct SEvent
 	struct SUserEvent
 	{
 		//! Some user specified data as int
-		s32 UserData1;
+		size_t UserData1;
 
 		//! Another user specified data as int
-		s32 UserData2;
+		size_t UserData2;
 	};
 
 	EEVENT_TYPE EventType;
@@ -417,6 +453,7 @@ struct SEvent
 		struct SGUIEvent GUIEvent;
 		struct SMouseInput MouseInput;
 		struct SKeyInput KeyInput;
+		struct STouchInput TouchInput;
 		struct SJoystickEvent JoystickEvent;
 		struct SLogEvent LogEvent;
 		struct SUserEvent UserEvent;
@@ -468,8 +505,8 @@ struct SJoystickInfo
 	u32 Axes;
 
 	//! An indication of whether the joystick has a POV hat.
-	/** A Windows device will identify the presence or absence or the POV hat.  A
-	 *  Linux device cannot, and will always return POV_HAT_UNKNOWN. */
+	/** A Windows device will identify the presence or absence of the POV hat.
+	 *  A Linux device cannot, and will always return POV_HAT_UNKNOWN. */
 	enum
 	{
 		//! A hat is definitely present.
@@ -487,4 +524,3 @@ struct SJoystickInfo
 } // end namespace irr
 
 #endif
-

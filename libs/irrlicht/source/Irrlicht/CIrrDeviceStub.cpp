@@ -21,7 +21,7 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters& params)
 : IrrlichtDevice(), VideoDriver(0), GUIEnvironment(0), SceneManager(0),
 	Timer(0), CursorControl(0), UserReceiver(params.EventReceiver),
 	Logger(0), Operator(0), Randomizer(0), FileSystem(0),
-	InputReceivingSceneManager(0), VideoModeList(0),
+	InputReceivingSceneManager(0), VideoModeList(0), ContextManager(0),
 	CreationParams(params), Close(false)
 {
 	Timer = new CTimer(params.UsePerformanceTimer);
@@ -64,6 +64,9 @@ CIrrDeviceStub::~CIrrDeviceStub()
 	
 	if (VideoDriver)
 		VideoDriver->drop();
+
+	if (ContextManager)
+		ContextManager->drop();
 
 	if ( FileSystem )
 		FileSystem->drop();
@@ -163,6 +166,11 @@ video::IVideoModeList* CIrrDeviceStub::getVideoModeList()
 	return VideoModeList;
 }
 
+//! return the context manager
+video::IContextManager* CIrrDeviceStub::getContextManager()
+{
+	return ContextManager;
+}
 
 //! checks version of sdk and prints warning if there might be a problem
 bool CIrrDeviceStub::checkVersion(const char* version)
@@ -176,7 +184,7 @@ bool CIrrDeviceStub::checkVersion(const char* version)
 		w += version;
 		w += "). This may cause problems.";
 		os::Printer::log(w.c_str(), ELL_WARNING);
-		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+
 		return false;
 	}
 
@@ -232,7 +240,6 @@ bool CIrrDeviceStub::postEventFromUser(const SEvent& event)
 	if (!absorbed && inputReceiver)
 		absorbed = inputReceiver->postEventFromUser(event);
 
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return absorbed;
 }
 
@@ -291,22 +298,22 @@ namespace
 {
 	struct SDefaultRandomizer : public IRandomizer
 	{
-		virtual void reset(s32 value=0x0f0f0f0f)
+		virtual void reset(s32 value=0x0f0f0f0f) IRR_OVERRIDE
 		{
 			os::Randomizer::reset(value);
 		}
 
-		virtual s32 rand() const
+		virtual s32 rand() const IRR_OVERRIDE
 		{
 			return os::Randomizer::rand();
 		}
 
-		virtual f32 frand() const
+		virtual f32 frand() const IRR_OVERRIDE
 		{
 			return os::Randomizer::frand();
 		}
 
-		virtual s32 randMax() const
+		virtual s32 randMax() const IRR_OVERRIDE
 		{
 			return os::Randomizer::randMax();
 		}
@@ -326,8 +333,8 @@ IRandomizer* CIrrDeviceStub::createDefaultRandomizer() const
 //! Sets the input receiving scene manager.
 void CIrrDeviceStub::setInputReceivingSceneManager(scene::ISceneManager* sceneManager)
 {
-    if (sceneManager)
-        sceneManager->grab();
+	if (sceneManager)
+		sceneManager->grab();
 	if (InputReceivingSceneManager)
 		InputReceivingSceneManager->drop();
 

@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_GUI_CONTEXT_MENU_H_INCLUDED__
-#define __I_GUI_CONTEXT_MENU_H_INCLUDED__
+#ifndef IRR_I_GUI_CONTEXT_MENU_H_INCLUDED
+#define IRR_I_GUI_CONTEXT_MENU_H_INCLUDED
 
 #include "IGUIElement.h"
 
@@ -24,7 +24,7 @@ namespace gui
 		//! call setVisible(false)
 		ECMC_HIDE = 2
 
-		// note to implementors - this is planned as bitset, so continue with 4 if you need to add further flags.
+		// note to implementers - this is planned as bitset, so continue with 4 if you need to add further flags.
 	};
 
 	//! GUI Context menu interface.
@@ -159,4 +159,3 @@ namespace gui
 } // end namespace irr
 
 #endif
-

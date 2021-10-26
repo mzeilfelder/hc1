@@ -2,9 +2,10 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_VERTEX_MANIPULATOR_H_INCLUDED__
-#define __S_VERTEX_MANIPULATOR_H_INCLUDED__
+#ifndef S_VERTEX_MANIPULATOR_H_INCLUDED
+#define S_VERTEX_MANIPULATOR_H_INCLUDED
 
+#include "matrix4.h"
 #include "S3DVertex.h"
 #include "SColor.h"
 
@@ -47,7 +48,7 @@ namespace scene
 	private:
 		u32 Alpha;
 	};
-	//! Vertex manipulator which invertes the RGB values
+	//! Vertex manipulator which inverts the RGB values
 	class SVertexColorInvertManipulator : public IVertexManipulator
 	{
 	public:
@@ -262,6 +263,20 @@ namespace scene
 		core::matrix4 Transformation;
 	};
 
+	//! Vertex manipulator which transforms the normal of the vertex
+	class SVertexNormalTransformManipulator : public IVertexManipulator
+	{
+	public:
+		SVertexNormalTransformManipulator(const core::matrix4& m) : Transformation(m) {}
+		template <typename VType>
+		void operator()(VType& vertex) const
+		{
+			Transformation.transformVect(vertex.Normal);
+		}
+	private:
+		core::matrix4 Transformation;
+	};
+
 	//! Vertex manipulator which scales the TCoords of the vertex
 	class SVertexTCoordsScaleManipulator : public IVertexManipulator
 	{
@@ -287,6 +302,5 @@ namespace scene
 
 } // end namespace scene
 } // end namespace irr
-
 
 #endif

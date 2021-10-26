@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_I_VIDEO_MODE_LIST_H_INCLUDED__
-#define __IRR_I_VIDEO_MODE_LIST_H_INCLUDED__
+#ifndef IRR_I_VIDEO_MODE_LIST_H_INCLUDED
+#define IRR_I_VIDEO_MODE_LIST_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "dimension2d.h"
@@ -14,12 +14,8 @@ namespace video
 {
 
 	//! A list of all available video modes.
-	/** You can get a list via IrrlichtDevice::getVideoModeList(). If you are confused
-	now, because you think you have to create an Irrlicht Device with a video
-	mode before being able to get the video mode list, let me tell you that
-	there is no need to start up an Irrlicht Device with EDT_DIRECT3D8, EDT_OPENGL or
-	EDT_SOFTWARE: For this (and for lots of other reasons) the null device,
-	EDT_NULL exists.*/
+	/** You can get a list via IrrlichtDevice::getVideoModeList(). 
+	You only need the null device (EDT_NULL) to get the video-modes. */
 	class IVideoModeList : public virtual IReferenceCounted
 	{
 	public:
@@ -57,6 +53,4 @@ namespace video
 } // end namespace video
 } // end namespace irr
 
-
 #endif
-

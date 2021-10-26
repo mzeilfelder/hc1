@@ -25,7 +25,7 @@ public:
 	}
 
 	//! draws an indexed triangle list
-	virtual void drawIndexedTriangleList(S2DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount)
+	virtual void drawIndexedTriangleList(S2DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount) IRR_OVERRIDE
 	{
 		const S2DVertex *v1, *v2, *v3;
 
@@ -49,7 +49,7 @@ public:
 		s32 leftZStep, rightZStep;
 		TZBufferType* zTarget; // target of ZBuffer;
 
-		lockedSurface = (u16*)RenderTarget->lock();
+		lockedSurface = (u16*)RenderTarget->getData();
 		lockedZBuffer = ZBuffer->lock();
 
 		for (s32 i=0; i<triangleCount; ++i)
@@ -293,7 +293,6 @@ public:
 
 		}
 
-		RenderTarget->unlock();
 		ZBuffer->unlock();
 	}
 

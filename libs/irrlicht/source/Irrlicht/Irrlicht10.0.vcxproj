@@ -67,6 +67,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='SDL-Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='SDL-Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -77,6 +78,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static lib - Release - Fast FPU|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -88,6 +90,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -98,6 +101,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static lib - Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static lib - Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -108,6 +112,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Fast FPU|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -119,6 +124,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -129,6 +135,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -271,7 +278,7 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|x64'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)include;$(CG_INC_PATH);$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">obj\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\$(Configuration)64\</IntDir>
@@ -289,7 +296,7 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Static lib - Release - Fast FPU|x64'">$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|Win32'">$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Static lib - Release|x64'">$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)Lib\x86;$(CG_LIB_PATH);$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release - Fast FPU|Win32'">$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='SDL-Debug|Win32'">$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
@@ -453,10 +460,11 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\bin\Win64-visualstudio\Irrlicht.dll</OutputFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>..\..\lib\Win64-visualstudio\Irrlicht.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - Fast FPU|Win32'">
@@ -831,24 +839,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\EDeviceTypes.h" />
     <ClInclude Include="..\..\include\EDriverFeatures.h" />
+    <ClInclude Include="..\..\include\EHardwareBufferFlags.h" />
     <ClInclude Include="..\..\include\EMaterialFlags.h" />
+    <ClInclude Include="..\..\include\EMaterialTypes.h" />
+    <ClInclude Include="..\..\include\EReadFileType.h" />
+    <ClInclude Include="..\..\include\EShaderTypes.h" />
+    <ClInclude Include="..\..\include\fast_atof.h" />
     <ClInclude Include="..\..\include\IAnimatedMeshMD3.h" />
+    <ClInclude Include="..\..\include\IBillboardTextSceneNode.h" />
+    <ClInclude Include="..\..\include\IBoneSceneNode.h" />
+    <ClInclude Include="..\..\include\IColladaMeshWriter.h" />
+    <ClInclude Include="..\..\include\IDynamicMeshBuffer.h" />
     <ClInclude Include="..\..\include\IEventReceiver.h" />
+    <ClInclude Include="..\..\include\IFileArchive.h" />
+    <ClInclude Include="..\..\include\IGUIFontBitmap.h" />
+    <ClInclude Include="..\..\include\IGUITable.h" />
+    <ClInclude Include="..\..\include\IImageWriter.h" />
+    <ClInclude Include="..\..\include\IIndexBuffer.h" />
+    <ClInclude Include="..\..\include\ILightManager.h" />
+    <ClInclude Include="..\..\include\IOctreeSceneNode.h" />	
+    <ClInclude Include="..\..\include\IProfiler.h" />	
     <ClInclude Include="..\..\include\ILogger.h" />
+    <ClInclude Include="..\..\include\IMemoryReadFile.h" />
     <ClInclude Include="..\..\include\IOSOperator.h" />
-    <ClInclude Include="..\..\include\IProfiler.h" />
     <ClInclude Include="..\..\include\IRandomizer.h" />
     <ClInclude Include="..\..\include\IReferenceCounted.h" />
+    <ClInclude Include="..\..\include\IRenderTarget.h" />
     <ClInclude Include="..\..\include\IrrCompileConfig.h" />
     <ClInclude Include="..\..\include\irrlicht.h" />
+    <ClInclude Include="..\..\include\leakHunter.h" />	
     <ClInclude Include="..\..\include\IrrlichtDevice.h" />
     <ClInclude Include="..\..\include\irrTypes.h" />
+    <ClInclude Include="..\..\include\ISceneUserDataSerializer.h" />
     <ClInclude Include="..\..\include\ITimer.h" />
+    <ClInclude Include="..\..\include\IVertexBuffer.h" />
     <ClInclude Include="..\..\include\Keycodes.h" />
     <ClInclude Include="..\..\include\SIrrCreationParameters.h" />
     <ClInclude Include="..\..\include\SKeyMap.h" />
     <ClInclude Include="..\..\include\EDriverTypes.h" />
+    <ClInclude Include="..\..\include\IContextManager.h" />
     <ClInclude Include="..\..\include\IGeometryCreator.h" />
     <ClInclude Include="..\..\include\IGPUProgrammingServices.h" />
     <ClInclude Include="..\..\include\IImage.h" />
@@ -882,7 +913,10 @@
     <ClInclude Include="..\..\include\position2d.h" />
     <ClInclude Include="..\..\include\quaternion.h" />
     <ClInclude Include="..\..\include\rect.h" />
+    <ClInclude Include="..\..\include\SOverrideMaterial.h" />
     <ClInclude Include="..\..\include\SSharedMeshBuffer.h" />
+    <ClInclude Include="..\..\include\SVertexIndex.h" />
+    <ClInclude Include="..\..\include\SVertexManipulator.h" />
     <ClInclude Include="..\..\include\triangle3d.h" />
     <ClInclude Include="..\..\include\vector2d.h" />
     <ClInclude Include="..\..\include\vector3d.h" />
@@ -993,16 +1027,38 @@
     <ClInclude Include="..\..\include\IGUIToolbar.h" />
     <ClInclude Include="..\..\include\IGUITreeView.h" />
     <ClInclude Include="..\..\include\IGUIWindow.h" />
-    <ClInclude Include="CCgMaterialRenderer.h" />
-    <ClInclude Include="CD3D9CgMaterialRenderer.h" />
+    <ClInclude Include="burning_shader_color_fraq.h" />
+    <ClInclude Include="burning_shader_compile_fragment_default.h" />
+    <ClInclude Include="burning_shader_compile_fragment_end.h" />
+    <ClInclude Include="burning_shader_compile_fragment_start.h" />
+    <ClInclude Include="burning_shader_compile_start.h" />
+    <ClInclude Include="burning_shader_compile_triangle.h" />
+    <ClInclude Include="burning_shader_compile_verify.h" />
+    <ClInclude Include="CB3DMeshWriter.h" />
+    <ClInclude Include="CBlit.h" />	
+    <ClInclude Include="CD3D9RenderTarget.h" />
     <ClInclude Include="CDefaultSceneNodeAnimatorFactory.h" />
     <ClInclude Include="CDefaultSceneNodeFactory.h" />
     <ClInclude Include="CGeometryCreator.h" />
+    <ClInclude Include="CGLXManager.h" />
     <ClInclude Include="CMeshCache.h" />
     <ClInclude Include="CMeshManipulator.h" />
-    <ClInclude Include="COpenGLCgMaterialRenderer.h" />
-    <ClInclude Include="CProfiler.h" />
+    <ClInclude Include="COpenGLCoreCacheHandler.h" />
+    <ClInclude Include="COpenGLCoreFeature.h" />
+    <ClInclude Include="COpenGLCoreRenderTarget.h" />
+    <ClInclude Include="COpenGLCoreTexture.h" />
+    <ClInclude Include="COpenGLCacheHandler.h" />
+    <ClInclude Include="COpenGLCommon.h" />
+    <ClInclude Include="COpenGLDriver.h" />
+    <ClInclude Include="COpenGLExtensionHandler.h" />
+    <ClInclude Include="COpenGLMaterialRenderer.h" />
+    <ClInclude Include="COpenGLNormalMapRenderer.h" />
+    <ClInclude Include="COpenGLParallaxMapRenderer.h" />
+    <ClInclude Include="COpenGLShaderMaterialRenderer.h" />
+    <ClInclude Include="COpenGLSLMaterialRenderer.h" />
     <ClInclude Include="CSceneManager.h" />
+    <ClInclude Include="CWGLManager.h" />
+    <ClInclude Include="ISceneNodeAnimatorFinishing.h" />
     <ClInclude Include="Octree.h" />
     <ClInclude Include="CSMFMeshFileLoader.h" />
     <ClInclude Include="C3DSMeshFileLoader.h" />
@@ -1094,22 +1150,7 @@
     <ClInclude Include="IZBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="S2DVertex.h" />
-    <ClInclude Include="COpenGLDriver.h" />
-    <ClInclude Include="COpenGLExtensionHandler.h" />
-    <ClInclude Include="COpenGLMaterialRenderer.h" />
-    <ClInclude Include="COpenGLNormalMapRenderer.h" />
-    <ClInclude Include="COpenGLParallaxMapRenderer.h" />
-    <ClInclude Include="COpenGLShaderMaterialRenderer.h" />
-    <ClInclude Include="COpenGLSLMaterialRenderer.h" />
-    <ClInclude Include="COpenGLTexture.h" />
-    <ClInclude Include="glext.h" />
-    <ClInclude Include="wglext.h" />
-    <ClInclude Include="CD3D8Driver.h" />
-    <ClInclude Include="CD3D8MaterialRenderer.h" />
-    <ClInclude Include="CD3D8NormalMapRenderer.h" />
-    <ClInclude Include="CD3D8ParallaxMapRenderer.h" />
-    <ClInclude Include="CD3D8ShaderMaterialRenderer.h" />
-    <ClInclude Include="CD3D8Texture.h" />
+    <ClInclude Include="SB3DStructs.h" />
     <ClInclude Include="CColorConverter.h" />
     <ClInclude Include="CFPSCounter.h" />
     <ClInclude Include="CImage.h" />
@@ -1129,6 +1170,7 @@
     <ClInclude Include="CImageLoaderPNG.h" />
     <ClInclude Include="CImageLoaderPPM.h" />
     <ClInclude Include="CImageLoaderPSD.h" />
+    <ClInclude Include="CImageLoaderPVR.h" />
     <ClInclude Include="CImageLoaderRGB.h" />
     <ClInclude Include="CImageLoaderTGA.h" />
     <ClInclude Include="CImageLoaderWAL.h" />
@@ -1152,6 +1194,7 @@
     <ClInclude Include="COSOperator.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="os.h" />
+    <ClInclude Include="CProfiler.h" />	
     <ClInclude Include="EProfileIDs.h" />
     <ClInclude Include="lzma\LzmaDec.h" />
     <ClInclude Include="lzma\Types.h" />
@@ -1192,7 +1235,6 @@
     <ClInclude Include="CIrrDeviceSDL.h" />
     <ClInclude Include="CIrrDeviceStub.h" />
     <ClInclude Include="CIrrDeviceWin32.h" />
-    <ClInclude Include="CIrrDeviceWinCE.h" />
     <ClInclude Include="CAttributeImpl.h" />
     <ClInclude Include="CAttributes.h" />
     <ClInclude Include="CFileList.h" />
@@ -1247,14 +1289,22 @@
     <None Include="..\..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CCgMaterialRenderer.cpp" />
-    <ClCompile Include="CD3D9CgMaterialRenderer.cpp" />
+    <ClCompile Include="burning_shader_color.cpp" />
+    <ClCompile Include="CB3DMeshWriter.cpp" />
+    <ClCompile Include="CD3D9RenderTarget.cpp" />
     <ClCompile Include="CDefaultSceneNodeAnimatorFactory.cpp" />
     <ClCompile Include="CDefaultSceneNodeFactory.cpp" />
     <ClCompile Include="CGeometryCreator.cpp" />
+    <ClCompile Include="CGLXManager.cpp" />
     <ClCompile Include="CMeshCache.cpp" />
     <ClCompile Include="CMeshManipulator.cpp" />
-    <ClCompile Include="COpenGLCgMaterialRenderer.cpp" />
+    <ClCompile Include="COpenGLCacheHandler.cpp" />
+    <ClCompile Include="COpenGLDriver.cpp" />
+    <ClCompile Include="COpenGLExtensionHandler.cpp" />
+    <ClCompile Include="COpenGLNormalMapRenderer.cpp" />
+    <ClCompile Include="COpenGLParallaxMapRenderer.cpp" />
+    <ClCompile Include="COpenGLShaderMaterialRenderer.cpp" />
+    <ClCompile Include="COpenGLSLMaterialRenderer.cpp" />
     <ClCompile Include="CSceneManager.cpp" />
     <ClCompile Include="C3DSMeshFileLoader.cpp" />
     <ClCompile Include="CSMFMeshFileLoader.cpp" />
@@ -1281,6 +1331,9 @@
     <ClCompile Include="CQ3LevelMesh.cpp" />
     <ClCompile Include="CSkinnedMesh.cpp" />
     <ClCompile Include="CSTLMeshFileLoader.cpp" />
+    <ClCompile Include="CTRGouraudNoZ2.cpp" />
+    <ClCompile Include="CTR_transparent_reflection_2_layer.cpp" />
+    <ClCompile Include="CWGLManager.cpp" />
     <ClCompile Include="CXMeshFileLoader.cpp" />
     <ClCompile Include="CAnimatedMeshSceneNode.cpp" />
     <ClCompile Include="CBillboardSceneNode.cpp" />
@@ -1349,18 +1402,6 @@
     <ClCompile Include="CTRTextureGouraudNoZ.cpp" />
     <ClCompile Include="CTRTextureGouraudWire.cpp" />
     <ClCompile Include="CZBuffer.cpp" />
-    <ClCompile Include="COpenGLDriver.cpp" />
-    <ClCompile Include="COpenGLExtensionHandler.cpp" />
-    <ClCompile Include="COpenGLNormalMapRenderer.cpp" />
-    <ClCompile Include="COpenGLParallaxMapRenderer.cpp" />
-    <ClCompile Include="COpenGLShaderMaterialRenderer.cpp" />
-    <ClCompile Include="COpenGLSLMaterialRenderer.cpp" />
-    <ClCompile Include="COpenGLTexture.cpp" />
-    <ClCompile Include="CD3D8Driver.cpp" />
-    <ClCompile Include="CD3D8NormalMapRenderer.cpp" />
-    <ClCompile Include="CD3D8ParallaxMapRenderer.cpp" />
-    <ClCompile Include="CD3D8ShaderMaterialRenderer.cpp" />
-    <ClCompile Include="CD3D8Texture.cpp" />
     <ClCompile Include="CColorConverter.cpp" />
     <ClCompile Include="CFPSCounter.cpp" />
     <ClCompile Include="CImage.cpp" />
@@ -1379,6 +1420,7 @@
     <ClCompile Include="CImageLoaderPNG.cpp" />
     <ClCompile Include="CImageLoaderPPM.cpp" />
     <ClCompile Include="CImageLoaderPSD.cpp" />
+    <ClCompile Include="CImageLoaderPVR.cpp" />
     <ClCompile Include="CImageLoaderRGB.cpp" />
     <ClCompile Include="CImageLoaderTGA.cpp" />
     <ClCompile Include="CImageLoaderWAL.cpp" />
@@ -1416,10 +1458,10 @@
     <ClCompile Include="CLogger.cpp" />
     <ClCompile Include="COSOperator.cpp" />
     <ClCompile Include="Irrlicht.cpp" />
-    <ClCompile Include="leakHunter.cpp" />
     <ClCompile Include="os.cpp" />
-	<ClCompile Include="utf8.cpp" />
+    <ClCompile Include="utf8.cpp" />
     <ClCompile Include="CProfiler.cpp" />
+    <ClCompile Include="leakHunter.cpp" />	
     <ClCompile Include="lzma\LzmaDec.c" />
     <ClCompile Include="zlib\adler32.c" />
     <ClCompile Include="zlib\compress.c" />
@@ -1514,7 +1556,6 @@
     <ClCompile Include="CIrrDeviceSDL.cpp" />
     <ClCompile Include="CIrrDeviceStub.cpp" />
     <ClCompile Include="CIrrDeviceWin32.cpp" />
-    <ClCompile Include="CIrrDeviceWinCE.cpp" />
     <ClCompile Include="CAttributes.cpp" />
     <ClCompile Include="CFileList.cpp" />
     <ClCompile Include="CFileSystem.cpp" />

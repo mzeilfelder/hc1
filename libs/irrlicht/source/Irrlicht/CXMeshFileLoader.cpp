@@ -411,7 +411,7 @@ bool CXMeshFileLoader::readFileIntoMemory(io::IReadFile* file)
 	Buffer = new c8[size];
 
 	//! read all into memory
-	if (file->read(Buffer, size) != size)
+	if (file->read(Buffer, size) != static_cast<size_t>(size))
 	{
 		os::Printer::log("Could not read from x file.", ELL_WARNING);
 		return false;
@@ -518,6 +518,11 @@ bool CXMeshFileLoader::parseDataObject()
 	if (objectName == "AnimationSet")
 	{
 		return parseDataObjectAnimationSet();
+	}
+	else
+	if (objectName == "AnimTicksPerSecond")
+	{
+		return parseDataObjectAnimationTicksPerSecond();
 	}
 	else
 	if (objectName == "Material")
@@ -878,6 +883,12 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 		else
 		if (objectName == "DeclData")
 		{
+			if (!readHeadOfDataObject())
+			{
+				os::Printer::log("No starting brace in DeclData found.", ELL_WARNING);
+				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
+				return false;
+			}
 			// arbitrary vertex attributes
 			// first comes the number of element definitions
 			// then the vertex element type definitions
@@ -901,6 +912,12 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 			s16 uv2type = -1;
 			s16 tangenttype = -1;
 			s16 binormaltype = -1;
+
+			(void)tangentpos; // disable unused variable warnings
+			(void)binormalpos; // disable unused variable warnings
+			(void)tangenttype; // disable unused variable warnings
+			(void)binormaltype; // disable unused variable warnings
+
 			for (j=0; j<dcnt; ++j)
 			{
 				const u32 type = readInt();
@@ -1607,6 +1624,39 @@ bool CXMeshFileLoader::parseDataObjectAnimationSet()
 	return true;
 }
 
+bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
+{
+#ifdef _XREADER_DEBUG
+	os::Printer::log("CXFileReader: reading AnimationTicksPerSecond", ELL_DEBUG);
+#endif
+
+	if (!readHeadOfDataObject())
+	{
+		os::Printer::log("No opening brace in Animation found in x file", ELL_WARNING);
+		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
+		return false;
+	}
+
+	const u32 ticks = readInt();
+
+	if (!checkForOneFollowingSemicolons())
+	{
+		os::Printer::log("No closing semicolon in AnimationTicksPerSecond in x file", ELL_WARNING);
+		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
+		return false;
+	}
+
+	if (!checkForClosingBrace())
+	{
+		os::Printer::log("No closing brace in AnimationTicksPerSecond in x file", ELL_WARNING);
+		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
+		return false;
+	}
+
+	AnimatedMesh->setAnimationSpeed(static_cast<irr::f32>(ticks));
+
+	return true;
+}
 
 bool CXMeshFileLoader::parseDataObjectAnimation()
 {
@@ -1793,6 +1843,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(ISkinnedMesh::SJoint *joint)
 				ISkinnedMesh::SRotationKey *key=AnimatedMesh->addRotationKey(joint);
 				key->frame=time;
 				key->rotation.set(X,Y,Z,W);
+				key->rotation.normalize();
 			}
 			break;
 		case 1: //scale

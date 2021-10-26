@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_TRIANGLE_3D_H_INCLUDED__
-#define __IRR_TRIANGLE_3D_H_INCLUDED__
+#ifndef IRR_TRIANGLE_3D_H_INCLUDED
+#define IRR_TRIANGLE_3D_H_INCLUDED
 
 #include "vector3d.h"
 #include "line3d.h"
@@ -100,7 +100,7 @@ namespace core
 		//! Check if a point is inside the triangle (border-points count also as inside)
 		/** This method uses a barycentric coordinate system.
 		It is faster than isPointInside but is more susceptible to floating point rounding
-		errors. This will especially be noticable when the FPU is in single precision mode
+		errors. This will especially be noticeable when the FPU is in single precision mode
 		(which is for example set on default by Direct3D).
 		\param p Point to test. Assumes that this point is already
 		on the plane of the triangle.
@@ -253,10 +253,10 @@ namespace core
 			{
 				// This catches some floating point troubles.
 				// Unfortunately slightly expensive and we don't really know the best epsilon for iszero.
-				vector3d<f64> cp1 = bminusa.normalize().crossProduct((p1 - a).normalize());
-				if (core::iszero(cp1.X, (f64)ROUNDING_ERROR_f32)
-					&& core::iszero(cp1.Y, (f64)ROUNDING_ERROR_f32)
-					&& core::iszero(cp1.Z, (f64)ROUNDING_ERROR_f32) )
+				vector3d<f64> cp1n = bminusa.normalize().crossProduct((p1 - a).normalize());
+				if (core::iszero(cp1n.X, (f64)ROUNDING_ERROR_f32)
+					&& core::iszero(cp1n.Y, (f64)ROUNDING_ERROR_f32)
+					&& core::iszero(cp1n.Z, (f64)ROUNDING_ERROR_f32) )
 				{
 					res = 0.f;
 				}
@@ -276,4 +276,3 @@ namespace core
 } // end namespace irr
 
 #endif
-

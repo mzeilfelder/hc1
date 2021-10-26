@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_MATERIAL_RENDERER_H_INCLUDED__
-#define __I_MATERIAL_RENDERER_H_INCLUDED__
+#ifndef IRR_I_MATERIAL_RENDERER_H_INCLUDED
+#define IRR_I_MATERIAL_RENDERER_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "SMaterial.h"
@@ -16,10 +16,11 @@ namespace video
 
 class IVideoDriver;
 class IMaterialRendererServices;
+class IShaderConstantSetCallBack;
 
 //! Interface for material rendering.
 /** Can be used to extend the engine with new materials. Refer to
-IVideoDriver::addMaterialRenderer() for more informations on how to extend the
+IVideoDriver::addMaterialRenderer() for more information on how to extend the
 engine with new materials. */
 class IMaterialRenderer : public virtual IReferenceCounted
 {
@@ -57,16 +58,16 @@ public:
 	material set. This method will be called every time. This is useful for
 	example for materials with shaders, which don't only set new
 	renderstates but also shader constants.
-	\param service: Pointer to interface providing methos for setting
+	\param service: Pointer to interface providing methods for setting
 	constants and other things.
 	\param vtxtype: Vertex type with which the next rendering will be done.
 	This can be used by the material renderer to set some specific
 	optimized shaders or if this is an incompatible vertex type for this
 	renderer, to refuse rendering for example.
-	\return Returns true if everything is ok, and false if nothing should
+	\return Returns true if everything is OK, and false if nothing should
 	be rendered. The material renderer can choose to return false for
 	example if he doesn't support the specified vertex type. This is
-	actually done in D3D8 and D3D9 when using a normal mapped material with
+	actually done in D3D9 when using a normal mapped material with
 	a vertex type other than EVT_TANGENTS. */
 	virtual bool OnRender(IMaterialRendererServices* service, E_VERTEX_TYPE vtxtype) { return true; }
 
@@ -76,7 +77,7 @@ public:
 	virtual void OnUnsetMaterial() {}
 
 	//! Returns if the material is transparent.
-	/** The scene managment needs to know this
+	/** The scene management needs to know this
 	for being able to sort the materials by opaque and transparent. */
 	virtual bool isTransparent() const { return false; }
 
@@ -91,6 +92,11 @@ public:
 	Fixed function pipeline materials should return 0 in most cases, parallax mapped
 	material will only return 0 when at least pixel shader 1.4 is available on that machine. */
 	virtual s32 getRenderCapability() const { return 0; }
+
+	//! Access the callback provided by the users when creating shader materials
+	/** \returns Returns either the users provided callback or 0 when no such 
+	callback exists. Non-shader materials will always return 0.	*/
+	virtual IShaderConstantSetCallBack* getShaderConstantSetCallBack() const { return 0; }
 };
 
 
@@ -98,4 +104,3 @@ public:
 } // end namespace irr
 
 #endif
-

@@ -46,7 +46,7 @@
 	#undef SUBTEXEL
 #endif
 
-#ifndef SOFTWARE_DRIVER_2_USE_VERTEX_COLOR
+#if BURNING_MATERIAL_MAX_COLORS < 1
 	#undef IPOL_C0
 #endif
 
@@ -83,13 +83,11 @@ public:
 	CTRGouraud2(CBurningVideoDriver* driver);
 
 	//! draws an indexed triangle list
-	virtual void drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c );
+	virtual void drawTriangle (const s4DVertex* burning_restrict a, const s4DVertex* burning_restrict b, const s4DVertex* burning_restrict c) IRR_OVERRIDE;
+	//virtual bool canWireFrame () { return true; }
 
-
-private:
-	void scanline_bilinear ();
-	sScanConvertData scan;
-	sScanLineData line;
+protected:
+	virtual void fragmentShader();
 
 };
 
@@ -106,7 +104,7 @@ CTRGouraud2::CTRGouraud2(CBurningVideoDriver* driver)
 
 /*!
 */
-void CTRGouraud2::scanline_bilinear ()
+void CTRGouraud2::fragmentShader()
 {
 	tVideoSample *dst;
 
@@ -136,8 +134,8 @@ void CTRGouraud2::scanline_bilinear ()
 #endif
 
 	// apply top-left fill-convention, left
-	xStart = core::ceil32( line.x[0] );
-	xEnd = core::ceil32( line.x[1] ) - 1;
+	xStart = fill_convention_left( line.x[0] );
+	xEnd = fill_convention_right( line.x[1] );
 
 	dx = xEnd - xStart;
 
@@ -145,7 +143,7 @@ void CTRGouraud2::scanline_bilinear ()
 		return;
 
 	// slopes
-	const f32 invDeltaX = core::reciprocal_approxim ( line.x[1] - line.x[0] );
+	const f32 invDeltaX = fill_step_x( line.x[1] - line.x[0] );
 
 #ifdef IPOL_Z
 	slopeZ = (line.z[1] - line.z[0]) * invDeltaX;
@@ -182,7 +180,8 @@ void CTRGouraud2::scanline_bilinear ()
 #endif
 #endif
 
-	dst = (tVideoSample*)RenderTarget->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
+	SOFTWARE_DRIVER_2_CLIPCHECK;
+	dst = (tVideoSample*)RenderTarget->getData() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
 
 #ifdef USE_ZBUFFER
 	z = (fp24*) DepthBuffer->lock() + ( line.y * RenderTarget->getDimension().Width ) + xStart;
@@ -193,34 +192,32 @@ void CTRGouraud2::scanline_bilinear ()
 #ifdef IPOL_C0
 	tFixPoint r0, g0, b0;
 
-#ifdef INVERSE_W
-	f32 inversew;
-#endif
+	f32 inversew = FIX_POINT_F32_MUL * COLOR_MAX;
 
 #endif
 
-	for ( s32 i = 0; i <= dx; ++i )
+	for ( s32 i = 0; i <= dx; i += SOFTWARE_DRIVER_2_STEP_X)
 	{
+		//if test active only first pixel
+		if ((0 == EdgeTestPass) & (i > line.x_edgetest)) break;
+
 #ifdef CMP_Z
 		if ( line.z[0] < z[i] )
 #endif
 #ifdef CMP_W
-		if ( line.w[0] >= z[i] )
+		if (line.w[0] >= z[i] )
 #endif
 
 		{
 #ifdef IPOL_C0
+
 #ifdef INVERSE_W
-			inversew = core::reciprocal ( line.w[0] );
-
-			getSample_color ( r0, g0, b0, line.c[0][0] * inversew );
-#else
-			getSample_color ( r0, g0, b0, line.c[0][0] );
+			inversew = fix_inverse32_color(line.w[0]);
 #endif
-
-			dst[i] = fix_to_color ( r0, g0, b0 );
+			vec4_to_fix( r0, g0, b0, line.c[0][0],inversew );
+			dst[i] = fix_to_sample( r0, g0, b0 );
 #else
-			dst[i] = COLOR_BRIGHT_WHITE;
+			dst[i] = PrimitiveColor;
 #endif
 
 #ifdef WRITE_Z
@@ -251,7 +248,7 @@ void CTRGouraud2::scanline_bilinear ()
 
 }
 
-void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c )
+void CTRGouraud2::drawTriangle(const s4DVertex* burning_restrict a, const s4DVertex* burning_restrict b, const s4DVertex* burning_restrict c)
 {
 	// sort on height, y
 	if ( a->Pos.y > b->Pos.y ) swapVertexPointer(&a, &b);
@@ -262,10 +259,10 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 	const f32 ba = b->Pos.y - a->Pos.y;
 	const f32 cb = c->Pos.y - b->Pos.y;
 	// calculate delta y of the edges
-	scan.invDeltaY[0] = core::reciprocal( ca );
-	scan.invDeltaY[1] = core::reciprocal( ba );
-	scan.invDeltaY[2] = core::reciprocal( cb );
 
+	scan.invDeltaY[0] = reciprocal_edge( ca );
+	scan.invDeltaY[1] = reciprocal_edge( ba );
+	scan.invDeltaY[2] = reciprocal_edge( cb );
 	if ( F32_LOWER_EQUAL_0 ( scan.invDeltaY[0] ) )
 		return;
 
@@ -351,8 +348,8 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( a->Pos.y );
-		yEnd = core::ceil32( b->Pos.y ) - 1;
+		yStart = fill_convention_left( a->Pos.y );
+		yEnd = fill_convention_right( b->Pos.y );
 
 #ifdef SUBTEXEL
 		subPixel = ( (f32) yStart ) - a->Pos.y;
@@ -388,8 +385,9 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 
 #endif
 
+		line.x_edgetest = fill_convention_edge(scan.slopeX[scan.left]);
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -420,7 +418,8 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 #endif
 
 			// render a scanline
-			scanline_bilinear ();
+			interlace_scanline fragmentShader();
+			if ( EdgeTestPass & edge_test_first_line ) break;
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];
@@ -454,7 +453,7 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 	}
 
 	// rasterize lower sub-triangle
-	if ( (f32) 0.0 != scan.invDeltaY[2] )
+	if (  (f32) 0.0 != scan.invDeltaY[2] )
 	{
 		// advance to middle point
 		if( (f32) 0.0 != scan.invDeltaY[1] )
@@ -510,11 +509,10 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 #endif
 
 		// apply top-left fill convention, top part
-		yStart = core::ceil32( b->Pos.y );
-		yEnd = core::ceil32( c->Pos.y ) - 1;
+		yStart = fill_convention_left( b->Pos.y );
+		yEnd = fill_convention_right( c->Pos.y );
 
 #ifdef SUBTEXEL
-
 		subPixel = ( (f32) yStart ) - b->Pos.y;
 
 		// correct to pixel center
@@ -548,8 +546,9 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 
 #endif
 
+		line.x_edgetest = fill_convention_edge(scan.slopeX[scan.left]);
 		// rasterize the edge scanlines
-		for( line.y = yStart; line.y <= yEnd; ++line.y)
+		for( line.y = yStart; line.y <= yEnd; line.y += SOFTWARE_DRIVER_2_STEP_Y)
 		{
 			line.x[scan.left] = scan.x[0];
 			line.x[scan.right] = scan.x[1];
@@ -580,7 +579,8 @@ void CTRGouraud2::drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4D
 #endif
 
 			// render a scanline
-			scanline_bilinear ();
+			interlace_scanline fragmentShader();
+			if ( EdgeTestPass & edge_test_first_line ) break;
 
 			scan.x[0] += scan.slopeX[0];
 			scan.x[1] += scan.slopeX[1];
@@ -630,6 +630,7 @@ namespace video
 //! creates a flat triangle renderer
 IBurningShader* createTriangleRendererGouraud2(CBurningVideoDriver* driver)
 {
+	// ETR_GOURAUD . no texture
 	#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
 	return new CTRGouraud2(driver);
 	#else

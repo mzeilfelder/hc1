@@ -89,8 +89,7 @@ IImage* CImageLoaderLMP::loadImage(irr::io::IReadFile* file) const
 
 	IImage* image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
 
-	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) colormap_h, 0, false);
-	image->unlock();
+	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->getData(), header.width, header.height, (u8*) colormap_h, 0, false);
 
 	delete [] rawtex;
 
@@ -197,8 +196,6 @@ IImage* CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
 	}
 
 	u32 rawtexsize = header.width * header.height;
-
-
 	u8 *rawtex = new u8 [ rawtexsize ];
 
 	file->seek ( header.mipmap[0] );
@@ -209,14 +206,15 @@ IImage* CImageLoaderWAL2::loadImage(irr::io::IReadFile* file) const
 	switch ( format )
 	{
 	case ECF_R8G8B8:
-		CColorConverter::convert8BitTo24Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) pal + 768, 0, false);
+		CColorConverter::convert8BitTo24Bit(rawtex, (u8*)image->getData(), header.width, header.height, (u8*) pal + 768, 0, false);
 		break;
 	case ECF_A8R8G8B8:
-		CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) pal + 768, 0, false);
+		CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->getData(), header.width, header.height, (u8*) pal + 768, 0, false);
 		break;
+    default:
+        // Assuming there are no other color formats (I found no information about this format)
+        break;
 	}
-
-	image->unlock();
 
 	delete [] rawtex;
 	delete [] pal;
@@ -260,8 +258,7 @@ IImage* CImageLoaderWAL::loadImage(irr::io::IReadFile* file) const
 
 	IImage* image = new CImage(ECF_A8R8G8B8, core::dimension2d<u32>(header.width, header.height));
 
-	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->lock(), header.width, header.height, (u8*) colormap_pcx, 0, false);
-	image->unlock();
+	CColorConverter::convert8BitTo32Bit(rawtex, (u8*)image->getData(), header.width, header.height, (u8*) colormap_pcx, 0, false);
 
 	delete [] rawtex;
 

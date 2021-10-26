@@ -21,7 +21,9 @@ CGUIButton::CGUIButton(IGUIEnvironment* environment, IGUIElement* parent,
 			s32 id, core::rect<s32> rectangle, bool noclip)
 : IGUIButton(environment, parent, id, rectangle),
 	SpriteBank(0), OverrideFont(0),
+	OverrideColorEnabled(false), OverrideColor(video::SColor(101,255,255,255)),
 	ClickTime(0), HoverTime(0), FocusTime(0),
+	ClickShiftState(false), ClickControlState(false),
 	IsPushButton(false), Pressed(false),
 	UseAlphaChannel(false), DrawBorder(true), ScaleImage(false)
 {
@@ -57,7 +59,6 @@ void CGUIButton::setScaleImage(bool scaleImage)
 //! Returns whether the button scale the used images
 bool CGUIButton::isScalingImage() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return ScaleImage;
 }
 
@@ -147,6 +148,9 @@ bool CGUIButton::OnEvent(const SEvent& event)
 
 			if (Parent)
 			{
+				ClickShiftState = event.KeyInput.Shift;
+				ClickControlState = event.KeyInput.Control;
+
 				SEvent newEvent;
 				newEvent.EventType = EET_GUI_EVENT;
 				newEvent.GUIEvent.Caller = this;
@@ -206,6 +210,9 @@ bool CGUIButton::OnEvent(const SEvent& event)
 			if ((!IsPushButton && wasPressed && Parent) ||
 				(IsPushButton && wasPressed != Pressed))
 			{
+				ClickShiftState = event.MouseInput.Shift;
+				ClickControlState = event.MouseInput.Control;
+
 				SEvent newEvent;
 				newEvent.EventType = EET_GUI_EVENT;
 				newEvent.GUIEvent.Caller = this;
@@ -282,7 +289,6 @@ void CGUIButton::draw()
 		core::position2di pos(buttonCenter);
 		if ( Pressed )
 		{
-			IGUISkin* skin = Environment->getSkin();
 			pos.X += skin->getSize(EGDS_BUTTON_PRESSED_SPRITE_OFFSET_X);
 			pos.Y += skin->getSize(EGDS_BUTTON_PRESSED_SPRITE_OFFSET_Y);
 		}
@@ -321,7 +327,7 @@ void CGUIButton::draw()
 
 		if (font)
 			font->draw(Text.c_str(), rect,
-				skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT),
+				getActiveColor(),
 				true, true, &AbsoluteClippingRect);
 	}
 
@@ -448,6 +454,38 @@ IGUIFont* CGUIButton::getActiveFont() const
 	return 0;
 }
 
+//! Sets another color for the text.
+void CGUIButton::setOverrideColor(video::SColor color)
+{
+	OverrideColor = color;
+	OverrideColorEnabled = true;
+}
+
+video::SColor CGUIButton::getOverrideColor() const
+{
+	return OverrideColor;
+}
+
+irr::video::SColor CGUIButton::getActiveColor() const
+{
+	if ( OverrideColorEnabled )
+		return OverrideColor;
+	IGUISkin* skin = Environment->getSkin();
+	if (skin)
+		return OverrideColorEnabled ? OverrideColor : skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT);
+	return OverrideColor;
+}
+
+void CGUIButton::enableOverrideColor(bool enable)
+{
+	OverrideColorEnabled = enable;
+}
+
+bool CGUIButton::isOverrideColorEnabled() const
+{
+	return OverrideColorEnabled;
+}
+
 void CGUIButton::setImage(EGUI_BUTTON_IMAGE_STATE state, video::ITexture* image, const core::rect<s32>& sourceRect)
 {
 	if ( state >= EGBIS_COUNT )
@@ -476,7 +514,6 @@ void CGUIButton::setIsPushButton(bool isPushButton)
 //! Returns if the button is currently pressed
 bool CGUIButton::isPressed() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return Pressed;
 }
 
@@ -495,7 +532,6 @@ void CGUIButton::setPressed(bool pressed)
 //! Returns whether the button is a push button
 bool CGUIButton::isPushButton() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return IsPushButton;
 }
 
@@ -510,14 +546,12 @@ void CGUIButton::setUseAlphaChannel(bool useAlphaChannel)
 //! Returns if the alpha channel should be used for drawing images on the button
 bool CGUIButton::isAlphaChannelUsed() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return UseAlphaChannel;
 }
 
 
 bool CGUIButton::isDrawingBorder() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return DrawBorder;
 }
 

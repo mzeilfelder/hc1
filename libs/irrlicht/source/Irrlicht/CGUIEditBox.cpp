@@ -145,7 +145,7 @@ bool CGUIEditBox::isDrawBackgroundEnabled() const
 	return Background;
 }
 
-//! Sets if the text should use the overide color or the color in the gui skin.
+//! Sets if the text should use the override color or the color in the gui skin.
 void CGUIEditBox::enableOverrideColor(bool enable)
 {
 	OverrideColorEnabled = enable;
@@ -153,7 +153,6 @@ void CGUIEditBox::enableOverrideColor(bool enable)
 
 bool CGUIEditBox::isOverrideColorEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return OverrideColorEnabled;
 }
 
@@ -181,7 +180,6 @@ void CGUIEditBox::updateAbsolutePosition()
 //! Checks if word wrap is enabled
 bool CGUIEditBox::isWordWrapEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return WordWrap;
 }
 
@@ -197,7 +195,6 @@ void CGUIEditBox::setMultiLine(bool enable)
 //! Checks if multi line editing is enabled
 bool CGUIEditBox::isMultiLineEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return MultiLine;
 }
 
@@ -217,7 +214,6 @@ void CGUIEditBox::setPasswordBox(bool passwordBox, wchar_t passwordChar)
 
 bool CGUIEditBox::isPasswordBox() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return PasswordBox;
 }
 
@@ -345,13 +341,8 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const c8* p = Operator->getTextFromClipboard();
 				if (p)
 				{
-					// TODO: we should have such a function in core::string
-					size_t lenOld = strlen(p);
-					wchar_t *ws = new wchar_t[lenOld + 1];
-					size_t len = mbstowcs(ws,p,lenOld);
-					ws[len] = 0;
-					irr::core::stringw widep(ws);
-					delete[] ws;
+					irr::core::stringw widep;
+					core::multibyteToWString(widep, p);
 
 					if (MarkBegin == MarkEnd)
 					{
@@ -946,7 +937,7 @@ void CGUIEditBox::draw()
 		}
 
 		// draw cursor
-		if ( IsEnabled )
+		if ( isEnabled() )
 		{
 			if (WordWrap || MultiLine)
 			{
@@ -1014,7 +1005,6 @@ void CGUIEditBox::setAutoScroll(bool enable)
 //! \return true if automatic scrolling is enabled, false if not
 bool CGUIEditBox::isAutoScrollEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return AutoScroll;
 }
 
@@ -1407,7 +1397,6 @@ void CGUIEditBox::inputChar(wchar_t c)
 
 	if (c != 0)
 	{
-		if (Text.size() < Max || Max == 0)
 		{
 			core::stringw s;
 
@@ -1428,23 +1417,27 @@ void CGUIEditBox::inputChar(wchar_t c)
 				//check to see if we are at the end of the text
 				if ( (u32)CursorPos != Text.size())
 				{
-					s = Text.subString(0, CursorPos);
-					s.append(c);
-					if ( Text[CursorPos] == L'\n')
+					bool isEOL = (Text[CursorPos] == L'\n' ||Text[CursorPos] == L'\r' );
+					if (!isEOL || Text.size() < Max || Max == 0)
 					{
-						//just keep appending to the current line
-						//This follows the behavior of over gui libraries behaviors
-						s.append( Text.subString(CursorPos, Text.size()-CursorPos) );
+						s = Text.subString(0, CursorPos);
+						s.append(c);
+						if ( isEOL )
+						{
+							//just keep appending to the current line
+							//This follows the behavior of other gui libraries behaviors
+							s.append( Text.subString(CursorPos, Text.size()-CursorPos) );
+						}
+						else
+						{
+							//replace the next character
+							s.append( Text.subString(CursorPos + 1,Text.size() - CursorPos + 1));
+						}
+						Text = s;
+						++CursorPos;
 					}
-					else
-					{
-						//replace the next character
-						s.append( Text.subString(CursorPos + 1,Text.size() - CursorPos + 1));
-					}
-					Text = s;
-					++CursorPos;
 				}
-				else
+				else if (Text.size() < Max || Max == 0)
 				{
 					// add new character because we are at the end of the string
 					s = Text.subString(0, CursorPos);
@@ -1454,7 +1447,7 @@ void CGUIEditBox::inputChar(wchar_t c)
 					++CursorPos;
 				}
 			}
-			else
+			else if (Text.size() < Max || Max == 0)
 			{
 				// add new character
 				s = Text.subString(0, CursorPos);
@@ -1479,10 +1472,7 @@ void CGUIEditBox::calculateScrollPos()
 	if (!AutoScroll)
 		return;
 
-	IGUISkin* skin = Environment->getSkin();
-	if (!skin)
-		return;
-	IGUIFont* font = OverrideFont ? OverrideFont : skin->getFont();
+	IGUIFont* font = getActiveFont();
 	if (!font)
 		return;
 
@@ -1496,10 +1486,6 @@ void CGUIEditBox::calculateScrollPos()
 	// NOTE: Calculations different to vertical scrolling because setTextRect interprets VAlign relative to line but HAlign not relative to row
 	{
 		// get cursor position
-		IGUIFont* font = getActiveFont();
-		if (!font)
-			return;
-
 		// get cursor area
 		irr::u32 cursorWidth = font->getDimension(CursorChar.c_str()).Width;
 		core::stringw *txtLine = hasBrokenText ? &BrokenText[cursLine] : &Text;
@@ -1669,23 +1655,25 @@ void CGUIEditBox::deserializeAttributes(io::IAttributes* in, io::SAttributeReadW
 {
 	IGUIEditBox::deserializeAttributes(in,options);
 
-	setDrawBorder( in->getAttributeAsBool("Border") );
-	setDrawBackground( in->getAttributeAsBool("Background") );
-	setOverrideColor(in->getAttributeAsColor("OverrideColor"));
-	enableOverrideColor(in->getAttributeAsBool("OverrideColorEnabled"));
-	setMax(in->getAttributeAsInt("MaxChars"));
-	setWordWrap(in->getAttributeAsBool("WordWrap"));
-	setMultiLine(in->getAttributeAsBool("MultiLine"));
-	setAutoScroll(in->getAttributeAsBool("AutoScroll"));
-	core::stringw ch = in->getAttributeAsStringW("PasswordChar");
+	setDrawBorder( in->getAttributeAsBool("Border", Border) );
+	setDrawBackground( in->getAttributeAsBool("Background", Background) );
+	setOverrideColor(in->getAttributeAsColor("OverrideColor", OverrideColor));
+	enableOverrideColor(in->getAttributeAsBool("OverrideColorEnabled", OverrideColorEnabled));
+	setMax(in->getAttributeAsInt("MaxChars", Max));
+	setWordWrap(in->getAttributeAsBool("WordWrap", WordWrap));
+	setMultiLine(in->getAttributeAsBool("MultiLine", MultiLine));
+	setAutoScroll(in->getAttributeAsBool("AutoScroll", AutoScroll));
+	core::stringw ch = L" ";
+	ch[0] = PasswordChar;
+	ch = in->getAttributeAsStringW("PasswordChar", ch);
 
 	if (!ch.size())
-		setPasswordBox(in->getAttributeAsBool("PasswordBox"));
+		setPasswordBox(in->getAttributeAsBool("PasswordBox", PasswordBox));
 	else
-		setPasswordBox(in->getAttributeAsBool("PasswordBox"), ch[0]);
+		setPasswordBox(in->getAttributeAsBool("PasswordBox", PasswordBox), ch[0]);
 
-	setTextAlignment( (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("HTextAlign", GUIAlignmentNames),
-			(EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames));
+	setTextAlignment( (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("HTextAlign", GUIAlignmentNames, (s32)HAlign),
+			(EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames, (s32)VAlign));
 
 	// setOverrideFont(in->getAttributeAsFont("OverrideFont"));
 }

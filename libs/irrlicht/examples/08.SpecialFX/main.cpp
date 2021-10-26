@@ -1,20 +1,20 @@
 /** Example 008 SpecialFX
 
-This tutorials describes how to do special effects. It shows how to use stencil
+This tutorial describes how to do special effects. It shows how to use stencil
 buffer shadows, the particle system, billboards, dynamic light, and the water
 surface scene node.
 
 We start like in some tutorials before. Please note that this time, the
 'shadows' flag in createDevice() is set to true, for we want to have a dynamic
-shadow casted from an animated character. If this example runs too slow,
-set it to false. The Irrlicht Engine checks if your hardware doesn't support
-the stencil buffer, and disables shadows by itself, but just in case the demo
-runs slow on your hardware.
+shadow cast from an animated character. If this example runs too slow,
+set it to false. The Irrlicht Engine also checks if your hardware doesn't 
+support the stencil buffer, and then disables shadows by itself.
 */
 
 #include <irrlicht.h>
 #include <iostream>
 #include "driverChoice.h"
+#include "exampleHelper.h"
 
 using namespace irr;
 
@@ -25,7 +25,7 @@ using namespace irr;
 int main()
 {
 	// ask if user would like shadows
-	char i;
+	char i = 'y';
 	printf("Please press 'y' if you want to use realtime shadows.\n");
 
 	std::cin >> i;
@@ -53,8 +53,10 @@ int main()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
 
+	const io::path mediaPath = getExampleMediaPath();
+
 	/*
-	For our environment, we load a .3ds file. It is a small room I modelled
+	For our environment, we load a .3ds file. It is a small room I modeled
 	with Anim8or and exported into the 3ds format because the Irrlicht
 	Engine does not support the .an8 format. I am a very bad 3d graphic
 	artist, and so the texture mapping is not very nice in this model.
@@ -67,14 +69,14 @@ int main()
 	off too with this code.
 	*/
 
-	scene::IAnimatedMesh* mesh = smgr->getMesh("../../media/room.3ds");
+	scene::IAnimatedMesh* mesh = smgr->getMesh(mediaPath + "room.3ds");
 
 	smgr->getMeshManipulator()->makePlanarTextureMapping(mesh->getMesh(0), 0.004f);
 
 	scene::ISceneNode* node = 0;
 
 	node = smgr->addAnimatedMeshSceneNode(mesh);
-	node->setMaterialTexture(0, driver->getTexture("../../media/wall.jpg"));
+	node->setMaterialTexture(0, driver->getTexture(mediaPath + "wall.jpg"));
 	node->getMaterial(0).SpecularColor.set(0,0,0,0);
 
 	/*
@@ -97,8 +99,8 @@ int main()
 	node = smgr->addWaterSurfaceSceneNode(mesh->getMesh(0), 3.0f, 300.0f, 30.0f);
 	node->setPosition(core::vector3df(0,7,0));
 
-	node->setMaterialTexture(0, driver->getTexture("../../media/stones.jpg"));
-	node->setMaterialTexture(1, driver->getTexture("../../media/water.jpg"));
+	node->setMaterialTexture(0, driver->getTexture(mediaPath + "stones.jpg"));
+	node->setMaterialTexture(1, driver->getTexture(mediaPath + "water.jpg"));
 
 	node->setMaterialType(video::EMT_REFLECTION_2_LAYER);
 
@@ -110,20 +112,19 @@ int main()
 	*/
 
 	// create light
-
-	node = smgr->addLightSceneNode(0, core::vector3df(0,0,0),
+	scene::ILightSceneNode * lightNode  = smgr->addLightSceneNode(0, core::vector3df(0,0,0),
 		video::SColorf(1.0f, 0.6f, 0.7f, 1.0f), 800.0f);
 	scene::ISceneNodeAnimator* anim = 0;
-	anim = smgr->createFlyCircleAnimator (core::vector3df(0,150,0),250.0f);
-	node->addAnimator(anim);
+	anim = smgr->createFlyCircleAnimator (core::vector3df(0,150,0),250.0f, 0.0005f);
+	lightNode ->addAnimator(anim);
 	anim->drop();
 
 	// attach billboard to light
 
-	node = smgr->addBillboardSceneNode(node, core::dimension2d<f32>(50, 50));
+	node = smgr->addBillboardSceneNode(lightNode, core::dimension2d<f32>(50, 50));
 	node->setMaterialFlag(video::EMF_LIGHTING, false);
 	node->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-	node->setMaterialTexture(0, driver->getTexture("../../media/particlewhite.bmp"));
+	node->setMaterialTexture(0, driver->getTexture(mediaPath + "particlewhite.bmp"));
 
 	/*
 	The next special effect is a lot more interesting: A particle system.
@@ -189,7 +190,7 @@ int main()
 		ps->setScale(core::vector3df(2,2,2));
 		ps->setMaterialFlag(video::EMF_LIGHTING, false);
 		ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
-		ps->setMaterialTexture(0, driver->getTexture("../../media/fire.bmp"));
+		ps->setMaterialTexture(0, driver->getTexture(mediaPath + "fire.bmp"));
 		ps->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
 	}
 
@@ -214,8 +215,8 @@ int main()
 		core::array<video::ITexture*> textures;
 		for (s32 g=7; g > 0; --g)
 		{
-			core::stringc tmp;
-			tmp = "../../media/portal";
+			core::stringc tmp(mediaPath);
+			tmp += "portal";
 			tmp += g;
 			tmp += ".bmp";
 			video::ITexture* t = driver->getTexture( tmp.c_str() );
@@ -233,7 +234,7 @@ int main()
 	}
 
 	/*
-	As our last special effect, we want a dynamic shadow be casted from an
+	As our last special effect, we want a dynamic shadow be cast from an
 	animated character. For this we load a DirectX .x model and place it
 	into our world. For creating the shadow, we simply need to call
 	addShadowVolumeSceneNode(). The color of shadows is only adjustable
@@ -250,21 +251,35 @@ int main()
 
 	// add animated character
 
-	mesh = smgr->getMesh("../../media/dwarf.x");
+	mesh = smgr->getMesh(mediaPath + "dwarf.x");
 	scene::IAnimatedMeshSceneNode* anode = 0;
 
 	anode = smgr->addAnimatedMeshSceneNode(mesh);
 	anode->setPosition(core::vector3df(-50,20,-60));
 	anode->setAnimationSpeed(15);
 
+	/* 
+	Shadows still have to be drawn even then the node causing them is not visible itself.
+	We have to disable culling if the node is animated or it's transformations change
+	as otherwise the shadow is not updated correctly.
+	If you have many objects and this becomes a speed problem you will have to figure 
+	out some manual culling (for exampling hiding all objects beyond a certain distance).
+	*/
+	anode->setAutomaticCulling(scene::EAC_OFF);
+
 	// add shadow
 	anode->addShadowVolumeSceneNode();
 	smgr->setShadowColor(video::SColor(150,0,0,0));
 
-	// make the model a little bit bigger and normalize its normals
-	// because of the scaling, for correct lighting
+	// make the model a bit bigger 
 	anode->setScale(core::vector3df(2,2,2));
+	// because of the scaling we have to normalize its normals for correct lighting
 	anode->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+
+	// let the dwarf slowly rotate around it's y axis
+	scene::ISceneNodeAnimator* ra = smgr->createRotationAnimator(irr::core::vector3df(0, 0.1f, 0));
+	anode->addAnimator(ra);
+	ra->drop();
 
 	/*
 	Finally we simply have to draw everything, that's all.
@@ -282,7 +297,7 @@ int main()
 	while(device->run())
 	if (device->isWindowActive())
 	{
-		driver->beginScene(true, true, 0);
+		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(0));
 
 		smgr->drawAll();
 

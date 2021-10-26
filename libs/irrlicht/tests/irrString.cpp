@@ -20,9 +20,9 @@ static bool testSplit()
 	core::stringw teststring(L"[b]this [/b] is a [color=0xff000000]test[/color].");
 	core::list<core::stringw> parts1;
 	teststring.split<core::list<core::stringw> >(parts1, L"[");
-	core::list<core::stringw> parts2;
-	teststring.split<core::list<core::stringw> >(parts2, L"[", 1, false, true);
-	return (parts1.getSize()==4) && (parts2.getSize()==5);
+	core::array<core::stringw> parts2;
+	teststring.split<core::array<core::stringw> >(parts2, L"[", 1, false, true);
+	return (parts1.size()==4) && (parts2.size()==9);
 }
 
 static bool testFastAlloc()
@@ -180,6 +180,29 @@ bool testAppendStringc()
 	return true;
 }
 
+bool testInsert()
+{
+	core::stringc str;
+
+	str.insert(0, "something", 4);
+	if (str != "some")
+		return false;
+
+	str.insert(4, "thing", 5);
+	if (str != "something")
+		return false;
+
+	str.insert(0, "is ", 3);
+	if (str != "is something")
+		return false;
+
+	str.insert(3, "there ", 6);
+	if (str != "is there something")
+		return false;
+
+	return true;
+}
+
 bool testLowerUpper()
 {
 	irr::core::array <irr::core::stringc> stringsOrig, targetLower, targetUpper;
@@ -260,6 +283,14 @@ bool testFindFunctions()
 	if ( p >= 0 )
 		return false;
 
+	irr::core::stringc lastX("max");
+	p = lastX.findLastCharNotInList("x",1);
+	if ( p != 1 )
+		return false;
+	p = lastX.findLastCharNotInList("y",1);
+	if ( p != 2 )
+		return false;
+
 	p = empty.findLast('x');
 	if ( p >= 0 )
 		return false;
@@ -274,6 +305,29 @@ bool testFindFunctions()
 
 	p = dot.findLastChar("-.", 2);
 	if ( p != 0 )
+		return false;
+
+	return true;
+}
+
+bool testErase()
+{
+	if ( stringc(1.f).eraseTrailingFloatZeros() != stringc("1") )
+		return false;
+
+	if ( stringc("0.100000").eraseTrailingFloatZeros() != stringc("0.1") )
+		return false;
+
+	if ( stringc("10.000000").eraseTrailingFloatZeros() !=  stringc("10") )
+		return false;
+
+	if ( stringc("foo 3.140000").eraseTrailingFloatZeros() != stringc("foo 3.14") )
+		return false;
+
+	if ( stringc("no_num.000").eraseTrailingFloatZeros() != stringc("no_num.000") )
+		return false;
+
+	if ( stringc("1.").eraseTrailingFloatZeros() != stringc("1.") )
 		return false;
 
 	return true;
@@ -325,6 +379,8 @@ bool testIrrString(void)
 	}
 	allExpected &= testAppendStringc();
 
+	allExpected &= testInsert();
+
 	logTestString("Test io::path\n");
 	{
 		// Only test that this type exists, it's one from above
@@ -346,6 +402,9 @@ bool testIrrString(void)
 
 	logTestString("test find functions\n");
 	allExpected &= testFindFunctions();
+
+	logTestString("test erase functions\n");
+	allExpected &= testErase();
 
 	if(allExpected)
 		logTestString("\nAll tests passed\n");

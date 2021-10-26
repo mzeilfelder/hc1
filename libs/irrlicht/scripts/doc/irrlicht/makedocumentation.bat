@@ -34,6 +34,8 @@ rem for /F %%i in ('dir ..\..\..\examples\[01]*\main.cpp') DO ..\sed.exe -f tuto
 ..\sed.exe -f tutorials.sed ..\..\..\examples\24.CursorControl\main.cpp >>tut.txt
 ..\sed.exe -f tutorials.sed ..\..\..\examples\25.XmlHandling\main.cpp >>tut.txt
 ..\sed.exe -f tutorials.sed ..\..\..\examples\26.OcclusionQuery\main.cpp >>tut.txt
+..\sed.exe -f tutorials.sed ..\..\..\examples\27.PostProcessing\main.cpp >>tut.txt
+..\sed.exe -f tutorials.sed ..\..\..\examples\28.CubeMapping\main.cpp >>tut.txt
 
 :SKIP_TUTS
 

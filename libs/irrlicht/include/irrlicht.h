@@ -23,11 +23,11 @@
   the Irrlicht Engine in your product, you must acknowledge somewhere in your
   documentation that you've used the IJG code. It would also be nice to mention
   that you use the Irrlicht Engine, the zlib and libPng. See the README files
-  in the jpeglib, the zlib and libPng for further informations.
+  in the jpeglib, the zlib and libPng for further information.
 */
 
-#ifndef __IRRLICHT_H_INCLUDED__
-#define __IRRLICHT_H_INCLUDED__
+#ifndef IRRLICHT_H_INCLUDED
+#define IRRLICHT_H_INCLUDED
 
 #include "IrrCompileConfig.h"
 #include "aabbox3d.h"
@@ -64,6 +64,7 @@
 #include "IBillboardTextSceneNode.h"
 #include "IBoneSceneNode.h"
 #include "ICameraSceneNode.h"
+#include "IContextManager.h"
 #include "ICursorControl.h"
 #include "IDummyTransformationSceneNode.h"
 #include "IDynamicMeshBuffer.h"
@@ -114,6 +115,7 @@
 #include "IMeshManipulator.h"
 #include "IMeshSceneNode.h"
 #include "IMeshWriter.h"
+#include "IOctreeSceneNode.h"
 #include "IColladaMeshWriter.h"
 #include "IMetaTriangleSelector.h"
 #include "IOSOperator.h"
@@ -124,6 +126,7 @@
 #include "IReferenceCounted.h"
 #include "irrArray.h"
 #include "IRandomizer.h"
+#include "IRenderTarget.h"
 #include "IrrlichtDevice.h"
 #include "irrList.h"
 #include "irrMap.h"
@@ -230,7 +233,7 @@
  * int main()
  * {
  *	// start up the engine
- *	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D8,
+ *	IrrlichtDevice *device = createDevice(video::EDT_OPENGL,
  *		core::dimension2d<u32>(640,480));
  *
  *	video::IVideoDriver* driver = device->getVideoDriver();
@@ -255,7 +258,7 @@
  *	// draw everything
  *	while(device->run() && driver)
  *	{
- *		driver->beginScene(true, true, video::SColor(255,0,0,255));
+ *		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(255,0,0,255));
  *		scenemgr->drawAll();
  *		driver->endScene();
  *	}
@@ -266,7 +269,7 @@
  * }
  * \endcode
  *
- * Irrlicht can load a lot of file formats automaticly, see irr::scene::ISceneManager::getMesh()
+ * Irrlicht can load a lot of file formats automatically, see irr::scene::ISceneManager::getMesh()
  * for a detailed list. So if you would like to replace the simple blue screen background by
  * a cool Quake 3 Map, optimized by an octree, just insert this code
  * somewhere before the while loop:
@@ -308,8 +311,8 @@ namespace irr
 	//! Creates an Irrlicht device. The Irrlicht device is the root object for using the engine.
 	/** If you need more parameters to be passed to the creation of the Irrlicht Engine device,
 	use the createDeviceEx() function.
-	\param deviceType: Type of the device. This can currently be video::EDT_NULL,
-	video::EDT_SOFTWARE, video::EDT_BURNINGSVIDEO, video::EDT_DIRECT3D8, video::EDT_DIRECT3D9 and video::EDT_OPENGL.
+	\param driverType: Type of the video driver to use. This can currently be video::EDT_NULL,
+	video::EDT_SOFTWARE, video::EDT_BURNINGSVIDEO, video::EDT_DIRECT3D9 and video::EDT_OPENGL.
 	\param windowSize: Size of the window or the video mode in fullscreen mode.
 	\param bits: Bits per pixel in fullscreen mode. Ignored if windowed mode.
 	\param fullscreen: Should be set to true if the device should run in fullscreen. Otherwise
@@ -317,25 +320,25 @@ namespace irr
 	\param stencilbuffer: Specifies if the stencil buffer should be enabled. Set this to true,
 	if you want the engine be able to draw stencil buffer shadows. Note that not all
 	devices are able to use the stencil buffer. If they don't no shadows will be drawn.
-	\param vsync: Specifies vertical syncronisation: If set to true, the driver will wait
+	\param vsync: Specifies vertical synchronization: If set to true, the driver will wait
 	for the vertical retrace period, otherwise not.
 	\param receiver: A user created event receiver.
 	\return Returns pointer to the created IrrlichtDevice or null if the
 	device could not be created.
 	*/
 	extern "C" IRRLICHT_API IrrlichtDevice* IRRCALLCONV createDevice(
-		video::E_DRIVER_TYPE deviceType = video::EDT_SOFTWARE,
-		// parantheses are necessary for some compilers
+		video::E_DRIVER_TYPE driverType = video::EDT_SOFTWARE,
+		// parentheses are necessary for some compilers
 		const core::dimension2d<u32>& windowSize = (core::dimension2d<u32>(640,480)),
-		u32 bits = 16,
+		u32 bits = 32,
 		bool fullscreen = false,
-		bool stencilbuffer = false,
+		bool stencilbuffer = true,
 		bool vsync = false,
 		IEventReceiver* receiver = 0);
 
 	//! typedef for Function Pointer
 	typedef IrrlichtDevice* (IRRCALLCONV *funcptr_createDevice )(
-			video::E_DRIVER_TYPE deviceType,
+			video::E_DRIVER_TYPE driverType,
 			const core::dimension2d<u32>& windowSize,
 			u32 bits,
 			bool fullscreen,
@@ -393,4 +396,3 @@ namespace irr
 */
 
 #endif
-

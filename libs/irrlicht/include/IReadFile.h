@@ -2,18 +2,19 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_READ_FILE_H_INCLUDED__
-#define __I_READ_FILE_H_INCLUDED__
+#ifndef IRR_I_READ_FILE_H_INCLUDED
+#define IRR_I_READ_FILE_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "coreutil.h"
+#include "EReadFileType.h"
 
 namespace irr
 {
 namespace io
 {
 
-	//! Interface providing read acess to a file.
+	//! Interface providing read access to a file.
 	class IReadFile : public virtual IReferenceCounted
 	{
 	public:
@@ -21,7 +22,7 @@ namespace io
 		/** \param buffer Pointer to buffer where read bytes are written to.
 		\param sizeToRead Amount of bytes to read from the file.
 		\return How many bytes were read. */
-		virtual s32 read(void* buffer, u32 sizeToRead) = 0;
+		virtual size_t read(void* buffer, size_t sizeToRead) = 0;
 
 		//! Changes position in file
 		/** \param finalPos Destination position in the file.
@@ -36,12 +37,18 @@ namespace io
 		virtual long getSize() const = 0;
 
 		//! Get the current position in the file.
-		/** \return Current position in the file in bytes. */
+		/** \return Current position in the file in bytes on success or -1L on failure. */
 		virtual long getPos() const = 0;
 
 		//! Get name of file.
 		/** \return File name as zero terminated character string. */
 		virtual const io::path& getFileName() const = 0;
+
+		//! Get the type of the class implementing this interface
+		virtual EREAD_FILE_TYPE getType() const
+		{
+			return EFIT_UNKNOWN;
+		}
 	};
 
 	//! Internal function, please do not use.
@@ -51,4 +58,3 @@ namespace io
 } // end namespace irr
 
 #endif
-

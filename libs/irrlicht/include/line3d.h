@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_LINE_3D_H_INCLUDED__
-#define __IRR_LINE_3D_H_INCLUDED__
+#ifndef IRR_LINE_3D_H_INCLUDED
+#define IRR_LINE_3D_H_INCLUDED
 
 #include "irrTypes.h"
 #include "vector3d.h"
@@ -103,8 +103,8 @@ class line3d
 			return start + v;
 		}
 
-		//! Check if the line intersects with a shpere
-		/** \param sorigin: Origin of the shpere.
+		//! Check if the line intersects with a sphere
+		/** \param sorigin: Origin of the sphere.
 		\param sradius: Radius of the sphere.
 		\param outdistance: The distance to the first intersection point.
 		\return True if there is an intersection.

@@ -55,9 +55,6 @@
     <Filter Include="Irrlicht\video\OpenGL">
       <UniqueIdentifier>{834213c7-9515-49de-aa27-8d3ed9c0c87a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Irrlicht\video\Direct3D8">
-      <UniqueIdentifier>{19838bc4-396f-4d23-ad1b-3bb652e33e6d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Irrlicht\video\Null">
       <UniqueIdentifier>{a9ca9d4d-7678-4687-b78b-15236c0dcf53}</UniqueIdentifier>
     </Filter>
@@ -103,9 +100,18 @@
     <Filter Include="Irrlicht\gui">
       <UniqueIdentifier>{da421793-4674-481c-be46-f7a44e78aee5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Irrlicht\video\OpenGL Core">
+      <UniqueIdentifier>{2c9c6ef7-5662-4f11-83cd-921c717d3ab0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Irrlicht\video\OpenGL Context">
+      <UniqueIdentifier>{397439c6-ad86-45a8-b692-f3606794a075}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\IEventReceiver.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IProfiler.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\ILogger.h">
@@ -123,12 +129,15 @@
     <ClInclude Include="..\..\include\irrlicht.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\leakHunter.h">
+      <Filter>include</Filter>
+    </ClInclude>	
     <ClInclude Include="..\..\include\IrrlichtDevice.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\irrTypes.h">
       <Filter>include</Filter>
-    </ClInclude>
+    </ClInclude>	
     <ClInclude Include="..\..\include\ITimer.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -142,6 +151,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\EDriverTypes.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IContextManager.h">
       <Filter>include\video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\IGeometryCreator.h">
@@ -852,54 +864,6 @@
     <ClInclude Include="S2DVertex.h">
       <Filter>Irrlicht\video\Software</Filter>
     </ClInclude>
-    <ClInclude Include="COpenGLDriver.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLExtensionHandler.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLMaterialRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLNormalMapRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLParallaxMapRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLShaderMaterialRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLSLMaterialRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLTexture.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="glext.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="wglext.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8Driver.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8MaterialRenderer.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8NormalMapRenderer.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8ParallaxMapRenderer.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8ShaderMaterialRenderer.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
-    <ClInclude Include="CD3D8Texture.h">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClInclude>
     <ClInclude Include="CColorConverter.h">
       <Filter>Irrlicht\video\Null</Filter>
     </ClInclude>
@@ -955,6 +919,9 @@
       <Filter>Irrlicht\video\Null\Loader</Filter>
     </ClInclude>
     <ClInclude Include="CImageLoaderPSD.h">
+      <Filter>Irrlicht\video\Null\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="CImageLoaderPVR.h">
       <Filter>Irrlicht\video\Null\Loader</Filter>
     </ClInclude>
     <ClInclude Include="CImageLoaderRGB.h">
@@ -1024,6 +991,9 @@
       <Filter>Irrlicht\irr</Filter>
     </ClInclude>
     <ClInclude Include="os.h">
+      <Filter>Irrlicht\irr</Filter>
+    </ClInclude>
+    <ClInclude Include="CProfiler.h">
       <Filter>Irrlicht\irr</Filter>
     </ClInclude>
     <ClInclude Include="EProfileIDs.h">
@@ -1144,9 +1114,6 @@
       <Filter>Irrlicht\irr\device</Filter>
     </ClInclude>
     <ClInclude Include="CIrrDeviceWin32.h">
-      <Filter>Irrlicht\irr\device</Filter>
-    </ClInclude>
-    <ClInclude Include="CIrrDeviceWinCE.h">
       <Filter>Irrlicht\irr\device</Filter>
     </ClInclude>
     <ClInclude Include="CAttributeImpl.h">
@@ -1315,23 +1282,161 @@
     <ClInclude Include="..\..\include\EMaterialFlags.h">
       <Filter>include\video</Filter>
     </ClInclude>
-    <ClInclude Include="CD3D9CgMaterialRenderer.h">
-      <Filter>Irrlicht\video\Direct3D9</Filter>
-    </ClInclude>
-    <ClInclude Include="COpenGLCgMaterialRenderer.h">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="CCgMaterialRenderer.h">
-      <Filter>Irrlicht\video</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\SSharedMeshBuffer.h">
       <Filter>include\scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\IProfiler.h">
-      <Filter>include</Filter>
+    <ClInclude Include="..\..\include\IRenderTarget.h">
+      <Filter>include\video</Filter>
     </ClInclude>
-    <ClInclude Include="CProfiler.h">
-      <Filter>Irrlicht\irr</Filter>
+    <ClInclude Include="CD3D9RenderTarget.h">
+      <Filter>Irrlicht\video\Direct3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="CB3DMeshWriter.h">
+      <Filter>Irrlicht\scene\writers</Filter>
+    </ClInclude>
+    <ClInclude Include="SB3DStructs.h">
+      <Filter>Irrlicht\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCacheHandler.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCommon.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLDriver.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLExtensionHandler.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLMaterialRenderer.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLNormalMapRenderer.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLParallaxMapRenderer.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLShaderMaterialRenderer.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLSLMaterialRenderer.h">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCoreCacheHandler.h">
+      <Filter>Irrlicht\video\OpenGL Core</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCoreFeature.h">
+      <Filter>Irrlicht\video\OpenGL Core</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCoreRenderTarget.h">
+      <Filter>Irrlicht\video\OpenGL Core</Filter>
+    </ClInclude>
+    <ClInclude Include="COpenGLCoreTexture.h">
+      <Filter>Irrlicht\video\OpenGL Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CGLXManager.h">
+      <Filter>Irrlicht\video\OpenGL Context</Filter>
+    </ClInclude>
+    <ClInclude Include="CWGLManager.h">
+      <Filter>Irrlicht\video\OpenGL Context</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SOverrideMaterial.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IOctreeSceneNode.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_color_fraq.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_fragment_default.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_fragment_end.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_fragment_start.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_start.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_triangle.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="burning_shader_compile_verify.h">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClInclude>
+    <ClInclude Include="CBlit.h">
+      <Filter>Irrlicht\video\Null</Filter>
+    </ClInclude>		
+    <ClInclude Include="..\..\include\fast_atof.h">
+      <Filter>include\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ILightManager.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SVertexManipulator.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IBoneSceneNode.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IDynamicMeshBuffer.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IGUIFontBitmap.h">
+      <Filter>include\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="ISceneNodeAnimatorFinishing.h">
+      <Filter>Irrlicht\scene\animators</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SVertexIndex.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IVertexBuffer.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ISceneUserDataSerializer.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IMemoryReadFile.h">
+      <Filter>include\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IIndexBuffer.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IImageWriter.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IGUITable.h">
+      <Filter>include\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IFileArchive.h">
+      <Filter>include\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IColladaMeshWriter.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IBillboardTextSceneNode.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EShaderTypes.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EReadFileType.h">
+      <Filter>include\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EMaterialTypes.h">
+      <Filter>include\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EHardwareBufferFlags.h">
+      <Filter>include\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EDeviceTypes.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1634,42 +1739,6 @@
     <ClCompile Include="CZBuffer.cpp">
       <Filter>Irrlicht\video\Software</Filter>
     </ClCompile>
-    <ClCompile Include="COpenGLDriver.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLExtensionHandler.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLNormalMapRenderer.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLParallaxMapRenderer.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLShaderMaterialRenderer.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLSLMaterialRenderer.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="COpenGLTexture.cpp">
-      <Filter>Irrlicht\video\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="CD3D8Driver.cpp">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClCompile>
-    <ClCompile Include="CD3D8NormalMapRenderer.cpp">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClCompile>
-    <ClCompile Include="CD3D8ParallaxMapRenderer.cpp">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClCompile>
-    <ClCompile Include="CD3D8ShaderMaterialRenderer.cpp">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClCompile>
-    <ClCompile Include="CD3D8Texture.cpp">
-      <Filter>Irrlicht\video\Direct3D8</Filter>
-    </ClCompile>
     <ClCompile Include="CColorConverter.cpp">
       <Filter>Irrlicht\video\Null</Filter>
     </ClCompile>
@@ -1722,6 +1791,9 @@
       <Filter>Irrlicht\video\Null\Loader</Filter>
     </ClCompile>
     <ClCompile Include="CImageLoaderPSD.cpp">
+      <Filter>Irrlicht\video\Null\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="CImageLoaderPVR.cpp">
       <Filter>Irrlicht\video\Null\Loader</Filter>
     </ClCompile>
     <ClCompile Include="CImageLoaderRGB.cpp">
@@ -1842,6 +1914,9 @@
       <Filter>Irrlicht\irr</Filter>
     </ClCompile>
     <ClCompile Include="CProfiler.cpp">
+      <Filter>Irrlicht\irr</Filter>
+    </ClCompile>
+    <ClCompile Include="leakHunter.cpp">
       <Filter>Irrlicht\irr</Filter>
     </ClCompile>
     <ClCompile Include="lzma\LzmaDec.c">
@@ -2126,9 +2201,6 @@
     <ClCompile Include="CIrrDeviceWin32.cpp">
       <Filter>Irrlicht\irr\device</Filter>
     </ClCompile>
-    <ClCompile Include="CIrrDeviceWinCE.cpp">
-      <Filter>Irrlicht\irr\device</Filter>
-    </ClCompile>
     <ClCompile Include="CAttributes.cpp">
       <Filter>Irrlicht\io</Filter>
     </ClCompile>
@@ -2270,17 +2342,47 @@
     <ClCompile Include="CSMFMeshFileLoader.cpp">
       <Filter>Irrlicht\scene\loaders</Filter>
     </ClCompile>
-    <ClCompile Include="CD3D9CgMaterialRenderer.cpp">
+    <ClCompile Include="CD3D9RenderTarget.cpp">
       <Filter>Irrlicht\video\Direct3D9</Filter>
     </ClCompile>
-    <ClCompile Include="COpenGLCgMaterialRenderer.cpp">
+    <ClCompile Include="CB3DMeshWriter.cpp">
+      <Filter>Irrlicht\scene\writers</Filter>
+    </ClCompile>
+    <ClCompile Include="COpenGLCacheHandler.cpp">
       <Filter>Irrlicht\video\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="CCgMaterialRenderer.cpp">
-      <Filter>Irrlicht\video</Filter>
+    <ClCompile Include="COpenGLDriver.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="leakHunter.cpp">
-      <Filter>Irrlicht\irr</Filter>
+    <ClCompile Include="COpenGLExtensionHandler.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="COpenGLNormalMapRenderer.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="COpenGLParallaxMapRenderer.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="COpenGLShaderMaterialRenderer.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="COpenGLSLMaterialRenderer.cpp">
+      <Filter>Irrlicht\video\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="CGLXManager.cpp">
+      <Filter>Irrlicht\video\OpenGL Context</Filter>
+    </ClCompile>
+    <ClCompile Include="CWGLManager.cpp">
+      <Filter>Irrlicht\video\OpenGL Context</Filter>
+    </ClCompile>
+    <ClCompile Include="burning_shader_color.cpp">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClCompile>
+    <ClCompile Include="CTR_transparent_reflection_2_layer.cpp">
+      <Filter>Irrlicht\video\Burning Video</Filter>
+    </ClCompile>
+    <ClCompile Include="CTRGouraudNoZ2.cpp">
+      <Filter>Irrlicht\video\Burning Video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -99,8 +99,8 @@ void CGUIStaticText::draw()
 						font->getDimension(Text.c_str()).Width;
 				}
 
-				font->draw(Text.c_str(), frameRect,
-					OverrideColorEnabled ? OverrideColor : skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT),
+				font->draw(Text.c_str(), frameRect, 
+					getActiveColor(),
 					HAlign == EGUIA_CENTER, VAlign == EGUIA_CENTER, (RestrainTextInside ? &AbsoluteClippingRect : NULL));
 			}
 			else
@@ -129,7 +129,7 @@ void CGUIStaticText::draw()
 					}
 
 					font->draw(BrokenText[i].c_str(), r,
-						OverrideColorEnabled ? OverrideColor : skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT),
+						getActiveColor(),
 						HAlign == EGUIA_CENTER, false, (RestrainTextInside ? &AbsoluteClippingRect : NULL));
 
 					r.LowerRightCorner.Y += height;
@@ -211,7 +211,6 @@ video::SColor CGUIStaticText::getBackgroundColor() const
 //! Checks if background drawing is enabled
 bool CGUIStaticText::isDrawBackgroundEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return Background;
 }
 
@@ -226,7 +225,6 @@ void CGUIStaticText::setDrawBorder(bool draw)
 //! Checks if border drawing is enabled
 bool CGUIStaticText::isDrawBorderEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return Border;
 }
 
@@ -256,7 +254,17 @@ video::SColor CGUIStaticText::getOverrideColor() const
 }
 
 
-//! Sets if the static text should use the overide color or the
+irr::video::SColor CGUIStaticText::getActiveColor() const
+{
+	if ( OverrideColorEnabled )
+		return OverrideColor;
+	IGUISkin* skin = Environment->getSkin();
+	if (skin)
+		return OverrideColorEnabled ? OverrideColor : skin->getColor(isEnabled() ? EGDC_BUTTON_TEXT : EGDC_GRAY_TEXT);
+	return OverrideColor;
+}
+
+//! Sets if the static text should use the override color or the
 //! color in the gui skin.
 void CGUIStaticText::enableOverrideColor(bool enable)
 {
@@ -266,7 +274,6 @@ void CGUIStaticText::enableOverrideColor(bool enable)
 
 bool CGUIStaticText::isOverrideColorEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return OverrideColorEnabled;
 }
 
@@ -282,7 +289,6 @@ void CGUIStaticText::setWordWrap(bool enable)
 
 bool CGUIStaticText::isWordWrapEnabled() const
 {
-	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return WordWrap;
 }
 
@@ -594,12 +600,12 @@ void CGUIStaticText::serializeAttributes(io::IAttributes* out, io::SAttributeRea
 	out->addBool	("Border",              Border);
 	out->addBool	("OverrideColorEnabled",OverrideColorEnabled);
 	out->addBool	("OverrideBGColorEnabled",OverrideBGColorEnabled);
-	out->addBool	("WordWrap",		WordWrap);
+	out->addBool	("WordWrap",			WordWrap);
 	out->addBool	("Background",          Background);
 	out->addBool	("RightToLeft",         RightToLeft);
 	out->addBool	("RestrainTextInside",  RestrainTextInside);
 	out->addColor	("OverrideColor",       OverrideColor);
-	out->addColor	("BGColor",       	BGColor);
+	out->addColor	("BGColor",       		BGColor);
 	out->addEnum	("HTextAlign",          HAlign, GUIAlignmentNames);
 	out->addEnum	("VTextAlign",          VAlign, GUIAlignmentNames);
 
@@ -612,18 +618,18 @@ void CGUIStaticText::deserializeAttributes(io::IAttributes* in, io::SAttributeRe
 {
 	IGUIStaticText::deserializeAttributes(in,options);
 
-	Border = in->getAttributeAsBool("Border");
-	enableOverrideColor(in->getAttributeAsBool("OverrideColorEnabled"));
-	OverrideBGColorEnabled = in->getAttributeAsBool("OverrideBGColorEnabled");
-	setWordWrap(in->getAttributeAsBool("WordWrap"));
-	Background = in->getAttributeAsBool("Background");
-	RightToLeft = in->getAttributeAsBool("RightToLeft");
-	RestrainTextInside = in->getAttributeAsBool("RestrainTextInside");
-	OverrideColor = in->getAttributeAsColor("OverrideColor");
-	BGColor = in->getAttributeAsColor("BGColor");
+	Border = in->getAttributeAsBool("Border", Border);
+	enableOverrideColor(in->getAttributeAsBool("OverrideColorEnabled", OverrideColorEnabled));
+	OverrideBGColorEnabled = in->getAttributeAsBool("OverrideBGColorEnabled", OverrideBGColorEnabled);
+	setWordWrap(in->getAttributeAsBool("WordWrap", WordWrap));
+	Background = in->getAttributeAsBool("Background", Background);
+	RightToLeft = in->getAttributeAsBool("RightToLeft", RightToLeft);
+	RestrainTextInside = in->getAttributeAsBool("RestrainTextInside", RestrainTextInside);
+	OverrideColor = in->getAttributeAsColor("OverrideColor", OverrideColor);
+	BGColor = in->getAttributeAsColor("BGColor", BGColor);
 
-	setTextAlignment( (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("HTextAlign", GUIAlignmentNames),
-                      (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames));
+	setTextAlignment( (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("HTextAlign", GUIAlignmentNames, (s32)HAlign),
+                      (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames, (s32)VAlign));
 
 	// OverrideFont = in->getAttributeAsFont("OverrideFont");
 }

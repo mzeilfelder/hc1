@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_POINT_3D_H_INCLUDED__
-#define __IRR_POINT_3D_H_INCLUDED__
+#ifndef IRR_POINT_3D_H_INCLUDED
+#define IRR_POINT_3D_H_INCLUDED
 
 #include "irrMath.h"
 
@@ -56,6 +56,20 @@ namespace core
 		vector3d<T>& operator/=(const vector3d<T>& other) { X/=other.X; Y/=other.Y; Z/=other.Z; return *this; }
 		vector3d<T> operator/(const T v) const { T i=(T)1.0/v; return vector3d<T>(X * i, Y * i, Z * i); }
 		vector3d<T>& operator/=(const T v) { T i=(T)1.0/v; X*=i; Y*=i; Z*=i; return *this; }
+
+		T& operator [](u32 index)
+		{
+			IRR_DEBUG_BREAK_IF(index>2) // access violation
+
+			return *(&X+index);
+		}
+
+		const T& operator [](u32 index) const
+		{
+			IRR_DEBUG_BREAK_IF(index>2) // access violation
+
+			return *(&X+index);
+		}
 
 		//! sort in order X, Y, Z. Equality with rounding tolerance.
 		bool operator<=(const vector3d<T>&other) const
@@ -417,7 +431,7 @@ namespace core
 	};
 
 	//! partial specialization for integer vectors
-	// Implementor note: inline keyword needed due to template specialization for s32. Otherwise put specialization into a .cpp
+	// Implementer note: inline keyword needed due to template specialization for s32. Otherwise put specialization into a .cpp
 	template <>
 	inline vector3d<s32> vector3d<s32>::operator /(s32 val) const {return core::vector3d<s32>(X/val,Y/val,Z/val);}
 	template <>
@@ -457,4 +471,3 @@ namespace core
 } // end namespace irr
 
 #endif
-

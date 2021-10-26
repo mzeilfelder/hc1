@@ -18,11 +18,22 @@ namespace scene
 //! constructor
 CSceneNodeAnimatorCameraFPS::CSceneNodeAnimatorCameraFPS(gui::ICursorControl* cursorControl,
 		f32 rotateSpeed, f32 moveSpeed, f32 jumpSpeed,
-		SKeyMap* keyMapArray, u32 keyMapSize, bool noVerticalMovement, bool invertY)
-: CursorControl(cursorControl), MaxVerticalAngle(88.0f),
-	MoveSpeed(moveSpeed), RotateSpeed(rotateSpeed), JumpSpeed(jumpSpeed),
+		SKeyMap* keyMapArray, u32 keyMapSize, bool noVerticalMovement, bool invertY, float rotateSpeedKeyboard)
+: CursorControl(cursorControl),
+// On X11 we get events even when mouse is not inside the Irrlicht window, on Windows we don't.
+// It might be possible to add grabbing on Windows as well in which case this has to be somewhat changed.
+// TODO: I don't know about OSX, but in theory it should be like old Irrlicht 1.8 behavior whatever that was there.
+#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
+	GrabMouse(false),
+#else
+	GrabMouse(true),
+#endif
+	MaxVerticalAngle(88.0f), NoVerticalMovement(noVerticalMovement),
+	MoveSpeed(moveSpeed),
+	RotateSpeedKeyboard(rotateSpeedKeyboard), RotateSpeed(rotateSpeed),
+	JumpSpeed(jumpSpeed),
 	MouseYDirection(invertY ? -1.0f : 1.0f),
-	LastAnimationTime(0), firstUpdate(true), firstInput(true), NoVerticalMovement(noVerticalMovement)
+	LastAnimationTime(0), HadMouseEvent(false), firstUpdate(true), firstInput(true)
 {
 	#ifdef _DEBUG
 	setDebugName("CCameraSceneNodeAnimatorFPS");
@@ -78,14 +89,9 @@ bool CSceneNodeAnimatorCameraFPS::OnEvent(const SEvent& evt)
 			}
 		}
 		break;
-
 	case EET_MOUSE_INPUT_EVENT:
-		if (evt.MouseInput.Event == EMIE_MOUSE_MOVED)
-		{
-			CursorPos = CursorControl->getRelativePosition();
-			return true;
-		}
-		break;
+		HadMouseEvent = true;
+		return true;
 
 	default:
 		break;
@@ -108,7 +114,7 @@ void CSceneNodeAnimatorCameraFPS::animateNode(ISceneNode* node, u32 timeMs)
 		if (CursorControl )
 		{
 			CursorControl->setPosition(0.5f, 0.5f);
-			CursorPos = CenterCursor = CursorControl->getRelativePosition();
+			CursorPos = CenterCursor = CursorControl->getRelativePosition(false);
 		}
 
 		LastAnimationTime = timeMs;
@@ -137,64 +143,70 @@ void CSceneNodeAnimatorCameraFPS::animateNode(ISceneNode* node, u32 timeMs)
 	f32 timeDiff = (f32) ( timeMs - LastAnimationTime );
 	LastAnimationTime = timeMs;
 
-	// update position
-	core::vector3df pos = camera->getPosition();
-
 	// Update rotation
 	core::vector3df target = (camera->getTarget() - camera->getAbsolutePosition());
 	core::vector3df relativeRotation = target.getHorizontalAngle();
 
 	if (CursorControl)
 	{
+		bool reset = false;
+
+		if ( HadMouseEvent || GrabMouse)
+			CursorPos = CursorControl->getRelativePosition();
+
 		if (CursorPos != CenterCursor)
 		{
-			relativeRotation.Y -= (0.5f - CursorPos.X) * RotateSpeed;
-			relativeRotation.X -= (0.5f - CursorPos.Y) * RotateSpeed * MouseYDirection;
+			relativeRotation.Y -= (CenterCursor.X - CursorPos.X) * RotateSpeed;
+			relativeRotation.X -= (CenterCursor.Y - CursorPos.Y) * RotateSpeed * MouseYDirection;
 
-			// X < MaxVerticalAngle or X > 360-MaxVerticalAngle
-
-			if (relativeRotation.X > MaxVerticalAngle*2 &&
-				relativeRotation.X < 360.0f-MaxVerticalAngle)
-			{
-				relativeRotation.X = 360.0f-MaxVerticalAngle;
-			}
-			else
-			if (relativeRotation.X > MaxVerticalAngle &&
-				relativeRotation.X < 360.0f-MaxVerticalAngle)
-			{
-				relativeRotation.X = MaxVerticalAngle;
-			}
-
-			// Do the fix as normal, special case below
-			// reset cursor position to the centre of the window.
-			CursorControl->setPosition(0.5f, 0.5f);
-			CenterCursor = CursorControl->getRelativePosition();
-
-			// needed to avoid problems when the event receiver is disabled
-			CursorPos = CenterCursor;
+			reset = true;
 		}
 
-		// Special case, mouse is whipped outside of window before it can update.
-		video::IVideoDriver* driver = smgr->getVideoDriver();
-		core::vector2d<u32> mousepos(u32(CursorControl->getPosition().X), u32(CursorControl->getPosition().Y));
-		core::rect<u32> screenRect(0, 0, driver->getScreenSize().Width, driver->getScreenSize().Height);
+		if ( GrabMouse && !reset)
+		{
+			// Special case, mouse is whipped outside of window before it can update.
+			video::IVideoDriver* driver = smgr->getVideoDriver();
+			core::vector2d<u32> mousepos(u32(CursorPos.X), u32(CursorPos.Y));
+			core::rect<u32> screenRect(0, 0, driver->getScreenSize().Width, driver->getScreenSize().Height);
 
-		// Only if we are moving outside quickly.
-		bool reset = !screenRect.isPointInside(mousepos);
+			// Only if we are moving outside quickly.
+			reset = !screenRect.isPointInside(mousepos);
+		}
 
 		if(reset)
 		{
-			// Force a reset.
 			CursorControl->setPosition(0.5f, 0.5f);
-			CenterCursor = CursorControl->getRelativePosition();
+			CenterCursor = CursorControl->getRelativePosition(false);	// often no longer 0.5 due to int/float conversions
 			CursorPos = CenterCursor;
  		}
 	}
+	HadMouseEvent = false;
+
+	// keyboard rotation
+	if (CursorKeys[EKA_ROTATE_LEFT])
+		relativeRotation.Y -= timeDiff * RotateSpeedKeyboard;
+
+	if (CursorKeys[EKA_ROTATE_RIGHT])
+		relativeRotation.Y += timeDiff * RotateSpeedKeyboard;
+
+	// X < MaxVerticalAngle or X > 360-MaxVerticalAngle
+
+	if (relativeRotation.X > MaxVerticalAngle*2 &&
+		relativeRotation.X < 360.0f-MaxVerticalAngle)
+	{
+		relativeRotation.X = 360.0f-MaxVerticalAngle;
+	}
+	else
+	if (relativeRotation.X > MaxVerticalAngle &&
+		relativeRotation.X < 360.0f-MaxVerticalAngle)
+	{
+		relativeRotation.X = MaxVerticalAngle;
+	}
 
 	// set target
-
-	target.set(0,0, core::max_(1.f, pos.getLength()));
-	core::vector3df movedir = target;
+	core::vector3df pos = camera->getPosition();
+	target.set(0,0, core::max_(1.f, pos.getLength()));	// better float precision than (0,0,1) in target-pos calculation in camera
+	core::vector3df movedir(target);
 
 	core::matrix4 mat;
 	mat.setRotationDegrees(core::vector3df(relativeRotation.X, relativeRotation.Y, 0));
@@ -220,7 +232,7 @@ void CSceneNodeAnimatorCameraFPS::animateNode(ISceneNode* node, u32 timeMs)
 
 	// strafing
 
-	core::vector3df strafevect = target;
+	core::vector3df strafevect(target);
 	strafevect = strafevect.crossProduct(camera->getUpVector());
 
 	if (NoVerticalMovement)
@@ -298,7 +310,6 @@ f32 CSceneNodeAnimatorCameraFPS::getMoveSpeed() const
 	return MoveSpeed;
 }
 
-
 //! Sets the keyboard mapping for this animator
 void CSceneNodeAnimatorCameraFPS::setKeyMap(SKeyMap *map, u32 count)
 {
@@ -348,6 +359,58 @@ ISceneNodeAnimator* CSceneNodeAnimatorCameraFPS::createClone(ISceneNode* node, I
 	newAnimator->cloneMembers(this);
 	newAnimator->setKeyMap(KeyMap);
 	return newAnimator;
+}
+
+void CSceneNodeAnimatorCameraFPS::serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options) const
+{
+	ISceneNodeAnimator::serializeAttributes(out, options);
+
+	out->addFloat("MaxVerticalAngle", MaxVerticalAngle);
+	out->addBool("NoVerticalMovement", NoVerticalMovement);
+	out->addFloat("MoveSpeed", MoveSpeed);
+	out->addFloat("RotateSpeedKeyboard", RotateSpeedKeyboard);
+	out->addFloat("RotateSpeed", RotateSpeed);
+	out->addFloat("JumpSpeed", JumpSpeed);
+	out->addFloat("MouseYDirection", MouseYDirection);
+
+	out->addInt("KeyMapSize", (s32)KeyMap.size());
+	for ( u32 i=0; i < KeyMap.size(); ++i )
+	{
+		core::stringc name("Action");
+		name += core::stringc(i);
+		out->addInt(name.c_str(), (int)KeyMap[i].Action);
+		name = core::stringc("KeyCode") + core::stringc(i);
+		out->addInt(name.c_str(), (int)KeyMap[i].KeyCode);
+	}
+}
+
+void CSceneNodeAnimatorCameraFPS::deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options)
+{
+	ISceneNodeAnimator::deserializeAttributes(in, options);
+
+	MaxVerticalAngle = in->getAttributeAsFloat("MaxVerticalAngle", MaxVerticalAngle);
+	NoVerticalMovement = in->getAttributeAsBool("NoVerticalMovement", NoVerticalMovement);
+	MoveSpeed = in->getAttributeAsFloat("MoveSpeed", MoveSpeed);
+	RotateSpeedKeyboard = in->getAttributeAsFloat("RotateSpeedKeyboard", RotateSpeedKeyboard);
+	RotateSpeed = in->getAttributeAsFloat("RotateSpeed", RotateSpeed);
+	JumpSpeed = in->getAttributeAsFloat("JumpSpeed", JumpSpeed);
+	MouseYDirection = in->getAttributeAsFloat("MouseYDirection", MouseYDirection);
+
+	if ( in->findAttribute("KeyMapSize") )
+	{
+		KeyMap.clear();
+		s32 keyMapSize = in->getAttributeAsInt("KeyMapSize");
+		for ( u32 i=0; i < (u32)keyMapSize; ++i )
+		{
+			SKeyMap keyMapEntry;
+			core::stringc name("Action");
+			name += core::stringc(i);
+			keyMapEntry.Action = static_cast<EKEY_ACTION>(in->getAttributeAsInt(name.c_str()));
+			name = core::stringc("KeyCode") + core::stringc(i);
+			keyMapEntry.KeyCode = static_cast<EKEY_CODE>(in->getAttributeAsInt(name.c_str()));
+			KeyMap.push_back(keyMapEntry);
+		}
+	}
 }
 
 

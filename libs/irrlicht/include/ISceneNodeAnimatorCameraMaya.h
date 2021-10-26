@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_SCENE_NODE_ANIMATOR_CAMERA_MAYA_H_INCLUDED__
-#define __I_SCENE_NODE_ANIMATOR_CAMERA_MAYA_H_INCLUDED__
+#ifndef IRR_I_SCENE_NODE_ANIMATOR_CAMERA_MAYA_H_INCLUDED
+#define IRR_I_SCENE_NODE_ANIMATOR_CAMERA_MAYA_H_INCLUDED
 
 #include "ISceneNodeAnimator.h"
 
@@ -15,7 +15,7 @@ namespace scene
 
 	//! Special scene node animator for Maya-style cameras
 	/** This scene node animator can be attached to a camera to make it act like a 3d
-	modelling tool.
+	modeling tool.
 	The camera is moving relative to the target with the mouse, by pressing either
 	of the three buttons.
 	In order to move the camera, set a new target for the camera. The distance defines
@@ -49,10 +49,16 @@ namespace scene
 
 		//! Set the distance
 		virtual void setDistance(f32 distance) = 0;
+
+		//! Set the minimal distance to the camera target for zoom
+		virtual void setTargetMinDistance(f32 minDistance) = 0;
+
+		//! Returns the minimal distance to the camera target for zoom
+		virtual f32 getTargetMinDistance() const = 0;
+
 	};
 
 } // end namespace scene
 } // end namespace irr
 
 #endif
-
