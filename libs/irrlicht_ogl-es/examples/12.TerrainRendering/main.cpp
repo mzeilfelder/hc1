@@ -10,12 +10,11 @@ simple solution for building larger area on small heightmaps -> terrain
 smoothing.
 
 In the beginning there is nothing special. We include the needed header files
-and create an event listener to listen if the user presses a key: The 'W' key
-switches to wireframe mode, the 'P' key to pointcloud mode, and the 'D' key
-toggles between solid and detail mapped material.
+and create an event listener to listen if the user presses certain keys.
 */
 #include <irrlicht.h>
 #include "driverChoice.h"
+#include "exampleHelper.h"
 
 using namespace irr;
 
@@ -47,7 +46,7 @@ public:
 						!Terrain->getMaterial(0).Wireframe);
 				Terrain->setMaterialFlag(video::EMF_POINTCLOUD, false);
 				return true;
-			case irr::KEY_KEY_P: // switch wire frame mode
+			case irr::KEY_KEY_P: // switch point cloud mode
 				Terrain->setMaterialFlag(video::EMF_POINTCLOUD,
 						!Terrain->getMaterial(0).PointCloud);
 				Terrain->setMaterialFlag(video::EMF_WIREFRAME, false);
@@ -118,14 +117,16 @@ int main()
 
 	driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT, true);
 
+	const io::path mediaPath = getExampleMediaPath();
+
 	// add irrlicht logo
-	env->addImage(driver->getTexture("../../media/irrlichtlogo2.png"),
+	env->addImage(driver->getTexture(mediaPath + "irrlichtlogo3.png"),
 		core::position2d<s32>(10,10));
 
 	//set other font
-	env->getSkin()->setFont(env->getFont("../../media/fontlucida.png"));
+	env->getSkin()->setFont(env->getFont(mediaPath + "fontlucida.png"));
 
-	// add some help text
+	// add some help text (let's ignore 'P' and 'X' which are more about debugging)
 	env->addStaticText(
 		L"Press 'W' to change wireframe mode\nPress 'D' to toggle detail map\nPress 'S' to toggle skybox/skydome",
 		core::rect<s32>(10,421,250,475), true, true, 0, -1, true);
@@ -144,13 +145,13 @@ int main()
 	/*
 	Here comes the terrain renderer scene node: We add it just like any
 	other scene node to the scene using
-	ISceneManager::addTerrainSceneNode(). The only parameter we use is a
+	ISceneManager::addTerrainSceneNode(). The first parameter is a
 	file name to the heightmap we use. A heightmap is simply a gray scale
 	texture. The terrain renderer loads it and creates the 3D terrain from
 	it.
 
-	To make the terrain look more big, we change the scale factor of
-	it to (40, 4.4, 40). Because we don't have any dynamic lights in the
+	To make the terrain look bigger, we change it's scale factor to 
+	(40, 4.4, 40). Because we don't have any dynamic lights in the
 	scene, we switch off the lighting, and we set the file
 	terrain-texture.jpg as texture for the terrain and detailmap3.jpg as
 	second texture, called detail map. At last, we set the scale values for
@@ -160,7 +161,7 @@ int main()
 
 	// add terrain scene node
 	scene::ITerrainSceneNode* terrain = smgr->addTerrainSceneNode(
-		"../../media/terrain-heightmap.bmp",
+		mediaPath + "terrain-heightmap.bmp",
 		0,					// parent node
 		-1,					// node id
 		core::vector3df(0.f, 0.f, 0.f),		// position
@@ -175,9 +176,9 @@ int main()
 	terrain->setMaterialFlag(video::EMF_LIGHTING, false);
 
 	terrain->setMaterialTexture(0,
-			driver->getTexture("../../media/terrain-texture.jpg"));
+			driver->getTexture(mediaPath + "terrain-texture.jpg"));
 	terrain->setMaterialTexture(1,
-			driver->getTexture("../../media/detailmap3.jpg"));
+			driver->getTexture(mediaPath + "detailmap3.jpg"));
 	
 	terrain->setMaterialType(video::EMT_DETAIL_MAP);
 
@@ -212,6 +213,7 @@ int main()
 	terrain->getMeshBufferForLOD(*buffer, 0);
 	video::S3DVertex2TCoords* data = (video::S3DVertex2TCoords*)buffer->getVertexBuffer().getData();
 	// Work on data or get the IndexBuffer with a similar call.
+	(void)data; // disable unused variable warnings
 	buffer->drop(); // When done drop the buffer again.
 
 	/*
@@ -226,13 +228,13 @@ int main()
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 
 	scene::ISceneNode* skybox=smgr->addSkyBoxSceneNode(
-		driver->getTexture("../../media/irrlicht2_up.jpg"),
-		driver->getTexture("../../media/irrlicht2_dn.jpg"),
-		driver->getTexture("../../media/irrlicht2_lf.jpg"),
-		driver->getTexture("../../media/irrlicht2_rt.jpg"),
-		driver->getTexture("../../media/irrlicht2_ft.jpg"),
-		driver->getTexture("../../media/irrlicht2_bk.jpg"));
-	scene::ISceneNode* skydome=smgr->addSkyDomeSceneNode(driver->getTexture("../../media/skydome.jpg"),16,8,0.95f,2.0f);
+		driver->getTexture(mediaPath + "irrlicht2_up.jpg"),
+		driver->getTexture(mediaPath + "irrlicht2_dn.jpg"),
+		driver->getTexture(mediaPath + "irrlicht2_lf.jpg"),
+		driver->getTexture(mediaPath + "irrlicht2_rt.jpg"),
+		driver->getTexture(mediaPath + "irrlicht2_ft.jpg"),
+		driver->getTexture(mediaPath + "irrlicht2_bk.jpg"));
+	scene::ISceneNode* skydome=smgr->addSkyDomeSceneNode(driver->getTexture(mediaPath + "skydome.jpg"),16,8,0.95f,2.0f);
 
 	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, true);
 
@@ -249,7 +251,7 @@ int main()
 	while(device->run())
 	if (device->isWindowActive())
 	{
-		driver->beginScene(true, true, 0 );
+		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(0));
 
 		smgr->drawAll();
 		env->drawAll();

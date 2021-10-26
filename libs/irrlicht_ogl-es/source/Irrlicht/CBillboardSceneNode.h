@@ -2,11 +2,11 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_BILLBOARD_SCENE_NODE_H_INCLUDED__
-#define __C_BILLBOARD_SCENE_NODE_H_INCLUDED__
+#ifndef IRR_C_BILLBOARD_SCENE_NODE_H_INCLUDED
+#define IRR_C_BILLBOARD_SCENE_NODE_H_INCLUDED
 
 #include "IBillboardSceneNode.h"
-#include "S3DVertex.h"
+#include "SMeshBuffer.h"
 
 namespace irr
 {
@@ -25,70 +25,83 @@ public:
 		video::SColor colorTop=video::SColor(0xFFFFFFFF),
 		video::SColor colorBottom=video::SColor(0xFFFFFFFF));
 
+	virtual ~CBillboardSceneNode();
+
 	//! pre render event
-	virtual void OnRegisterSceneNode() _IRR_OVERRIDE_;
+	virtual void OnRegisterSceneNode() IRR_OVERRIDE;
 
 	//! render
-	virtual void render() _IRR_OVERRIDE_;
+	virtual void render() IRR_OVERRIDE;
 
 	//! returns the axis aligned bounding box of this node
-	virtual const core::aabbox3d<f32>& getBoundingBox() const _IRR_OVERRIDE_;
+	virtual const core::aabbox3d<f32>& getBoundingBox() const IRR_OVERRIDE;
 
 	//! sets the size of the billboard
-	virtual void setSize(const core::dimension2d<f32>& size) _IRR_OVERRIDE_;
+	virtual void setSize(const core::dimension2d<f32>& size) IRR_OVERRIDE;
 
 	//! Sets the widths of the top and bottom edges of the billboard independently.
-	virtual void setSize(f32 height, f32 bottomEdgeWidth, f32 topEdgeWidth) _IRR_OVERRIDE_;
+	virtual void setSize(f32 height, f32 bottomEdgeWidth, f32 topEdgeWidth) IRR_OVERRIDE;
 
 	//! gets the size of the billboard
-	virtual const core::dimension2d<f32>& getSize() const _IRR_OVERRIDE_;
+	virtual const core::dimension2d<f32>& getSize() const IRR_OVERRIDE;
 
 	//! Gets the widths of the top and bottom edges of the billboard.
-	virtual void getSize(f32& height, f32& bottomEdgeWidth, f32& topEdgeWidth) const _IRR_OVERRIDE_;
+	virtual void getSize(f32& height, f32& bottomEdgeWidth, f32& topEdgeWidth) const IRR_OVERRIDE;
 
-	virtual video::SMaterial& getMaterial(u32 i) _IRR_OVERRIDE_;
+	virtual video::SMaterial& getMaterial(u32 i) IRR_OVERRIDE;
 
 	//! returns amount of materials used by this scene node.
-	virtual u32 getMaterialCount() const _IRR_OVERRIDE_;
+	virtual u32 getMaterialCount() const IRR_OVERRIDE;
 
 	//! Set the color of all vertices of the billboard
 	//! \param overallColor: the color to set
-	virtual void setColor(const video::SColor& overallColor) _IRR_OVERRIDE_;
+	virtual void setColor(const video::SColor& overallColor) IRR_OVERRIDE;
 
 	//! Set the color of the top and bottom vertices of the billboard
 	//! \param topColor: the color to set the top vertices
 	//! \param bottomColor: the color to set the bottom vertices
 	virtual void setColor(const video::SColor& topColor,
-			const video::SColor& bottomColor) _IRR_OVERRIDE_;
+			const video::SColor& bottomColor) IRR_OVERRIDE;
 
 	//! Gets the color of the top and bottom vertices of the billboard
 	//! \param[out] topColor: stores the color of the top vertices
 	//! \param[out] bottomColor: stores the color of the bottom vertices
 	virtual void getColor(video::SColor& topColor,
-			video::SColor& bottomColor) const _IRR_OVERRIDE_;
+			video::SColor& bottomColor) const IRR_OVERRIDE;
+
+	//! Get the real boundingbox used by the billboard (which depends on the active camera)
+	virtual const core::aabbox3d<f32>& getTransformedBillboardBoundingBox(const irr::scene::ICameraSceneNode* camera) IRR_OVERRIDE;
 
 	//! Writes attributes of the scene node.
-	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const _IRR_OVERRIDE_;
+	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const IRR_OVERRIDE;
 
 	//! Reads attributes of the scene node.
-	virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0) _IRR_OVERRIDE_;
+	virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0) IRR_OVERRIDE;
 
 	//! Returns type of the scene node
-	virtual ESCENE_NODE_TYPE getType() const _IRR_OVERRIDE_ { return ESNT_BILLBOARD; }
+	virtual ESCENE_NODE_TYPE getType() const IRR_OVERRIDE { return ESNT_BILLBOARD; }
 
 	//! Creates a clone of this scene node and its children.
-	virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0) _IRR_OVERRIDE_;
+	virtual ISceneNode* clone(ISceneNode* newParent=0, ISceneManager* newManager=0) IRR_OVERRIDE;
+
+protected:
+	void updateMesh(const irr::scene::ICameraSceneNode* camera);
 
 private:
 
 	//! Size.Width is the bottom edge width
 	core::dimension2d<f32> Size;
 	f32 TopEdgeWidth;
-	core::aabbox3d<f32> BBox;
-	video::SMaterial Material;
 
-	video::S3DVertex vertices[4];
-	u16 indices[6];
+	//! BoundingBox which is large enough to contain the billboard independent of the camera
+	// TODO: BUG - still can be wrong with scaling < 1. Billboards should calculate relative coordinates for their mesh
+	// and then use the node-scaling. But needs some work...
+	/** Note that we can't use the real boundingbox for culling because at that point
+	    the camera which is used to calculate the billboard is not yet updated. So we only
+	    know the real boundingbox after rendering - which is too late for culling. */
+	core::aabbox3d<f32> BBoxSafe;
+
+	scene::SMeshBuffer* Buffer;
 };
 
 
@@ -96,4 +109,3 @@ private:
 } // end namespace irr
 
 #endif
-

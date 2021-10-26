@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_MESH_MANIPULATOR_H_INCLUDED__
-#define __I_MESH_MANIPULATOR_H_INCLUDED__
+#ifndef IRR_I_MESH_MANIPULATOR_H_INCLUDED
+#define IRR_I_MESH_MANIPULATOR_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "vector3d.h"
@@ -122,7 +122,7 @@ namespace scene
 		/** \deprecated Use scale() instead. This method may be removed by Irrlicht 1.9
 		\param mesh Mesh on which the operation is performed.
 		\param factor Scale factor for each axis. */
-		_IRR_DEPRECATED_ void scaleMesh(IMesh* mesh, const core::vector3df& factor) const {return scale(mesh,factor);}
+		IRR_DEPRECATED void scaleMesh(IMesh* mesh, const core::vector3df& factor) const {return scale(mesh,factor);}
 
 		//! Scale the texture coords of a mesh.
 		/** \param mesh Mesh on which the operation is performed.
@@ -144,25 +144,51 @@ namespace scene
 
 		//! Applies a transformation to a mesh
 		/** \param mesh Mesh on which the operation is performed.
-		\param m transformation matrix. */
-		void transform(IMesh* mesh, const core::matrix4& m) const
+		\param m transformation matrix. 
+		\param normalsUpdate When 0 - don't update normals. 
+		                     When 1 - update normals with inverse transposed of the transformation matrix
+		*/
+		void transform(IMesh* mesh, const core::matrix4& m, u32 normalsUpdate = 0) const
 		{
 			apply(SVertexPositionTransformManipulator(m), mesh, true);
+
+			if ( normalsUpdate == 1 )
+			{
+				core::matrix4 invT;
+				if ( m.getInverse(invT) )
+				{
+					invT = invT.getTransposed();
+					apply(SVertexNormalTransformManipulator(invT), mesh, false);
+				}
+			}
 		}
 
 		//! Applies a transformation to a meshbuffer
 		/** \param buffer Meshbuffer on which the operation is performed.
-		\param m transformation matrix. */
-		void transform(IMeshBuffer* buffer, const core::matrix4& m) const
+		\param m transformation matrix. 
+		\param normalsUpdate When 0 - don't update normals. 
+		                     When 1 - update normals with inverse transposed of the transformation matrix
+		*/
+		void transform(IMeshBuffer* buffer, const core::matrix4& m, u32 normalsUpdate = 0) const
 		{
 			apply(SVertexPositionTransformManipulator(m), buffer, true);
+
+			if ( normalsUpdate == 1 )
+			{
+				core::matrix4 invT;
+				if ( m.getInverse(invT) )
+				{
+					invT = invT.getTransposed();
+					apply(SVertexNormalTransformManipulator(invT), buffer, false);
+				}
+			}
 		}
 
 		//! Applies a transformation to a mesh
 		/** \deprecated Use transform() instead. This method may be removed by Irrlicht 1.9
 		\param mesh Mesh on which the operation is performed.
 		\param m transformation matrix. */
-		_IRR_DEPRECATED_ virtual void transformMesh(IMesh* mesh, const core::matrix4& m) const {return transform(mesh,m);}
+		IRR_DEPRECATED virtual void transformMesh(IMesh* mesh, const core::matrix4& m) const {return transform(mesh,m);}
 
 		//! Creates a planar texture mapping on the mesh
 		/** \param mesh: Mesh on which the operation is performed.
@@ -314,7 +340,7 @@ namespace scene
 		- it's intended to be lossless
 		- it has special care for the borders, which are useful with heightmap tiles
 
-		This function is thread-safe. Remember to weld afterwards - this
+		This function is thread-safe. Remember to weld afterward - this
 		function only moves vertices, it does not weld.
 
 		\param mb Meshbuffer to operate on.
@@ -414,6 +440,5 @@ protected:
 
 } // end namespace scene
 } // end namespace irr
-
 
 #endif

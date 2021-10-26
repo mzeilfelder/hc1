@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
-// orginally written by Christian Stehno, modified by Nikolaus Gebhardt
+// Originally written by Christian Stehno, modified by Nikolaus Gebhardt
 
 #include "IrrCompileConfig.h"
 #ifdef _IRR_COMPILE_WITH_OGRE_LOADER_
@@ -131,7 +131,10 @@ IAnimatedMesh* COgreMeshFileLoader::createMesh(io::IReadFile* file)
 	ChunkData data;
 	readString(file, data, Version);
 	if ((Version != "[MeshSerializer_v1.30]") && (Version != "[MeshSerializer_v1.40]") && (Version != "[MeshSerializer_v1.41]"))
+	{
+		os::Printer::log("Unsupported ogre mesh version", Version.c_str(), ELL_INFORMATION);
 		return 0;
+	}
 
 	clearMeshes();
 	if (Mesh)
@@ -1010,7 +1013,7 @@ void COgreMeshFileLoader::readPass(io::IReadFile* file, OgreTechnique& technique
 		else if (token=="depth_write")
 		{
 			getMaterialToken(file, token);
-			pass.Material.ZWriteEnable=(token=="on");
+			pass.Material.ZWriteEnable=(token=="on") ? video::EZW_ON : video::EZW_OFF;
 		}
 		else if (token=="depth_func")
 		{

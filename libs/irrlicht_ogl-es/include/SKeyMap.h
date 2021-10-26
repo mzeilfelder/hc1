@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_KEY_MAP_H_INCLUDED__
-#define __S_KEY_MAP_H_INCLUDED__
+#ifndef S_KEY_MAP_H_INCLUDED
+#define S_KEY_MAP_H_INCLUDED
 
 #include "Keycodes.h"
 
@@ -19,6 +19,8 @@ namespace irr
 		EKA_STRAFE_RIGHT,
 		EKA_JUMP_UP,
 		EKA_CROUCH,
+		EKA_ROTATE_LEFT,
+		EKA_ROTATE_RIGHT,
 		EKA_COUNT,
 
 		//! This value is not used. It only forces this enumeration to compile in 32 bit.
@@ -38,4 +40,3 @@ namespace irr
 } // end namespace irr
 
 #endif
-

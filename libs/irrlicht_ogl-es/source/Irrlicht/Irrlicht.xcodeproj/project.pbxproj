@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -52,6 +52,7 @@
 		5E34CA4F1B7F6EBF00F212E8 /* CXMLWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8001B7F51D900F212E8 /* CXMLWriter.cpp */; };
 		5E34CA511B7F6EBF00F212E8 /* CZipReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8021B7F51D900F212E8 /* CZipReader.cpp */; };
 		5E34CA541B7F6EBF00F212E8 /* irrXML.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8051B7F51D900F212E8 /* irrXML.cpp */; };
+		5E34CA581B7F6EBF00F212E8 /* CIrrDeviceOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8141B7F535C00F212E8 /* CIrrDeviceOSX.mm */; };
 		5E34CA591B7F6EBF00F212E8 /* CIrrDeviceStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C80D1B7F52AC00F212E8 /* CIrrDeviceStub.cpp */; };
 		5E34CA5C1B7F6EBF00F212E8 /* aescrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8161B7F540B00F212E8 /* aescrypt.cpp */; };
 		5E34CA5D1B7F6EBF00F212E8 /* aeskey.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8171B7F540B00F212E8 /* aeskey.cpp */; };
@@ -346,7 +347,6 @@
 		5E5732DD1C18E212003F664E /* CXMLWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8001B7F51D900F212E8 /* CXMLWriter.cpp */; };
 		5E5732DE1C18E212003F664E /* CZipReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8021B7F51D900F212E8 /* CZipReader.cpp */; };
 		5E5732DF1C18E212003F664E /* irrXML.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8051B7F51D900F212E8 /* irrXML.cpp */; };
-		5E5732E01C18E212003F664E /* CIrrDeviceOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8141B7F535C00F212E8 /* CIrrDeviceOSX.mm */; };
 		5E5732E11C18E212003F664E /* CIrrDeviceStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C80D1B7F52AC00F212E8 /* CIrrDeviceStub.cpp */; };
 		5E5732E21C18E212003F664E /* aescrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8161B7F540B00F212E8 /* aescrypt.cpp */; };
 		5E5732E31C18E212003F664E /* aeskey.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E34C8171B7F540B00F212E8 /* aeskey.cpp */; };
@@ -613,6 +613,9 @@
 		5E79089B1C10FEF900DFE7FE /* CB3DMeshWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E7908981C10FE4A00DFE7FE /* CB3DMeshWriter.cpp */; };
 		5E8570BC1B7F9AC400B267D2 /* CIrrDeviceConsole.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E8570BA1B7F9AC400B267D2 /* CIrrDeviceConsole.cpp */; };
 		5E9573D71C18E9E600C27989 /* CEAGLManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5E9573D61C18E9E600C27989 /* CEAGLManager.mm */; };
+		84A219B7249F82E800E189FC /* burning_shader_color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84A219B6249F82E800E189FC /* burning_shader_color.cpp */; };
+		84A219B9249F834000E189FC /* CTRGouraudNoZ2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84A219B8249F834000E189FC /* CTRGouraudNoZ2.cpp */; };
+		84A219BB249F835B00E189FC /* CTR_transparent_reflection_2_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84A219BA249F835B00E189FC /* CTR_transparent_reflection_2_layer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1351,10 +1354,10 @@
 		5E5734051C18E2E2003F664E /* COGLES2Renderer2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = COGLES2Renderer2D.cpp; sourceTree = "<group>"; };
 		5E5734061C18E2E2003F664E /* COGLES2Renderer2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COGLES2Renderer2D.h; sourceTree = "<group>"; };
 		5E79088A1C10EC6C00DFE7FE /* IRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRenderTarget.h; path = ../../include/IRenderTarget.h; sourceTree = "<group>"; };
-		5E79088D1C10EE6700DFE7FE /* COGLCoreCacheHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COGLCoreCacheHandler.h; sourceTree = "<group>"; };
-		5E79088E1C10EE6700DFE7FE /* COGLCoreFeature.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COGLCoreFeature.h; sourceTree = "<group>"; };
-		5E79088F1C10EE6700DFE7FE /* COGLCoreRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COGLCoreRenderTarget.h; sourceTree = "<group>"; };
-		5E7908901C10EE6700DFE7FE /* COGLCoreTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COGLCoreTexture.h; sourceTree = "<group>"; };
+		5E79088D1C10EE6700DFE7FE /* COpenGLCoreCacheHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COpenGLCoreCacheHandler.h; sourceTree = "<group>"; };
+		5E79088E1C10EE6700DFE7FE /* COpenGLCoreFeature.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COpenGLCoreFeature.h; sourceTree = "<group>"; };
+		5E79088F1C10EE6700DFE7FE /* COpenGLCoreRenderTarget.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COpenGLCoreRenderTarget.h; sourceTree = "<group>"; };
+		5E7908901C10EE6700DFE7FE /* COpenGLCoreTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = COpenGLCoreTexture.h; sourceTree = "<group>"; };
 		5E7908911C10EEC000DFE7FE /* COpenGLCacheHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = COpenGLCacheHandler.cpp; sourceTree = "<group>"; };
 		5E7908921C10EEC000DFE7FE /* COpenGLCacheHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COpenGLCacheHandler.h; sourceTree = "<group>"; };
 		5E7908931C10EEC000DFE7FE /* COpenGLCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = COpenGLCommon.h; sourceTree = "<group>"; };
@@ -1366,17 +1369,23 @@
 		5E9573D31C18E9B300C27989 /* CEAGLManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CEAGLManager.h; sourceTree = "<group>"; };
 		5E9573D61C18E9E600C27989 /* CEAGLManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CEAGLManager.mm; sourceTree = "<group>"; };
 		5EC24F5E1B8B861200DCA615 /* exampleHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = exampleHelper.h; path = ../../include/exampleHelper.h; sourceTree = "<group>"; };
+		8493BC01249DEBB20092813E /* IOctreeSceneNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOctreeSceneNode.h; path = ../../include/IOctreeSceneNode.h; sourceTree = "<group>"; };
+		8493BC03249DED3F0092813E /* IMemoryReadFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IMemoryReadFile.h; path = ../../include/IMemoryReadFile.h; sourceTree = "<group>"; };
+		84A219A4249F823800E189FC /* SOverrideMaterial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SOverrideMaterial.h; path = ../../include/SOverrideMaterial.h; sourceTree = "<group>"; };
+		84A219A6249F82DC00E189FC /* burning_shader_compile_verify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_verify.h; sourceTree = "<group>"; };
+		84A219A7249F82DC00E189FC /* burning_shader_compile_triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_triangle.h; sourceTree = "<group>"; };
+		84A219A8249F82DC00E189FC /* burning_shader_compile_fragment_start.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_fragment_start.h; sourceTree = "<group>"; };
+		84A219A9249F82DC00E189FC /* burning_shader_color_fraq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_color_fraq.h; sourceTree = "<group>"; };
+		84A219AA249F82DC00E189FC /* burning_shader_compile_start.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_start.h; sourceTree = "<group>"; };
+		84A219AC249F82DC00E189FC /* burning_shader_compile_fragment_default.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_fragment_default.h; sourceTree = "<group>"; };
+		84A219AD249F82DD00E189FC /* burning_shader_compile_fragment_end.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = burning_shader_compile_fragment_end.h; sourceTree = "<group>"; };
+		84A219B6249F82E800E189FC /* burning_shader_color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = burning_shader_color.cpp; sourceTree = "<group>"; };
+		84A219B8249F834000E189FC /* CTRGouraudNoZ2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTRGouraudNoZ2.cpp; sourceTree = "<group>"; };
+		84A219BA249F835B00E189FC /* CTR_transparent_reflection_2_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTR_transparent_reflection_2_layer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5E34C9F01B7F6E3400F212E8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5E5733DD1C18E212003F664E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1508,6 +1517,7 @@
 				5E34C7401B7F4AFC00F212E8 /* IMeshTextureLoader.h */,
 				5E34C7411B7F4AFC00F212E8 /* IMeshWriter.h */,
 				5E34C7421B7F4AFC00F212E8 /* IMetaTriangleSelector.h */,
+				8493BC01249DEBB20092813E /* IOctreeSceneNode.h */,
 				5E34C7441B7F4AFC00F212E8 /* IParticleAffector.h */,
 				5E34C7451B7F4AFC00F212E8 /* IParticleAnimatedMeshSceneNodeEmitter.h */,
 				5E34C7461B7F4AFC00F212E8 /* IParticleAttractionAffector.h */,
@@ -1547,6 +1557,7 @@
 				5E34C7931B7F4AFC00F212E8 /* SMeshBuffer.h */,
 				5E34C7941B7F4AFC00F212E8 /* SMeshBufferLightMap.h */,
 				5E34C7951B7F4AFC00F212E8 /* SMeshBufferTangents.h */,
+				84A219A4249F823800E189FC /* SOverrideMaterial.h */,
 				5E34C7961B7F4AFC00F212E8 /* SParticle.h */,
 				5E34C7971B7F4AFC00F212E8 /* SSharedMeshBuffer.h */,
 				5E34C7981B7F4AFC00F212E8 /* SSkinMeshBuffer.h */,
@@ -1565,6 +1576,7 @@
 				5E34C7101B7F4AFC00F212E8 /* IFileArchive.h */,
 				5E34C7111B7F4AFC00F212E8 /* IFileList.h */,
 				5E34C7121B7F4AFC00F212E8 /* IFileSystem.h */,
+				8493BC03249DED3F0092813E /* IMemoryReadFile.h */,
 				5E34C7551B7F4AFC00F212E8 /* IReadFile.h */,
 				5E34C7631B7F4AFC00F212E8 /* irrXML.h */,
 				5E34C77B1B7F4AFC00F212E8 /* IWriteFile.h */,
@@ -1578,6 +1590,13 @@
 		5E34C7A21B7F4C1900F212E8 /* video */ = {
 			isa = PBXGroup;
 			children = (
+				84A219A9249F82DC00E189FC /* burning_shader_color_fraq.h */,
+				84A219AC249F82DC00E189FC /* burning_shader_compile_fragment_default.h */,
+				84A219AD249F82DD00E189FC /* burning_shader_compile_fragment_end.h */,
+				84A219A8249F82DC00E189FC /* burning_shader_compile_fragment_start.h */,
+				84A219AA249F82DC00E189FC /* burning_shader_compile_start.h */,
+				84A219A7249F82DC00E189FC /* burning_shader_compile_triangle.h */,
+				84A219A6249F82DC00E189FC /* burning_shader_compile_verify.h */,
 				5E34C6EE1B7F4AFB00F212E8 /* EDriverFeatures.h */,
 				5E34C6EF1B7F4AFB00F212E8 /* EDriverTypes.h */,
 				5E34C6F41B7F4AFB00F212E8 /* EMaterialFlags.h */,
@@ -2216,6 +2235,7 @@
 		5E34C95A1B7F692C00F212E8 /* Burning Video */ = {
 			isa = PBXGroup;
 			children = (
+				84A219B6249F82E800E189FC /* burning_shader_color.cpp */,
 				5E34C9601B7F6A7600F212E8 /* CBurningShader_Raster_Reference.cpp */,
 				5E34C9611B7F6A7600F212E8 /* CDepthBuffer.cpp */,
 				5E34C9621B7F6A7600F212E8 /* CDepthBuffer.h */,
@@ -2227,6 +2247,7 @@
 				5E34C9681B7F6A7600F212E8 /* CTRGouraud2.cpp */,
 				5E34C9691B7F6A7600F212E8 /* CTRGouraudAlpha2.cpp */,
 				5E34C96A1B7F6A7600F212E8 /* CTRGouraudAlphaNoZ2.cpp */,
+				84A219B8249F834000E189FC /* CTRGouraudNoZ2.cpp */,
 				5E34C96B1B7F6A7600F212E8 /* CTRNormalMap.cpp */,
 				5E34C96C1B7F6A7600F212E8 /* CTRStencilShadow.cpp */,
 				5E34C96D1B7F6A7600F212E8 /* CTRTextureBlend.cpp */,
@@ -2244,6 +2265,7 @@
 				5E34C9791B7F6A7600F212E8 /* CTRTextureLightMap2_M4.cpp */,
 				5E34C97A1B7F6A7600F212E8 /* CTRTextureLightMapGouraud2_M4.cpp */,
 				5E34C97B1B7F6A7600F212E8 /* CTRTextureWire2.cpp */,
+				84A219BA249F835B00E189FC /* CTR_transparent_reflection_2_layer.cpp */,
 				5E34C97C1B7F6A7600F212E8 /* IBurningShader.cpp */,
 				5E34C97D1B7F6A7600F212E8 /* IBurningShader.h */,
 				5E34C97E1B7F6A7600F212E8 /* IDepthBuffer.h */,
@@ -2419,10 +2441,10 @@
 		5E79088B1C10ED5000DFE7FE /* OpenGL Core */ = {
 			isa = PBXGroup;
 			children = (
-				5E79088D1C10EE6700DFE7FE /* COGLCoreCacheHandler.h */,
-				5E79088E1C10EE6700DFE7FE /* COGLCoreFeature.h */,
-				5E79088F1C10EE6700DFE7FE /* COGLCoreRenderTarget.h */,
-				5E7908901C10EE6700DFE7FE /* COGLCoreTexture.h */,
+				5E79088D1C10EE6700DFE7FE /* COpenGLCoreCacheHandler.h */,
+				5E79088E1C10EE6700DFE7FE /* COpenGLCoreFeature.h */,
+				5E79088F1C10EE6700DFE7FE /* COpenGLCoreRenderTarget.h */,
+				5E7908901C10EE6700DFE7FE /* COpenGLCoreTexture.h */,
 			);
 			name = "OpenGL Core";
 			sourceTree = "<group>";
@@ -2442,13 +2464,6 @@
 
 /* Begin PBXHeadersBuildPhase section */
 		5E34C9F11B7F6E3400F212E8 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5E5733DE1C18E212003F664E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2480,8 +2495,6 @@
 			buildConfigurationList = 5E5733E21C18E212003F664E /* Build configuration list for PBXNativeTarget "Irrlicht_iOS" */;
 			buildPhases = (
 				5E5732B21C18E212003F664E /* Sources */,
-				5E5733DD1C18E212003F664E /* Frameworks */,
-				5E5733DE1C18E212003F664E /* Headers */,
 			);
 			buildRules = (
 			);
@@ -2498,7 +2511,8 @@
 		5E34C6D91B7F4A0C00F212E8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0710;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1150;
 				TargetAttributes = {
 					5E34C9F21B7F6E3400F212E8 = {
 						CreatedOnToolsVersion = 6.1;
@@ -2506,8 +2520,8 @@
 				};
 			};
 			buildConfigurationList = 5E34C6DC1B7F4A0C00F212E8 /* Build configuration list for PBXProject "Irrlicht" */;
-			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -2573,6 +2587,8 @@
 				5E34CA4F1B7F6EBF00F212E8 /* CXMLWriter.cpp in Sources */,
 				5E34CA511B7F6EBF00F212E8 /* CZipReader.cpp in Sources */,
 				5E34CA541B7F6EBF00F212E8 /* irrXML.cpp in Sources */,
+				5E34CA581B7F6EBF00F212E8 /* CIrrDeviceOSX.mm in Sources */,
+				84A219B7249F82E800E189FC /* burning_shader_color.cpp in Sources */,
 				5E34CA591B7F6EBF00F212E8 /* CIrrDeviceStub.cpp in Sources */,
 				5E34CA5C1B7F6EBF00F212E8 /* aescrypt.cpp in Sources */,
 				5E34CA5D1B7F6EBF00F212E8 /* aeskey.cpp in Sources */,
@@ -2697,6 +2713,7 @@
 				5E34CB121B7F6EC200F212E8 /* CIrrMeshFileLoader.cpp in Sources */,
 				5E34CB141B7F6EC200F212E8 /* CLMTSMeshFileLoader.cpp in Sources */,
 				5E34CB161B7F6EC200F212E8 /* CLWOMeshFileLoader.cpp in Sources */,
+				84A219BB249F835B00E189FC /* CTR_transparent_reflection_2_layer.cpp in Sources */,
 				5E34CB181B7F6EC200F212E8 /* CMD2MeshFileLoader.cpp in Sources */,
 				5E34CB1A1B7F6EC200F212E8 /* CMD3MeshFileLoader.cpp in Sources */,
 				5E34CB1C1B7F6EC200F212E8 /* CMeshTextureLoader.cpp in Sources */,
@@ -2782,6 +2799,7 @@
 				5E34CBAA1B7F6EC500F212E8 /* CTRTextureWire2.cpp in Sources */,
 				5E34CBAB1B7F6EC500F212E8 /* IBurningShader.cpp in Sources */,
 				5E34CBB11B7F6EC500F212E8 /* CImageLoaderBMP.cpp in Sources */,
+				84A219B9249F834000E189FC /* CTRGouraudNoZ2.cpp in Sources */,
 				5E34CBB31B7F6EC500F212E8 /* CImageLoaderDDS.cpp in Sources */,
 				5E34CBB51B7F6EC600F212E8 /* CImageLoaderJPG.cpp in Sources */,
 				5E34CBB71B7F6EC600F212E8 /* CImageLoaderPCX.cpp in Sources */,
@@ -2878,7 +2896,6 @@
 				5E5732DD1C18E212003F664E /* CXMLWriter.cpp in Sources */,
 				5E5732DE1C18E212003F664E /* CZipReader.cpp in Sources */,
 				5E5732DF1C18E212003F664E /* irrXML.cpp in Sources */,
-				5E5732E01C18E212003F664E /* CIrrDeviceOSX.mm in Sources */,
 				5E5732E11C18E212003F664E /* CIrrDeviceStub.cpp in Sources */,
 				5E5732E21C18E212003F664E /* aescrypt.cpp in Sources */,
 				5E5732E31C18E212003F664E /* aeskey.cpp in Sources */,
@@ -3150,22 +3167,78 @@
 		5E34C6DD1B7F4A0C00F212E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEPLOYMENT_LOCATION = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "DEBUG=1";
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"PNG_ARM_NEON_OPT=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_PATH = /;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-U__STRICT_ANSI__",
+				);
 			};
 			name = Debug;
 		};
 		5E34C6DE1B7F4A0C00F212E8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEPLOYMENT_LOCATION = YES;
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "NDEBUG=1";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					"PNG_ARM_NEON_OPT=0",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_PATH = /;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-U__STRICT_ANSI__",
+				);
 			};
 			name = Release;
 		};
@@ -3173,7 +3246,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -3208,7 +3280,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -3263,7 +3334,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_MODULE_NAME = Irrlicht;
@@ -3297,7 +3368,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_MODULE_NAME = Irrlicht;
 				PRODUCT_NAME = Irrlicht;

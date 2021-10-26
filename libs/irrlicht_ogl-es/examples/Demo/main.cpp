@@ -13,7 +13,7 @@
 
 using namespace irr;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #pragma comment(lib, "Irrlicht.lib")
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
@@ -21,26 +21,17 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 int main(int argc, char* argv[])
 #endif
 {
-	bool fullscreen = false;
-	bool music = true;
-	bool shadows = false;
-	bool additive = false;
-	bool vsync = false;
-	bool aa = false;
-
-#ifndef _IRR_WINDOWS_
-	video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
-#else
-	video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
-#endif
-
 	CMainMenu menu;
 
-//#ifndef _DEBUG
-	if (menu.run(fullscreen, music, shadows, additive, vsync, aa, driverType))
-//#endif
+	if (menu.run())
 	{
-		CDemo demo(fullscreen, music, shadows, additive, vsync, aa, driverType);
+		CDemo demo(menu.getFullscreen(),
+					menu.getMusic(),
+					menu.getShadows(),
+					menu.getAdditive(),
+					menu.getVSync(),
+					menu.getAntiAliasing(),
+					menu.getDriverType());
 		demo.run();
 	}
 

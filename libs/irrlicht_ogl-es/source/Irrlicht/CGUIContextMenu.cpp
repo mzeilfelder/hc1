@@ -88,6 +88,7 @@ u32 CGUIContextMenu::insertItem(u32 idx, const wchar_t* text, s32 commandId, boo
 	s.IsSeparator = (text == 0);
 	s.SubMenu = 0;
 	s.CommandId = commandId;
+	s.PosY = 0;
 
 	if (hasSubMenu)
 	{
@@ -129,16 +130,16 @@ void CGUIContextMenu::setSubMenu(u32 index, CGUIContextMenu* menu)
 	if (index >= Items.size())
 		return;
 
-    if (menu)
-        menu->grab();
+	if (menu)
+		menu->grab();
 	if (Items[index].SubMenu)
 		Items[index].SubMenu->drop();
 
 	Items[index].SubMenu = menu;
-	menu->setVisible(false);
 
-	if (Items[index].SubMenu)
+	if (menu)
 	{
+		menu->setVisible(false);
 		menu->AllowFocus = false;
 		if ( Environment->getFocus() == menu )
 		{
@@ -285,22 +286,25 @@ bool CGUIContextMenu::OnEvent(const SEvent& event)
 				{
 					// set event parent of submenus
 					IGUIElement * p =  EventParent ? EventParent : Parent;
-					setEventParent(p);
-
-					SEvent event;
-					event.EventType = EET_GUI_EVENT;
-					event.GUIEvent.Caller = this;
-					event.GUIEvent.Element = 0;
-					event.GUIEvent.EventType = EGET_ELEMENT_CLOSED;
-					if ( !p->OnEvent(event) )
+					if ( p )	// can be 0 when element got removed already
 					{
-						if ( CloseHandling & ECMC_HIDE )
+						setEventParent(p);
+
+						SEvent eventClose;
+						eventClose.EventType = EET_GUI_EVENT;
+						eventClose.GUIEvent.Caller = this;
+						eventClose.GUIEvent.Element = 0;
+						eventClose.GUIEvent.EventType = EGET_ELEMENT_CLOSED;
+						if ( !p->OnEvent(eventClose) )
 						{
-							setVisible(false);
-						}
-						if ( CloseHandling & ECMC_REMOVE )
-						{
-							remove();
+							if ( CloseHandling & ECMC_HIDE )
+							{
+								setVisible(false);
+							}
+							if ( CloseHandling & ECMC_REMOVE )
+							{
+								remove();
+							}
 						}
 					}
 
@@ -665,16 +669,27 @@ void CGUIContextMenu::recalculateSize()
 
             core::rect<s32> subRect(width-5, Items[i].PosY, width+w-5, Items[i].PosY+h);
 
-            // if it would be drawn beyond the right border, then add it to the left side
             gui::IGUIElement * root = Environment->getRootGUIElement();
             if ( root )
             {
                 core::rect<s32> rectRoot( root->getAbsolutePosition() );
+
+				// if it would be drawn beyond the right border, then add it to the left side
                 if ( getAbsolutePosition().UpperLeftCorner.X+subRect.LowerRightCorner.X > rectRoot.LowerRightCorner.X )
                 {
                     subRect.UpperLeftCorner.X = -w;
                     subRect.LowerRightCorner.X = 0;
                 }
+
+                // if it would be drawn below bottom border, move it up, but not further than to top.
+                irr::s32 belowBottom = getAbsolutePosition().UpperLeftCorner.Y+subRect.LowerRightCorner.Y - rectRoot.LowerRightCorner.Y;
+                if ( belowBottom > 0 )
+				{
+					irr::s32 belowTop = getAbsolutePosition().UpperLeftCorner.Y+subRect.UpperLeftCorner.Y;
+					irr::s32 moveUp = belowBottom <  belowTop ? belowBottom : belowTop;
+					subRect.UpperLeftCorner.Y -= moveUp;
+					subRect.LowerRightCorner.Y -= moveUp;
+				}
             }
 
 			Items[i].SubMenu->setRelativePosition(subRect);

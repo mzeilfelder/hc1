@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_EVENT_RECEIVER_H_INCLUDED__
-#define __I_EVENT_RECEIVER_H_INCLUDED__
+#ifndef IRR_I_EVENT_RECEIVER_H_INCLUDED
+#define IRR_I_EVENT_RECEIVER_H_INCLUDED
 
 #include "ILogger.h"
 #include "Keycodes.h"
@@ -37,14 +37,14 @@ namespace irr
         //! A touch input event.
 		EET_TOUCH_INPUT_EVENT,
 
-        //! A accelerometer event.
-        EET_ACCELEROMETER_EVENT,
+		//! A accelerometer event.
+		EET_ACCELEROMETER_EVENT,
 
-        //! A gyroscope event.
-        EET_GYROSCOPE_EVENT,
+		//! A gyroscope event.
+		EET_GYROSCOPE_EVENT,
 
-        //! A device motion event.
-        EET_DEVICE_MOTION_EVENT,
+		//! A device motion event.
+		EET_DEVICE_MOTION_EVENT,
 
 		//! A joystick (joypad, gamepad) input event.
 		/** Joystick events are created by polling all connected joysticks once per
@@ -71,13 +71,16 @@ namespace irr
 			UserData1 and UserData2 members of the SUserEvent.
 		Linux: send a ClientMessage via XSendEvent to the Irrlicht
 			Window; the data.l[0] and data.l[1] members will be
-			casted to s32 and used as UserData1 and UserData2.
+			cast to s32 and used as UserData1 and UserData2.
 		MacOS: Not yet implemented
 		*/
 		EET_USER_EVENT,
 
 		//! Pass on raw events from the OS
 		EET_SYSTEM_EVENT,
+
+		//! Application state events like a resume, pause etc.
+		EET_APPLICATION_EVENT,
 
 		//! This enum is never used, it only forces the compiler to
 		//! compile these enumeration values to 32 bit.
@@ -137,6 +140,14 @@ namespace irr
 		//! This event is generated after the third EMIE_MMOUSE_PRESSED_DOWN event.
 		EMIE_MMOUSE_TRIPLE_CLICK,
 
+		//! Mouse enters canvas used for rendering.
+		//! Only generated on emscripten
+		EMIE_MOUSE_ENTER_CANVAS,
+
+		//! Mouse leaves canvas used for rendering.
+		//! Only generated on emscripten
+		EMIE_MOUSE_LEAVE_CANVAS,
+
 		//! No real event. Just for convenience to get number of events
 		EMIE_COUNT
 	};
@@ -176,12 +187,37 @@ namespace irr
 	enum ESYSTEM_EVENT_TYPE
 	{
 		//! From Android command handler for native activity messages
-		ESET_ANDROID_CMD,
+		ESET_ANDROID_CMD = 0,
 
 		// TODO: for example ESET_WINDOWS_MESSAGE for win32 message loop events
 
 		//! No real event, but to get number of event types
 		ESET_COUNT
+	};
+
+	//! Enumeration for a commonly used application state events (it's useful mainly for mobile devices)
+	enum EAPPLICATION_EVENT_TYPE
+	{
+		//! The application will be resumed.
+		EAET_WILL_RESUME = 0,
+
+		//! The application has been resumed.
+		EAET_DID_RESUME,
+
+		//! The application will be paused.
+		EAET_WILL_PAUSE,
+
+		//! The application has been paused.
+		EAET_DID_PAUSE,
+
+		//! The application will be terminated.
+		EAET_WILL_TERMINATE,
+
+		//! The application received a memory warning.
+		EAET_MEMORY_WARNING,
+
+		//! No real event, but to get number of event types.
+		EAET_COUNT
 	};
 
 	namespace gui
@@ -211,7 +247,7 @@ namespace irr
 
 			//! An element would like to close.
 			/** Windows and context menus use this event when they would like to close,
-			this can be cancelled by absorbing the event. */
+			this can be canceled by absorbing the event. */
 			EGET_ELEMENT_CLOSED,
 
 			//! A button was clicked.
@@ -380,58 +416,55 @@ struct SEvent
     //! Any kind of touch event.
 	struct STouchInput
 	{
-        // Touch ID.
-        size_t ID;
+		// Touch ID.
+		size_t ID;
 
-        // X position of simple touch.
+		// X position of simple touch.
 		s32 X;
 
-        // Y position of simple touch.
+		// Y position of simple touch.
 		s32 Y;
 
 		//! Type of touch event.
 		ETOUCH_INPUT_EVENT Event;
 	};
 
-    //! Any kind of accelerometer event.
+	//! Any kind of accelerometer event.
 	struct SAccelerometerEvent
 	{
-
-        // X acceleration.
+		// X acceleration.
 		f64 X;
 
-        // Y acceleration.
+		// Y acceleration.
 		f64 Y;
 
-        // Z acceleration.
+		// Z acceleration.
 		f64 Z;
 	};
 
     //! Any kind of gyroscope event.
 	struct SGyroscopeEvent
 	{
-
-        // X rotation.
+		// X rotation.
 		f64 X;
 
-        // Y rotation.
+		// Y rotation.
 		f64 Y;
 
-        // Z rotation.
+		// Z rotation.
 		f64 Z;
 	};
 
-    //! Any kind of device motion event.
+	//! Any kind of device motion event.
 	struct SDeviceMotionEvent
 	{
-
-        // X angle - roll.
+		// X angle - roll.
 		f64 X;
 
-        // Y angle - pitch.
+		// Y angle - pitch.
 		f64 Y;
 
-        // Z angle - yaw.
+		// Z angle - yaw.
 		f64 Z;
 	};
 
@@ -508,10 +541,10 @@ struct SEvent
 	struct SUserEvent
 	{
 		//! Some user specified data as int
-		s32 UserData1;
+		size_t UserData1;
 
 		//! Another user specified data as int
-		s32 UserData2;
+		size_t UserData2;
 	};
 
 	// Raw events from the OS
@@ -526,11 +559,17 @@ struct SEvent
 
 		// TOOD: more structs for iphone, Windows, X11, etc.
 
-		ESYSTEM_EVENT_TYPE  EventType;
+		ESYSTEM_EVENT_TYPE EventType;
 		union
 		{
 			struct SAndroidCmd AndroidCmd;
 		};
+	};
+
+	// Application state event
+	struct SApplicationEvent
+	{
+		EAPPLICATION_EVENT_TYPE EventType;
 	};
 
 	EEVENT_TYPE EventType;
@@ -539,14 +578,15 @@ struct SEvent
 		struct SGUIEvent GUIEvent;
 		struct SMouseInput MouseInput;
 		struct SKeyInput KeyInput;
-        struct STouchInput TouchInput;
-        struct SAccelerometerEvent AccelerometerEvent;
-        struct SGyroscopeEvent GyroscopeEvent;
-        struct SDeviceMotionEvent DeviceMotionEvent;
+		struct STouchInput TouchInput;
+		struct SAccelerometerEvent AccelerometerEvent;
+		struct SGyroscopeEvent GyroscopeEvent;
+		struct SDeviceMotionEvent DeviceMotionEvent;
 		struct SJoystickEvent JoystickEvent;
 		struct SLogEvent LogEvent;
 		struct SUserEvent UserEvent;
 		struct SSystemEvent SystemEvent;
+		struct SApplicationEvent ApplicationEvent;
 	};
 
 };
@@ -595,8 +635,8 @@ struct SJoystickInfo
 	u32 Axes;
 
 	//! An indication of whether the joystick has a POV hat.
-	/** A Windows device will identify the presence or absence or the POV hat.  A
-	 *  Linux device cannot, and will always return POV_HAT_UNKNOWN. */
+	/** A Windows device will identify the presence or absence of the POV hat.
+	 *  A Linux device cannot, and will always return POV_HAT_UNKNOWN. */
 	enum
 	{
 		//! A hat is definitely present.
@@ -614,4 +654,3 @@ struct SJoystickInfo
 } // end namespace irr
 
 #endif
-

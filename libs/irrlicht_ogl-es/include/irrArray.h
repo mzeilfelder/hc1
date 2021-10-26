@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
 
-#ifndef __IRR_ARRAY_H_INCLUDED__
-#define __IRR_ARRAY_H_INCLUDED__
+#ifndef IRR_ARRAY_H_INCLUDED
+#define IRR_ARRAY_H_INCLUDED
 
 #include "irrTypes.h"
 #include "heapsort.h"
@@ -76,7 +76,7 @@ public:
 		allocated = new_size;
 
 		// copy old data
-		s32 end = used < new_size ? used : new_size;
+		const s32 end = used < new_size ? used : new_size;
 
 		for (s32 i=0; i<end; ++i)
 		{
@@ -126,14 +126,12 @@ public:
 
 
 	//! Insert item into array at specified position.
-	/** Please use this only if you know what you are doing (possible
-	performance loss). The preferred method of adding elements should be
-	push_back().
+	/**
 	\param element: Element to be inserted
 	\param index: Where position to insert the new element. */
 	void insert(const T& element, u32 index=0)
 	{
-		_IRR_DEBUG_BREAK_IF(index>used) // access violation
+		IRR_DEBUG_BREAK_IF(index>used) // access violation
 
 		if (used + 1 > allocated)
 		{
@@ -147,8 +145,7 @@ public:
 			switch ( strategy )
 			{
 				case ALLOC_STRATEGY_DOUBLE:
-					newAlloc = used + 1 + (allocated < 500 ?
-							(allocated < 5 ? 5 : used) : used >> 2);
+					newAlloc = used + 5 + (allocated < 500 ? used : used >> 2);
 					break;
 				default:
 				case ALLOC_STRATEGY_SAFE:
@@ -234,6 +231,40 @@ public:
 		free_when_destroyed=_free_when_destroyed;
 	}
 
+	//! Set (copy) data from given memory block
+	/** \param newData data to set, must have newSize elements
+	\param newSize Amount of elements in newData
+	\param canShrink When true we reallocate the array even it can shrink. 
+	May reduce memory usage, but call is more whenever size changes.
+	\param newDataIsSorted Info if you pass sorted/unsorted data
+	*/
+	void set_data(const T* newData, u32 newSize, bool newDataIsSorted=false, bool canShrink=false)
+	{
+		reallocate(newSize, canShrink);
+		set_used(newSize);
+		for ( u32 i=0; i<newSize; ++i)
+		{
+			data[i] = newData[i];
+		}
+		is_sorted = newDataIsSorted;
+	}
+
+	//! Compare if given data block is identical to the data in our array
+	/** Like operator ==, but without the need to create the array
+	\param otherData Address to data against which we compare, must contain size elements
+	\param size Amount of elements in otherData	*/
+	bool equals(const T* otherData, u32 size) const
+	{
+		if (used != size)
+			return false;
+
+		for (u32 i=0; i<size; ++i)
+			if (data[i] != otherData[i])
+				return false;
+		return true;
+	}
+
+
 
 	//! Sets if the array should delete the memory it uses upon destruction.
 	/** Also clear and set_pointer will only delete the (original) memory
@@ -260,7 +291,6 @@ public:
 
 		used = usedNow;
 	}
-
 
 	//! Assignment operator
 	const array<T, TAlloc>& operator=(const array<T, TAlloc>& other)
@@ -293,13 +323,7 @@ public:
 	//! Equality operator
 	bool operator == (const array<T, TAlloc>& other) const
 	{
-		if (used != other.used)
-			return false;
-
-		for (u32 i=0; i<other.used; ++i)
-			if (data[i] != other[i])
-				return false;
-		return true;
+		return equals(other.const_pointer(), other.size());
 	}
 
 
@@ -313,7 +337,7 @@ public:
 	//! Direct access operator
 	T& operator [](u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // access violation
+		IRR_DEBUG_BREAK_IF(index>=used) // access violation
 
 		return data[index];
 	}
@@ -322,7 +346,7 @@ public:
 	//! Direct const access operator
 	const T& operator [](u32 index) const
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // access violation
+		IRR_DEBUG_BREAK_IF(index>=used) // access violation
 
 		return data[index];
 	}
@@ -331,7 +355,7 @@ public:
 	//! Gets last element.
 	T& getLast()
 	{
-		_IRR_DEBUG_BREAK_IF(!used) // access violation
+		IRR_DEBUG_BREAK_IF(!used) // access violation
 
 		return data[used-1];
 	}
@@ -340,7 +364,7 @@ public:
 	//! Gets last element
 	const T& getLast() const
 	{
-		_IRR_DEBUG_BREAK_IF(!used) // access violation
+		IRR_DEBUG_BREAK_IF(!used) // access violation
 
 		return data[used-1];
 	}
@@ -534,7 +558,7 @@ public:
 	\param index: Index of element to be erased. */
 	void erase(u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // access violation
+		IRR_DEBUG_BREAK_IF(index>=used) // access violation
 
 		for (u32 i=index+1; i<used; ++i)
 		{
@@ -587,7 +611,7 @@ public:
 
 
 	//! Swap the content of this array container with the content of another array
-	/** Afterwards this object will contain the content of the other object and the other
+	/** Afterward this object will contain the content of the other object and the other
 	object will contain the content of this object.
 	\param other Swap content with this object */
 	void swap(array<T, TAlloc>& other)
@@ -607,6 +631,9 @@ public:
 		other.is_sorted = helper_is_sorted;
 	}
 
+	typedef TAlloc allocator_type;
+	typedef T value_type;
+	typedef u32 size_type;
 
 private:
 	T* data;

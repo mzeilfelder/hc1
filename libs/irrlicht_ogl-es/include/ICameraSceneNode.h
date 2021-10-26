@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_CAMERA_SCENE_NODE_H_INCLUDED__
-#define __I_CAMERA_SCENE_NODE_H_INCLUDED__
+#ifndef IRR_I_CAMERA_SCENE_NODE_H_INCLUDED
+#define IRR_I_CAMERA_SCENE_NODE_H_INCLUDED
 
 #include "ISceneNode.h"
 #include "IEventReceiver.h"
@@ -38,6 +38,8 @@ namespace scene
 		Note that the matrix will only stay as set by this method until
 		one of the following Methods are called: setNearValue,
 		setFarValue, setAspectRatio, setFOV.
+		NOTE: The frustum is not updated before render() is called
+		unless you explicitly call updateMatrices()
 		\param projection The new projection matrix of the camera.
 		\param isOrthogonal Set this to true if the matrix is an
 		orthogonal one (e.g. from matrix4::buildProjectionMatrixOrtho).
@@ -70,7 +72,7 @@ namespace scene
 		ISceneManager::addCameraSceneNodeFPS, may want to get
 		this input for changing their position, look at target or
 		whatever. */
-		virtual bool OnEvent(const SEvent& event) =0;
+		virtual bool OnEvent(const SEvent& event) IRR_OVERRIDE =0;
 
 		//! Sets the look at target of the camera
 		/** If the camera's target and rotation are bound ( @see
@@ -88,7 +90,7 @@ namespace scene
 		bindTargetAndRotation() ) then calling this will also change
 		the camera's target to match the rotation.
 		\param rotation New rotation of the node in degrees. */
-		virtual void setRotation(const core::vector3df& rotation) =0;
+		virtual void setRotation(const core::vector3df& rotation) IRR_OVERRIDE =0;
 
 		//! Gets the current look at target of the camera
 		/** \return The current look at target of the camera, in world co-ordinates */
@@ -152,7 +154,7 @@ namespace scene
 			return IsOrthogonal;
 		}
 
-		//! Binds the camera scene node's rotation to its target position and vice vera, or unbinds them.
+		//! Binds the camera scene node's rotation to its target position and vice versa, or unbinds them.
 		/** When bound, calling setRotation() will update the camera's
 		target position to be along its +Z axis, and likewise calling
 		setTarget() will update its rotation so that its +Z axis will
@@ -171,7 +173,7 @@ namespace scene
 		virtual bool getTargetAndRotationBinding(void) const =0;
 
 		//! Writes attributes of the camera node
-		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
+		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const IRR_OVERRIDE
 		{
 			ISceneNode::serializeAttributes(out, options);
 
@@ -181,7 +183,7 @@ namespace scene
 		}
 
 		//! Reads attributes of the camera node
-		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
+		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0) IRR_OVERRIDE
 		{
 			ISceneNode::deserializeAttributes(in, options);
 			if (!in)
@@ -193,7 +195,7 @@ namespace scene
 
 	protected:
 
-		void cloneMembers(ICameraSceneNode* toCopyFrom)
+		void cloneMembers(const ICameraSceneNode* toCopyFrom)
 		{
 			IsOrthogonal = toCopyFrom->IsOrthogonal;
 		}
@@ -205,4 +207,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

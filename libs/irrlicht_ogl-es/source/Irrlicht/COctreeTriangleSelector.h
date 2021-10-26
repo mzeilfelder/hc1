@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_OCTREE_TRIANGLE_SELECTOR_H_INCLUDED__
-#define __C_OCTREE_TRIANGLE_SELECTOR_H_INCLUDED__
+#ifndef IRR_C_OCTREE_TRIANGLE_SELECTOR_H_INCLUDED
+#define IRR_C_OCTREE_TRIANGLE_SELECTOR_H_INCLUDED
 
 #include "CTriangleSelector.h"
 
@@ -22,16 +22,21 @@ public:
 	//! Constructs a selector based on a mesh
 	COctreeTriangleSelector(const IMesh* mesh, ISceneNode* node, s32 minimalPolysPerNode);
 
+	//! Constructs a selector based on a meshbuffer
+	COctreeTriangleSelector(const IMeshBuffer* meshBuffer, irr::u32 materialIndex, ISceneNode* node, s32 minimalPolysPerNode);
+
 	virtual ~COctreeTriangleSelector();
 
 	//! Gets all triangles which lie within a specific bounding box.
 	virtual void getTriangles(core::triangle3df* triangles, s32 arraySize, s32& outTriangleCount,
-		const core::aabbox3d<f32>& box, const core::matrix4* transform=0) const _IRR_OVERRIDE_;
+		const core::aabbox3d<f32>& box, const core::matrix4* transform, bool useNodeTransform, 
+		irr::core::array<SCollisionTriangleRange>* outTriangleInfo) const IRR_OVERRIDE;
 
 	//! Gets all triangles which have or may have contact with a 3d line.
 	virtual void getTriangles(core::triangle3df* triangles, s32 arraySize,
 		s32& outTriangleCount, const core::line3d<f32>& line,
-		const core::matrix4* transform=0) const _IRR_OVERRIDE_;
+		const core::matrix4* transform, bool useNodeTransform, 
+		irr::core::array<SCollisionTriangleRange>* outTriangleInfo) const IRR_OVERRIDE;
 
 private:
 
@@ -75,6 +80,4 @@ private:
 } // end namespace scene
 } // end namespace irr
 
-
 #endif
-

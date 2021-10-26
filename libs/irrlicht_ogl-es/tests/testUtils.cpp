@@ -1,20 +1,20 @@
 // Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
-#if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS 1
-#define TESTING_ON_WINDOWS
-#endif // _MSC_VER
-
 #include "testUtils.h"
 #include <memory.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>
 
-#if defined(TESTING_ON_WINDOWS)
+#if defined(_MSC_VER)  || defined(_IRR_WINDOWS_API_)
+#define _CRT_SECURE_NO_WARNINGS 1
 #include <windows.h> // For OutputDebugString()
-#endif // #if defined(TESTING_ON_WINDOWS)
+#endif // _MSC_VER || _IRR_WINDOWS_API_
+
+#ifdef _MSC_VER
+#pragma warning( disable: 4996)
+#endif
 
 using namespace irr;
 
@@ -280,8 +280,8 @@ static float fuzzyCompareImages(irr::video::IImage * image1,
 		return 0.f;
 	}
 
-	u8 * image1Data = (u8*)image1->lock();
-	u8 * image2Data = (u8*)image2->lock();
+	u8 * image1Data = (u8*)image1->getData();
+	u8 * image2Data = (u8*)image2->getData();
 
 	const u32 pixels = (image1->getPitch() * image1->getDimension().Height) / 4;
 	u32 mismatchedColours = 0;
@@ -303,9 +303,6 @@ static float fuzzyCompareImages(irr::video::IImage * image1,
 
 		mismatchedColours += abs(r1 - r2) + abs(g1 - g2) + abs(b1 - b2);
 	}
-
-	image1->unlock();
-	image2->unlock();
 
 	const u32 totalColours = pixels * 255*3;
 	return 100.f * (totalColours - mismatchedColours) / totalColours;
@@ -336,9 +333,9 @@ float fuzzyCompareImages(irr::video::IVideoDriver * driver,
 void stabilizeScreenBackground(irr::video::IVideoDriver * driver,
 		irr::video::SColor color)
 {
-	for(int i = 0; i < 100; ++i) // 100 - max checks
+	for(int i = 0; i < 10000; ++i) 
 	{
-		driver->beginScene(true, true, color);
+		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, color);
 		driver->endScene();
 
 		irr::video::IImage * screenshot = driver->createScreenShot();
@@ -358,7 +355,7 @@ void stabilizeScreenBackground(irr::video::IVideoDriver * driver,
 			screenshot = fixedScreenshot;
 		}
 
-		u8 * image1Data = (u8*)screenshot->lock();
+		u8 * image1Data = (u8*)screenshot->getData();
 
 		const u32 pixels = (screenshot->getPitch() * screenshot->getDimension().Height) / 4;
 		bool status = true;
@@ -382,6 +379,8 @@ void stabilizeScreenBackground(irr::video::IVideoDriver * driver,
 		}
 		screenshot->drop();
 	}
+	
+	logTestString("stabilizeScreenBackground failed\n");
 }
 
 irr::core::stringc shortDriverName(irr::video::IVideoDriver * driver)

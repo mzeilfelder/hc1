@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_SCENE_NODE_TYPES_H_INCLUDED__
-#define __E_SCENE_NODE_TYPES_H_INCLUDED__
+#ifndef IRR_E_SCENE_NODE_TYPES_H_INCLUDED
+#define IRR_E_SCENE_NODE_TYPES_H_INCLUDED
 
 #include "irrTypes.h"
 
@@ -29,6 +29,9 @@ namespace scene
 
 		//! Text Scene Node
 		ESNT_TEXT           = MAKE_IRR_ID('t','e','x','t'),
+
+		//! Billboard text scene node
+		ESNT_BILLBOARD_TEXT = MAKE_IRR_ID('b','t','x','t'),
 
 		//! Water Surface Scene Node
 		ESNT_WATER_SURFACE  = MAKE_IRR_ID('w','a','t','r'),
@@ -96,11 +99,7 @@ namespace scene
 		ESNT_ANY            = MAKE_IRR_ID('a','n','y','_')
 	};
 
-
-
 } // end namespace scene
 } // end namespace irr
 
-
 #endif
-

@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_I_VIDEO_DRIVER_H_INCLUDED__
-#define __IRR_I_VIDEO_DRIVER_H_INCLUDED__
+#ifndef IRR_I_VIDEO_DRIVER_H_INCLUDED
+#define IRR_I_VIDEO_DRIVER_H_INCLUDED
 
 #include "rect.h"
 #include "SColor.h"
@@ -13,12 +13,12 @@
 #include "plane3d.h"
 #include "dimension2d.h"
 #include "position2d.h"
-#include "SMaterial.h"
 #include "IMeshBuffer.h"
 #include "triangle3d.h"
 #include "EDriverTypes.h"
 #include "EDriverFeatures.h"
 #include "SExposedVideoData.h"
+#include "SOverrideMaterial.h"
 
 namespace irr
 {
@@ -82,24 +82,8 @@ namespace video
 #endif
 #endif
 #endif
-		//! Not used
-		ETS_COUNT
-	};
-
-	//! enumeration for signaling resources which were lost after the last render cycle
-	/** These values can be signaled by the driver, telling the app that some resources
-	were lost and need to be recreated. Irrlicht will sometimes recreate the actual objects,
-	but the content needs to be recreated by the application. */
-	enum E_LOST_RESOURCE
-	{
-		//! The whole device/driver is lost
-		ELR_DEVICE = 1,
-		//! All texture are lost, rare problem
-		ELR_TEXTURES = 2,
-		//! The Render Target Textures are lost, typical problem for D3D
-		ELR_RTTS = 4,
-		//! The HW buffers are lost, will be recreated automatically, but might require some more time this frame
-		ELR_HW_BUFFERS = 8
+		//! Only used internally
+		ETS_COUNT = ETS_TEXTURE_0 + _IRR_MATERIAL_MAX_TEXTURES_
 	};
 
 	//! Special render targets, which usually map to dedicated hardware
@@ -156,70 +140,6 @@ namespace video
 		0
 	};
 
-	struct SOverrideMaterial
-	{
-		//! The Material values
-		SMaterial Material;
-		//! Which values are taken for override
-		/** OR'ed values from E_MATERIAL_FLAGS. */
-		u32 EnableFlags;
-		//! Set in which render passes the material override is active.
-		/** OR'ed values from E_SCENE_NODE_RENDER_PASS. */
-		u16 EnablePasses;
-		//! Global enable flag, overwritten by the SceneManager in each pass
-		/** The Scenemanager uses the EnablePass array and sets Enabled to
-		true if the Override material is enabled in the current pass. */
-		bool Enabled;
-
-		//! Default constructor
-		SOverrideMaterial() : EnableFlags(0), EnablePasses(0), Enabled(false) {}
-
-		//! Apply the enabled overrides
-		void apply(SMaterial& material)
-		{
-			if (Enabled)
-			{
-				for (u32 i=0; i<32; ++i)
-				{
-					const u32 num=(1<<i);
-					if (EnableFlags & num)
-					{
-						switch (num)
-						{
-						case EMF_WIREFRAME: material.Wireframe = Material.Wireframe; break;
-						case EMF_POINTCLOUD: material.PointCloud = Material.PointCloud; break;
-						case EMF_GOURAUD_SHADING: material.GouraudShading = Material.GouraudShading; break;
-						case EMF_LIGHTING: material.Lighting = Material.Lighting; break;
-						case EMF_ZBUFFER: material.ZBuffer = Material.ZBuffer; break;
-						case EMF_ZWRITE_ENABLE: material.ZWriteEnable = Material.ZWriteEnable; break;
-						case EMF_BACK_FACE_CULLING: material.BackfaceCulling = Material.BackfaceCulling; break;
-						case EMF_FRONT_FACE_CULLING: material.FrontfaceCulling = Material.FrontfaceCulling; break;
-						case EMF_BILINEAR_FILTER: material.TextureLayer[0].BilinearFilter = Material.TextureLayer[0].BilinearFilter; break;
-						case EMF_TRILINEAR_FILTER: material.TextureLayer[0].TrilinearFilter = Material.TextureLayer[0].TrilinearFilter; break;
-						case EMF_ANISOTROPIC_FILTER: material.TextureLayer[0].AnisotropicFilter = Material.TextureLayer[0].AnisotropicFilter; break;
-						case EMF_FOG_ENABLE: material.FogEnable = Material.FogEnable; break;
-						case EMF_NORMALIZE_NORMALS: material.NormalizeNormals = Material.NormalizeNormals; break;
-						case EMF_TEXTURE_WRAP:
-							material.TextureLayer[0].TextureWrapU = Material.TextureLayer[0].TextureWrapU;
-							material.TextureLayer[0].TextureWrapV = Material.TextureLayer[0].TextureWrapV;
-							break;
-						case EMF_ANTI_ALIASING: material.AntiAliasing = Material.AntiAliasing; break;
-						case EMF_COLOR_MASK: material.ColorMask = Material.ColorMask; break;
-						case EMF_COLOR_MATERIAL: material.ColorMaterial = Material.ColorMaterial; break;
-						case EMF_USE_MIP_MAPS: material.UseMipMaps = Material.UseMipMaps; break;
-						case EMF_BLEND_OPERATION: material.BlendOperation = Material.BlendOperation; break;
-						case EMF_BLEND_FACTOR: material.BlendFactor = Material.BlendFactor; break;
-						case EMF_POLYGON_OFFSET:
-							material.PolygonOffsetDirection = Material.PolygonOffsetDirection;
-							material.PolygonOffsetFactor = Material.PolygonOffsetFactor; break;
-						}
-					}
-				}
-			}
-		}
-
-	};
-
 	//! Interface to driver which is able to perform 2d and 3d graphics functions.
 	/** This interface is one of the most important interfaces of
 	the Irrlicht Engine: All rendering and texture manipulation is done with
@@ -249,8 +169,8 @@ namespace video
 		virtual bool beginScene(u16 clearFlag=(u16)(ECBF_COLOR|ECBF_DEPTH), SColor clearColor = SColor(255,0,0,0), f32 clearDepth = 1.f, u8 clearStencil = 0,
 			const SExposedVideoData& videoData=SExposedVideoData(), core::rect<s32>* sourceRect = 0) = 0;
 
-		//! Old beginScene implementation for downward compatibility. Can't clearn stencil buffer, but otherwise identical to other beginScene
-		_IRR_DEPRECATED_ bool beginScene(bool backBuffer, bool zBuffer, SColor color = SColor(255,0,0,0),
+		//! Alternative beginScene implementation. Can't clear stencil buffer, but otherwise identical to other beginScene
+		bool beginScene(bool backBuffer, bool zBuffer, SColor color = SColor(255,0,0,0),
 			const SExposedVideoData& videoData = SExposedVideoData(), core::rect<s32>* sourceRect = 0)
 		{
 			u16 flag = 0;
@@ -287,7 +207,7 @@ namespace video
 		/** The following names can be queried for the given types:
 		MaxTextures (int) The maximum number of simultaneous textures supported by the driver. This can be less than the supported number of textures of the driver. Use _IRR_MATERIAL_MAX_TEXTURES_ to adapt the number.
 		MaxSupportedTextures (int) The maximum number of simultaneous textures supported by the fixed function pipeline of the (hw) driver. The actual supported number of textures supported by the engine can be lower.
-		MaxLights (int) Number of hardware lights supported in the fixed function pipieline of the driver, typically 6-8. Use light manager or deferred shading for more.
+		MaxLights (int) Number of hardware lights supported in the fixed function pipeline of the driver, typically 6-8. Use light manager or deferred shading for more.
 		MaxAnisotropy (int) Number of anisotropy levels supported for filtering. At least 1, max is typically at 16 or 32.
 		MaxUserClipPlanes (int) Number of additional clip planes, which can be set by the user via dedicated driver methods.
 		MaxAuxBuffers (int) Special render buffers, which are currently not really usable inside Irrlicht. Only supported by OpenGL
@@ -389,7 +309,8 @@ namespace video
 		//! Creates an empty texture of specified size.
 		/** \param size: Size of the texture.
 		\param name A name for the texture. Later calls to
-		getTexture() with this name will return this texture
+		getTexture() with this name will return this texture.
+		The name can _not_ be empty.
 		\param format Desired color format of the texture. Please note
 		that the driver may choose to create the texture in another
 		color format.
@@ -401,14 +322,15 @@ namespace video
 
 		//! Creates a texture from an IImage.
 		/** \param name A name for the texture. Later calls of
-		getTexture() with this name will return this texture
+		getTexture() with this name will return this texture.
+		The name can _not_ be empty.
 		\param image Image the texture is created from.
 		\param mipmapData Optional pointer to a mipmaps data.
 		If this parameter is not given, the mipmaps are derived from image.
 		\return Pointer to the newly created texture. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
-		_IRR_DEPRECATED_ ITexture* addTexture(const io::path& name, IImage* image, void* mipmapData)
+		IRR_DEPRECATED ITexture* addTexture(const io::path& name, IImage* image, void* mipmapData)
 		{
 			if (image)
 				image->setMipMapsData(mipmapData, false, true);
@@ -418,7 +340,8 @@ namespace video
 
 		//! Creates a texture from an IImage.
 		/** \param name A name for the texture. Later calls of
-		getTexture() with this name will return this texture
+		getTexture() with this name will return this texture.
+		The name can _not_ be empty.
 		\param image Image the texture is created from.
 		\return Pointer to the newly created texture. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
@@ -427,6 +350,7 @@ namespace video
 
 		//! Creates a cubemap texture from loaded IImages.
 		/** \param name A name for the texture. Later calls of getTexture() with this name will return this texture.
+		The name can _not_ be empty.
 		\param imagePosX Image (positive X) the texture is created from.
 		\param imageNegX Image (negative X) the texture is created from.
 		\param imagePosY Image (positive Y) the texture is created from.
@@ -437,17 +361,43 @@ namespace video
 		virtual ITexture* addTextureCubemap(const io::path& name, IImage* imagePosX, IImage* imageNegX, IImage* imagePosY,
 			IImage* imageNegY, IImage* imagePosZ, IImage* imageNegZ) = 0;
 
+		//! Creates an empty cubemap texture of specified size.
+		/** \param sideLen diameter of one side of the cube
+		\param name A name for the texture. Later calls of
+		getTexture() with this name will return this texture.
+		The name can _not_ be empty.
+		\param format Desired color format of the texture. Please note
+		that the driver may choose to create the texture in another
+		color format.
+		\return Pointer to the newly created texture. 	*/
+		virtual ITexture* addTextureCubemap(const irr::u32 sideLen, const io::path& name, ECOLOR_FORMAT format = ECF_A8R8G8B8) = 0;
+
 		//! Adds a new render target texture to the texture cache.
 		/** \param size Size of the texture, in pixels. Width and
 		height should be a power of two (e.g. 64, 128, 256, 512, ...)
 		and it should not be bigger than the backbuffer, because it
 		shares the zbuffer with the screen buffer.
-		\param name An optional name for the RTT.
+		\param name A name for the texture. Later calls of getTexture() with this name will return this texture.
+		The name can _not_ be empty.
+		\param format The color format of the render target. Floating point formats are supported.
+		\return Pointer to the created texture or 0 if the texture
+		could not be created. This pointer should not be dropped. See
+		IReferenceCounted::drop() for more information.
+		You may want to remove it from driver texture cache with removeTexture if you no longer need it.
+		*/
+		virtual ITexture* addRenderTargetTexture(const core::dimension2d<u32>& size,
+				const io::path& name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) =0;
+
+		//! Adds a new render target texture with 6 sides for a cubemap map to the texture cache.
+		/** NOTE: Only supported on D3D9 so far.
+		\param sideLen Length of one cubemap side.
+		\param name A name for the texture. Later calls of getTexture() with this name will return this texture.
+		The name can _not_ be empty.
 		\param format The color format of the render target. Floating point formats are supported.
 		\return Pointer to the created texture or 0 if the texture
 		could not be created. This pointer should not be dropped. See
 		IReferenceCounted::drop() for more information. */
-		virtual ITexture* addRenderTargetTexture(const core::dimension2d<u32>& size,
+		virtual ITexture* addRenderTargetTextureCubemap(const irr::u32 sideLen,
 				const io::path& name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) =0;
 
 		//! Removes a texture from the texture cache and deletes it.
@@ -533,7 +483,7 @@ namespace video
 		example in picture edit programs. To avoid this problem, you
 		could use the makeColorKeyTexture method, which takes the
 		position of a pixel instead a color value.
-		\param zeroTexels \deprecated If set to true, then any texels that match
+		\param zeroTexels (deprecated) If set to true, then any texels that match
 		the color key will have their color, as well as their alpha, set to zero
 		(i.e. black). This behavior matches the legacy (buggy) behavior prior
 		to release 1.5 and is provided for backwards compatibility only.
@@ -550,7 +500,7 @@ namespace video
 		\param colorKeyPixelPos Position of a pixel with the color key
 		color. Every texel with this color will become fully transparent as
 		described above.
-		\param zeroTexels \deprecated If set to true, then any texels that match
+		\param zeroTexels (deprecated) If set to true, then any texels that match
 		the color key will have their color, as well as their alpha, set to zero
 		(i.e. black). This behavior matches the legacy (buggy) behavior prior
 		to release 1.5 and is provided for backwards compatibility only.
@@ -560,11 +510,15 @@ namespace video
 				bool zeroTexels = false) const =0;
 
 		//! Creates a normal map from a height map texture.
-		/** If the target texture has 32 bit, the height value is
-		stored in the alpha component of the texture as addition. This
-		value is used by the video::EMT_PARALLAX_MAP_SOLID material and
-		similar materials.
-		\param texture Texture whose alpha channel is modified.
+		/** As input is considered to be a height map the texture is read like:
+		- For a 32-bit texture only the red channel is regarded
+		- For a 16-bit texture the rgb-values are averaged.
+		Output channels red/green for X/Y and blue for up (Z).
+		For a 32-bit texture we store additionally the height value in the 
+		alpha channel. This value is used by the video::EMT_PARALLAX_MAP_SOLID 
+		material and similar materials.
+		On the borders the texture is considered to repeat.
+		\param texture Height map texture which is converted to a normal map.
 		\param amplitude Constant value by which the height
 		information is multiplied.*/
 		virtual void makeNormalMapTexture(video::ITexture* texture, f32 amplitude=1.0f) const =0;
@@ -576,14 +530,15 @@ namespace video
 		geometry with a render target as texture on it when you are rendering
 		the scene into this render target at the same time. It is usually only
 		possible to render into a texture between the
-		IVideoDriver::beginScene() and endScene() method calls.
+		IVideoDriver::beginScene() and endScene() method calls. If you need the
+		best performance use this method instead of setRenderTarget.
 		\param target Render target object.
 		\param clearFlag A combination of the E_CLEAR_BUFFER_FLAG bit-flags.
 		\param clearColor The clear color for the color buffer.
 		\param clearDepth The clear value for the depth buffer.
 		\param clearStencil The clear value for the stencil buffer.
-		\return True if sucessful and false if not. */
-		virtual bool setRenderTarget(IRenderTarget* target, u16 clearFlag, SColor clearColor = SColor(255,0,0,0),
+		\return True if successful and false if not. */
+		virtual bool setRenderTargetEx(IRenderTarget* target, u16 clearFlag, SColor clearColor = SColor(255,0,0,0),
 			f32 clearDepth = 1.f, u8 clearStencil = 0) = 0;
 
 		//! Sets a new render target.
@@ -614,14 +569,14 @@ namespace video
 		\param clearColor The clear color for the color buffer.
 		\param clearDepth The clear value for the depth buffer.
 		\param clearStencil The clear value for the stencil buffer.
-		\return True if sucessful and false if not. */
+		\return True if successful and false if not. */
 		virtual bool setRenderTarget(ITexture* texture, u16 clearFlag=ECBF_COLOR|ECBF_DEPTH, SColor clearColor = SColor(255,0,0,0),
 			f32 clearDepth = 1.f, u8 clearStencil = 0) = 0;
 
-		//! Sets a new render target. 
-		// Prefer to use the setRenderTarget function taking flags as parameter as this one can't clear the stencil buffer.
-		// It's still offered for backward compatiblity.
-		_IRR_DEPRECATED_ bool setRenderTarget(ITexture* texture, bool clearBackBuffer, bool clearZBuffer, SColor color = SColor(255,0,0,0))
+		//! Sets a new render target.
+		//! Prefer to use the setRenderTarget function taking flags as parameter as this one can't clear the stencil buffer.
+		//! It's still offered for backward compatibility.
+		bool setRenderTarget(ITexture* texture, bool clearBackBuffer, bool clearZBuffer, SColor color = SColor(255,0,0,0))
 		{
 			u16 flag = 0;
 
@@ -834,9 +789,11 @@ namespace video
 		//! Draws a 2d image without any special effects
 		/** \param texture Pointer to texture to use.
 		\param destPos Upper left 2d destination position where the
-		image will be drawn. */
+		image will be drawn. 
+		\param useAlphaChannelOfTexture: If true, the alpha channel of
+		the texture is used to draw the image.*/
 		virtual void draw2DImage(const video::ITexture* texture,
-			const core::position2d<s32>& destPos) =0;
+			const core::position2d<s32>& destPos, bool useAlphaChannelOfTexture=false) =0;
 
 		//! Draws a 2d image using a color
 		/** (if color is other than
@@ -964,8 +921,11 @@ namespace video
 		virtual void draw2DRectangleOutline(const core::recti& pos,
 				SColor color=SColor(255,255,255,255)) =0;
 
-		//! Draws a 2d line. Both start and end will be included in coloring.
-		/** \param start Screen coordinates of the start of the line
+		//! Draws a 2d line.
+		/** In theory both start and end will be included in coloring.
+		BUG: Currently hardware drivers (d3d/opengl) ignore the last pixel
+		(they use the so called "diamond exit rule" for drawing lines).
+		\param start Screen coordinates of the start of the line
 		in pixels.
 		\param end Screen coordinates of the start of the line in
 		pixels.
@@ -980,7 +940,7 @@ namespace video
 		\param color Color of the pixel to draw. */
 		virtual void drawPixel(u32 x, u32 y, const SColor& color) =0;
 
-		//! Draws a non filled concyclic regular 2d polyon.
+		//! Draws a non filled concyclic regular 2d polygon.
 		/** This method can be used to draw circles, but also
 		triangles, tetragons, pentagons, hexagons, heptagons, octagons,
 		enneagons, decagons, hendecagons, dodecagon, triskaidecagons,
@@ -1182,6 +1142,28 @@ namespace video
 		\return The current texture creation flag enabled mode. */
 		virtual bool getTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag) const =0;
 
+		//! Creates a software images from a file.
+		/** No hardware texture will be created for those images. This
+		method is useful for example if you want to read a heightmap
+		for a terrain renderer.
+		\param filename Name of the file from which the images are created.
+		\param type Pointer to E_TEXTURE_TYPE where a recommended type of the texture will be stored.
+		\return The array of created images.
+		If you no longer need those images, you should call IImage::drop() on each of them.
+		See IReferenceCounted::drop() for more information. */
+		virtual core::array<IImage*> createImagesFromFile(const io::path& filename, E_TEXTURE_TYPE* type = 0) = 0;
+
+		//! Creates a software images from a file.
+		/** No hardware texture will be created for those images. This
+		method is useful for example if you want to read a heightmap
+		for a terrain renderer.
+		\param file File from which the image is created.
+		\param type Pointer to E_TEXTURE_TYPE where a recommended type of the texture will be stored.
+		\return The array of created images.
+		If you no longer need those images, you should call IImage::drop() on each of them.
+		See IReferenceCounted::drop() for more information. */
+		virtual core::array<IImage*> createImagesFromFile(io::IReadFile* file, E_TEXTURE_TYPE* type = 0) = 0;
+
 		//! Creates a software image from a file.
 		/** No hardware texture will be created for this image. This
 		method is useful for example if you want to read a heightmap
@@ -1191,7 +1173,15 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImageFromFile(const io::path& filename) = 0;
+		IImage* createImageFromFile(const io::path& filename)
+		{
+			core::array<IImage*> imageArray = createImagesFromFile(filename);
+
+			for (u32 i = 1; i < imageArray.size(); ++i)
+				imageArray[i]->drop();
+
+			return (imageArray.size() > 0) ? imageArray[0] : 0;
+		}
 
 		//! Creates a software image from a file.
 		/** No hardware texture will be created for this image. This
@@ -1201,7 +1191,15 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImageFromFile(io::IReadFile* file) =0;
+		IImage* createImageFromFile(io::IReadFile* file)
+		{
+			core::array<IImage*> imageArray = createImagesFromFile(file);
+
+			for (u32 i = 1; i < imageArray.size(); ++i)
+				imageArray[i]->drop();
+
+			return (imageArray.size() > 0) ? imageArray[0] : 0;
+		}
 
 		//! Writes the provided image to a file.
 		/** Requires that there is a suitable image writer registered
@@ -1232,8 +1230,11 @@ namespace video
 		\param size Desired size of the image
 		\param data A byte array with pixel color information
 		\param ownForeignMemory If true, the image will use the data
-		pointer directly and own it afterwards. If false, the memory
-		will by copied internally.
+		pointer directly and own it afterward. If false, the memory
+		will by copied internally. 
+		WARNING: Setting this to 'true' will not work across dll boundaries.
+		So unless you link Irrlicht statically you should keep this to 'false'.
+		The parameter is mainly for internal usage.
 		\param deleteMemory Whether the memory is deallocated upon
 		destruction.
 		\return The created image.
@@ -1259,7 +1260,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		_IRR_DEPRECATED_ virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy) =0;
+		IRR_DEPRECATED virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy) =0;
 
 		//! Creates a software image from a part of another image.
 		/** \deprecated Create an empty image and use copyTo(). This method may be removed by Irrlicht 1.9.
@@ -1269,7 +1270,7 @@ namespace video
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		_IRR_DEPRECATED_ virtual IImage* createImage(IImage* imageToCopy,
+		IRR_DEPRECATED virtual IImage* createImage(IImage* imageToCopy,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size) =0;
 
@@ -1308,7 +1309,7 @@ namespace video
 		\param name Optional name for the material renderer entry.
 		\return The number of the material type which can be set in
 		SMaterial::MaterialType to use the renderer. -1 is returned if
-		an error occured. For example if you tried to add an material
+		an error occurred. For example if you tried to add an material
 		renderer to the software renderer or the null device, which do
 		not accept material renderers. */
 		virtual s32 addMaterialRenderer(IMaterialRenderer* renderer, const c8* name =0) =0;
@@ -1318,7 +1319,7 @@ namespace video
 		the E_MATERIAL_TYPE enum or a value which was returned by
 		addMaterialRenderer().
 		\return Pointer to material renderer or null if not existing. */
-		virtual IMaterialRenderer* getMaterialRenderer(u32 idx) =0;
+		virtual IMaterialRenderer* getMaterialRenderer(u32 idx) const = 0;
 
 		//! Get amount of currently available material renderers.
 		/** \return Amount of currently available material renderers. */
@@ -1343,6 +1344,16 @@ namespace video
 		addMaterialRenderer().
 		\param name: New name of the material renderer. */
 		virtual void setMaterialRendererName(s32 idx, const c8* name) =0;
+
+		//! Swap the material renderers used for certain id's
+		/** Swap the IMaterialRenderers responsible for rendering specific
+		 material-id's. This means every SMaterial using a MaterialType
+		 with one of the indices involved here will now render differently.
+		 \param idx1 First material index to swap. It must already exist or nothing happens.
+		 \param idx2 Second material index to swap. It must already exist or nothing happens.
+		 \param swapNames When true the renderer names also swap
+		                  When false the names will stay at the original index */
+		virtual void swapMaterialRenderers(u32 idx1, u32 idx2, bool swapNames=true) = 0;
 
 		//! Creates material attributes list from a material
 		/** This method is useful for serialization and more.
@@ -1389,7 +1400,7 @@ namespace video
 		virtual void clearBuffers(u16 flag, SColor color = SColor(255,0,0,0), f32 depth = 1.f, u8 stencil = 0) = 0;
 
 		//! Clear the color, depth and/or stencil buffers.
-		_IRR_DEPRECATED_ void clearBuffers(bool backBuffer, bool depthBuffer, bool stencilBuffer, SColor color)
+		IRR_DEPRECATED void clearBuffers(bool backBuffer, bool depthBuffer, bool stencilBuffer, SColor color)
 		{
 			u16 flag = 0;
 
@@ -1412,7 +1423,7 @@ namespace video
 		you have to render some special things, you can clear the
 		zbuffer during the rendering process with this method any time.
 		*/
-		_IRR_DEPRECATED_ void clearZBuffer()
+		IRR_DEPRECATED void clearZBuffer()
 		{
 			clearBuffers(ECBF_DEPTH, SColor(255,0,0,0), 1.f, 0);
 		}
@@ -1460,14 +1471,14 @@ namespace video
 		virtual SOverrideMaterial& getOverrideMaterial() =0;
 
 		//! Get the 2d override material for altering its values
-		/** The 2d override materual allows to alter certain render
+		/** The 2d override material allows to alter certain render
 		states of the 2d methods. Not all members of SMaterial are
 		honored, especially not MaterialType and Textures. Moreover,
 		the zbuffer is always ignored, and lighting is always off. All
 		other flags can be changed, though some might have to effect
 		in most cases.
 		Please note that you have to enable/disable this effect with
-		enableInitMaterial2D(). This effect is costly, as it increases
+		enableMaterial2D(). This effect is costly, as it increases
 		the number of state changes considerably. Always reset the
 		values when done.
 		\return Material reference which should be altered to reflect
@@ -1513,6 +1524,13 @@ namespace video
 		*/
 		virtual void convertColor(const void* sP, ECOLOR_FORMAT sF, s32 sN,
 				void* dP, ECOLOR_FORMAT dF) const =0;
+
+		//! Check if the driver supports creating textures with the given color format
+		/**	\return True if the format is available, false if not. */
+		virtual bool queryTextureFormat(ECOLOR_FORMAT format) const = 0;
+
+		//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
+		virtual bool needsTransparentRenderPass(const irr::video::SMaterial& material) const = 0;
 	};
 
 } // end namespace video

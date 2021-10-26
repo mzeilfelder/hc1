@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_MATERIAL_TYPES_H_INCLUDED__
-#define __E_MATERIAL_TYPES_H_INCLUDED__
+#ifndef IRR_E_MATERIAL_TYPES_H_INCLUDED
+#define IRR_E_MATERIAL_TYPES_H_INCLUDED
 
 namespace irr
 {
@@ -44,7 +44,7 @@ namespace video
 		//! Material type with standard lightmap technique
 		/** There should be 2 textures: The first texture layer is a
 		diffuse map, the second is a light map. Dynamic light is
-		ignored. The texture colors are effectively multiplyied by 4
+		ignored. The texture colors are effectively multiplied by 4
 		for brightening. Like known in DirectX as D3DTOP_MODULATE4X. */
 		EMT_LIGHTMAP_M4,
 
@@ -54,14 +54,14 @@ namespace video
 		//! Like EMT_LIGHTMAP_M2, but also supports dynamic lighting.
 		EMT_LIGHTMAP_LIGHTING_M2,
 
-		//! Like EMT_LIGHTMAP_4, but also supports dynamic lighting.
+		//! Like EMT_LIGHTMAP_M4, but also supports dynamic lighting.
 		EMT_LIGHTMAP_LIGHTING_M4,
 
 		//! Detail mapped material.
 		/** The first texture is diffuse color map, the second is added
 		to this and usually displayed with a bigger scale value so that
 		it adds more detail. The detail map is added to the diffuse map
-		using ADD_SIGNED, so that it is possible to add and substract
+		using ADD_SIGNED, so that it is possible to add and subtract
 		color from the diffuse map. For example a value of
 		(127,127,127) will not change the appearance of the diffuse map
 		at all. Often used for terrain rendering. */
@@ -105,7 +105,7 @@ namespace video
 		pixel is written to the target, otherwise not. This
 		material does not use alpha blending and is a lot faster
 		than EMT_TRANSPARENT_ALPHA_CHANNEL. It is ideal for drawing
-		stuff like leafes of plants, because the borders are not
+		stuff like leaves of plants, because the borders are not
 		blurry but sharp. Only first texture is used. If you are
 		using this material with small textures and 3d object, it
 		is a good idea to load the texture in 32 bit mode
@@ -118,9 +118,7 @@ namespace video
 		//! A transparent reflecting material with an optional additional non reflecting texture layer.
 		/** The reflection map should be set as first texture. The
 		transparency depends on the alpha value in the vertex colors. A
-		texture which will not reflect can be set as second texture.
-		Please note that this material type is currently not 100%
-		implemented in OpenGL. */
+		texture which will not reflect can be set as second texture.*/
 		EMT_TRANSPARENT_REFLECTION_2_LAYER,
 
 		//! A solid normal map renderer.
@@ -189,7 +187,9 @@ namespace video
 		EMT_PARALLAX_MAP_TRANSPARENT_VERTEX_ALPHA,
 
 		//! BlendFunc = source * sourceFactor + dest * destFactor ( E_BLEND_FUNC )
-		/** Using only first texture. Generic blending method. */
+		/** Using only first texture. Generic blending method. 
+		The blend function is set to SMaterial::MaterialTypeParam with 
+		pack_textureBlendFunc (for 2D) or pack_textureBlendFuncSeparate (for 3D). */
 		EMT_ONETEXTURE_BLEND,
 
 		//! This value is not used. It only forces this enumeration to compile to 32 bit.
@@ -229,6 +229,4 @@ namespace video
 } // end namespace video
 } // end namespace irr
 
-
-#endif // __E_MATERIAL_TYPES_H_INCLUDED__
-
+#endif // IRR_E_MATERIAL_TYPES_H_INCLUDED

@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __S_MATERIAL_LAYER_H_INCLUDED__
-#define __S_MATERIAL_LAYER_H_INCLUDED__
+#ifndef S_MATERIAL_LAYER_H_INCLUDED
+#define S_MATERIAL_LAYER_H_INCLUDED
 
 #include "matrix4.h"
 #include "irrAllocator.h"
@@ -45,20 +45,15 @@ namespace video
 			"texture_clamp_mirror_clamp_to_border", 0};
 
 	//! Struct for holding material parameters which exist per texture layer
+	// Note for implementors: Serialization is in CNullDriver
 	class SMaterialLayer
 	{
 	public:
 		//! Default constructor
-		SMaterialLayer()
-			: Texture(0),
-				TextureWrapU(ETC_REPEAT),
-				TextureWrapV(ETC_REPEAT),
-				BilinearFilter(true),
-				TrilinearFilter(false),
-				AnisotropicFilter(0),
-				LODBias(0),
-				TextureMatrix(0)
-			{}
+		SMaterialLayer() : Texture(0), TextureWrapU(ETC_REPEAT), TextureWrapV(ETC_REPEAT), TextureWrapW(ETC_REPEAT),
+			BilinearFilter(true), TrilinearFilter(false), AnisotropicFilter(0), LODBias(0), TextureMatrix(0)
+		{
+		}
 
 		//! Copy constructor
 		/** \param other Material layer to copy from. */
@@ -72,8 +67,11 @@ namespace video
 		//! Destructor
 		~SMaterialLayer()
 		{
-			MatrixAllocator.destruct(TextureMatrix);
-			MatrixAllocator.deallocate(TextureMatrix);
+			if ( TextureMatrix )
+			{
+				MatrixAllocator.destruct(TextureMatrix);
+				MatrixAllocator.deallocate(TextureMatrix);
+			}
 		}
 
 		//! Assignment operator
@@ -109,6 +107,7 @@ namespace video
 			}
 			TextureWrapU = other.TextureWrapU;
 			TextureWrapV = other.TextureWrapV;
+			TextureWrapW = other.TextureWrapW;
 			BilinearFilter = other.BilinearFilter;
 			TrilinearFilter = other.TrilinearFilter;
 			AnisotropicFilter = other.AnisotropicFilter;
@@ -140,7 +139,9 @@ namespace video
 		}
 
 		//! Sets the texture transformation matrix to mat
-		/** \param mat New texture matrix for this layer. */
+		/** NOTE: Pipelines can ignore this matrix when the 
+		texture	is 0.
+		\param mat New texture matrix for this layer. */
 		void setTextureMatrix(const core::matrix4& mat)
 		{
 			if (!TextureMatrix)
@@ -161,6 +162,7 @@ namespace video
 				Texture != b.Texture ||
 				TextureWrapU != b.TextureWrapU ||
 				TextureWrapV != b.TextureWrapV ||
+				TextureWrapW != b.TextureWrapW ||
 				BilinearFilter != b.BilinearFilter ||
 				TrilinearFilter != b.TrilinearFilter ||
 				AnisotropicFilter != b.AnisotropicFilter ||
@@ -169,8 +171,7 @@ namespace video
 				return true;
 			else
 				different |= (TextureMatrix != b.TextureMatrix) &&
-					TextureMatrix && b.TextureMatrix &&
-					(*TextureMatrix != *(b.TextureMatrix));
+					(!TextureMatrix || !b.TextureMatrix || (*TextureMatrix != *(b.TextureMatrix)));
 			return different;
 		}
 
@@ -187,6 +188,7 @@ namespace video
 		/** Values are taken from E_TEXTURE_CLAMP. */
 		u8 TextureWrapU:4;
 		u8 TextureWrapV:4;
+		u8 TextureWrapW:4;
 
 		//! Is bilinear filtering enabled? Default: true
 		bool BilinearFilter:1;
@@ -218,11 +220,11 @@ namespace video
 
 		//! Texture Matrix
 		/** Do not access this element directly as the internal
-		ressource management has to cope with Null pointers etc. */
+		resource management has to cope with Null pointers etc. */
 		core::matrix4* TextureMatrix;
 	};
 
 } // end namespace video
 } // end namespace irr
 
-#endif // __S_MATERIAL_LAYER_H_INCLUDED__
+#endif // S_MATERIAL_LAYER_H_INCLUDED

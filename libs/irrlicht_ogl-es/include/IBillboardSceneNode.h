@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_BILLBOARD_SCENE_NODE_H_INCLUDED__
-#define __I_BILLBOARD_SCENE_NODE_H_INCLUDED__
+#ifndef IRR_I_BILLBOARD_SCENE_NODE_H_INCLUDED
+#define IRR_I_BILLBOARD_SCENE_NODE_H_INCLUDED
 
 #include "ISceneNode.h"
 
@@ -11,6 +11,7 @@ namespace irr
 {
 namespace scene
 {
+	class ICameraSceneNode;
 
 //! A billboard scene node.
 /** A billboard is like a 3d sprite: A 2d element,
@@ -65,11 +66,17 @@ public:
 	\param[out] bottomColor Stores the color of the bottom vertices */
 	virtual void getColor(video::SColor& topColor,
 			video::SColor& bottomColor) const = 0;
+
+	//! Get the real boundingbox used by the billboard, which can depend on the active camera.
+	/** The boundingbox returned will use absolute coordinates.
+		The billboard orients itself toward the camera and some only update in render().
+	    So we don't know the real boundingboxes before that. Which would be too late for culling.
+	    That is why the usual getBoundingBox will return a "safe" boundingbox which is guaranteed
+	    to contain the billboard. While this function can return the real one. */
+	virtual const core::aabbox3d<f32>& getTransformedBillboardBoundingBox(const irr::scene::ICameraSceneNode* camera) = 0;
 };
 
 } // end namespace scene
 } // end namespace irr
 
-
 #endif
-

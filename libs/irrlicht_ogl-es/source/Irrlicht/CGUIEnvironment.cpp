@@ -101,6 +101,8 @@ CGUIEnvironment::CGUIEnvironment(io::IFileSystem* fs, video::IVideoDriver* drive
 //! destructor
 CGUIEnvironment::~CGUIEnvironment()
 {
+	clearDeletionQueue();
+
 	if ( HoveredNoSubelement && HoveredNoSubelement != this )
 	{
 		HoveredNoSubelement->drop();
@@ -191,19 +193,18 @@ void CGUIEnvironment::loadBuiltInFont()
 
 
 //! draws all gui elements
-void CGUIEnvironment::drawAll()
+void CGUIEnvironment::drawAll(bool useScreenSize)
 {
-	if (Driver)
+	if (useScreenSize && Driver)
 	{
 		core::dimension2d<s32> dim(Driver->getScreenSize());
 		if (AbsoluteRect.LowerRightCorner.X != dim.Width ||
-			AbsoluteRect.LowerRightCorner.Y != dim.Height)
+			AbsoluteRect.UpperLeftCorner.X != 0 ||
+			AbsoluteRect.LowerRightCorner.Y != dim.Height ||
+			AbsoluteRect.UpperLeftCorner.Y != 0
+			)
 		{
-			// resize gui environment
-			DesiredRect.LowerRightCorner = dim;
-			AbsoluteClippingRect = DesiredRect;
-			AbsoluteRect = DesiredRect;
-			updateAbsolutePosition();
+			setRelativePosition(core::recti(0,0,dim.Width, dim.Height));
 		}
 	}
 
@@ -213,6 +214,8 @@ void CGUIEnvironment::drawAll()
 
 	draw();
 	OnPostRender ( os::Timer::getTime () );
+
+	clearDeletionQueue();
 }
 
 
@@ -400,6 +403,7 @@ void CGUIEnvironment::clear()
 //! called by ui if an event happened.
 bool CGUIEnvironment::OnEvent(const SEvent& event)
 {
+
 	bool ret = false;
 	if (UserReceiver
 		&& (event.EventType != EET_MOUSE_INPUT_EVENT)
@@ -470,6 +474,28 @@ void CGUIEnvironment::OnPostRender( u32 time )
 	IGUIElement::OnPostRender ( time );
 }
 
+void CGUIEnvironment::addToDeletionQueue(IGUIElement* element)
+{
+	if (!element)
+		return;
+
+	element->grab();
+	DeletionQueue.push_back(element);
+}
+
+void CGUIEnvironment::clearDeletionQueue()
+{
+	if (DeletionQueue.empty())
+		return;
+
+	for (u32 i=0; i<DeletionQueue.size(); ++i)
+	{
+		DeletionQueue[i]->remove();
+		DeletionQueue[i]->drop();
+	}
+
+	DeletionQueue.clear();
+}
 
 //
 void CGUIEnvironment::updateHoveredElement(core::position2d<s32> mousePos)
@@ -563,7 +589,10 @@ bool CGUIEnvironment::postEventFromUser(const SEvent& event)
 	switch(event.EventType)
 	{
 	case EET_GUI_EVENT:
-		// hey, why is the user sending gui events..?
+		{
+			// hey, why is the user sending gui events..?
+		}
+
 		break;
 	case EET_MOUSE_INPUT_EVENT:
 
@@ -613,8 +642,8 @@ bool CGUIEnvironment::postEventFromUser(const SEvent& event)
 
 			// For keys we handle the event before changing focus to give elements the chance for catching the TAB
 			// Send focus changing event
+			// CAREFUL when changing - there's an identical check in CGUIModalScreen::OnEvent
 			if (FocusFlags & EFF_SET_ON_TAB &&
-				event.EventType == EET_KEY_INPUT_EVENT &&
 				event.KeyInput.PressedDown &&
 				event.KeyInput.Key == KEY_TAB)
 			{
@@ -692,7 +721,7 @@ IGUIElementFactory* CGUIEnvironment::getDefaultGUIElementFactory() const
 
 //! Adds an element factory to the gui environment.
 /** Use this to extend the gui environment with new element types which it should be
-able to create automaticly, for example when loading data from xml files. */
+able to create automatically, for example when loading data from xml files. */
 void CGUIEnvironment::registerGUIElementFactory(IGUIElementFactory* factoryToAdd)
 {
 	if (factoryToAdd)
@@ -1044,11 +1073,12 @@ IGUIWindow* CGUIEnvironment::addWindow(const core::rect<s32>& rectangle, bool mo
 
 
 //! adds a modal screen. The returned pointer must not be dropped.
-IGUIElement* CGUIEnvironment::addModalScreen(IGUIElement* parent)
+IGUIElement* CGUIEnvironment::addModalScreen(IGUIElement* parent, int blinkMode)
 {
 	parent = parent ? parent : this;
 
-	IGUIElement *win = new CGUIModalScreen(this, parent, -1);
+	CGUIModalScreen *win = new CGUIModalScreen(this, parent, -1);
+	win->setBlinkMode(blinkMode);
 	win->drop();
 
 	return win;
@@ -1327,7 +1357,7 @@ IGUITabControl* CGUIEnvironment::addTabControl(const core::rect<s32>& rectangle,
 IGUITab* CGUIEnvironment::addTab(const core::rect<s32>& rectangle,
 	IGUIElement* parent, s32 id)
 {
-	IGUITab* t = new CGUITab(-1, this, parent ? parent : this,
+	IGUITab* t = new CGUITab(this, parent ? parent : this,
 		rectangle, id);
 	t->drop();
 	return t;

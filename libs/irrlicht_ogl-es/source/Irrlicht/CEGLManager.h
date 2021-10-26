@@ -9,11 +9,7 @@
 
 #ifdef _IRR_COMPILE_WITH_EGL_MANAGER_
 
-#if defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_) || defined(_IRR_COMPILE_WITH_FB_DEVICE_) || defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_)
 #include <EGL/egl.h>
-#else
-#include <GLES/egl.h>
-#endif
 
 #include "SIrrCreationParameters.h"
 #include "SExposedVideoData.h"
@@ -40,39 +36,66 @@ namespace video
 		// Initialize EGL.
 		/* This method initialize EGLand create EGL display, anyway surface and context
 		aren't create. */
-		bool initialize(const SIrrlichtCreationParameters& params, const SExposedVideoData& data);
+		virtual bool initialize(const SIrrlichtCreationParameters& params, const SExposedVideoData& data) IRR_OVERRIDE;
 
 		// Terminate EGL.
 		/* Terminate EGL context. This method break both existed surface and context. */
-		void terminate();
+		virtual void terminate() IRR_OVERRIDE;
 
 		// Create EGL surface.
 		/* This method create EGL surface. On some platforms eg. Android, we must
 		recreate surface on each resume, because WindowID may change, so existed
 		surface may not be valid. If EGL context already exist, this method
 		automatically activates it. */
-		bool generateSurface();
+		virtual bool generateSurface() IRR_OVERRIDE;
 
 		// Destroy EGL surface.
 		/* This method destroy EGL. On some platforms eg. Android, we should call
 		this method on each pause, because after resume this surface may not be valid.
 		Hovewer this method doesn'r break EGL context. */
-		void destroySurface();
+		virtual void destroySurface() IRR_OVERRIDE;
 
 		// Create EGL context.
 		/* This method create and activate EGL context. */
-		bool generateContext();
+		virtual bool generateContext() IRR_OVERRIDE;
 
 		// Destroy EGL context.
 		/* This method destroy EGL context. */
-		void destroyContext();
+		virtual void destroyContext() IRR_OVERRIDE;
 
-		const SExposedVideoData& getContext() const;
+		virtual const SExposedVideoData& getContext() const IRR_OVERRIDE;
 
-		bool activateContext(const SExposedVideoData& videoData);
+		virtual bool activateContext(const SExposedVideoData& videoData, bool restorePrimaryOnZero) IRR_OVERRIDE;
 
 		// Swap buffers.
-		bool swapBuffers();
+		virtual bool swapBuffers() IRR_OVERRIDE;
+
+	protected:
+		enum EConfigStyle
+		{
+			//! Get first result of eglChooseConfigs and if that fails try again by requesting simpler attributes
+			ECS_EGL_CHOOSE_FIRST_LOWER_EXPECTATIONS,
+
+			//! We select our own best fit and avoid using eglChooseConfigs
+			ECS_IRR_CHOOSE,
+		};
+
+		EGLConfig chooseConfig(EConfigStyle confStyle);
+
+		//! Check how close this config is to the parameters we requested
+		//! returns 0 is perfect, larger values are worse and < 0 is unusable.
+		irr::s32 rateConfig(EGLConfig config, EGLint eglOpenGLBIT, bool log=false);
+
+		// Helper to sort EGLConfig's. (because we got no std::pair....)
+		struct SConfigRating
+		{
+			EGLConfig config;
+			irr::s32 rating;
+			bool operator<(const SConfigRating& other) const
+			{
+				return rating < other.rating;
+			}
+		};
 
 	private:
 		bool testEGLError();

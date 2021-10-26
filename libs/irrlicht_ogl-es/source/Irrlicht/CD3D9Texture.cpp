@@ -3,160 +3,453 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "IrrCompileConfig.h"
+
 #ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
 
-#define _IRR_DONT_DO_MEMORY_DEBUGGING_HERE
 #include "CD3D9Texture.h"
 #include "CD3D9Driver.h"
 #include "os.h"
-
-#include <d3dx9tex.h>
 
 namespace irr
 {
 namespace video
 {
 
-//! rendertarget constructor
-CD3D9Texture::CD3D9Texture(CD3D9Driver* driver, const core::dimension2d<u32>& size, const io::path& name, const ECOLOR_FORMAT format)
-	: ITexture(name, ETT_2D), Texture(0), RTTSurface(0), Driver(driver), HardwareMipMaps(false), IsCompressed(false)
+CD3D9Texture::CD3D9Texture(const io::path& name, const core::array<IImage*>& image, E_TEXTURE_TYPE type, CD3D9Driver* driver)
+	: ITexture(name, type), Driver(driver), InternalFormat(D3DFMT_UNKNOWN), LockReadOnly(false), LockData(0), LockLayer(0),
+	MipLevelLocked(0), HardwareMipMaps(false), Device(0), Texture(0), CubeTexture(0), RTTSurface(0)
 {
 #ifdef _DEBUG
 	setDebugName("CD3D9Texture");
 #endif
 
+	IRR_DEBUG_BREAK_IF(image.size() == 0)
+
 	Device=driver->getExposedVideoData().D3D9.D3DDev9;
+
 	if (Device)
 		Device->AddRef();
 
-	DriverType = EDT_DIRECT3D9;
-	OriginalSize = size;
-	Size = size;
+	DriverType = Driver->getDriverType();
+	HasMipMaps = Driver->getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
+	HardwareMipMaps = Driver->getTextureCreationFlag(ETCF_AUTO_GENERATE_MIP_MAPS) && Driver->queryFeature(EVDF_MIP_MAP_AUTO_UPDATE);
+
+	getImageValues(image[0]);
+
+	DWORD flags = 0;
+
+	LPDIRECT3D9 intf = Driver->getExposedVideoData().D3D9.D3D9;
+	D3DDISPLAYMODE d3ddm;
+	intf->GetAdapterDisplayMode(Driver->Params.DisplayAdapter, &d3ddm);
+	if (HasMipMaps && HardwareMipMaps)
+	{
+		if (D3D_OK == intf->CheckDeviceFormat(Driver->Params.DisplayAdapter, D3DDEVTYPE_HAL, d3ddm.Format, D3DUSAGE_AUTOGENMIPMAP, D3DRTYPE_TEXTURE, InternalFormat))
+			flags = D3DUSAGE_AUTOGENMIPMAP;
+		else
+			HardwareMipMaps = false;
+	}
+	
+	VertexTextureSupport = Driver->getTextureCreationFlag(ETCF_SUPPORT_VERTEXT_TEXTURE) 
+	                       && (D3D_OK == intf->CheckDeviceFormat(Driver->Params.DisplayAdapter, D3DDEVTYPE_HAL, d3ddm.Format, D3DUSAGE_QUERY_VERTEXTEXTURE, D3DRTYPE_TEXTURE, InternalFormat));
+
+	HRESULT hr = 0;
+	
+	switch (Type)
+	{
+	case ETT_2D:
+		hr = Device->CreateTexture(Size.Width, Size.Height, HasMipMaps ? 0 : 1, flags, InternalFormat, D3DPOOL_MANAGED, &Texture, NULL);
+		break;
+	case ETT_CUBEMAP:
+		hr = Device->CreateCubeTexture(Size.Width, HasMipMaps ? 0 : 1, flags, InternalFormat, D3DPOOL_MANAGED, &CubeTexture, NULL);
+		break;
+	default:
+		IRR_DEBUG_BREAK_IF(true)
+		break;
+	}
+
+	if (FAILED(hr))
+	{
+		// Try again with 16-bit format 
+		if (InternalFormat == D3DFMT_A8R8G8B8)
+		{
+			InternalFormat = D3DFMT_A1R5G5B5;
+			ColorFormat = ECF_A1R5G5B5;
+		}
+		else if (InternalFormat == D3DFMT_R8G8B8)	// (24 bit is usually failing in d3d9, not sure if it's ever supported)
+		{
+			InternalFormat = D3DFMT_R5G6B5;
+			ColorFormat = ECF_R5G6B5;
+		}
+		switch (Type)
+		{
+			case ETT_2D:
+				hr = Device->CreateTexture(Size.Width, Size.Height, HasMipMaps ? 0 : 1, flags, InternalFormat, D3DPOOL_MANAGED, &Texture, NULL);
+				break;
+			case ETT_CUBEMAP:
+				hr = Device->CreateCubeTexture(Size.Width, HasMipMaps ? 0 : 1, flags, InternalFormat, D3DPOOL_MANAGED, &CubeTexture, NULL);
+				break;
+		}
+	}
+
+	core::array<IImage*> tmpImage = image;
+	bool releaseImageData = false;
+
+	if (SUCCEEDED(hr))
+	{
+		if (OriginalSize != Size || OriginalColorFormat != ColorFormat)
+		{
+			releaseImageData = true;
+
+			for (u32 i = 0; i < image.size(); ++i)
+			{
+				tmpImage[i] = Driver->createImage(ColorFormat, Size);
+
+				if (image[i]->getDimension() == Size)
+					image[i]->copyTo(tmpImage[i]);
+				else
+					image[i]->copyToScaling(tmpImage[i]);
+			}
+		}
+
+		for (u32 i = 0; i < tmpImage.size(); ++i)
+			uploadTexture(tmpImage[i]->getData(), 0, i);
+
+		bool autoGenerateRequired = true;
+
+		for (u32 i = 0; i < tmpImage.size(); ++i)
+		{
+			void* mipmapsData = tmpImage[i]->getMipMapsData();
+
+			if (autoGenerateRequired || mipmapsData)
+				regenerateMipMapLevels(mipmapsData, i);
+
+			if (!mipmapsData)
+				autoGenerateRequired = false;
+		}
+	}
+	else
+	{
+		switch  (hr )
+		{
+			case D3DERR_INVALIDCALL:
+				os::Printer::log("Could not create DIRECT3D9 Texture. D3DERR_INVALIDCALL", ELL_WARNING);
+				break;
+			case D3DERR_OUTOFVIDEOMEMORY:
+				os::Printer::log("Could not create DIRECT3D9 Texture. D3DERR_OUTOFVIDEOMEMORY", ELL_WARNING);
+				break;
+			case E_OUTOFMEMORY:
+				os::Printer::log("Could not create DIRECT3D9 Texture. E_OUTOFMEMORY", ELL_WARNING);
+				break;
+			default:
+				os::Printer::log("Could not create DIRECT3D9 Texture.", ELL_WARNING);
+		}
+	}
+	
+	if (releaseImageData)
+    {
+		for (u32 i = 0; i < tmpImage.size(); ++i)
+			tmpImage[i]->drop();
+    }
+}
+
+CD3D9Texture::CD3D9Texture(CD3D9Driver* driver, const core::dimension2d<u32>& size, const io::path& name, E_TEXTURE_TYPE type, const ECOLOR_FORMAT format)
+	: ITexture(name, type), Driver(driver), InternalFormat(D3DFMT_UNKNOWN), LockReadOnly(false), LockData(0), LockLayer(0),
+	MipLevelLocked(0), HardwareMipMaps(false), Device(0), Texture(0), CubeTexture(0), RTTSurface(0)
+{
+#ifdef _DEBUG
+	setDebugName("CD3D9Texture");
+#endif
+
+	Device = driver->getExposedVideoData().D3D9.D3DDev9;
+
+	if (Device)
+		Device->AddRef();
+
+	DriverType = Driver->getDriverType();
+	HasMipMaps = false;
 	IsRenderTarget = true;
 
-	createRenderTarget(format);
-}
+	OriginalColorFormat = format;
 
+	if (ECF_UNKNOWN == OriginalColorFormat)
+		ColorFormat = getBestColorFormat(Driver->getColorFormat());
+	else
+		ColorFormat = OriginalColorFormat;
 
-//! constructor
-CD3D9Texture::CD3D9Texture(IImage* image, CD3D9Driver* driver, u32 flags, const io::path& name)
-	: ITexture(name, ETT_2D), Texture(0), RTTSurface(0), Driver(driver), HardwareMipMaps(false), IsCompressed(false)
-{
-#ifdef _DEBUG
-	setDebugName("CD3D9Texture");
-#endif
+	OriginalSize = size;
+	Size = OriginalSize;
 
-	DriverType = EDT_DIRECT3D9;
-	HasMipMaps = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-
-	Device=driver->getExposedVideoData().D3D9.D3DDev9;
-	if (Device)
-		Device->AddRef();
-
-	if (image)
+	if (!Driver->queryFeature(EVDF_TEXTURE_NPOT))
 	{
-		if (IImage::isCompressedFormat(image->getColorFormat()))
-		{
-			if(!Driver->queryFeature(EVDF_TEXTURE_COMPRESSED_DXT))
-			{
-				os::Printer::log("DXT texture compression not available.", ELL_ERROR);
-				return;
-			}
-		}
+		Size = Size.getOptimalSize(true, !Driver->queryFeature(EVDF_TEXTURE_NSQUARE), true, Driver->Caps.MaxTextureWidth);
 
-		if (createTexture(flags, image))
-		{
-			if (copyTexture(image))
-			{
-				if (IsCompressed && !image->getMipMapsData())
-					HasMipMaps = false;
-
-				regenerateMipMapLevels(image->getMipMapsData());
-			}
-		}
-		else
-			os::Printer::log("Could not create DIRECT3D9 Texture.", ELL_WARNING);
+		if (Size != OriginalSize)
+			os::Printer::log("RenderTarget size has to be a power of two", ELL_INFORMATION);
 	}
+
+	Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
+
+	InternalFormat = Driver->getD3DFormatFromColorFormat(ColorFormat);
+
+	generateRenderTarget();
 }
 
-
-//! destructor
 CD3D9Texture::~CD3D9Texture()
 {
-	if (Texture)
-		Texture->Release();
-
-	if (RTTSurface)
-		RTTSurface->Release();
+	releaseTexture();
 
 	if (Device)
 		Device->Release();
 }
 
-
-void CD3D9Texture::createRenderTarget(const ECOLOR_FORMAT format)
+void* CD3D9Texture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel, u32 layer, E_TEXTURE_LOCK_FLAGS lockFlags)
 {
-	// are texture size restrictions there ?
-	if(!Driver->queryFeature(EVDF_TEXTURE_NPOT))
+	if (LockData)
+		return LockData;
+
+	if (IImage::isCompressedFormat(ColorFormat))
+		return 0;
+
+	MipLevelLocked = mipmapLevel;
+	LockReadOnly = (mode == ETLM_READ_ONLY);
+	LockLayer = layer;
+
+	HRESULT hr;
+	D3DLOCKED_RECT rect;
+
+	if (!IsRenderTarget)
 	{
-		if (Size != OriginalSize)
-			os::Printer::log("RenderTarget size has to be a power of two", ELL_INFORMATION);
-	}
-
-	Size = Size.getOptimalSize(!Driver->queryFeature(EVDF_TEXTURE_NPOT), !Driver->queryFeature(EVDF_TEXTURE_NSQUARE), true, Driver->Caps.MaxTextureWidth);
-
-	D3DFORMAT d3dformat = Driver->getD3DColorFormat();
-
-	if(ColorFormat == ECF_UNKNOWN)
-	{
-		// get irrlicht format from backbuffer
-		// (This will get overwritten by the custom format if it is provided, else kept.)
-		ColorFormat = Driver->getColorFormat();
-		setPitch(d3dformat);
-
-		// Use color format if provided.
-		if(format != ECF_UNKNOWN)
+		if (Texture)
 		{
-			ColorFormat = format;
-			d3dformat = Driver->getD3DFormatFromColorFormat(format);
-			setPitch(d3dformat); // This will likely set pitch to 0 for now.
+			hr = Texture->LockRect(MipLevelLocked, &rect, 0, LockReadOnly ? D3DLOCK_READONLY : 0);
+		}
+		else if (CubeTexture)
+		{
+			IRR_DEBUG_BREAK_IF(layer > 5)
+
+			hr = CubeTexture->LockRect(static_cast<_D3DCUBEMAP_FACES>(layer), MipLevelLocked, &rect, 0, LockReadOnly ? D3DLOCK_READONLY : 0);
+		}
+		else
+		{
+			os::Printer::log("Could not lock DIRECT3D9 Texture. Missing internal D3D texture.", ELL_ERROR);
+			return 0;
+		}
+		
+		if (FAILED(hr))
+		{
+			os::Printer::log("Could not lock DIRECT3D9 Texture.", ELL_ERROR);
+			return 0;
 		}
 	}
 	else
 	{
-		d3dformat = Driver->getD3DFormatFromColorFormat(ColorFormat);
+		if (!RTTSurface)
+		{
+			// Make RTT surface large enough for all miplevels (including 0)
+			D3DSURFACE_DESC desc;
+			if (Texture)
+				Texture->GetLevelDesc(0, &desc);
+			else if (CubeTexture)
+				CubeTexture->GetLevelDesc(0, &desc);
+			hr = Device->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format, D3DPOOL_SYSTEMMEM, &RTTSurface, 0);
+			if (FAILED(hr))
+			{
+				os::Printer::log("Could not lock DIRECT3D9 Texture", "Offscreen surface creation failed.", ELL_ERROR);
+				return 0;
+			}
+		}
+
+		IDirect3DSurface9 *surface = 0;
+		if (Texture)
+			hr = Texture->GetSurfaceLevel(MipLevelLocked, &surface);
+		else if (CubeTexture)
+			hr = CubeTexture->GetCubeMapSurface(static_cast<_D3DCUBEMAP_FACES>(layer), MipLevelLocked, &surface);
+		if (FAILED(hr))
+		{
+			os::Printer::log("Could not lock DIRECT3D9 Texture", "Could not get surface.", ELL_ERROR);
+			return 0;
+		}
+		hr = Device->GetRenderTargetData(surface, RTTSurface);
+		surface->Release();
+		if(FAILED(hr))
+		{
+			os::Printer::log("Could not lock DIRECT3D9 Texture", "Data copy failed.", ELL_ERROR);
+			return 0;
+		}
+		hr = RTTSurface->LockRect(&rect, 0, LockReadOnly ? D3DLOCK_READONLY : 0);
+		if(FAILED(hr))
+		{
+			os::Printer::log("Could not lock DIRECT3D9 Texture", "LockRect failed.", ELL_ERROR);
+			return 0;
+		}
 	}
 
-	// create texture
-	DWORD usage = (IImage::isDepthFormat(ColorFormat)) ? D3DUSAGE_DEPTHSTENCIL : D3DUSAGE_RENDERTARGET;
+	LockData = rect.pBits;
 
-	HRESULT hr = Device->CreateTexture(Size.Width, Size.Height, 1, usage, d3dformat, D3DPOOL_DEFAULT, &Texture, NULL);
+	return LockData;
+}
 
-	if (FAILED(hr))
+void CD3D9Texture::unlock()
+{
+	if (!LockData)
+		return;
+
+	if (!IsRenderTarget)
 	{
-		if (D3DERR_INVALIDCALL == hr)
-			os::Printer::log("Could not create render target texture", "Invalid Call");
-		else
-		if (D3DERR_OUTOFVIDEOMEMORY == hr)
-			os::Printer::log("Could not create render target texture", "Out of Video Memory");
-		else
-		if (E_OUTOFMEMORY == hr)
-			os::Printer::log("Could not create render target texture", "Out of Memory");
-		else
-			os::Printer::log("Could not create render target texture");
+		if (Texture)
+		{
+			Texture->UnlockRect(MipLevelLocked);
+		}
+		else if (CubeTexture)
+		{
+			CubeTexture->UnlockRect(static_cast<_D3DCUBEMAP_FACES>(LockLayer), MipLevelLocked);
+		}
+	}
+	else if (RTTSurface)
+	{
+		RTTSurface->UnlockRect();
+	}
+
+	LockReadOnly = false;
+	LockData = 0;
+	LockLayer = 0;
+}
+
+void CD3D9Texture::regenerateMipMapLevels(void* data, u32 layer)
+{
+	if (!HasMipMaps || (Size.Width <= 1 && Size.Height <= 1))
+		return;
+
+	if ( HardwareMipMaps )	
+	{
+		// Can't update with custom data with those unfortunately 
+		// Also MSDN docs don't mention it, but GenerateMipSubLevels only works when AUTOGENMIPMAP is set.
+		// So we can't call this to get hardware mipmaps when not setting AUTOGENMIPMAP.
+		if (Texture)
+			Texture->GenerateMipSubLevels();
+		else if (CubeTexture)
+			CubeTexture->GenerateMipSubLevels();
+	}
+	else if (data)
+	{
+		u32 width = Size.Width;
+		u32 height = Size.Height;
+		u8* tmpData = static_cast<u8*>(data);
+		u32 dataSize = 0;
+		u32 level = 0;
+
+		do
+		{
+			if (width > 1)
+				width >>= 1;
+
+			if (height > 1)
+				height >>= 1;
+
+			dataSize = IImage::getDataSizeFromFormat(ColorFormat, width, height);
+			++level;
+
+			uploadTexture(tmpData, level, layer);
+
+			tmpData += dataSize;
+		} while (width != 1 || height != 1);
+	}
+	else
+	{
+		createManualMipMaps(1);
 	}
 }
 
+void CD3D9Texture::copy16BitMipMap(char* src, char* tgt,
+				   s32 width, s32 height,
+				   s32 pitchsrc, s32 pitchtgt) const
+{
+	for (s32 y=0; y<height; ++y)
+	{
+		for (s32 x=0; x<width; ++x)
+		{
+			u32 a=0, r=0, g=0, b=0;
 
-bool CD3D9Texture::createMipMaps(u32 level)
+			for (s32 dy=0; dy<2; ++dy)
+			{
+				const s32 tgy = (y*2)+dy;
+				for (s32 dx=0; dx<2; ++dx)
+				{
+					const s32 tgx = (x*2)+dx;
+
+					SColor c;
+					if (ColorFormat == ECF_A1R5G5B5)
+						c = A1R5G5B5toA8R8G8B8(*(u16*)(&src[(tgx*2)+(tgy*pitchsrc)]));
+					else
+						c = R5G6B5toA8R8G8B8(*(u16*)(&src[(tgx*2)+(tgy*pitchsrc)]));
+
+					a += c.getAlpha();
+					r += c.getRed();
+					g += c.getGreen();
+					b += c.getBlue();
+				}
+			}
+
+			a /= 4;
+			r /= 4;
+			g /= 4;
+			b /= 4;
+
+			u16 c;
+			if (ColorFormat == ECF_A1R5G5B5)
+				c = RGBA16(r,g,b,a);
+			else
+				c = A8R8G8B8toR5G6B5(SColor(a,r,g,b).color);
+			*(u16*)(&tgt[(x*2)+(y*pitchtgt)]) = c;
+		}
+	}
+}
+
+void CD3D9Texture::copy32BitMipMap(char* src, char* tgt,
+				   s32 width, s32 height,
+				   s32 pitchsrc, s32 pitchtgt) const
+{
+	for (s32 y=0; y<height; ++y)
+	{
+		for (s32 x=0; x<width; ++x)
+		{
+			u32 a=0, r=0, g=0, b=0;
+			SColor c;
+
+			for (s32 dy=0; dy<2; ++dy)
+			{
+				const s32 tgy = (y*2)+dy;
+				for (s32 dx=0; dx<2; ++dx)
+				{
+					const s32 tgx = (x*2)+dx;
+
+					c = *(u32*)(&src[(tgx*4)+(tgy*pitchsrc)]);
+
+					a += c.getAlpha();
+					r += c.getRed();
+					g += c.getGreen();
+					b += c.getBlue();
+				}
+			}
+
+			a /= 4;
+			r /= 4;
+			g /= 4;
+			b /= 4;
+
+			c.set(a, r, g, b);
+			*(u32*)(&tgt[(x*4)+(y*pitchtgt)]) = c.color;
+		}
+	}
+}
+
+bool CD3D9Texture::createManualMipMaps(u32 level)
 {
 	if (level==0)
 		return true;
 
-	if (HardwareMipMaps && Texture)
+	if (!Texture)	//Manual mips for CubeTexture not supported yet
 	{
-		// generate mipmaps in hardware
-		Texture->GenerateMipSubLevels();
 		return true;
 	}
 
@@ -215,13 +508,11 @@ bool CD3D9Texture::createMipMaps(u32 level)
 	{
 		if ((upperDesc.Format == D3DFMT_A1R5G5B5) || (upperDesc.Format == D3DFMT_R5G6B5))
 			copy16BitMipMap((char*)upperlr.pBits, (char*)lowerlr.pBits,
-					upperDesc.Width, upperDesc.Height,
 					lowerDesc.Width, lowerDesc.Height,
 					upperlr.Pitch, lowerlr.Pitch);
 		else
 		if (upperDesc.Format == D3DFMT_A8R8G8B8)
 			copy32BitMipMap((char*)upperlr.pBits, (char*)lowerlr.pBits,
-					upperDesc.Width, upperDesc.Height,
 					lowerDesc.Width, lowerDesc.Height,
 					upperlr.Pitch, lowerlr.Pitch);
 		else
@@ -243,451 +534,227 @@ bool CD3D9Texture::createMipMaps(u32 level)
 		return result; // stop generating levels
 
 	// generate next level
-	return createMipMaps(level+1);
+	return createManualMipMaps(level+1);
 }
 
 
-//! creates the hardware texture
-bool CD3D9Texture::createTexture(u32 flags, IImage * image)
+IDirect3DBaseTexture9* CD3D9Texture::getDX9BaseTexture() const
 {
-	OriginalSize = image->getDimension();
-
-	core::dimension2d<u32> optSize = OriginalSize.getOptimalSize(!Driver->queryFeature(EVDF_TEXTURE_NPOT), !Driver->queryFeature(EVDF_TEXTURE_NSQUARE), true, Driver->Caps.MaxTextureWidth);
-
-	D3DFORMAT format = D3DFMT_A1R5G5B5;
-
-	switch(getTextureFormatFromFlags(flags))
-	{
-	case ETCF_ALWAYS_16_BIT:
-		format = D3DFMT_A1R5G5B5; break;
-	case ETCF_ALWAYS_32_BIT:
-		format = D3DFMT_A8R8G8B8; break;
-	case ETCF_OPTIMIZED_FOR_QUALITY:
-		{
-			switch(image->getColorFormat())
-			{
-			case ECF_R8G8B8:
-			case ECF_A8R8G8B8:
-				format = D3DFMT_A8R8G8B8; break;
-			case ECF_A1R5G5B5:
-			case ECF_R5G6B5:
-				format = D3DFMT_A1R5G5B5; break;
-			}
-		}
-		break;
-	case ETCF_OPTIMIZED_FOR_SPEED:
-		format = D3DFMT_A1R5G5B5;
-		break;
-	default:
-		break;
-	}
-	if (Driver->getTextureCreationFlag(video::ETCF_NO_ALPHA_CHANNEL))
-	{
-		if (format == D3DFMT_A8R8G8B8)
-			format = D3DFMT_R8G8B8;
-		else if (format == D3DFMT_A1R5G5B5)
-			format = D3DFMT_R5G6B5;
-	}
-
-	if (IImage::isCompressedFormat(image->getColorFormat()))
-	{
-		ColorFormat = image->getColorFormat();
-
-		switch(ColorFormat)
-		{
-			case ECF_DXT1:
-				format = D3DFMT_DXT1;
-				break;
-			case ECF_DXT2:
-				format = D3DFMT_DXT2;
-				break;
-			case ECF_DXT3:
-				format = D3DFMT_DXT3;
-				break;
-			case ECF_DXT4:
-				format = D3DFMT_DXT4;
-				break;
-			case ECF_DXT5:
-				format = D3DFMT_DXT5;
-				break;
-			default:
-				break;
-		}
-
-		IsCompressed = true;
-	}
-
-	bool mipmaps = Driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-
-	if (IsCompressed && !image->hasMipMaps())
-		mipmaps = false;
-
-	DWORD usage = 0;
-
-	// This enables hardware mip map generation.
-	if (!IsCompressed && mipmaps && Driver->queryFeature(EVDF_MIP_MAP_AUTO_UPDATE))
-	{
-		LPDIRECT3D9 intf = Driver->getExposedVideoData().D3D9.D3D9;
-		D3DDISPLAYMODE d3ddm;
-		intf->GetAdapterDisplayMode(Driver->Params.DisplayAdapter, &d3ddm);
-
-		if (D3D_OK==intf->CheckDeviceFormat(Driver->Params.DisplayAdapter,D3DDEVTYPE_HAL,d3ddm.Format,D3DUSAGE_AUTOGENMIPMAP,D3DRTYPE_TEXTURE,format))
-		{
-			usage = D3DUSAGE_AUTOGENMIPMAP;
-			HardwareMipMaps = true;
-		}
-	}
-
-	HRESULT hr = Device->CreateTexture(optSize.Width, optSize.Height,
-		mipmaps ? 0 : 1, // number of mipmaplevels (0 = automatic all)
-		usage, // usage
-		format, D3DPOOL_MANAGED , &Texture, NULL);
-
-	if (!IsCompressed && FAILED(hr))
-	{
-		// try brute force 16 bit
-		HardwareMipMaps = false;
-		if (format == D3DFMT_A8R8G8B8)
-			format = D3DFMT_A1R5G5B5;
-		else if (format == D3DFMT_R8G8B8)
-			format = D3DFMT_R5G6B5;
-		else
-			return false;
-
-		hr = Device->CreateTexture(optSize.Width, optSize.Height,
-			mipmaps ? 0 : 1, // number of mipmaplevels (0 = automatic all)
-			0, format, D3DPOOL_MANAGED, &Texture, NULL);
-	}
-
-	if (!IsCompressed)
-		ColorFormat = Driver->getColorFormatFromD3DFormat(format);
-
-	setPitch(format);
-
-	return (SUCCEEDED(hr));
+	return (Texture) ? static_cast<IDirect3DBaseTexture9*>(Texture) : static_cast<IDirect3DBaseTexture9*>(CubeTexture);
 }
 
-
-//! copies the image to the texture
-bool CD3D9Texture::copyTexture(IImage * image)
-{
-	if (Texture && image)
-	{
-		D3DSURFACE_DESC desc;
-		Texture->GetLevelDesc(0, &desc);
-
-		Size.Width = desc.Width;
-		Size.Height = desc.Height;
-
-		D3DLOCKED_RECT rect;
-		HRESULT hr = Texture->LockRect(0, &rect, 0, 0);
-		if (FAILED(hr))
-		{
-			os::Printer::log("Texture data not copied", "Could not LockRect D3D9 Texture.", ELL_ERROR);
-			return false;
-		}
-
-		if (IsCompressed)
-		{
-			u32 compressedDataSize = IImage::getDataSizeFromFormat(ColorFormat, Size.Width, Size.Height);
-			memcpy(rect.pBits, image->lock(), compressedDataSize);
-		}
-		else
-		{
-			Pitch = rect.Pitch;
-			image->copyToScaling(rect.pBits, Size.Width, Size.Height, ColorFormat, Pitch);
-		}
-
-		hr = Texture->UnlockRect(0);
-		if (FAILED(hr))
-		{
-			os::Printer::log("Texture data not copied", "Could not UnlockRect D3D9 Texture.", ELL_ERROR);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-
-//! lock function
-void* CD3D9Texture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
-{
-	if (IsCompressed) // TO-DO
-		return 0;
-
-	if (!Texture)
-		return 0;
-
-	MipLevelLocked=mipmapLevel;
-	HRESULT hr;
-	D3DLOCKED_RECT rect;
-	if(!IsRenderTarget)
-	{
-		hr = Texture->LockRect(mipmapLevel, &rect, 0, (mode==ETLM_READ_ONLY)?D3DLOCK_READONLY:0);
-		if (FAILED(hr))
-		{
-			os::Printer::log("Could not lock DIRECT3D9 Texture.", ELL_ERROR);
-			return 0;
-		}
-	}
-	else
-	{
-		if (!RTTSurface)
-		{
-			// Make RTT surface large enough for all miplevels (including 0)
-			D3DSURFACE_DESC desc;
-			Texture->GetLevelDesc(0, &desc);
-			hr = Device->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format, D3DPOOL_SYSTEMMEM, &RTTSurface, 0);
-			if (FAILED(hr))
-			{
-				os::Printer::log("Could not lock DIRECT3D9 Texture", "Offscreen surface creation failed.", ELL_ERROR);
-				return 0;
-			}
-		}
-
-		IDirect3DSurface9 *surface = 0;
-		hr = Texture->GetSurfaceLevel(mipmapLevel, &surface);
-		if (FAILED(hr))
-		{
-			os::Printer::log("Could not lock DIRECT3D9 Texture", "Could not get surface.", ELL_ERROR);
-			return 0;
-		}
-		hr = Device->GetRenderTargetData(surface, RTTSurface);
-		surface->Release();
-		if(FAILED(hr))
-		{
-			os::Printer::log("Could not lock DIRECT3D9 Texture", "Data copy failed.", ELL_ERROR);
-			return 0;
-		}
-		hr = RTTSurface->LockRect(&rect, 0, (mode==ETLM_READ_ONLY)?D3DLOCK_READONLY:0);
-		if(FAILED(hr))
-		{
-			os::Printer::log("Could not lock DIRECT3D9 Texture", "LockRect failed.", ELL_ERROR);
-			return 0;
-		}
-	}
-	return rect.pBits;
-}
-
-
-//! unlock function
-void CD3D9Texture::unlock()
-{
-	if (IsCompressed) // TO-DO
-		return;
-
-	if (!Texture)
-		return;
-
-	if (!IsRenderTarget)
-		Texture->UnlockRect(MipLevelLocked);
-	else if (RTTSurface)
-		RTTSurface->UnlockRect();
-}
-
-
-//! returns the DIRECT3D9 Texture
 IDirect3DTexture9* CD3D9Texture::getDX9Texture() const
 {
 	return Texture;
 }
 
-
-void CD3D9Texture::copy16BitMipMap(char* src, char* tgt,
-				   const s32 srcWidth, const s32 srcHeight,
-				   const s32 width, const s32 height,
-				   const s32 pitchsrc, const s32 pitchtgt) const
+IDirect3DCubeTexture9* CD3D9Texture::getDX9CubeTexture() const
 {
-	const s32 dy_max = (srcHeight==1?1:2);
-	const s32 dx_max = (srcWidth==1?1:2);
-	const s32 blockcount= dx_max*dy_max;
-	for (s32 y=0; y<height; ++y)
+	return CubeTexture;
+}
+
+void CD3D9Texture::releaseTexture()
+{
+	if (RTTSurface)
 	{
-		for (s32 x=0; x<width; ++x)
-		{
-			u32 a=0, r=0, g=0, b=0;
-			for (s32 dy=0; dy<dy_max; ++dy)
-			{
-				const s32 tgy = (y*2)+dy;
-				for (s32 dx=0; dx<dx_max; ++dx)
-				{
-					const s32 tgx = (x*2)+dx;
+		if (RTTSurface->Release() == 0)
+			RTTSurface = 0;
+	}
 
-					SColor c;
-					if (ColorFormat == ECF_A1R5G5B5)
-						c = A1R5G5B5toA8R8G8B8(*(u16*)(&src[(tgx*2)+(tgy*pitchsrc)]));
-					else
-						c = R5G6B5toA8R8G8B8(*(u16*)(&src[(tgx*2)+(tgy*pitchsrc)]));
+	if (Texture)
+	{
+		if (Texture->Release() == 0)
+			Texture = 0;
+	}
 
-					a += c.getAlpha();
-					r += c.getRed();
-					g += c.getGreen();
-					b += c.getBlue();
-				}
-			}
-
-			a /= blockcount;
-			r /= blockcount;
-			g /= blockcount;
-			b /= blockcount;
-
-			u16 c;
-			if (ColorFormat == ECF_A1R5G5B5)
-				c = RGBA16(r,g,b,a);
-			else
-				c = A8R8G8B8toR5G6B5(SColor(a,r,g,b).color);
-			*(u16*)(&tgt[(x*2)+(y*pitchtgt)]) = c;
-		}
+	if (CubeTexture)
+	{
+		if (CubeTexture->Release() == 0)
+			CubeTexture = 0;
 	}
 }
 
-
-void CD3D9Texture::copy32BitMipMap(char* src, char* tgt,
-				   const s32 srcWidth, const s32 srcHeight,
-				   const s32 width, const s32 height,
-				   const s32 pitchsrc, const s32 pitchtgt) const
+void CD3D9Texture::generateRenderTarget()
 {
-	const s32 dy_max = (srcHeight==1?1:2);
-	const s32 dx_max = (srcWidth==1?1:2);
-	const s32 blockcount= dx_max*dy_max;
-	for (s32 y=0; y<height; ++y)
+	DWORD flags = (IImage::isDepthFormat(ColorFormat)) ? D3DUSAGE_DEPTHSTENCIL : D3DUSAGE_RENDERTARGET;
+
+	HRESULT hr = 0;
+
+	switch (Type)
 	{
-		for (s32 x=0; x<width; ++x)
-		{
-			u32 a=0, r=0, g=0, b=0;
-			SColor c;
+		case ETT_2D:
+			if (!Texture )
+				hr = Device->CreateTexture(Size.Width, Size.Height, 1, flags, InternalFormat, D3DPOOL_DEFAULT, &Texture, NULL);
+			break;
+		case ETT_CUBEMAP:
+			if (!CubeTexture)
+				hr = Device->CreateCubeTexture(Size.Width, 1, flags, InternalFormat, D3DPOOL_DEFAULT, &CubeTexture, NULL);
+			break;
+		default:
+			IRR_DEBUG_BREAK_IF(true)
+			break;
+	}
 
-			for (s32 dy=0; dy<dy_max; ++dy)
-			{
-				const s32 tgy = (y*2)+dy;
-				for (s32 dx=0; dx<dx_max; ++dx)
-				{
-					const s32 tgx = (x*2)+dx;
-
-					c = *(u32*)(&src[(tgx*4)+(tgy*pitchsrc)]);
-
-					a += c.getAlpha();
-					r += c.getRed();
-					g += c.getGreen();
-					b += c.getBlue();
-				}
-			}
-
-			a /= blockcount;
-			r /= blockcount;
-			g /= blockcount;
-			b /= blockcount;
-
-			c.set(a, r, g, b);
-			*(u32*)(&tgt[(x*4)+(y*pitchtgt)]) = c.color;
-		}
+	if (FAILED(hr))
+	{
+		if (D3DERR_INVALIDCALL == hr)
+			os::Printer::log("Could not create render target texture", "Invalid Call", irr::ELL_ERROR);
+		else if (D3DERR_OUTOFVIDEOMEMORY == hr)
+			os::Printer::log("Could not create render target texture", "Out of Video Memory", irr::ELL_ERROR);
+		else if (E_OUTOFMEMORY == hr)
+			os::Printer::log("Could not create render target texture", "Out of Memory", irr::ELL_ERROR);
+		else
+			os::Printer::log("Could not create render target texture", irr::ELL_ERROR);
+		core::stringc params("Width:");
+		params += (unsigned int)Size.Width;
+		params += " Height: ";
+		params += (unsigned int)Size.Height;
+		params += " flag: ";
+		params += (unsigned int)flags;
+		params += " format";
+		params += (unsigned int)InternalFormat;
+		params += " Type: ";
+		params += (unsigned int)Type;
+		os::Printer::log(params.c_str(), irr::ELL_ERROR);
 	}
 }
 
-void CD3D9Texture::regenerateMipMapLevels(void* data, u32 layer)
+ECOLOR_FORMAT CD3D9Texture::getBestColorFormat(ECOLOR_FORMAT format)
 {
-	if (!HasMipMaps)
-		return;
+	// We only try for to adapt "simple" formats
+	ECOLOR_FORMAT destFormat = (format <= ECF_A8R8G8B8) ? ECF_A8R8G8B8 : format;
 
-	if (IsCompressed && !data)
-		return;
-
-	if (data)
+	switch (format)
 	{
-		u32 compressedDataSize = 0;
-		core::dimension2du size = Size;
-		u32 level=0;
-		do
-		{
-			if (size.Width>1)
-				size.Width /=2;
-			if (size.Height>1)
-				size.Height /=2;
-			++level;
-
-			IDirect3DSurface9* mipSurface = 0;
-			HRESULT hr = Texture->GetSurfaceLevel(level, &mipSurface);
-			if (FAILED(hr) || !mipSurface)
-			{
-				os::Printer::log("Could not get mipmap level", ELL_WARNING);
-				return;
-			}
-			D3DSURFACE_DESC mipDesc;
-			mipSurface->GetDesc(&mipDesc);
-			D3DLOCKED_RECT miplr;
-
-			// lock mipmap surface
-			if (FAILED(mipSurface->LockRect(&miplr, NULL, 0)))
-			{
-				mipSurface->Release();
-				os::Printer::log("Could not lock texture", ELL_WARNING);
-				return;
-			}
-
-			if (IsCompressed)
-			{
-				if(ColorFormat == ECF_DXT1)
-					compressedDataSize = ((size.Width + 3) / 4) * ((size.Height + 3) / 4) * 8;
-				else if (ColorFormat == ECF_DXT2 || ColorFormat == ECF_DXT3 || ColorFormat == ECF_DXT4 || ColorFormat == ECF_DXT5)
-					compressedDataSize = ((size.Width + 3) / 4) * ((size.Height + 3) / 4) * 16;
-
-				memcpy(miplr.pBits, data, compressedDataSize);
-				data = static_cast<u8*>(data)+compressedDataSize;
-			}
-			else
-			{
-				memcpy(miplr.pBits, data, size.getArea()*getPitch() / Size.Width);
-				data = (u8*)data + size.getArea()*getPitch() / Size.Width;
-			}
-
-			// unlock
-			mipSurface->UnlockRect();
-			// release
-			mipSurface->Release();
-		} while (size.Width != 1 || size.Height != 1);
-	}
-	else if (HasMipMaps)
-	{
-		createMipMaps();
-	}
-}
-
-
-void CD3D9Texture::setPitch(D3DFORMAT d3dformat)
-{
-	switch(d3dformat)
-	{
-	case D3DFMT_X1R5G5B5:
-	case D3DFMT_A1R5G5B5:
-		Pitch = Size.Width * 2;
-	break;
-	case D3DFMT_A8B8G8R8:
-	case D3DFMT_A8R8G8B8:
-	case D3DFMT_X8R8G8B8:
-		Pitch = Size.Width * 4;
-	break;
-	case D3DFMT_R5G6B5:
-		Pitch = Size.Width * 2;
-	break;
-	case D3DFMT_R8G8B8:
-		Pitch = Size.Width * 3;
-	break;
-	case D3DFMT_DXT1:
-		Pitch = Size.Width * 2;
-	break;
-	case D3DFMT_DXT2:
-	case D3DFMT_DXT3:
-	case D3DFMT_DXT4:
-	case D3DFMT_DXT5:
-		Pitch = Size.Width * 4;
+	case ECF_A1R5G5B5:
+		if (!Driver->getTextureCreationFlag(ETCF_ALWAYS_32_BIT))
+			destFormat = ECF_A1R5G5B5;
+		break;
+	case ECF_R5G6B5:
+		if (!Driver->getTextureCreationFlag(ETCF_ALWAYS_32_BIT))
+			destFormat = ECF_R5G6B5;
+		break;
+	case ECF_A8R8G8B8:
+		if (Driver->getTextureCreationFlag(ETCF_ALWAYS_16_BIT) ||
+			Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
+			destFormat = ECF_A1R5G5B5;
+		break;
+	case ECF_R8G8B8:
+		// Note: Using ECF_A8R8G8B8 even when ETCF_ALWAYS_32_BIT is not set as 24 bit textures fail with too many cards
+		if (Driver->getTextureCreationFlag(ETCF_ALWAYS_16_BIT) || Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
+			destFormat = ECF_A1R5G5B5;
 	default:
-		Pitch = 0;
-	};
+		break;
+	}
+
+	if (Driver->getTextureCreationFlag(ETCF_NO_ALPHA_CHANNEL))
+	{
+		switch (destFormat)
+		{
+		case ECF_A1R5G5B5:
+			destFormat = ECF_R5G6B5;
+			break;
+		case ECF_A8R8G8B8:
+			destFormat = ECF_R8G8B8;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return destFormat;
 }
 
+void CD3D9Texture::getImageValues(const IImage* image)
+{
+	OriginalColorFormat = image->getColorFormat();
+	ColorFormat = getBestColorFormat(OriginalColorFormat);
 
-} // end namespace video
-} // end namespace irr
+	InternalFormat = Driver->getD3DFormatFromColorFormat(ColorFormat);
 
-#endif // _IRR_COMPILE_WITH_DIRECT3D_9_
+	if (IImage::isCompressedFormat(image->getColorFormat()))
+	{
+		HardwareMipMaps = false;
+	}
+
+	OriginalSize = image->getDimension();
+	Size = OriginalSize;
+
+	if (Size.Width == 0 || Size.Height == 0)
+	{
+		os::Printer::log("Invalid size of image for texture.", ELL_ERROR);
+		return;
+	}
+
+	const f32 ratio = (f32)Size.Width / (f32)Size.Height;
+
+	if ((Size.Width > Driver->Caps.MaxTextureWidth) && (ratio >= 1.f))
+	{
+		Size.Width = Driver->Caps.MaxTextureWidth;
+		Size.Height = (u32)(Driver->Caps.MaxTextureWidth / ratio);
+	}
+	else if (Size.Height > Driver->Caps.MaxTextureHeight)
+	{
+		Size.Height = Driver->Caps.MaxTextureHeight;
+		Size.Width = (u32)(Driver->Caps.MaxTextureHeight * ratio);
+	}
+
+	bool needSquare = (!Driver->queryFeature(EVDF_TEXTURE_NSQUARE) || Type == ETT_CUBEMAP);
+
+	Size = Size.getOptimalSize(!Driver->queryFeature(EVDF_TEXTURE_NPOT), needSquare, true, Driver->Caps.MaxTextureWidth);
+
+	Pitch = Size.Width * IImage::getBitsPerPixelFromFormat(ColorFormat) / 8;
+}
+
+void CD3D9Texture::uploadTexture(void* data, u32 mipmapLevel, u32 layer)
+{
+	if (!data)
+		return;
+
+	u32 width = Size.Width >> mipmapLevel;
+	u32 height = Size.Height >> mipmapLevel;
+
+	u32 dataSize = IImage::getDataSizeFromFormat(ColorFormat, width, height);
+
+	HRESULT hr = 0;
+
+	D3DLOCKED_RECT lockRectangle;
+
+	if (Texture)
+	{
+		hr = Texture->LockRect(mipmapLevel, &lockRectangle, 0, 0);
+	}
+	else if (CubeTexture)
+	{
+		IRR_DEBUG_BREAK_IF(layer > 5)
+
+		hr = CubeTexture->LockRect(static_cast<_D3DCUBEMAP_FACES>(layer), mipmapLevel, &lockRectangle, 0, 0);
+	}
+
+	if (FAILED(hr))
+	{
+		os::Printer::log("Texture data not copied", "Could not LockRect D3D9 Texture.", ELL_ERROR);
+		return;
+	}
+
+	memcpy(lockRectangle.pBits, data, dataSize);
+
+	if (Texture)
+	{
+		hr = Texture->UnlockRect(mipmapLevel);
+	}
+	else if (CubeTexture)
+	{
+		hr = CubeTexture->UnlockRect(static_cast<_D3DCUBEMAP_FACES>(layer), mipmapLevel);
+	}
+
+	if (FAILED(hr))
+	{
+		os::Printer::log("Texture data not copied", "Could not UnlockRect D3D9 Texture.", ELL_ERROR);
+	}
+}
+
+}
+}
+
+#endif

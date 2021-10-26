@@ -78,9 +78,9 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 
 	const u32 WORD_BUFFER_LENGTH = 512;
 
-	core::array<core::vector3df> vertexBuffer;
-	core::array<core::vector3df> normalsBuffer;
-	core::array<core::vector2df> textureCoordBuffer;
+	core::array<core::vector3df, core::irrAllocatorFast<core::vector3df> > vertexBuffer(1000);
+	core::array<core::vector3df, core::irrAllocatorFast<core::vector3df> > normalsBuffer(1000);
+	core::array<core::vector2df, core::irrAllocatorFast<core::vector2df> > textureCoordBuffer(1000);
 
 	SObjMtl * currMtl = new SObjMtl();
 	Materials.push_back(currMtl);
@@ -100,6 +100,12 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 	bool mtlChanged=false;
 	bool useGroups = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_GROUPS);
 	bool useMaterials = !SceneManager->getParameters()->getAttributeAsBool(OBJ_LOADER_IGNORE_MATERIAL_FILES);
+	irr::u32 lineNr = 1;	// only counts non-empty lines, still useful in debugging to locate errors
+	core::array<int> faceCorners;
+	faceCorners.reallocate(32); // should be large enough
+	const core::stringc TAG_OFF = "off";
+	irr::u32 degeneratedFaces = 0;
+
 	while(bufPtr != bufEnd)
 	{
 		switch(bufPtr[0])
@@ -172,10 +178,12 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 #ifdef _IRR_DEBUG_OBJ_LOADER_
 	os::Printer::log("Loaded smoothing group start",smooth, ELL_DEBUG);
 #endif
-				if (core::stringc("off")==smooth)
+				if (TAG_OFF==smooth)
 					smoothingGroup=0;
 				else
 					smoothingGroup=core::strtoul10(smooth);
+
+				(void)smoothingGroup; // disable unused variable warnings
 			}
 			break;
 
@@ -214,8 +222,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 			const c8* linePtr = wordBuffer.c_str();
 			const c8* const endPtr = linePtr+wordBuffer.size();
 
-			core::array<int> faceCorners;
-			faceCorners.reallocate(32); // should be large enough
+			faceCorners.set_used(0); // fast clear
 
 			// read in all vertices
 			linePtr = goNextWord(linePtr, endPtr);
@@ -271,15 +278,23 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 			}
 
 			// triangulate the face
+			const int c = faceCorners[0];
 			for ( u32 i = 1; i < faceCorners.size() - 1; ++i )
 			{
 				// Add a triangle
-				currMtl->Meshbuffer->Indices.push_back( faceCorners[i+1] );
-				currMtl->Meshbuffer->Indices.push_back( faceCorners[i] );
-				currMtl->Meshbuffer->Indices.push_back( faceCorners[0] );
+				const int a = faceCorners[i + 1];
+				const int b = faceCorners[i];
+				if (a != b && a != c && b != c)	// ignore degenerated faces. We can get them when we merge vertices above in the VertMap.
+				{
+					currMtl->Meshbuffer->Indices.push_back(a);
+					currMtl->Meshbuffer->Indices.push_back(b);
+					currMtl->Meshbuffer->Indices.push_back(c);
+				}
+				else
+				{
+					++degeneratedFaces;
+				}
 			}
-			faceCorners.set_used(0); // fast clear
-			faceCorners.reallocate(32);
 		}
 		break;
 
@@ -289,7 +304,16 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 		}	// end switch(bufPtr[0])
 		// eat up rest of line
 		bufPtr = goNextLine(bufPtr, bufEnd);
+		++lineNr;
 	}	// end while(bufPtr && (bufPtr-buf<filesize))
+
+	if ( degeneratedFaces > 0 )
+	{
+		irr::core::stringc log(degeneratedFaces);
+		log += " degenerated faces removed in ";
+		log += irr::core::stringc(fullName);
+		os::Printer::log(log.c_str(), ELL_INFORMATION);
+	}
 
 	SMesh* mesh = new SMesh();
 
@@ -613,6 +637,7 @@ void COBJMeshFileLoader::readMTL(const c8* fileName, const io::path& relPath)
 					break;
 				case 'e':		// Ke = emissive
 					{
+						currMaterial->Meshbuffer->Material.EmissiveColor.setAlpha(255);
 						bufPtr=readColor(bufPtr, currMaterial->Meshbuffer->Material.EmissiveColor, bufEnd);
 					}
 					break;
@@ -685,13 +710,12 @@ const c8* COBJMeshFileLoader::readColor(const c8* bufPtr, video::SColor& color, 
 	const u32 COLOR_BUFFER_LENGTH = 16;
 	c8 colStr[COLOR_BUFFER_LENGTH];
 
-	color.setAlpha(255);
 	bufPtr = goAndCopyNextWord(colStr, bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setRed((s32)(core::fast_atof(colStr) * 255.0f));
+	color.setRed((u32)core::round32(core::fast_atof(colStr)*255.f));
 	bufPtr = goAndCopyNextWord(colStr,   bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setGreen((s32)(core::fast_atof(colStr) * 255.0f));
+	color.setGreen((u32)core::round32(core::fast_atof(colStr)*255.f));
 	bufPtr = goAndCopyNextWord(colStr,   bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setBlue((s32)(core::fast_atof(colStr) * 255.0f));
+	color.setBlue((u32)core::round32(core::fast_atof(colStr)*255.f));
 	return bufPtr;
 }
 

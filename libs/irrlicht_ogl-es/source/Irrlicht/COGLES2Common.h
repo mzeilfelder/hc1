@@ -16,7 +16,15 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/eglplatform.h>
+#elif defined(_IRR_EMSCRIPTEN_PLATFORM_)
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <EGL/eglplatform.h>
 #else
+#if defined(_IRR_OGLES2_USE_EXTPOINTER_)
+	#define GL_GLEXT_PROTOTYPES 1
+	#define GLX_GLXEXT_PROTOTYPES 1
+#endif
 #include <GLES2/gl2.h>
 #include <EGL/eglplatform.h>
 typedef char GLchar;
@@ -35,9 +43,8 @@ typedef char GLchar;
 #define GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER 2
 #define GL_FRAMEBUFFER_INCOMPLETE_FORMATS 3
 
-// Irrlicht's OpenGL version.
-
-#define IRR_OPENGL_VERSION 20
+// to check if this header is in the current compile unit (different GL implementation used different "GLCommon" headers in Irrlicht
+#define IRR_COMPILE_GLES2_COMMON
 
 namespace irr
 {
@@ -46,21 +53,21 @@ namespace video
 
 	// Forward declarations.
 
-	class COGLCoreFeature;
+	class COpenGLCoreFeature;
 
-	template <class TOGLDriver>
-	class COGLCoreTexture;
+	template <class TOpenGLDriver>
+	class COpenGLCoreTexture;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreRenderTarget;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreRenderTarget;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreCacheHandler;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreCacheHandler;
 
 	class COGLES2Driver;
-	typedef COGLCoreTexture<COGLES2Driver> COGLES2Texture;
-	typedef COGLCoreRenderTarget<COGLES2Driver, COGLES2Texture> COGLES2RenderTarget;
-	typedef COGLCoreCacheHandler<COGLES2Driver, COGLES2Texture> COGLES2CacheHandler;
+	typedef COpenGLCoreTexture<COGLES2Driver> COGLES2Texture;
+	typedef COpenGLCoreRenderTarget<COGLES2Driver, COGLES2Texture> COGLES2RenderTarget;
+	typedef COpenGLCoreCacheHandler<COGLES2Driver, COGLES2Texture> COGLES2CacheHandler;
 
 }
 }

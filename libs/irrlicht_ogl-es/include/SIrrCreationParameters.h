@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_IRRLICHT_CREATION_PARAMETERS_H_INCLUDED__
-#define __I_IRRLICHT_CREATION_PARAMETERS_H_INCLUDED__
+#ifndef IRR_IRRLICHT_CREATION_PARAMETERS_H_INCLUDED
+#define IRR_IRRLICHT_CREATION_PARAMETERS_H_INCLUDED
 
 #include "EDriverTypes.h"
 #include "EDeviceTypes.h"
@@ -30,6 +30,7 @@ namespace irr
 			Bits(32),
 			ZBufferBits(24),
 			Fullscreen(false),
+			WindowResizable(2),
 			Stencilbuffer(true),
 			Vsync(false),
 			AntiAlias(0),
@@ -51,7 +52,7 @@ namespace irr
 			UsePerformanceTimer(true),
 			SDK_version_do_not_use(IRRLICHT_SDK_VERSION),
 			PrivateData(0),
-#if defined(_IRR_COMPILE_WITH_IOS_DEVICE_) || defined(_IRR_ANDROID_PLATFORM_)
+#if defined(_IRR_COMPILE_WITH_IOS_DEVICE_) || defined(_IRR_ANDROID_PLATFORM_) || defined(_IRR_EMSCRIPTEN_PLATFORM_)
 			OGLES2ShaderPath("media/Shaders/")
 #else
 			OGLES2ShaderPath("../../media/Shaders/")
@@ -72,6 +73,7 @@ namespace irr
 			Bits = other.Bits;
 			ZBufferBits = other.ZBufferBits;
 			Fullscreen = other.Fullscreen;
+			WindowResizable = other.WindowResizable;
 			Stencilbuffer = other.Stencilbuffer;
 			Vsync = other.Vsync;
 			AntiAlias = other.AntiAlias;
@@ -84,8 +86,8 @@ namespace irr
 			EventReceiver = other.EventReceiver;
 			WindowId = other.WindowId;
 			LoggingLevel = other.LoggingLevel;
-			DriverMultithreaded = other.DriverMultithreaded;
 			DisplayAdapter = other.DisplayAdapter;
+			DriverMultithreaded = other.DriverMultithreaded;
 			UsePerformanceTimer = other.UsePerformanceTimer;
 			PrivateData = other.PrivateData;
 			OGLES2ShaderPath = other.OGLES2ShaderPath;
@@ -127,6 +129,12 @@ namespace irr
 		/** Otherwise the device runs in windowed mode. Default: false. */
 		bool Fullscreen;
 
+		//! Should a non-fullscreen window be resizable.
+		/** Might not be supported by all devices. Ignored when Fullscreen is true.
+		Values: 0 = not resizable, 1 = resizable, 2 = system decides default itself
+		Default: 2*/
+		u8 WindowResizable;
+
 		//! Specifies if the stencil buffer should be enabled.
 		/** Set this to true, if you want the engine be able to draw
 		stencil buffer shadows. Note that not all drivers are able to
@@ -135,7 +143,7 @@ namespace irr
 		Default: true. */
 		bool Stencilbuffer;
 
-		//! Specifies vertical syncronisation.
+		//! Specifies vertical synchronization.
 		/** If set to true, the driver will wait for the vertical
 		retrace period, otherwise not. May be silently ignored.
 		Default: false */
@@ -151,7 +159,7 @@ namespace irr
 		be a good idea to make it possible to switch this option off
 		again by the user.
 		The value is the maximal antialiasing factor requested for
-		the device. The cretion method will automatically try smaller
+		the device. The creation method will automatically try smaller
 		values if no window can be created with the given value.
 		Value one is usually the same as 0 (disabled), but might be a
 		special value on some platforms. On D3D devices it maps to
@@ -160,7 +168,7 @@ namespace irr
 		u8 AntiAlias;
 
 		//! Flag to enable proper sRGB and linear color handling
-		/** In most situations, it is desireable to have the color handling in
+		/** In most situations, it is desirable to have the color handling in
 		non-linear sRGB color space, and only do the intermediate color
 		calculations in linear RGB space. If this flag is enabled, the device and
 		driver try to assure that all color input and output are color corrected
@@ -175,7 +183,7 @@ namespace irr
 		bool HandleSRGB;
 
 		//! Whether the main framebuffer uses an alpha channel.
-		/** In some situations it might be desireable to get a color
+		/** In some situations it might be desirable to get a color
 		buffer with an alpha channel, e.g. when rendering into a
 		transparent window or overlay. If this flag is set the device
 		tries to create a framebuffer with alpha channel.
@@ -222,10 +230,11 @@ namespace irr
 
 		//! Window Id.
 		/** If this is set to a value other than 0, the Irrlicht Engine
-		will be created in an already existing window. For windows, set
-		this to the HWND of the window you want. The windowSize and
-		FullScreen options will be ignored when using the WindowId
-		parameter. Default this is set to 0.
+		will be created in an already existing window.
+		For Windows, set this to the HWND of the window you want.
+		For iOS, assign UIView to this variable.
+		The windowSize and FullScreen options will be ignored when using
+		the WindowId parameter. Default this is set to 0.
 		To make Irrlicht run inside the custom window, you still will
 		have to draw Irrlicht on your own. You can use this loop, as
 		usual:
@@ -319,4 +328,3 @@ namespace irr
 } // end namespace irr
 
 #endif
-

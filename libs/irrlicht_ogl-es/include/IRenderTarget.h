@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_RENDER_TARGET_H_INCLUDED__
-#define __I_RENDER_TARGET_H_INCLUDED__
+#ifndef IRR_I_RENDER_TARGET_H_INCLUDED
+#define IRR_I_RENDER_TARGET_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "EDriverTypes.h"
@@ -15,6 +15,17 @@ namespace video
 {
 	class ITexture;
 
+	//! Enumeration of cube texture surfaces
+	enum E_CUBE_SURFACE
+	{
+		ECS_POSX  = 0,
+		ECS_NEGX,
+		ECS_POSY,
+		ECS_NEGY,
+		ECS_POSZ, 
+		ECS_NEGZ
+	};
+
 	//! Interface of a Render Target.
 	class IRenderTarget : public virtual IReferenceCounted
 	{
@@ -25,20 +36,61 @@ namespace video
 		{
 		}
 
+		//! Returns an array of previously set textures.
+		const core::array<ITexture*>& getTexture() const
+		{
+			return Textures;
+		}
+
+		//! Returns a of previously set depth / depth-stencil texture.
+		ITexture* getDepthStencil() const
+		{
+			return DepthStencil;
+		}
+
+		//! Returns an array of active surface for cube textures
+		const core::array<E_CUBE_SURFACE>& getCubeSurfaces() const
+		{
+			return CubeSurfaces;
+		}
+
 		//! Set multiple textures.
 		/** Set multiple textures for the render target.
 		\param texture Array of texture objects. These textures are used for a color outputs.
 		\param depthStencil Depth or packed depth-stencil texture. This texture is used as depth
-		or depth-stencil buffer. */
-		virtual void setTexture(const core::array<ITexture*>& texture, ITexture* depthStencil) = 0;
-		
-		//! Set one texture.
+		or depth-stencil buffer. You can pass getDepthStencil() if you don't want to change it.
+		\param cubeSurfaces When rendering to cube textures, set the surface to be used for each texture. Can be empty otherwise.
+		*/
+		void setTexture(const core::array<ITexture*>& texture, ITexture* depthStencil, const core::array<E_CUBE_SURFACE>& cubeSurfaces = core::array<E_CUBE_SURFACE>())
+		{
+			setTextures(texture.const_pointer(), texture.size(), depthStencil, cubeSurfaces.const_pointer(), cubeSurfaces.size());
+		}
+
+		//! Sets one texture + depthStencil
+		//! You can pass getDepthStencil() for depthStencil if you don't want to change that one
 		void setTexture(ITexture* texture, ITexture* depthStencil)
 		{
-			core::array<ITexture*> textureArray(1);
-			textureArray.push_back(texture);
+			if ( texture )
+			{
+				setTextures(&texture, 1, depthStencil);
+			}
+			else
+			{
+				setTextures(0, 0, depthStencil);
+			}
+		}
 
-			setTexture(textureArray, depthStencil);
+		//! Set one cube surface texture.
+		void setTexture(ITexture* texture, ITexture* depthStencil, E_CUBE_SURFACE cubeSurface)
+		{
+			if ( texture )
+			{
+				setTextures(&texture, 1, depthStencil, &cubeSurface, 1);
+			}
+			else
+			{
+				setTextures(0, 0, depthStencil, &cubeSurface, 1);
+			}
 		}
 
 		//! Get driver type of render target.
@@ -46,17 +98,29 @@ namespace video
 		{
 			return DriverType;
 		}
-		
+
 	protected:
-	
+
+		//! Set multiple textures.
+		// NOTE: working with pointers instead of arrays to avoid unnecessary memory allocations for the single textures case
+		virtual void setTextures(ITexture* const * textures, u32 numTextures, ITexture* depthStencil, const E_CUBE_SURFACE* cubeSurfaces=0, u32 numCubeSurfaces=0) = 0;
+
 		//! Textures assigned to render target.
-		core::array<ITexture*> Texture;
-		
+		core::array<ITexture*> Textures;
+
 		//! Depth or packed depth-stencil texture assigned to render target.
 		ITexture* DepthStencil;
 
+		//! Active surface of cube textures
+		core::array<E_CUBE_SURFACE> CubeSurfaces;
+
 		//! Driver type of render target.
 		E_DRIVER_TYPE DriverType;
+
+	private:
+		// no copying (IReferenceCounted still allows that for reasons which take some time to work around)
+		IRenderTarget(const IRenderTarget&);
+		IRenderTarget& operator=(const IRenderTarget&);
 	};
 
 }

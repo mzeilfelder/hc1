@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_LIGHT_SCENE_NODE_H_INCLUDED__
-#define __I_LIGHT_SCENE_NODE_H_INCLUDED__
+#ifndef IRR_I_LIGHT_SCENE_NODE_H_INCLUDED
+#define IRR_I_LIGHT_SCENE_NODE_H_INCLUDED
 
 #include "ISceneNode.h"
 #include "SLight.h"
@@ -51,6 +51,7 @@ public:
 	shadows. Setting the radius will also influence the attenuation, setting
 	it to (0,1/radius,0). If you want to override this behavior, set the
 	attenuation after the radius.
+	NOTE: On OpenGL only the attenuation is set, there's no hard range.
 	\param radius The new radius. */
 	virtual void setRadius(f32 radius) = 0;
 
@@ -83,4 +84,3 @@ public:
 
 
 #endif
-

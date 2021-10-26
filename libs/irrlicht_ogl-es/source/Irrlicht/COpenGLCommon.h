@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_OPENGL_COMMON_H_INCLUDED__
-#define __C_OPENGL_COMMON_H_INCLUDED__
+#ifndef IRR_C_OPENGL_COMMON_H_INCLUDED
+#define IRR_C_OPENGL_COMMON_H_INCLUDED
 
 #include "IrrCompileConfig.h"
 
@@ -169,9 +169,8 @@ typedef char GLchar;
 #endif
 #endif
 
-// Irrlicht's OpenGL version.
-
-#define IRR_OPENGL_VERSION 14
+// To check if this header is in the current compile unit (different GL driver implementations use different "GLCommon" headers in Irrlicht)
+#define IRR_COMPILE_GL_COMMON
 
 namespace irr
 {
@@ -180,20 +179,20 @@ namespace video
 
 	// Forward declarations.
 
-	class COGLCoreFeature;
+	class COpenGLCoreFeature;
 
-	template <class TOGLDriver>
-	class COGLCoreTexture;
+	template <class TOpenGLDriver>
+	class COpenGLCoreTexture;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreRenderTarget;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreRenderTarget;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreCacheHandler;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreCacheHandler;
 
 	class COpenGLDriver;
-	typedef COGLCoreTexture<COpenGLDriver> COpenGLTexture;
-	typedef COGLCoreRenderTarget<COpenGLDriver, COpenGLTexture> COpenGLRenderTarget;
+	typedef COpenGLCoreTexture<COpenGLDriver> COpenGLTexture;
+	typedef COpenGLCoreRenderTarget<COpenGLDriver, COpenGLTexture> COpenGLRenderTarget;
 	class COpenGLCacheHandler;
 
 }

@@ -76,7 +76,7 @@ CSoftwareTexture::~CSoftwareTexture()
 
 
 //! lock function
-void* CSoftwareTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
+void* CSoftwareTexture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel, u32 layer, E_TEXTURE_LOCK_FLAGS lockFlags)
 {
 	return Image->getData();
 }
@@ -119,45 +119,47 @@ CSoftwareRenderTarget::CSoftwareRenderTarget(CSoftwareDriver* driver) : Driver(d
 {
 	DriverType = EDT_SOFTWARE;
 
-	Texture.set_used(1);
-	Texture[0] = 0;
+	Textures.set_used(1);
+	Textures[0] = 0;
 }
 
 CSoftwareRenderTarget::~CSoftwareRenderTarget()
 {
-	if (Texture[0])
-		Texture[0]->drop();
+	if (Textures[0])
+		Textures[0]->drop();
 }
 
-void CSoftwareRenderTarget::setTexture(const core::array<ITexture*>& texture, ITexture* depthStencil)
+void CSoftwareRenderTarget::setTextures(ITexture* const * textures, u32 numTextures, ITexture* depthStencil, const E_CUBE_SURFACE* cubeSurfaces, u32 numCubeSurfaces)
 {
-	if (Texture != texture)
+	if (!Textures.equals(textures, numTextures))
 	{
-		if (Texture[0])
-			Texture[0]->drop();
+		ITexture* prevTexture = Textures[0];
 
 		bool textureDetected = false;
 
-		for (u32 i = 0; i < texture.size(); ++i)
+		for (u32 i = 0; i < numTextures; ++i)
 		{
-			if (texture[i] && texture[i]->getDriverType() == EDT_SOFTWARE)
+			if (textures[i] && textures[i]->getDriverType() == EDT_SOFTWARE)
 			{
-				Texture[0] = texture[i];
-				Texture[0]->grab();
+				Textures[0] = textures[i];
+				Textures[0]->grab();
 				textureDetected = true;
 
 				break;
 			}
 		}
 
+		if (prevTexture)
+			prevTexture->drop();
+
 		if (!textureDetected)
-			Texture[0] = 0;
+			Textures[0] = 0;
 	}
 }
 
 ITexture* CSoftwareRenderTarget::getTexture() const
 {
-	return Texture[0];
+	return Textures[0];
 }
 
 

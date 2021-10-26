@@ -8,9 +8,9 @@
 
 #ifdef _IRR_COMPILE_WITH_OGLES1_
 
-#include "COGLCoreTexture.h"
-#include "COGLCoreRenderTarget.h"
-#include "COGLCoreCacheHandler.h"
+#include "COpenGLCoreTexture.h"
+#include "COpenGLCoreRenderTarget.h"
+#include "COpenGLCoreCacheHandler.h"
 
 #include "COGLESMaterialRenderer.h"
 
@@ -31,7 +31,7 @@ namespace video
 
 COGLES1Driver::COGLES1Driver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, IContextManager* contextManager) :
     CNullDriver(io, params.WindowSize), COGLES1ExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE),
-    ResetRenderStates(true), Transformation3DChanged(true), AntiAlias(params.AntiAlias), CurrentRendertargetSize(0, 0),
+    ResetRenderStates(true), Transformation3DChanged(true), AntiAlias(params.AntiAlias),
     ColorFormat(ECF_R8G8B8), Params(params), ContextManager(contextManager)
 {
 #ifdef _DEBUG
@@ -47,8 +47,8 @@ COGLES1Driver::COGLES1Driver(const SIrrlichtCreationParameters& params, io::IFil
 	ContextManager->generateSurface();
 	ContextManager->generateContext();
 	ExposedData = ContextManager->getContext();
-	ContextManager->activateContext(ExposedData);
-	
+	ContextManager->activateContext(ExposedData, false);
+
 	windowSize = params.WindowSize;
 
     genericDriverInit(windowSize, params.Stencilbuffer);
@@ -100,8 +100,8 @@ bool COGLES1Driver::genericDriverInit(const core::dimension2d<u32>& screenSize, 
 
 	StencilBuffer = stencilBuffer;
 
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.TextureUnit);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.TextureUnit);
+	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
+	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
 	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
 	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
 	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
@@ -150,7 +150,7 @@ bool COGLES1Driver::genericDriverInit(const core::dimension2d<u32>& screenSize, 
 	// This fixes problems with intermediate changes to the material during texture load.
 	ResetRenderStates = true;
 
-	testGLError();
+	testGLError(__LINE__);
 
 	return true;
 }
@@ -206,7 +206,7 @@ bool COGLES1Driver::beginScene(u16 clearFlag, SColor clearColor, f32 clearDepth,
 	CNullDriver::beginScene(clearFlag, clearColor, clearDepth, clearStencil, videoData, sourceRect);
 
 	if (ContextManager)
-		ContextManager->activateContext(videoData);
+		ContextManager->activateContext(videoData, true);
 
 	clearBuffers(clearFlag, clearColor, clearDepth, clearStencil);
 
@@ -220,7 +220,7 @@ bool COGLES1Driver::endScene()
 	CNullDriver::endScene();
 
 	glFlush();
-	
+
 	if (ContextManager)
 		return ContextManager->swapBuffers();
 
@@ -354,7 +354,7 @@ bool COGLES1Driver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	return (!testGLError());
+	return (!testGLError(__LINE__));
 }
 
 
@@ -418,7 +418,7 @@ bool COGLES1Driver::updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	return (!testGLError());
+	return (!testGLError(__LINE__));
 }
 
 
@@ -540,8 +540,8 @@ void COGLES1Driver::drawHardwareBuffer(SHWBufferLink *_HWBuffer)
 
 
 	drawVertexPrimitiveList(vertices, mb->getVertexCount(), indexList,
-			mb->getIndexCount()/3, mb->getVertexType(),
-			scene::EPT_TRIANGLES, mb->getIndexType());
+			mb->getPrimitiveCount(), mb->getVertexType(),
+			mb->getPrimitiveType(), mb->getIndexType());
 
 	if (HWBuffer->Mapped_Vertex!=scene::EHM_NEVER)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -642,7 +642,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 	if ((pType!=scene::EPT_POINTS) && (pType!=scene::EPT_POINT_SPRITES))
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 #ifdef GL_OES_point_size_array
-	else if (FeatureAvailable[IRR_OES_point_size_array] && (Material.Thickness==0.0f))
+	else if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_point_size_array] && (Material.Thickness==0.0f))
 		glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
 #endif
 	if (threed && (pType!=scene::EPT_POINTS) && (pType!=scene::EPT_POINT_SPRITES))
@@ -669,7 +669,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 				glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex), 0);
 			}
 
-			if (Feature.TextureUnit > 0 && CacheHandler->getTextureCache().get(1))
+			if (Feature.MaxTextureUnits > 0 && CacheHandler->getTextureCache().get(1))
 			{
 				glClientActiveTexture(GL_TEXTURE0 + 1);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -695,7 +695,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 				glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex2TCoords), buffer_offset(0));
 			}
 
-			if (Feature.TextureUnit > 0)
+			if (Feature.MaxTextureUnits > 0)
 			{
 				glClientActiveTexture(GL_TEXTURE0 + 1);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -721,7 +721,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 				glVertexPointer(3, GL_FLOAT, sizeof(S3DVertexTangents), buffer_offset(0));
 			}
 
-			if (Feature.TextureUnit > 0)
+			if (Feature.MaxTextureUnits > 0)
 			{
 				glClientActiveTexture(GL_TEXTURE0 + 1);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -755,7 +755,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 #ifndef GL_UNSIGNED_INT
 #define GL_UNSIGNED_INT                   0x1405
 #endif
-			if (FeatureAvailable[IRR_OES_element_index_uint])
+			if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_element_index_uint])
 				indexSize=GL_UNSIGNED_INT;
 			else
 #endif
@@ -770,7 +770,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 		case scene::EPT_POINT_SPRITES:
 		{
 #ifdef GL_OES_point_sprite
-			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_OES_point_sprite])
+			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_point_sprite])
 				glEnable(GL_POINT_SPRITE_OES);
 #endif
 			// if ==0 we use the point size array
@@ -787,12 +787,12 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 				glPointSize(Material.Thickness);
 			}
 #ifdef GL_OES_point_sprite
-			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_OES_point_sprite])
+			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_point_sprite])
 				glTexEnvf(GL_POINT_SPRITE_OES,GL_COORD_REPLACE_OES, GL_TRUE);
 #endif
 			glDrawArrays(GL_POINTS, 0, primitiveCount);
 #ifdef GL_OES_point_sprite
-			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_OES_point_sprite])
+			if (pType==scene::EPT_POINT_SPRITES && FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_point_sprite])
 			{
 				glDisable(GL_POINT_SPRITE_OES);
 				glTexEnvf(GL_POINT_SPRITE_OES,GL_COORD_REPLACE_OES, GL_FALSE);
@@ -824,7 +824,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 			break;
 	}
 
-	if (Feature.TextureUnit > 0)
+	if (Feature.MaxTextureUnits > 0)
 	{
 		if (vType == EVT_TANGENTS)
 		{
@@ -840,7 +840,7 @@ void COGLES1Driver::drawVertexPrimitiveList2d3d(const void* vertices, u32 vertex
 	}
 
 #ifdef GL_OES_point_size_array
-	if (FeatureAvailable[IRR_OES_point_size_array] && (Material.Thickness==0.0f))
+	if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_point_size_array] && (Material.Thickness==0.0f))
 		glDisableClientState(GL_POINT_SIZE_ARRAY_OES);
 #endif
 
@@ -1032,7 +1032,7 @@ void COGLES1Driver::draw2DImage(const video::ITexture* texture, const core::rect
 		glDisable(GL_SCISSOR_TEST);
 }
 
-void COGLES1Driver::draw2DImage(const video::ITexture* texture, bool flip)
+void COGLES1Driver::draw2DImage(const video::ITexture* texture, u32 layer, bool flip)
 {
 	if (!texture || !CacheHandler->getTextureCache().set(0, texture))
 		return;
@@ -1431,13 +1431,13 @@ void COGLES1Driver::setMaterial(const SMaterial& material)
 	Material = material;
 	OverrideMaterial.apply(Material);
 
-	for (u32 i = 0; i < Feature.TextureUnit; ++i)
+	for (u32 i = 0; i < Feature.MaxTextureUnits; ++i)
 		setTransform((E_TRANSFORMATION_STATE)(ETS_TEXTURE_0 + i), material.getTextureMatrix(i));
 }
 
 
 //! prints error if an error happened.
-bool COGLES1Driver::testGLError()
+bool COGLES1Driver::testGLError(int code)
 {
 #ifdef _DEBUG
 	GLenum g = glGetError();
@@ -1446,19 +1446,19 @@ bool COGLES1Driver::testGLError()
 	case GL_NO_ERROR:
 		return false;
 	case GL_INVALID_ENUM:
-		os::Printer::log("GL_INVALID_ENUM", ELL_ERROR); break;
+		os::Printer::log("GL_INVALID_ENUM", core::stringc(code).c_str(), ELL_ERROR); break;
 	case GL_INVALID_VALUE:
-		os::Printer::log("GL_INVALID_VALUE", ELL_ERROR); break;
+		os::Printer::log("GL_INVALID_VALUE", core::stringc(code).c_str(), ELL_ERROR); break;
 	case GL_INVALID_OPERATION:
-		os::Printer::log("GL_INVALID_OPERATION", ELL_ERROR); break;
+		os::Printer::log("GL_INVALID_OPERATION", core::stringc(code).c_str(), ELL_ERROR); break;
 	case GL_STACK_OVERFLOW:
-		os::Printer::log("GL_STACK_OVERFLOW", ELL_ERROR); break;
+		os::Printer::log("GL_STACK_OVERFLOW", core::stringc(code).c_str(), ELL_ERROR); break;
 	case GL_STACK_UNDERFLOW:
-		os::Printer::log("GL_STACK_UNDERFLOW", ELL_ERROR); break;
+		os::Printer::log("GL_STACK_UNDERFLOW", core::stringc(code).c_str(), ELL_ERROR); break;
 	case GL_OUT_OF_MEMORY:
-		os::Printer::log("GL_OUT_OF_MEMORY", ELL_ERROR); break;
+		os::Printer::log("GL_OUT_OF_MEMORY", core::stringc(code).c_str(), ELL_ERROR); break;
 	};
-//	_IRR_DEBUG_BREAK_IF(true);
+//	IRR_DEBUG_BREAK_IF(true);
 	return true;
 #else
 	return false;
@@ -1474,7 +1474,7 @@ void COGLES1Driver::setRenderStates3DMode()
 		// Reset Texture Stages
 		CacheHandler->setBlend(false);
 		glDisable(GL_ALPHA_TEST);
-		CacheHandler->setBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+		CacheHandler->setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// switch back the matrices
 		glMatrixMode(GL_MODELVIEW);
@@ -1503,6 +1503,7 @@ void COGLES1Driver::setRenderStates3DMode()
 				Material, LastMaterial, ResetRenderStates, this);
 
 		LastMaterial = Material;
+		CacheHandler->correctCacheMaterial(LastMaterial);
 		ResetRenderStates = false;
 	}
 
@@ -1530,7 +1531,7 @@ GLint COGLES1Driver::getTextureWrapMode(u8 clamp) const
 			break;
 		case ETC_MIRROR:
 #ifdef GL_OES_texture_mirrored_repeat
-			if (FeatureAvailable[IRR_OES_texture_mirrored_repeat])
+			if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_texture_mirrored_repeat])
 				return GL_MIRRORED_REPEAT_OES;
 			else
 #endif
@@ -1541,7 +1542,7 @@ GLint COGLES1Driver::getTextureWrapMode(u8 clamp) const
 		case ETC_MIRROR_CLAMP_TO_EDGE:
 		case ETC_MIRROR_CLAMP_TO_BORDER:
 #ifdef GL_OES_texture_mirrored_repeat
-			if (FeatureAvailable[IRR_OES_texture_mirrored_repeat])
+			if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_texture_mirrored_repeat])
 				return GL_MIRRORED_REPEAT_OES;
 			else
 #endif
@@ -1705,15 +1706,13 @@ void COGLES1Driver::setBasicRenderStates(const SMaterial& material, const SMater
 	}
 
 	// zwrite
-//	if (resetAllRenderStates || lastmaterial.ZWriteEnable != material.ZWriteEnable)
+	if (getWriteZBuffer(material))
 	{
-		if (material.ZWriteEnable && (AllowZWriteOnTransparent || (material.BlendOperation == EBO_NONE &&
-					!MaterialRenderers[material.MaterialType].Renderer->isTransparent())))
-		{
-			glDepthMask(GL_TRUE);
-		}
-		else
-			glDepthMask(GL_FALSE);
+		glDepthMask(GL_TRUE);
+	}
+	else
+	{
+		glDepthMask(GL_FALSE);
 	}
 
 	// back face culling
@@ -1801,7 +1800,9 @@ void COGLES1Driver::setBasicRenderStates(const SMaterial& material, const SMater
 	}
 
     // Blend Factor
-	if (IR(material.BlendFactor) & 0xFFFFFFFF)
+	if (IR(material.BlendFactor) & 0xFFFFFFFF	// TODO: why the & 0xFFFFFFFF?
+			&& material.MaterialType != EMT_ONETEXTURE_BLEND
+		)
 	{
         E_BLEND_FACTOR srcRGBFact = EBF_ZERO;
         E_BLEND_FACTOR dstRGBFact = EBF_ZERO;
@@ -1822,6 +1823,8 @@ void COGLES1Driver::setBasicRenderStates(const SMaterial& material, const SMater
 			CacheHandler->setBlendFunc(getGLBlend(srcRGBFact), getGLBlend(dstRGBFact));
         }
 	}
+
+	// TODO: Polygon Offset. Not sure if it was left out deliberately or if it won't work with this driver.
 
 	// thickness
 	if (resetAllRenderStates || lastmaterial.Thickness != material.Thickness)
@@ -1880,7 +1883,7 @@ void COGLES1Driver::setTextureRenderStates(const SMaterial& material, bool reset
 {
 	// Set textures to TU/TIU and apply filters to them
 
-	for (s32 i = Feature.TextureUnit - 1; i >= 0; --i)
+	for (s32 i = Feature.MaxTextureUnits - 1; i >= 0; --i)
 	{
 		CacheHandler->getTextureCache().set(i, material.TextureLayer[i].Texture);
 
@@ -1943,7 +1946,7 @@ void COGLES1Driver::setTextureRenderStates(const SMaterial& material, bool reset
 				glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 0.f);
 		}
 #elif defined(GL_EXT_texture_lod_bias)
-		if (FeatureAvailable[IRR_EXT_texture_lod_bias])
+		if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_EXT_texture_lod_bias])
 		{
 			if (material.TextureLayer[i].LODBias)
 			{
@@ -1995,7 +1998,7 @@ void COGLES1Driver::setTextureRenderStates(const SMaterial& material, bool reset
 		}
 
 #ifdef GL_EXT_texture_filter_anisotropic
-		if (FeatureAvailable[IRR_EXT_texture_filter_anisotropic] &&
+		if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_EXT_texture_filter_anisotropic] &&
 			(!statesCache.IsCached || material.TextureLayer[i].AnisotropicFilter != statesCache.AnisotropicFilter))
 		{
 			glTexParameteri(tmpTextureType, GL_TEXTURE_MAX_ANISOTROPY_EXT,
@@ -2061,6 +2064,7 @@ void COGLES1Driver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 	setBasicRenderStates(Material, LastMaterial, false);
 
 	LastMaterial = Material;
+	CacheHandler->correctCacheMaterial(LastMaterial);
 
 	// no alphaChannel without texture
 	alphaChannel &= texture;
@@ -2366,7 +2370,7 @@ void COGLES1Driver::drawStencilShadowVolume(const core::array<core::vector3df>& 
 	GLenum incr = GL_INCR;
 
 #if defined(GL_OES_stencil_wrap)
-	if (FeatureAvailable[IRR_OES_stencil_wrap])
+	if (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_stencil_wrap])
 	{
 		decr = GL_DECR_WRAP_OES;
 		incr = GL_INCR_WRAP_OES;
@@ -2598,6 +2602,11 @@ bool COGLES1Driver::setVertexShaderConstant(s32 index, const s32* ints, int coun
 	return setPixelShaderConstant(index, ints, count);
 }
 
+bool COGLES1Driver::setVertexShaderConstant(s32 index, const u32* ints, int count)
+{
+	return setPixelShaderConstant(index, ints, count);
+}
+
 //! Sets a constant for the pixel shader based on an index.
 bool COGLES1Driver::setPixelShaderConstant(s32 index, const f32* floats, int count)
 {
@@ -2607,6 +2616,12 @@ bool COGLES1Driver::setPixelShaderConstant(s32 index, const f32* floats, int cou
 
 //! Int interface for the above.
 bool COGLES1Driver::setPixelShaderConstant(s32 index, const s32* ints, int count)
+{
+	os::Printer::log("Error: Please use IMaterialRendererServices from IShaderConstantSetCallBack::OnSetConstants not VideoDriver->setPixelShaderConstant().");
+	return false;
+}
+
+bool COGLES1Driver::setPixelShaderConstant(s32 index, const u32* ints, int count)
 {
 	os::Printer::log("Error: Please use IMaterialRendererServices from IShaderConstantSetCallBack::OnSetConstants not VideoDriver->setPixelShaderConstant().");
 	return false;
@@ -2659,8 +2674,7 @@ s32 COGLES1Driver::addHighLevelShaderMaterial(
 	u32 verticesOut,
 	IShaderConstantSetCallBack* callback,
 	E_MATERIAL_TYPE baseMaterial,
-	s32 userData,
-	E_GPU_SHADING_LANGUAGE shadingLang)
+	s32 userData)
 {
 	os::Printer::log("No shader support.");
 	return -1;
@@ -2698,7 +2712,7 @@ ITexture* COGLES1Driver::addRenderTargetTexture(const core::dimension2d<u32>& si
 		destSize = destSize.getOptimalSize((size == size.getOptimalSize()), false, false);
 	}
 
-	COGLES1Texture* renderTargetTexture = new COGLES1Texture(name, size, format, this);
+	COGLES1Texture* renderTargetTexture = new COGLES1Texture(name, destSize, ETT_2D, format, this);
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
@@ -2708,6 +2722,32 @@ ITexture* COGLES1Driver::addRenderTargetTexture(const core::dimension2d<u32>& si
 	return renderTargetTexture;
 }
 
+ITexture* COGLES1Driver::addRenderTargetTextureCubemap(const irr::u32 sideLen, const io::path& name, const ECOLOR_FORMAT format)
+{
+	//disable mip-mapping
+	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
+	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
+
+	bool supportForFBO = (Feature.ColorAttachment > 0);
+
+	const core::dimension2d<u32> size(sideLen, sideLen);
+	core::dimension2du destSize(size);
+
+	if (!supportForFBO)
+	{
+		destSize = core::dimension2d<u32>(core::min_(size.Width, ScreenSize.Width), core::min_(size.Height, ScreenSize.Height));
+		destSize = destSize.getOptimalSize((size == size.getOptimalSize()), false, false);
+	}
+
+	COGLES1Texture* renderTargetTexture = new COGLES1Texture(name, destSize, ETT_CUBEMAP, format, this);
+	addTexture(renderTargetTexture);
+	renderTargetTexture->drop();
+
+	//restore mip-mapping
+	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
+
+	return renderTargetTexture;
+}
 
 //! Returns the maximum amount of primitives
 u32 COGLES1Driver::getMaximalPrimitiveCount() const
@@ -2715,11 +2755,11 @@ u32 COGLES1Driver::getMaximalPrimitiveCount() const
 	return 65535;
 }
 
-bool COGLES1Driver::setRenderTarget(IRenderTarget* target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
+bool COGLES1Driver::setRenderTargetEx(IRenderTarget* target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
 {
 	if (target && target->getDriverType() != EDT_OGLES1)
 	{
-		os::Printer::log("Fatal Error: Tried to set a render target not owned by this driver.", ELL_ERROR);
+		os::Printer::log("Fatal Error: Tried to set a render target not owned by OpenGL driver.", ELL_ERROR);
 		return false;
 	}
 
@@ -2788,16 +2828,6 @@ bool COGLES1Driver::setRenderTarget(IRenderTarget* target, u16 clearFlag, SColor
 	return true;
 }
 
-
-// returns the current size of the screen or rendertarget
-const core::dimension2d<u32>& COGLES1Driver::getCurrentRenderTargetSize() const
-{
-	if (CurrentRenderTargetSize.Width == 0)
-		return ScreenSize;
-	else
-		return CurrentRenderTargetSize;
-}
-
 void COGLES1Driver::clearBuffers(u16 flag, SColor color, f32 depth, u8 stencil)
 {
 	GLbitfield mask = 0;
@@ -2841,7 +2871,10 @@ IImage* COGLES1Driver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		return 0;
 	GLint internalformat=GL_RGBA;
 	GLint type=GL_UNSIGNED_BYTE;
-	if (false && (FeatureAvailable[IRR_IMG_read_format] || FeatureAvailable[IRR_OES_read_format] || FeatureAvailable[IRR_EXT_read_format_bgra]))
+	if (false
+		&& (FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_IMG_read_format]
+			|| FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_OES_read_format]
+			|| FeatureAvailable[COGLESCoreExtensionHandler::IRR_GL_EXT_read_format_bgra]))
 	{
 #ifdef GL_IMPLEMENTATION_COLOR_READ_TYPE_OES
 		glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT_OES, &internalformat);
@@ -2899,7 +2932,7 @@ IImage* COGLES1Driver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 	}
 	delete [] tmpBuffer;
 
-	if (testGLError())
+	if (testGLError(__LINE__))
 	{
 		newImage->drop();
 		return 0;
@@ -2910,9 +2943,7 @@ IImage* COGLES1Driver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 
 void COGLES1Driver::removeTexture(ITexture* texture)
 {
-	if (!texture)
-		return;
-
+	CacheHandler->getTextureCache().remove(texture);
 	CNullDriver::removeTexture(texture);
 }
 
@@ -2995,7 +3026,7 @@ GLenum COGLES1Driver::getZBufferBits() const
 	{
 	case 24:
 #if defined(GL_OES_depth24)
-		if (queryOpenGLFeature(COGLES1ExtensionHandler::IRR_OES_depth24))
+		if (queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_OES_depth24))
 			bits = GL_DEPTH_COMPONENT24_OES;
 		else
 #endif
@@ -3003,7 +3034,7 @@ GLenum COGLES1Driver::getZBufferBits() const
 		break;
 	case 32:
 #if defined(GL_OES_depth32)
-		if (queryOpenGLFeature(COGLES1ExtensionHandler::IRR_OES_depth32))
+		if (queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_OES_depth32))
 			bits = GL_DEPTH_COMPONENT32_OES;
 		else
 #endif
@@ -3017,9 +3048,10 @@ GLenum COGLES1Driver::getZBufferBits() const
 	return bits;
 }
 
-void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& internalFormat, GLenum& pixelFormat,
-	GLenum& pixelType, void(**converter)(const void*, s32, void*))
+bool COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& internalFormat, GLenum& pixelFormat,
+	GLenum& pixelType, void(**converter)(const void*, s32, void*)) const
 {
+	bool supported = false;
 	internalFormat = GL_RGBA;
 	pixelFormat = GL_RGBA;
 	pixelType = GL_UNSIGNED_BYTE;
@@ -3028,25 +3060,29 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 	switch (format)
 	{
 	case ECF_A1R5G5B5:
+		supported = true;
 		internalFormat = GL_RGBA;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_UNSIGNED_SHORT_5_5_5_1;
 		*converter = CColorConverter::convert_A1R5G5B5toR5G5B5A1;
 		break;
 	case ECF_R5G6B5:
+		supported = true;
 		internalFormat = GL_RGB;
 		pixelFormat = GL_RGB;
 		pixelType = GL_UNSIGNED_SHORT_5_6_5;
 		break;
 	case ECF_R8G8B8:
+		supported = true;
 		internalFormat = GL_RGB;
 		pixelFormat = GL_RGB;
 		pixelType = GL_UNSIGNED_BYTE;
 		break;
 	case ECF_A8R8G8B8:
-		if (queryOpenGLFeature(COGLES1ExtensionHandler::IRR_IMG_texture_format_BGRA8888) ||
-			queryOpenGLFeature(COGLES1ExtensionHandler::IRR_EXT_texture_format_BGRA8888) ||
-			queryOpenGLFeature(COGLES1ExtensionHandler::IRR_APPLE_texture_format_BGRA8888))
+		supported = true;
+		if (queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_IMG_texture_format_BGRA8888) ||
+			queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_EXT_texture_format_BGRA8888) ||
+			queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_APPLE_texture_format_BGRA8888))
 		{
 			internalFormat = GL_BGRA;
 			pixelFormat = GL_BGRA;
@@ -3061,6 +3097,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 		break;
 #ifdef GL_EXT_texture_compression_s3tc
 	case ECF_DXT1:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -3069,6 +3106,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #ifdef GL_EXT_texture_compression_s3tc
 	case ECF_DXT2:
 	case ECF_DXT3:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
@@ -3077,6 +3115,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #ifdef GL_EXT_texture_compression_s3tc
 	case ECF_DXT4:
 	case ECF_DXT5:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -3084,6 +3123,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc
 	case ECF_PVRTC_RGB2:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
 		pixelFormat = GL_RGB;
 		pixelType = GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
@@ -3091,6 +3131,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc
 	case ECF_PVRTC_ARGB2:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -3098,6 +3139,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc
 	case ECF_PVRTC_RGB4:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
 		pixelFormat = GL_RGB;
 		pixelType = GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
@@ -3105,6 +3147,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc
 	case ECF_PVRTC_ARGB4:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
@@ -3112,6 +3155,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc2
 	case ECF_PVRTC2_ARGB2:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_PVRTC_2BPPV2_IMG;
@@ -3119,6 +3163,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_IMG_texture_compression_pvrtc2
 	case ECF_PVRTC2_ARGB4:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA_PVRTC_4BPPV2_IMG;
@@ -3126,6 +3171,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_OES_compressed_ETC1_RGB8_texture
 	case ECF_ETC1:
+		supported = true;
 		internalFormat = GL_ETC1_RGB8_OES;
 		pixelFormat = GL_RGB;
 		pixelType = GL_ETC1_RGB8_OES;
@@ -3133,6 +3179,7 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_ES_VERSION_3_0 // TO-DO - fix when extension name will be available
 	case ECF_ETC2_RGB:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGB8_ETC2;
 		pixelFormat = GL_RGB;
 		pixelType = GL_COMPRESSED_RGB8_ETC2;
@@ -3140,72 +3187,84 @@ void COGLES1Driver::getColorFormatParameters(ECOLOR_FORMAT format, GLint& intern
 #endif
 #ifdef GL_ES_VERSION_3_0 // TO-DO - fix when extension name will be available
 	case ECF_ETC2_ARGB:
+		supported = true;
 		internalFormat = GL_COMPRESSED_RGBA8_ETC2_EAC;
 		pixelFormat = GL_RGBA;
 		pixelType = GL_COMPRESSED_RGBA8_ETC2_EAC;
 		break;
 #endif
 	case ECF_D16:
+		supported = true;
 		internalFormat = GL_DEPTH_COMPONENT16;
 		pixelFormat = GL_DEPTH_COMPONENT;
-		pixelType = GL_UNSIGNED_BYTE;
+		pixelType = GL_UNSIGNED_SHORT;
 		break;
 	case ECF_D32:
 #if defined(GL_OES_depth32)
-		if (queryOpenGLFeature(COGLES1ExtensionHandler::IRR_OES_depth32))
+		if (queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_OES_depth32))
+		{
+			supported = true;
 			internalFormat = GL_DEPTH_COMPONENT32_OES;
-		else
+			pixelFormat = GL_DEPTH_COMPONENT;
+			pixelType = GL_UNSIGNED_INT;
+		}
 #endif
-			internalFormat = GL_DEPTH_COMPONENT16;
-		pixelFormat = GL_DEPTH_COMPONENT;
-		pixelType = GL_UNSIGNED_BYTE;
 		break;
 	case ECF_D24S8:
 #ifdef GL_OES_packed_depth_stencil
-		if (queryOpenGLFeature(COGLES1ExtensionHandler::IRR_OES_packed_depth_stencil))
+		if (queryGLESFeature(COGLESCoreExtensionHandler::IRR_GL_OES_packed_depth_stencil))
 		{
+			supported = true;
 			internalFormat = GL_DEPTH24_STENCIL8_OES;
 			pixelFormat = GL_DEPTH_STENCIL_OES;
 			pixelType = GL_UNSIGNED_INT_24_8_OES;
 		}
-		else
 #endif
-			os::Printer::log("ECF_D24S8 color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R8:
-		os::Printer::log("ECF_R8 color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R8G8:
-		os::Printer::log("ECF_R8G8 color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R16:
-		os::Printer::log("ECF_R16 color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R16G16:
-		os::Printer::log("ECF_R16G16 color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R16F:
-		os::Printer::log("ECF_R16F color format is not supported", ELL_ERROR);
 		break;
 	case ECF_G16R16F:
-		os::Printer::log("ECF_G16R16F color format is not supported", ELL_ERROR);
 		break;
 	case ECF_A16B16G16R16F:
-		os::Printer::log("ECF_A16B16G16R16F color format is not supported", ELL_ERROR);
 		break;
 	case ECF_R32F:
-		os::Printer::log("ECF_R32F color format is not supported", ELL_ERROR);
 		break;
 	case ECF_G32R32F:
-		os::Printer::log("ECF_G32R32F color format is not supported", ELL_ERROR);
 		break;
 	case ECF_A32B32G32R32F:
-		os::Printer::log("ECF_A32B32G32R32F color format is not supported", ELL_ERROR);
 		break;
 	default:
-		os::Printer::log("Unsupported texture format", ELL_ERROR);
 		break;
 	}
+
+#ifdef _IRR_IOS_PLATFORM_
+	if (internalFormat == GL_BGRA)
+		internalFormat = GL_RGBA;
+#endif
+
+	return supported;
+}
+
+bool COGLES1Driver::queryTextureFormat(ECOLOR_FORMAT format) const
+{
+	GLint dummyInternalFormat;
+	GLenum dummyPixelFormat;
+	GLenum dummyPixelType;
+	void (*dummyConverter)(const void*, s32, void*);
+	return getColorFormatParameters(format, dummyInternalFormat, dummyPixelFormat, dummyPixelType, &dummyConverter);
+}
+
+bool COGLES1Driver::needsTransparentRenderPass(const irr::video::SMaterial& material) const
+{
+	return CNullDriver::needsTransparentRenderPass(material) || material.isAlphaBlendOperation();
 }
 
 COGLES1CacheHandler* COGLES1Driver::getCacheHandler() const

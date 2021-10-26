@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_OCTREE_H_INCLUDED__
-#define __C_OCTREE_H_INCLUDED__
+#ifndef IRR_C_OCTREE_H_INCLUDED
+#define IRR_C_OCTREE_H_INCLUDED
 
 #include "SViewFrustum.h"
 #include "S3DVertex.h"
@@ -14,12 +14,6 @@
 /**
 	Flags for Octree
 */
-//! use meshbuffer for drawing, enables VBO usage
-#define OCTREE_USE_HARDWARE	false
-//! use visibility information together with VBOs
-#define OCTREE_USE_VISIBILITY true
-//! use bounding box or frustum for calculate polys
-#define OCTREE_BOX_BASED true
 //! bypass full invisible/visible test
 #define OCTREE_PARENTTEST
 
@@ -34,6 +28,13 @@ class Octree
 {
 public:
 
+	// TODO: Using reference counted class on the stack. 
+	//       Reason is likely that it really costs speed here otherwise.
+	//       But doing so prevents using VBO's with octrees.
+	//       Also it's just a bad idea, for example this is the reason 
+	//       we can't make the copy-constructor private for IReferenceCounted.
+	//       So would be nice to figure out how to put this on heap (and check 
+	//		if it's maybe cheap enough) or maybe stop using CMeshBuffer here.
 	struct SMeshChunk : public scene::CMeshBuffer<T>
 	{
 		SMeshChunk ()
@@ -385,4 +386,3 @@ private:
 } // end namespace
 
 #endif
-

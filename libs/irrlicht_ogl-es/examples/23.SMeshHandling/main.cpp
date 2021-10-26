@@ -57,7 +57,7 @@ typedef f32 generate_func(s16 x, s16 y, f32 s);
 f32 eggbox(s16 x, s16 y, f32 s)
 {
 	const f32 r = 4.f*sqrtf((f32)(x*x + y*y))/s;
-	const f32 z = expf(-r * 2) * (cosf(0.2f * x) + cosf(0.2f * y));
+	const f32 z = (f32)exp(-r * 2) * (cosf(0.2f * x) + cosf(0.2f * y));
 	return 0.25f+0.25f*z;
 }
 
@@ -126,7 +126,7 @@ public:
 
 	s is a scaling factor, which is necessary if the height units are
 	different from the coordinate units; for example, if your map has
-	heights in metres and the coordinates are in units of a
+	heights in meters and the coordinates are in units of a
 	kilometer. */
 
 	vector3df getnormal(u16 x, u16 y, f32 s) const
@@ -180,7 +180,7 @@ private:
 public:
 	SMesh* Mesh;
 
-	TMesh() : Mesh(0), Width(0), Height(0), Scale(1.f)
+	TMesh() : Width(0), Height(0), Scale(1.f), Mesh(0)
 	{
 		Mesh = new SMesh();
 	}
@@ -201,7 +201,7 @@ public:
 		const u32 mp = driver -> getMaximalPrimitiveCount();
 		Width = hm.width();
 		Height = hm.height();
-		
+
 		const u32 sw = mp / (6 * Height); // the width of each piece
 
 		u32 i=0;
@@ -340,7 +340,7 @@ int main(int argc, char* argv[])
 
 	if(device == 0)
 		return 1;
- 
+
 	IVideoDriver *driver = device->getVideoDriver();
 	ISceneManager *smgr = device->getSceneManager();
 	device->setWindowCaption(L"Irrlicht Example for SMesh usage.");
@@ -411,7 +411,7 @@ int main(int argc, char* argv[])
 			mesh.init(hm, 50.f, yellow, driver);
 		}
 
-		driver->beginScene(true, true, SColor(0xff000000));
+		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, SColor(0xff000000));
 		smgr->drawAll();
 		driver->endScene();
 	}

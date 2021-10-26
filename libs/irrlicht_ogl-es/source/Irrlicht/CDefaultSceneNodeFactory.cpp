@@ -5,6 +5,7 @@
 #include "CDefaultSceneNodeFactory.h"
 #include "ISceneManager.h"
 #include "ITextSceneNode.h"
+#include "IBillboardTextSceneNode.h"
 #include "ITerrainSceneNode.h"
 #include "IDummyTransformationSceneNode.h"
 #include "ICameraSceneNode.h"
@@ -13,6 +14,7 @@
 #include "IParticleSystemSceneNode.h"
 #include "ILightSceneNode.h"
 #include "IMeshSceneNode.h"
+#include "IOctreeSceneNode.h"
 
 namespace irr
 {
@@ -33,6 +35,7 @@ CDefaultSceneNodeFactory::CDefaultSceneNodeFactory(ISceneManager* mgr)
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_CUBE, "cube"));
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_SPHERE, "sphere"));
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_TEXT, "text"));
+	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_BILLBOARD_TEXT, "billboardText"));
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_WATER_SURFACE, "waterSurface"));
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_TERRAIN, "terrain"));
 	SupportedSceneNodeTypes.push_back(SSceneNodeTypePair(ESNT_SKY_BOX, "skyBox"));
@@ -70,6 +73,8 @@ ISceneNode* CDefaultSceneNodeFactory::addSceneNode(ESCENE_NODE_TYPE type, IScene
 		return Manager->addSphereSceneNode(5, 16, parent);
 	case ESNT_TEXT:
 		return Manager->addTextSceneNode(0, L"example");
+	case ESNT_BILLBOARD_TEXT:
+		return Manager->addBillboardTextSceneNode(0, L"example");
 	case ESNT_WATER_SURFACE:
 		return Manager->addWaterSurfaceSceneNode(0, 2.0f, 300.0f, 10.0f, parent);
 	case ESNT_TERRAIN:
@@ -133,7 +138,7 @@ u32 CDefaultSceneNodeFactory::getCreatableSceneNodeTypeCount() const
 }
 
 
-//! returns type of a createable scene node type
+//! returns type of a creatable scene node type
 ESCENE_NODE_TYPE CDefaultSceneNodeFactory::getCreateableSceneNodeType(u32 idx) const
 {
 	if (idx<SupportedSceneNodeTypes.size())
@@ -143,7 +148,7 @@ ESCENE_NODE_TYPE CDefaultSceneNodeFactory::getCreateableSceneNodeType(u32 idx) c
 }
 
 
-//! returns type name of a createable scene node type
+//! returns type name of a creatable scene node type
 const c8* CDefaultSceneNodeFactory::getCreateableSceneNodeTypeName(u32 idx) const
 {
 	if (idx<SupportedSceneNodeTypes.size())
@@ -153,7 +158,7 @@ const c8* CDefaultSceneNodeFactory::getCreateableSceneNodeTypeName(u32 idx) cons
 }
 
 
-//! returns type name of a createable scene node type
+//! returns type name of a creatable scene node type
 const c8* CDefaultSceneNodeFactory::getCreateableSceneNodeTypeName(ESCENE_NODE_TYPE type) const
 {
 	for (u32 i=0; i<SupportedSceneNodeTypes.size(); ++i)

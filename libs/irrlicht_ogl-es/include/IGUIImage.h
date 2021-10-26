@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_GUI_IMAGE_H_INCLUDED__
-#define __I_GUI_IMAGE_H_INCLUDED__
+#ifndef IRR_I_GUI_IMAGE_H_INCLUDED
+#define IRR_I_GUI_IMAGE_H_INCLUDED
 
 #include "IGUIElement.h"
 
@@ -15,7 +15,6 @@ namespace video
 }
 namespace gui
 {
-
 	//! GUI element displaying an image.
 	class IGUIImage : public IGUIElement
 	{
@@ -32,6 +31,8 @@ namespace gui
 		virtual video::ITexture* getImage() const = 0;
 
 		//! Sets the color of the image
+		/** \param color Color with which the image is drawn. If the color
+		equals Color(255,255,255,255) it is ignored. */
 		virtual void setColor(video::SColor color) = 0;
 
 		//! Sets if the image should scale to fit the element
@@ -60,8 +61,8 @@ namespace gui
 		//! Restrict drawing-area.
 		/** This allows for example to use the image as a progress bar.
 			Base for area is the image, which means:
-			-  The original clippping area when the texture is scaled or there is no texture.
-			-  The source-rect for an unscaled texture (but still restricted afterwards by the clipping area)
+			-  The original clipping area when the texture is scaled or there is no texture.
+			-  The source-rect for an unscaled texture (but still restricted afterward by the clipping area)
 			Unlike normal clipping this does not affect the gui-children.
 			\param drawBoundUVs: Coordinates between 0 and 1 where 0 are for left+top and 1 for right+bottom
 		*/
@@ -69,6 +70,14 @@ namespace gui
 
 		//! Get drawing-area restrictions.
 		virtual core::rect<f32> getDrawBounds() const = 0;
+
+		//! Sets whether to draw a background color (EGDC_3D_DARK_SHADOW) when no texture is set
+		/** By default it's enabled */
+		virtual void setDrawBackground(bool draw) = 0;
+
+		//! Checks if a background is drawn when no texture is set
+		/** \return true if background drawing is enabled, false otherwise */
+		virtual bool isDrawBackgroundEnabled() const = 0;
 	};
 
 

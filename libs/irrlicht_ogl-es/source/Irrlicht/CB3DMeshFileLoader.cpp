@@ -962,7 +962,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 		else if (B3dMaterial.Textures[0]) //One texture:
@@ -971,7 +971,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			if (B3dMaterial.Textures[0]->Flags & 0x2) //(Alpha mapped)
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 			else if (B3dMaterial.Textures[0]->Flags & 0x4) //(Masked)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF; // TODO: create color key texture
@@ -984,7 +984,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 		else //No texture:
@@ -994,7 +994,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			else
 			{
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-				B3dMaterial.Material.ZWriteEnable = false;
+				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 			}
 		}
 
@@ -1023,7 +1023,7 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		if (B3dMaterial.fx & 32) //force vertex alpha-blending
 		{
 			B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
-			B3dMaterial.Material.ZWriteEnable = false;
+			B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
 		}
 
 		B3dMaterial.Material.Shininess = B3dMaterial.shininess;
@@ -1065,6 +1065,8 @@ void CB3DMeshFileLoader::loadTextures(SB3dMaterial& material) const
 				material.Material.TextureLayer[i].TextureWrapU=video::ETC_CLAMP;
 			if (material.Textures[i]->Flags & 0x20) // Clamp V
 				material.Material.TextureLayer[i].TextureWrapV=video::ETC_CLAMP;
+			if (material.Textures[i]->Flags & 0x20) // Clamp R
+				material.Material.TextureLayer[i].TextureWrapW=video::ETC_CLAMP;
 		}
 	}
 

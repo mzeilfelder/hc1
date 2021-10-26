@@ -73,9 +73,9 @@ public:
 	CMY3DMeshFileLoader(ISceneManager *scmgr, io::IFileSystem* fs);
 	virtual ~CMY3DMeshFileLoader();
 
-	virtual bool isALoadableFileExtension(const io::path& filename) const _IRR_OVERRIDE_;
+	virtual bool isALoadableFileExtension(const io::path& filename) const IRR_OVERRIDE;
 
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file) _IRR_OVERRIDE_;
+	virtual IAnimatedMesh* createMesh(io::IReadFile* file) IRR_OVERRIDE;
 
 	//! getting access to the nodes (with transparent material), creating
 	//! while loading .my3d file
@@ -92,7 +92,9 @@ private:
 	{
 		SMyMaterialEntry ()
 		: Texture1FileName("null"), Texture2FileName("null"),
-		Texture1(0), Texture2(0), MaterialType(video::EMT_SOLID) {}
+		Texture1(0), Texture2(0), MaterialType(video::EMT_SOLID) {
+			Header.Name[0] = 0;
+		}
 
 		SMyMaterialHeader Header;
 		core::stringc Texture1FileName;

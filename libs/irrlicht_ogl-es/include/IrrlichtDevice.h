@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_IRRLICHT_DEVICE_H_INCLUDED__
-#define __I_IRRLICHT_DEVICE_H_INCLUDED__
+#ifndef IRR_I_IRRLICHT_DEVICE_H_INCLUDED
+#define IRR_I_IRRLICHT_DEVICE_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "dimension2d.h"
@@ -71,7 +71,7 @@ namespace irr
 		DispatchMessage and whatever and simply don't use this method.
 		But note that Irrlicht will not be able to fetch user input
 		then. See irr::SIrrlichtCreationParameters::WindowId for more
-		informations and example code.
+		information and example code.
 		*/
 		virtual bool run() = 0;
 
@@ -82,7 +82,7 @@ namespace irr
 
 		//! Pause execution and let other processes to run for a specified amount of time.
 		/** It may not wait the full given time, as sleep may be interrupted
-		\param timeMs: Time to sleep for in milisecs.
+		\param timeMs: Time to sleep for in milliseconds.
 		\param pauseTimer: If true, pauses the device timer while sleeping
 		*/
 		virtual void sleep(u32 timeMs, bool pauseTimer=false) = 0;
@@ -112,8 +112,8 @@ namespace irr
 		virtual ILogger* getLogger() = 0;
 
 		//! Gets a list with all video modes available.
-		/** You only need a null driver (ED_NULL) to access 
-		those video modes. So you can get the available modes 
+		/** You only need a null driver (ED_NULL) to access
+		those video modes. So you can get the available modes
 		before starting any other video driver.
 		\return Pointer to a list with all video modes supported
 		by the gfx adapter. */
@@ -124,7 +124,7 @@ namespace irr
 
 		//! Provides access to the operation system operator object.
 		/** The OS operator provides methods for
-		getting system specific informations and doing system
+		getting system specific information and doing system
 		specific operations, such as exchanging data with the clipboard
 		or reading the operation system version.
 		\return Pointer to the OS operator. */
@@ -174,7 +174,7 @@ namespace irr
 		\return True if window is active. */
 		virtual bool isWindowActive() const = 0;
 
-		//! Checks if the Irrlicht window has focus
+		//! Checks if the Irrlicht window has the input focus
 		/** \return True if window has focus. */
 		virtual bool isWindowFocused() const = 0;
 
@@ -259,40 +259,40 @@ namespace irr
 				is defined, false if joysticks are not supported or support is compiled out.
 		*/
 		virtual bool activateJoysticks(core::array<SJoystickInfo>& joystickInfo) =0;
-        
+
         //! Activate accelerometer.
         virtual bool activateAccelerometer(float updateInterval = 0.016666f) = 0;
-        
+
         //! Deactivate accelerometer.
         virtual bool deactivateAccelerometer() = 0;
-        
+
         //! Is accelerometer active.
         virtual bool isAccelerometerActive() = 0;
-        
+
         //! Is accelerometer available.
         virtual bool isAccelerometerAvailable() = 0;
 
         //! Activate gyroscope.
         virtual bool activateGyroscope(float updateInterval = 0.016666f) = 0;
-        
+
         //! Deactivate gyroscope.
         virtual bool deactivateGyroscope() = 0;
-        
+
         //! Is gyroscope active.
         virtual bool isGyroscopeActive() = 0;
-        
+
         //! Is gyroscope available.
         virtual bool isGyroscopeAvailable() = 0;
-        
+
         //! Activate device motion.
         virtual bool activateDeviceMotion(float updateInterval = 0.016666f) = 0;
-        
+
         //! Deactivate device motion.
         virtual bool deactivateDeviceMotion() = 0;
-        
+
         //! Is device motion active.
         virtual bool isDeviceMotionActive() = 0;
-        
+
         //! Is device motion available.
         virtual bool isDeviceMotionAvailable() = 0;
 
@@ -378,6 +378,12 @@ namespace irr
 #else
 					return false;
 #endif
+				case video::EDT_WEBGL1:
+#ifdef _IRR_COMPILE_WITH_WEBGL1_
+					return true;
+#else
+					return false;
+#endif
 				default:
 					return false;
 			}
@@ -387,4 +393,3 @@ namespace irr
 } // end namespace irr
 
 #endif
-

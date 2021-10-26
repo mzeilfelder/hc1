@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_MAP_H_INCLUDED__
-#define __IRR_MAP_H_INCLUDED__
+#ifndef IRR_MAP_H_INCLUDED
+#define IRR_MAP_H_INCLUDED
 
 #include "irrTypes.h"
 #include "irrMath.h"
@@ -123,7 +123,7 @@ class map
 	public:
 
 	typedef RBTree<KeyType,ValueType> Node;
-	// We need the forwad declaration for the friend declaration
+	// We need the forward declaration for the friend declaration
 	class ConstIterator;
 
 	//! Normal Iterator
@@ -185,7 +185,7 @@ class map
 
 		Node& operator*()
 		{
-			_IRR_DEBUG_BREAK_IF(atEnd()) // access violation
+			IRR_DEBUG_BREAK_IF(atEnd()) // access violation
 
 			return *Cur;
 		}
@@ -227,9 +227,9 @@ class map
 			else
 			{
 				// Current node neither is left child nor has a right child.
-				// Ie it is either right child or root
+				// I.e. it is either right child or root
 				// The next higher node is the parent of the first non-right
-				// child (ie either a left child or the root) up in the
+				// child (i.e. either a left child or the root) up in the
 				// hierarchy. Root's parent is 0.
 				while(Cur->isRightChild())
 					Cur = Cur->getParent();
@@ -258,9 +258,9 @@ class map
 			else
 			{
 				// Current node neither is right child nor has a left child.
-				// Ie it is either left child or root
+				// It is either left child or root
 				// The next higher node is the parent of the first non-left
-				// child (ie either a right child or the root) up in the
+				// child (i.e. either a right child or the root) up in the
 				// hierarchy. Root's parent is 0.
 
 				while(Cur->isLeftChild())
@@ -333,7 +333,7 @@ class map
 
 		const Node& operator*()
 		{
-			_IRR_DEBUG_BREAK_IF(atEnd()) // access violation
+			IRR_DEBUG_BREAK_IF(atEnd()) // access violation
 
 			return *Cur;
 		}
@@ -375,9 +375,9 @@ class map
 			else
 			{
 				// Current node neither is left child nor has a right child.
-				// Ie it is either right child or root
+				// It is either right child or root
 				// The next higher node is the parent of the first non-right
-				// child (ie either a left child or the root) up in the
+				// child (i.e. either a left child or the root) up in the
 				// hierarchy. Root's parent is 0.
 				while(Cur->isRightChild())
 					Cur = Cur->getParent();
@@ -406,9 +406,9 @@ class map
 			else
 			{
 				// Current node neither is right child nor has a left child.
-				// Ie it is either left child or root
+				// It is either left child or root
 				// The next higher node is the parent of the first non-left
-				// child (ie either a right child or the root) up in the
+				// child (i.e. either a right child or the root) up in the
 				// hierarchy. Root's parent is 0.
 
 				while(Cur->isLeftChild())
@@ -472,7 +472,7 @@ class map
 
 	Node& operator* ()
 	{
-		_IRR_DEBUG_BREAK_IF(atEnd()) // access violation
+		IRR_DEBUG_BREAK_IF(atEnd()) // access violation
 
 		return *getNode();
 	}
@@ -497,7 +497,7 @@ class map
 		}
 		else
 		{
-			// No children? Move up in the hierarcy until
+			// No children? Move up in the hierarchy until
 			// we either reach 0 (and are finished) or
 			// find a right uncle.
 			while (Cur!=0)
@@ -571,7 +571,7 @@ class map
 
 		Node& operator* ()
 		{
-			_IRR_DEBUG_BREAK_IF(atEnd()) // access violation
+			IRR_DEBUG_BREAK_IF(atEnd()) // access violation
 
 			return *getNode();
 		}
@@ -639,7 +639,7 @@ class map
 			Node* node = Tree.find(Key);
 
 			// Not found
-			_IRR_DEBUG_BREAK_IF(node==0) // access violation
+			IRR_DEBUG_BREAK_IF(node==0) // access violation
 
 			return node->getValue();
 		}
@@ -663,6 +663,11 @@ class map
 	{
 		clear();
 	}
+
+	// typedefs
+	typedef KeyType key_type;
+	typedef ValueType value_type;
+	typedef u32 size_type;
 
 	//------------------------------
 	// Public Commands
@@ -876,7 +881,7 @@ class map
 	}
 
 	//! \deprecated Use empty() instead. This method may be removed by Irrlicht 1.9
-	_IRR_DEPRECATED_ bool isEmpty() const
+	IRR_DEPRECATED bool isEmpty() const
 	{
 		return empty();
 	}
@@ -1105,5 +1110,4 @@ class map
 } // end namespace core
 } // end namespace irr
 
-#endif // __IRR_MAP_H_INCLUDED__
-
+#endif // IRR_MAP_H_INCLUDED

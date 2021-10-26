@@ -2,13 +2,19 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_BILLBOARD_TEXT_SCENE_NODE_H_INCLUDED__
-#define __I_BILLBOARD_TEXT_SCENE_NODE_H_INCLUDED__
+#ifndef IRR_I_BILLBOARD_TEXT_SCENE_NODE_H_INCLUDED
+#define IRR_I_BILLBOARD_TEXT_SCENE_NODE_H_INCLUDED
 
 #include "IBillboardSceneNode.h"
 
 namespace irr
 {
+
+namespace gui
+{
+	class IGUIFont;
+}
+
 namespace scene
 {
 
@@ -50,13 +56,21 @@ public:
 	//! sets the text string
 	virtual void setText(const wchar_t* text) = 0;
 
+	//! get the text string
+	virtual const wchar_t* getText() const = 0;
+
 	//! sets the color of the text
-	virtual void setTextColor(video::SColor color) = 0;
+	//! You can use setColor instead which does the same
+	virtual void setTextColor(video::SColor color)
+	{
+		setColor(color);
+	}
+
+	//! Get the font used to draw the text
+	virtual gui::IGUIFont* getFont() const = 0;
 };
 
 } // end namespace scene
 } // end namespace irr
 
-
 #endif
-

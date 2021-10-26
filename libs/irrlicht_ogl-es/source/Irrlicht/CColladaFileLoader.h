@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_COLLADA_MESH_FILE_LOADER_H_INCLUDED__
-#define __C_COLLADA_MESH_FILE_LOADER_H_INCLUDED__
+#ifndef IRR_C_COLLADA_MESH_FILE_LOADER_H_INCLUDED
+#define IRR_C_COLLADA_MESH_FILE_LOADER_H_INCLUDED
 
 #include "IMeshLoader.h"
 #include "IFileSystem.h"
@@ -188,13 +188,13 @@ public:
 
 	//! returns true if the file maybe is able to be loaded by this class
 	//! based on the file extension (e.g. ".cob")
-	virtual bool isALoadableFileExtension(const io::path& filename) const _IRR_OVERRIDE_;
+	virtual bool isALoadableFileExtension(const io::path& filename) const IRR_OVERRIDE;
 
 	//! creates/loads an animated mesh from the file.
 	//! \return Pointer to the created mesh. Returns 0 if loading failed.
 	//! If you no longer need the mesh, you should call IAnimatedMesh::drop().
 	//! See IReferenceCounted::drop() for more information.
-	virtual IAnimatedMesh* createMesh(io::IReadFile* file) _IRR_OVERRIDE_;
+	virtual IAnimatedMesh* createMesh(io::IReadFile* file) IRR_OVERRIDE;
 
 private:
 
@@ -340,6 +340,13 @@ private:
 	//! read a parameter and value
 	void readParameter(io::IXMLReaderUTF8* reader, io::IAttributes* parameters);
 
+	//! Flip z axis in matrix around to convert between right-handed and left-handed coordinate system.
+	//! Note that function is symmetric (no difference if called before or after a transpose).
+	core::matrix4 flipZAxis(const core::matrix4& m);
+
+	//! replace escape characters with the unescaped ones
+	void unescape(irr::core::stringc& uri);
+
 	scene::ISceneManager* SceneManager;
 	io::IFileSystem* FileSystem;
 
@@ -365,6 +372,19 @@ private:
 	core::array< core::array<irr::scene::IMeshBuffer*> > MeshesToBind;
 
 	bool CreateInstances;
+
+	struct EscapeCharacterURL
+	{
+		EscapeCharacterURL(irr::c8 c, const irr::c8* e)
+			: Character(c)
+		{
+			Escape = e;
+		}
+
+		irr::c8 Character;		// unescaped (like ' ')
+		irr::core::stringc Escape;	// escaped (like '%20')
+	};
+	irr::core::array<EscapeCharacterURL> EscapeCharsAnyURI;
 };
 
 
@@ -387,4 +407,3 @@ public:
 } // end namespace irr
 
 #endif
-

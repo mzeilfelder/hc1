@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_MESH_LOADER_H_INCLUDED__
-#define __I_MESH_LOADER_H_INCLUDED__
+#ifndef IRR_I_MESH_LOADER_H_INCLUDED
+#define IRR_I_MESH_LOADER_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "path.h"
@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	//! Get the texture loader used when this meshloder searches for textures.
+	//! Get the texture loader used when this meshloader searches for textures.
 	/** NOTE: not all meshloaders support this interface so this can return NULL.
 	*/
 	virtual IMeshTextureLoader* getMeshTextureLoader() const

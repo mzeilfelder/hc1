@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_SCENE_NODE_FACTORY_H_INCLUDED__
-#define __I_SCENE_NODE_FACTORY_H_INCLUDED__
+#ifndef IRR_I_SCENE_NODE_FACTORY_H_INCLUDED
+#define IRR_I_SCENE_NODE_FACTORY_H_INCLUDED
 
 #include "IReferenceCounted.h"
 #include "ESceneNodeTypes.h"
@@ -44,17 +44,17 @@ namespace scene
 		//! returns amount of scene node types this factory is able to create
 		virtual u32 getCreatableSceneNodeTypeCount() const = 0;
 
-			//! returns type of a createable scene node type
+			//! returns type of a creatable scene node type
 		/** \param idx: Index of scene node type in this factory. Must be a value between 0 and
 		getCreatableSceneNodeTypeCount() */
 		virtual ESCENE_NODE_TYPE getCreateableSceneNodeType(u32 idx) const = 0;
 
-		//! returns type name of a createable scene node type by index
+		//! returns type name of a creatable scene node type by index
 		/** \param idx: Index of scene node type in this factory. Must be a value between 0 and
 		getCreatableSceneNodeTypeCount() */
 		virtual const c8* getCreateableSceneNodeTypeName(u32 idx) const = 0;
 
-		//! returns type name of a createable scene node type
+		//! returns type name of a creatable scene node type
 		/** \param type: Type of scene node.
 		\return: Returns name of scene node type if this factory can create the type, otherwise 0. */
 		virtual const c8* getCreateableSceneNodeTypeName(ESCENE_NODE_TYPE type) const = 0;
@@ -65,4 +65,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

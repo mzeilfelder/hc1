@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __COLOR_H_INCLUDED__
-#define __COLOR_H_INCLUDED__
+#ifndef IRR_S_COLOR_H_INCLUDED
+#define IRR_S_COLOR_H_INCLUDED
 
 #include "irrTypes.h"
 #include "irrMath.h"
@@ -13,7 +13,7 @@ namespace irr
 namespace video
 {
 	//! An enum for the color format of textures used by the Irrlicht Engine.
-	/** A color format specifies how color information is stored. 
+	/** A color format specifies how color information is stored.
 	    NOTE: Byte order in memory is usually flipped (it's probably correct in bitmap files, but flipped on reading).
 	    So for example ECF_A8R8G8B8 is BGRA in memory same as in DX9's D3DFMT_A8R8G8B8 format.
 	*/
@@ -29,9 +29,12 @@ namespace video
 		ECF_R5G6B5,
 
 		//! 24 bit color, no alpha channel, but 8 bit for red, green and blue.
+		//! Warning: 24 bit formats tend to be badly supported. Depending on driver it's usually converted to another
+		//           format or even not working at all. It's mostly better to use 16-bit or 32-bit formats.
 		ECF_R8G8B8,
 
 		//! Default 32 bit color format. 8 bits are used for every component: red, green, blue and alpha.
+		//! Warning: This tends to be BGRA in memory (it's ARGB on file, but with usual big-endian memory it's flipped)
 		ECF_A8R8G8B8,
 
 		/** Compressed image formats. **/
@@ -127,6 +130,44 @@ namespace video
 
 		//! Unknown color format:
 		ECF_UNKNOWN
+	};
+
+	//! Names for ECOLOR_FORMAT types
+	const c8* const ColorFormatNames[ECF_UNKNOWN+2] =
+	{
+		"A1R5G5B5",
+		"R5G6B5",
+		"R8G8B8",
+		"A8R8G8B8",
+		"DXT1",
+		"DXT2",
+		"DXT3",
+		"DXT4",
+		"DXT5",
+		"PVRTC_RGB2",
+		"PVRTC_ARGB2",
+		"PVRTC_RGB4",
+		"PVRTC_ARGB4",
+		"PVRTC2_ARGB2",
+		"PVRTC2_ARGB4",
+		"ETC1",
+		"ETC2_RGB",
+		"ETC2_ARGB",
+		"R16F",
+		"G16R16F",
+		"A16B16G16R16F",
+		"R32F",
+		"G32R32F",
+		"A32B32G32R32F",
+		"R8",
+		"R8G8",
+		"R16",
+		"R16G16",
+		"D16",
+		"D32",
+		"D24S8",
+		"UNKNOWN",
+		0
 	};
 
 
@@ -409,7 +450,7 @@ namespace video
 
 		//! Interpolates the color with a f32 value to another color
 		/** \param other: Other color
-		\param d: value between 0.0f and 1.0f
+		\param d: value between 0.0f and 1.0f. d=0 returns other, d=1 returns this, values between interpolate.
 		\return Interpolated color. */
 		SColor getInterpolated(const SColor &other, f32 d) const
 		{
@@ -464,7 +505,7 @@ namespace video
 					break;
 				case ECF_R8G8B8:
 					{
-						u8* p = (u8*)data;
+						const u8* p = (u8*)data;
 						set(255, p[0],p[1],p[2]);
 					}
 					break;

@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_MESSAGE_BOX_FLAGS_H_INCLUDED__
-#define __E_MESSAGE_BOX_FLAGS_H_INCLUDED__
+#ifndef IRR_E_MESSAGE_BOX_FLAGS_H_INCLUDED
+#define IRR_E_MESSAGE_BOX_FLAGS_H_INCLUDED
 
 namespace irr
 {
@@ -13,7 +13,7 @@ namespace gui
 //! enumeration for message box layout flags
 enum EMESSAGE_BOX_FLAG
 {
-	//! Flag for the ok button
+	//! Flag for the OK button
 	EMBF_OK = 0x1,
 
 	//! Flag for the cancel button
@@ -33,4 +33,3 @@ enum EMESSAGE_BOX_FLAG
 } // namespace irr
 
 #endif
-

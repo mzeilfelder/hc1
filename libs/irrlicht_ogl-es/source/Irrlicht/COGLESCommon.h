@@ -12,14 +12,14 @@
 #if defined(_IRR_COMPILE_WITH_IOS_DEVICE_)
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-#elif defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_)
+#elif defined(_IRR_OGLES1_USE_KHRONOS_API_HEADERS_)
+#include <khronos-api/GLES/gl.h>
+#include <EGL/eglplatform.h>
+typedef char GLchar;
+#else	// or only when defined(_IRR_COMPILE_WITH_ANDROID_DEVICE_) ?
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 #include <EGL/eglplatform.h>
-#else
-#include <GLES/gl.h>
-#include <EGL/eglplatform.h>
-typedef char GLchar;
 #if defined(_IRR_OGLES1_USE_EXTPOINTER_)
 #include "gles-ext.h"
 #endif
@@ -93,9 +93,8 @@ typedef char GLchar;
 #define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0
 #endif
 
-// Irrlicht's OpenGL version.
-
-#define IRR_OPENGL_VERSION 15
+// to check if this header is in the current compile unit (different GL implementation used different "GLCommon" headers in Irrlicht
+#define IRR_COMPILE_GLES_COMMON
 
 namespace irr
 {
@@ -104,21 +103,21 @@ namespace video
 
 	// Forward declarations.
 
-	class COGLCoreFeature;
+	class COpenGLCoreFeature;
 
-	template <class TOGLDriver>
-	class COGLCoreTexture;
+	template <class TOpenGLDriver>
+	class COpenGLCoreTexture;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreRenderTarget;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreRenderTarget;
 
-	template <class TOGLDriver, class TOGLTexture>
-	class COGLCoreCacheHandler;
+	template <class TOpenGLDriver, class TOpenGLTexture>
+	class COpenGLCoreCacheHandler;
 
 	class COGLES1Driver;
-	typedef COGLCoreTexture<COGLES1Driver> COGLES1Texture;
-	typedef COGLCoreRenderTarget<COGLES1Driver, COGLES1Texture> COGLES1RenderTarget;
-	typedef COGLCoreCacheHandler<COGLES1Driver, COGLES1Texture> COGLES1CacheHandler;
+	typedef COpenGLCoreTexture<COGLES1Driver> COGLES1Texture;
+	typedef COpenGLCoreRenderTarget<COGLES1Driver, COGLES1Texture> COGLES1RenderTarget;
+	typedef COpenGLCoreCacheHandler<COGLES1Driver, COGLES1Texture> COGLES1CacheHandler;
 
 }
 }

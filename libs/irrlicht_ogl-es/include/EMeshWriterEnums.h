@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_MESH_WRITER_ENUMS_H_INCLUDED__
-#define __E_MESH_WRITER_ENUMS_H_INCLUDED__
+#ifndef IRR_E_MESH_WRITER_ENUMS_H_INCLUDED
+#define IRR_E_MESH_WRITER_ENUMS_H_INCLUDED
 
 #include "irrTypes.h"
 
@@ -45,9 +45,12 @@ namespace scene
 		EMWF_NONE = 0,
 
 		//! write lightmap textures out if possible
+		//! Currently not used by any Irrlicht mesh-writer
+		// (Note: User meshwriters can still use it)
 		EMWF_WRITE_LIGHTMAPS = 0x1,
 
 		//! write in a way that consumes less disk space
+		// (Note: Mainly there for user meshwriters)
 		EMWF_WRITE_COMPRESSED = 0x2,
 
 		//! write in binary format rather than text
@@ -57,6 +60,4 @@ namespace scene
 } // end namespace scene
 } // end namespace irr
 
-
-#endif // __E_MESH_WRITER_ENUMS_H_INCLUDED__
-
+#endif // IRR_E_MESH_WRITER_ENUMS_H_INCLUDED

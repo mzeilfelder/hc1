@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_COLOR_CONVERTER_H_INCLUDED__
-#define __C_COLOR_CONVERTER_H_INCLUDED__
+#ifndef IRR_C_COLOR_CONVERTER_H_INCLUDED
+#define IRR_C_COLOR_CONVERTER_H_INCLUDED
 
 #include "irrTypes.h"
 #include "IImage.h"
@@ -89,6 +89,8 @@ public:
 	static void convert_R5G6B5toA1R5G5B5(const void* sP, s32 sN, void* dP);
 	static void convert_viaFormat(const void* sP, ECOLOR_FORMAT sF, s32 sN,
 				void* dP, ECOLOR_FORMAT dF);
+	// Check if convert_viaFormat is usable
+	static bool canConvertFormat(ECOLOR_FORMAT sourceFormat, ECOLOR_FORMAT destFormat);
 };
 
 
@@ -96,4 +98,3 @@ public:
 } // end namespace irr
 
 #endif
-

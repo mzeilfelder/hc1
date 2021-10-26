@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __E_DRIVER_TYPES_H_INCLUDED__
-#define __E_DRIVER_TYPES_H_INCLUDED__
+#ifndef IRR_E_DRIVER_TYPES_H_INCLUDED
+#define IRR_E_DRIVER_TYPES_H_INCLUDED
 
 #include "irrTypes.h"
 
@@ -15,7 +15,7 @@ namespace video
 	//! An enum for all types of drivers the Irrlicht Engine supports.
 	enum E_DRIVER_TYPE
 	{
-		//! Null driver, useful for applications to run the engine without visualisation.
+		//! Null driver, useful for applications to run the engine without visualization.
 		/** The null device is able to load textures, but does not
 		render and display any graphics. */
 		EDT_NULL,
@@ -51,19 +51,22 @@ namespace video
 		/** Performs hardware accelerated rendering of 3D and 2D
 		primitives. */
 		EDT_OPENGL,
-        
+
         //! OpenGL-ES 1.x driver, for embedded and mobile systems
 		EDT_OGLES1,
-        
+
 		//! OpenGL-ES 2.x driver, for embedded and mobile systems
 		/** Supports shaders etc. */
 		EDT_OGLES2,
 
+		//! WebGL1 friendly subset of OpenGL-ES 2.x driver for Emscripten
+		EDT_WEBGL1,
+
 		//! No driver, just for counting the elements
 		EDT_COUNT
 	};
-	
-	const c8* const DRIVER_TYPE_NAMES[] = 
+
+	const c8* const DRIVER_TYPE_NAMES[] =
 	{
 		"NullDriver",
 		"Software Renderer",
@@ -73,10 +76,11 @@ namespace video
 		"OpenGL 1.x/2.x/3.x",
 		"OpenGL ES1",
 		"OpenGL ES2",
-		0 
+		"WebGL 1",
+		0
 	};
 
-	const c8* const DRIVER_TYPE_NAMES_SHORT[] = 
+	const c8* const DRIVER_TYPE_NAMES_SHORT[] =
 	{
 		"null",
 		"software",
@@ -84,11 +88,13 @@ namespace video
 		"d3d8",
 		"d3d9",
 		"opengl",
-		0 
+		"ogles1",
+		"ogles2",
+		"webgl1",
+		0
 	};
 
 } // end namespace video
 } // end namespace irr
-
 
 #endif

@@ -331,7 +331,7 @@ void Q3ShaderFactory (	Q3LevelLoadParameter &loadParam,
 		loadParam.startTime = device->getTimer()->getRealTime();
 		if ( loadParam.verbose > 1 )
 		{
-			snprintf(buf, 128, "q3shaderfactory start" );
+			snprintf_irr(buf, 128, "q3shaderfactory start" );
 			device->getLogger()->log( buf, ELL_INFORMATION);
 		}
 	}
@@ -402,7 +402,7 @@ void Q3ShaderFactory (	Q3LevelLoadParameter &loadParam,
 		// show Debug Shader Name
 		if ( showShaderName && node )
 		{
-			swprintf ( (wchar_t*) buf, 64, L"%hs:%d", node->getName(),node->getID() );
+			swprintf_irr ( (wchar_t*) buf, 64, L"%hs:%d", node->getName(),node->getID() );
 			smgr->addBillboardTextSceneNode(
 					font,
 					(wchar_t*) buf,
@@ -485,7 +485,7 @@ void Q3ShaderFactory (	Q3LevelLoadParameter &loadParam,
 	if ( loadParam.verbose > 0 )
 	{
 		loadParam.endTime = device->getTimer()->getRealTime ();
-		snprintf(buf, 128, "q3shaderfactory needed %04d ms to create %d shader nodes",
+		snprintf_irr(buf, 128, "q3shaderfactory needed %04d ms to create %d shader nodes",
 			loadParam.endTime - loadParam.startTime,
 			sceneNodeID
 			);
@@ -594,7 +594,7 @@ void Q3ModelFactory (	Q3LevelLoadParameter &loadParam,
 
 				if ( 0 == node )
 				{
-					snprintf ( buf, 128, "q3ModelFactory shader %s failed", meshBuffer->Shader.c_str() );
+					snprintf_irr ( buf, 128, "q3ModelFactory shader %s failed", meshBuffer->Shader.c_str() );
 					device->getLogger()->log ( buf );
 					continue;
 				}
@@ -635,7 +635,7 @@ void Q3ModelFactory (	Q3LevelLoadParameter &loadParam,
 		// show name
 		if ( showShaderName )
 		{
-			swprintf ( (wchar_t*) buf, sizeof(buf) / 2, L"%hs", itemElement->key );
+			swprintf_irr ( (wchar_t*) buf, sizeof(buf) / 2, L"%hs", itemElement->key );
 			smgr->addBillboardTextSceneNode(
 					font,
 					(wchar_t*) buf,
@@ -735,10 +735,10 @@ s32 Q3StartPosition (	IQ3LevelMesh* mesh,
 */
 vector3df getGravity ( const c8 * surface )
 {
-	if ( 0 == strcmp ( surface, "earth" ) ) return vector3df ( 0.f, -90.f, 0.f );
-	if ( 0 == strcmp ( surface, "moon" ) ) return vector3df ( 0.f, -6.f / 100.f, 0.f );
-	if ( 0 == strcmp ( surface, "water" ) ) return vector3df ( 0.1f / 100.f, -2.f / 100.f, 0.f );
-	if ( 0 == strcmp ( surface, "ice" ) ) return vector3df ( 0.2f / 100.f, -9.f / 100.f, 0.3f / 100.f );
+	if ( 0 == strcmp ( surface, "earth" ) ) return vector3df ( 0.f, -900.f, 0.f );
+	if ( 0 == strcmp ( surface, "moon" ) ) return vector3df ( 0.f, -6.f , 0.f );
+	if ( 0 == strcmp ( surface, "water" ) ) return vector3df ( 0.1f, -2.f, 0.f );
+	if ( 0 == strcmp ( surface, "ice" ) ) return vector3df ( 0.2f, -9.f, 0.3f );
 
 	return vector3df ( 0.f, 0.f, 0.f );
 }

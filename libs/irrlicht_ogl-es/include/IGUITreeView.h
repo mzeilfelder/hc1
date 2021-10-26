@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_GUI_TREE_VIEW_H_INCLUDED__
-#define __I_GUI_TREE_VIEW_H_INCLUDED__
+#ifndef IRR_I_GUI_TREE_VIEW_H_INCLUDED
+#define IRR_I_GUI_TREE_VIEW_H_INCLUDED
 
 #include "IGUIElement.h"
 #include "IGUIImageList.h"
@@ -80,7 +80,7 @@ namespace gui
 		//! removes all children (recursive) from this node
 		/** \deprecated Deprecated in 1.8, use clearChildren() instead.
 		This method may be removed by Irrlicht 1.9 */
-		_IRR_DEPRECATED_ void clearChilds()
+		IRR_DEPRECATED void clearChilds()
 		{
 			return clearChildren();
 		}
@@ -91,7 +91,7 @@ namespace gui
 		//! returns true if this node has child nodes
 		/** \deprecated Deprecated in 1.8, use hasChildren() instead.
 		This method may be removed by Irrlicht 1.9 */
-		_IRR_DEPRECATED_ bool hasChilds() const
+		IRR_DEPRECATED bool hasChilds() const
 		{
 			return hasChildren();
 		}
@@ -125,7 +125,7 @@ namespace gui
 				void* data=0, IReferenceCounted* data2=0 ) =0;
 
 		//! Adds a new node behind the other node.
-		/** The other node has also te be a child node from this node.
+		/** The other node has also to be a child node from this node.
 		\param other Node to insert after
 		\param text text of the new node
 		\param icon icon text of the new node
@@ -142,7 +142,7 @@ namespace gui
 				void* data=0, IReferenceCounted* data2=0) =0;
 
 		//! Adds a new node before the other node.
-		/** The other node has also te be a child node from this node.
+		/** The other node has also to be a child node from this node.
 		\param other Node to insert before
 		\param text text of the new node
 		\param icon icon text of the new node
@@ -188,11 +188,11 @@ namespace gui
 		virtual bool deleteChild( IGUITreeViewNode* child ) = 0;
 
 		//! Moves a child node one position up.
-		/** \return True if the node was found as achild node and was not already the first child. */
+		/** \return True if the node was found as a child node and was not already the first child. */
 		virtual bool moveChildUp( IGUITreeViewNode* child ) = 0;
 
 		//! Moves a child node one position down.
-		/** \return True if the node was found as achild node and was not already the last child. */
+		/** \return True if the node was found as a child node and was not already the last child. */
 		virtual bool moveChildDown( IGUITreeViewNode* child ) = 0;
 
 		//! Returns true if the node is expanded (children are visible).
@@ -220,8 +220,8 @@ namespace gui
 
 
 	//! Default tree view GUI element.
-	/** Displays a windows like tree buttons to expand/collaps the child
-	nodes of an node and optional tree lines. Each node consits of an
+	/** Displays a windows like tree buttons to expand/collapse the child
+	nodes of an node and optional tree lines. Each node consists of an
 	text, an icon text and a void pointer for user data. */
 	class IGUITreeView : public IGUIElement
 	{
@@ -295,4 +295,3 @@ namespace gui
 } // end namespace irr
 
 #endif
-

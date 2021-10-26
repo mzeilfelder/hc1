@@ -411,7 +411,7 @@ bool CXMeshFileLoader::readFileIntoMemory(io::IReadFile* file)
 	Buffer = new c8[size];
 
 	//! read all into memory
-	if (file->read(Buffer, size) != size)
+	if (file->read(Buffer, size) != static_cast<size_t>(size))
 	{
 		os::Printer::log("Could not read from x file.", ELL_WARNING);
 		return false;
@@ -912,6 +912,12 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 			s16 uv2type = -1;
 			s16 tangenttype = -1;
 			s16 binormaltype = -1;
+
+			(void)tangentpos; // disable unused variable warnings
+			(void)binormalpos; // disable unused variable warnings
+			(void)tangenttype; // disable unused variable warnings
+			(void)binormaltype; // disable unused variable warnings
+
 			for (j=0; j<dcnt; ++j)
 			{
 				const u32 type = readInt();

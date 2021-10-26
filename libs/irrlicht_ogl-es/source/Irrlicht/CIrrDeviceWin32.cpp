@@ -6,6 +6,10 @@
 
 #ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 
+#if defined (__STRICT_ANSI__)
+    #error Compiling with __STRICT_ANSI__ not supported. g++ does set this when compiling with -std=c++11 or -std=c++0x. Use instead -std=gnu++11 or -std=gnu++0x. Or use -U__STRICT_ANSI__ to disable strict ansi.
+#endif
+
 #include "CIrrDeviceWin32.h"
 #include "IEventReceiver.h"
 #include "irrList.h"
@@ -451,6 +455,8 @@ irr::core::stringc SJoystickWin32Control::findJoystickName(int index, const JOYC
 bool SJoystickWin32Control::activateJoysticks(core::array<SJoystickInfo> & joystickInfo)
 {
 #if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+	joystickInfo.clear();
+	ActiveJoysticks.clear();
 #ifdef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 	if (!DirectInputDevice || (DirectInputDevice->EnumDevices(DI8DEVCLASS_GAMECTRL, SJoystickWin32Control::EnumJoysticks, this, DIEDFL_ATTACHEDONLY )))
 	{
@@ -471,9 +477,6 @@ bool SJoystickWin32Control::activateJoysticks(core::array<SJoystickInfo> & joyst
 	}
 	return true;
 #else
-	joystickInfo.clear();
-	ActiveJoysticks.clear();
-
 	const u32 numberOfJoysticks = ::joyGetNumDevs();
 	JOYINFOEX info;
 	info.dwSize = sizeof(info);
@@ -692,29 +695,22 @@ namespace
 		HWND hWnd;
 		irr::CIrrDeviceWin32* irrDev;
 	};
-	irr::core::list<SEnvMapper> EnvMap;
+	// NOTE: This is global. We can have more than one Irrlicht Device at same time.
+	irr::core::array<SEnvMapper> EnvMap;
 
 	HKL KEYBOARD_INPUT_HKL=0;
 	unsigned int KEYBOARD_INPUT_CODEPAGE = 1252;
 }
 
-SEnvMapper* getEnvMapperFromHWnd(HWND hWnd)
-{
-	irr::core::list<SEnvMapper>::Iterator it = EnvMap.begin();
-	for (; it!= EnvMap.end(); ++it)
-		if ((*it).hWnd == hWnd)
-			return &(*it);
-
-	return 0;
-}
-
-
 irr::CIrrDeviceWin32* getDeviceFromHWnd(HWND hWnd)
 {
-	irr::core::list<SEnvMapper>::Iterator it = EnvMap.begin();
-	for (; it!= EnvMap.end(); ++it)
-		if ((*it).hWnd == hWnd)
-			return (*it).irrDev;
+	const irr::u32 end = EnvMap.size();
+	for ( irr::u32 i=0; i < end; ++i )
+	{
+		const SEnvMapper& env = EnvMap[i];
+		if ( env.hWnd == hWnd )
+			return env.irrDev;
+	}
 
 	return 0;
 }
@@ -964,8 +960,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_USER:
 		event.EventType = irr::EET_USER_EVENT;
-		event.UserEvent.UserData1 = (irr::s32)wParam;
-		event.UserEvent.UserData2 = (irr::s32)lParam;
+		event.UserEvent.UserData1 = static_cast<size_t>(wParam);
+		event.UserEvent.UserData2 = static_cast<size_t>(lParam);
 		dev = getDeviceFromHWnd(hWnd);
 
 		if (dev)
@@ -998,8 +994,8 @@ namespace irr
 
 //! constructor
 CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
-: CIrrDeviceStub(params), ChangedToFullScreen(false), Resized(false),
-	ExternalWindow(false), Win32CursorControl(0), JoyControl(0), HWnd(0)
+: CIrrDeviceStub(params), HWnd(0), ChangedToFullScreen(false), Resized(false),
+	ExternalWindow(false), Win32CursorControl(0), JoyControl(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CIrrDeviceWin32");
@@ -1042,7 +1038,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 		wcex.hIconSm		= 0;
 
 		// if there is an icon, load it
-		wcex.hIcon = (HICON)LoadImage(hInstance, __TEXT("irrlicht.ico"), IMAGE_ICON, 0,0, LR_LOADFROMFILE);
+		wcex.hIcon = (HICON)LoadImage(hInstance, __TEXT("irrlicht.ico"), IMAGE_ICON, 0,0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 		RegisterClassEx(&wcex);
 
@@ -1054,11 +1050,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 		clientSize.right = CreationParams.WindowSize.Width;
 		clientSize.bottom = CreationParams.WindowSize.Height;
 
-		DWORD style = WS_POPUP;
-
-		if (!CreationParams.Fullscreen)
-			style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-
+		DWORD style = getWindowStyle(CreationParams.Fullscreen, CreationParams.WindowResizable > 0 ? true : false);
 		AdjustWindowRect(&clientSize, style, FALSE);
 
 		const s32 realWidth = clientSize.right - clientSize.left;
@@ -1160,13 +1152,11 @@ CIrrDeviceWin32::~CIrrDeviceWin32()
 	delete JoyControl;
 
 	// unregister environment
-
-	irr::core::list<SEnvMapper>::Iterator it = EnvMap.begin();
-	for (; it!= EnvMap.end(); ++it)
+	for (u32 i=0; i< EnvMap.size(); ++i)
 	{
-		if ((*it).hWnd == HWnd)
+		if (EnvMap[i].hWnd == HWnd)
 		{
-			EnvMap.erase(it);
+			EnvMap.erase(i);
 			break;
 		}
 	}
@@ -1182,7 +1172,7 @@ void CIrrDeviceWin32::createDriver()
 	{
 	case video::DEPRECATED_EDT_DIRECT3D8_NO_LONGER_EXISTS:
 		os::Printer::log("DIRECT3D8 Driver is no longer supported in Irrlicht. Try another one.", ELL_ERROR);
-		break;	
+		break;
 	case video::EDT_DIRECT3D9:
 #ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
 		VideoDriver = video::createDirectX9Driver(CreationParams, FileSystem, HWnd);
@@ -1237,6 +1227,9 @@ void CIrrDeviceWin32::createDriver()
 #else
 		os::Printer::log("OpenGL-ES2 driver was not compiled in.", ELL_ERROR);
 #endif
+		break;
+	case EDT_WEBGL1:
+		os::Printer::log("WebGL1 driver not supported on Win32 device.", ELL_ERROR);
 		break;
 	case video::EDT_SOFTWARE:
 #ifdef _IRR_COMPILE_WITH_SOFTWARE_
@@ -1333,6 +1326,17 @@ void CIrrDeviceWin32::resizeIfNecessary()
 }
 
 
+DWORD CIrrDeviceWin32::getWindowStyle(bool fullscreen, bool resizable) const
+{
+	if ( fullscreen )
+		return WS_POPUP;
+
+	if ( resizable )
+		return WS_THICKFRAME | WS_SYSMENU | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+
+	return WS_BORDER | WS_SYSMENU | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+}
+
 //! sets the caption of the window
 void CIrrDeviceWin32::setWindowCaption(const wchar_t* text)
 {
@@ -1396,12 +1400,12 @@ bool CIrrDeviceWin32::present(video::IImage* image, void* windowId, core::rect<s
 //! notifies the device that it should close itself
 void CIrrDeviceWin32::closeDevice()
 {
-	MSG msg;
-	PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
-	PostQuitMessage(0);
-	PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
 	if (!ExternalWindow)
 	{
+		MSG msg;
+		PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
+		PostQuitMessage(0);
+		PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
 		DestroyWindow(HWnd);
 		const fschar_t* ClassName = __TEXT("CIrrDeviceWin32");
 		HINSTANCE hInstance = GetModuleHandle(0);
@@ -1433,7 +1437,7 @@ bool CIrrDeviceWin32::isWindowMinimized() const
 	plc.length=sizeof(WINDOWPLACEMENT);
 	bool ret=false;
 	if (GetWindowPlacement(HWnd,&plc))
-		ret=(plc.showCmd & SW_SHOWMINIMIZED)!=0;
+		ret = plc.showCmd == SW_SHOWMINIMIZED;
 	return ret;
 }
 
@@ -1496,7 +1500,7 @@ bool CIrrDeviceWin32::switchToFullScreen(bool reset)
 		os::Printer::log("Switch to fullscreen: The graphics mode is not supported.", ELL_ERROR);
 		break;
 	default:
-		os::Printer::log("An unknown error occured while changing to fullscreen.", ELL_ERROR);
+		os::Printer::log("An unknown error occurred while changing to fullscreen.", ELL_ERROR);
 		break;
 	}
 	return ret;
@@ -1617,6 +1621,10 @@ void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
 				else
 					out.append("Microsoft Windows Server 2008 R2 ");
 			}
+			else if (osvi.dwMinorVersion == 2)
+			{
+				out.append("Microsoft Windows 8 or later ");
+			}
 		}
 
 		if (bOsVersionInfoEx)
@@ -1700,11 +1708,12 @@ void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
 					(LPBYTE) szProductType, &dwBufLen);
 			RegCloseKey( hKey );
 
-			if (_strcmpi( "WINNT", szProductType) == 0 )
+
+			if (irr::core::stringc("WINNT").equals_ignore_case(szProductType))
 				out.append("Professional ");
-			if (_strcmpi( "LANMANNT", szProductType) == 0)
+			if (irr::core::stringc("LANMANNT").equals_ignore_case(szProductType))
 				out.append("Server ");
-			if (_strcmpi( "SERVERNT", szProductType) == 0)
+			if (irr::core::stringc("SERVERNT").equals_ignore_case(szProductType))
 				out.append("Advanced Server ");
 		}
 
@@ -1790,13 +1799,7 @@ void CIrrDeviceWin32::setResizable(bool resize)
 	if (ExternalWindow || !getVideoDriver() || CreationParams.Fullscreen)
 		return;
 
-	LONG_PTR style = WS_POPUP;
-
-	if (!resize)
-		style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	else
-		style = WS_THICKFRAME | WS_SYSMENU | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-
+	LONG_PTR style = (LONG_PTR)getWindowStyle(false, resize);
 	if (!SetWindowLongPtr(HWnd, GWL_STYLE, style))
 		os::Printer::log("Could not change window style.");
 
@@ -1996,6 +1999,26 @@ void CIrrDeviceWin32::ReportLastWinApiError()
 			MessageBox(NULL, __TEXT("Unknown error"), pszCaption, MB_OK|MB_ICONERROR);
 		}
 	}
+}
+
+// Same function Windows offers in VersionHelpers.h, but we can't use that as it's not available in older sdk's (minimum is SDK 8.1)
+bool CIrrDeviceWin32::isWindowsVistaOrGreater()
+{
+#if (_WIN32_WINNT >= 0x0500)
+	OSVERSIONINFOEX osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = 6; //  Windows Vista
+
+	if ( !GetVersionEx((OSVERSIONINFO*)&osvi) )
+	{
+		return false;
+	}
+
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION, VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL)) ? true : false;
+#else
+    return false;
+#endif
 }
 
 // Convert an Irrlicht texture to a Windows cursor

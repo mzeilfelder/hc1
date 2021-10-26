@@ -26,6 +26,10 @@
 #include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+#include <X11/extensions/XInput2.h>
+#endif
+
 #if defined(_IRR_COMPILE_WITH_OGLES1_) || defined(_IRR_COMPILE_WITH_OGLES2_)
 #include "CEGLManager.h"
 #endif
@@ -73,6 +77,10 @@ namespace irr
 #ifdef _IRR_COMPILE_WITH_OGLES2_
         IVideoDriver* createOGLES2Driver(const irr::SIrrlichtCreationParameters& params, io::IFileSystem* io, IContextManager* contextManager);
 #endif
+
+#ifdef _IRR_COMPILE_WITH_WEBGL1_
+		IVideoDriver* createWebGL1Driver(const irr::SIrrlichtCreationParameters& params, io::IFileSystem* io, IContextManager* contextManager);
+#endif
 	}
 } // end namespace irr
 
@@ -84,14 +92,17 @@ namespace
 	Atom X_ATOM_TEXT;
 	Atom X_ATOM_NETWM_MAXIMIZE_VERT;
 	Atom X_ATOM_NETWM_MAXIMIZE_HORZ;
-	Atom X_ATOM_NETWM_STATE;	
+	Atom X_ATOM_NETWM_STATE;
+
+	Atom X_ATOM_WM_DELETE_WINDOW;
+
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+	int XI_EXTENSIONS_OPCODE;
+#endif
 };
 
 namespace irr
 {
-
-const char wmDeleteWindow[] = "WM_DELETE_WINDOW";
-
 //! constructor
 CIrrDeviceLinux::CIrrDeviceLinux(const SIrrlichtCreationParameters& param)
 	: CIrrDeviceStub(param),
@@ -135,6 +146,8 @@ CIrrDeviceLinux::CIrrDeviceLinux(const SIrrlichtCreationParameters& param)
 		// create the window, only if we do not use the null device
 		if (!createWindow())
 			return;
+		if (param.WindowResizable < 2 )
+			setResizable(param.WindowResizable == 1 ? true : false);
 	}
 
 	// create cursor control
@@ -484,9 +497,8 @@ bool CIrrDeviceLinux::createWindow()
 
 		XMapRaised(XDisplay, XWindow);
 		CreationParams.WindowId = (void*)XWindow;
-		Atom wmDelete;
-		wmDelete = XInternAtom(XDisplay, wmDeleteWindow, True);
-		XSetWMProtocols(XDisplay, XWindow, &wmDelete, 1);
+		X_ATOM_WM_DELETE_WINDOW = XInternAtom(XDisplay, "WM_DELETE_WINDOW", True);
+		XSetWMProtocols(XDisplay, XWindow, &X_ATOM_WM_DELETE_WINDOW, 1);
 		if (CreationParams.Fullscreen)
 		{
 			XSetInputFocus(XDisplay, XWindow, RevertToParent, CurrentTime);
@@ -498,6 +510,11 @@ bool CIrrDeviceLinux::createWindow()
 			IrrPrintXGrabError(grabPointer, "XGrabPointer");
 			XWarpPointer(XDisplay, None, XWindow, 0, 0, 0, 0, 0, 0);
 		}
+		else if (CreationParams.WindowPosition.X >= 0 || CreationParams.WindowPosition.Y >= 0)	// default is -1, -1
+		{
+			// Window managers are free to ignore positions above, so give it another shot
+			XMoveWindow(XDisplay,XWindow,x,y);
+		}
 	}
 	else
 	{
@@ -505,12 +522,25 @@ bool CIrrDeviceLinux::createWindow()
 		XWindow = (Window)CreationParams.WindowId;
 		if (!CreationParams.IgnoreInput)
 		{
-			XCreateWindow(XDisplay,
+			// Note: This might be further improved by using a InputOnly window instead of InputOutput.
+			// I think then it should be possible to render into the given parent window instead of
+			// creating a child-window.
+			// That could also be a third option for IgnoreInput in the CreationParams.
+			// But we need another window variable then and have to split input/output in
+			// the rest of the device code.
+			// Also... this does possibly leak.
+			Window child_window = XCreateWindow(XDisplay,
 					XWindow,
 					0, 0, Width, Height, 0, VisualInfo->depth,
 					InputOutput, VisualInfo->visual,
 					CWBorderPixel | CWColormap | CWEventMask,
 					&WndAttributes);
+
+			// do not forget to map new window
+			XMapWindow(XDisplay, child_window);
+
+			// overwrite device window id
+			XWindow = child_window;
 		}
 		XWindowAttributes wa;
 		XGetWindowAttributes(XDisplay, XWindow, &wa);
@@ -554,11 +584,13 @@ bool CIrrDeviceLinux::createWindow()
 	}
 
 	initXAtoms();
-	
+
 	// check netwm support
 	Atom WMCheck = XInternAtom(XDisplay, "_NET_SUPPORTING_WM_CHECK", true);
 	if (WMCheck != None)
 		HasNetWM = true;
+
+	initXInput2();
 
 #endif // #ifdef _IRR_COMPILE_WITH_X11_
 	return true;
@@ -630,6 +662,22 @@ void CIrrDeviceLinux::createDriver()
 		}
 #else
 		os::Printer::log("No OpenGL-ES2 support compiled in.", ELL_ERROR);
+#endif
+		break;
+	case video::EDT_WEBGL1:
+#ifdef _IRR_COMPILE_WITH_WEBGL1_
+		{
+			video::SExposedVideoData data;
+			data.OpenGLLinux.X11Window = XWindow;
+			data.OpenGLLinux.X11Display = XDisplay;
+
+			ContextManager = new video::CEGLManager();
+			ContextManager->initialize(CreationParams, data);
+
+			VideoDriver = video::createWebGL1Driver(CreationParams, FileSystem, ContextManager);
+		}
+#else
+		os::Printer::log("No WebGL1 support compiled in.", ELL_ERROR);
 #endif
 		break;
 	case video::DEPRECATED_EDT_DIRECT3D8_NO_LONGER_EXISTS:
@@ -1003,7 +1051,7 @@ bool CIrrDeviceLinux::run()
 						{
 							char buf[8];
 							wchar_t wbuf[2];
-						} tmp = {0};
+						} tmp = {{0}};
 						XLookupString(&event.xkey, tmp.buf, sizeof(tmp.buf), &mp.X11Key, NULL);
 						irrevent.KeyInput.Char = tmp.wbuf[0];
 					}
@@ -1020,8 +1068,7 @@ bool CIrrDeviceLinux::run()
 
 			case ClientMessage:
 				{
-					char *atom = XGetAtomName(XDisplay, event.xclient.message_type);
-					if (*atom == *wmDeleteWindow)
+					if (static_cast<Atom>(event.xclient.data.l[0]) == X_ATOM_WM_DELETE_WINDOW && X_ATOM_WM_DELETE_WINDOW != None)
 					{
 						os::Printer::log("Quit message received.", ELL_INFORMATION);
 						Close = true;
@@ -1030,11 +1077,10 @@ bool CIrrDeviceLinux::run()
 					{
 						// we assume it's a user message
 						irrevent.EventType = irr::EET_USER_EVENT;
-						irrevent.UserEvent.UserData1 = (s32)event.xclient.data.l[0];
-						irrevent.UserEvent.UserData2 = (s32)event.xclient.data.l[1];
+						irrevent.UserEvent.UserData1 = static_cast<size_t>(event.xclient.data.l[0]);
+						irrevent.UserEvent.UserData2 = static_cast<size_t>(event.xclient.data.l[1]);
 						postEventFromUser(irrevent);
 					}
-					XFree(atom);
 				}
 				break;
 
@@ -1081,6 +1127,28 @@ bool CIrrDeviceLinux::run()
 					XFlush (XDisplay);
 				}
 				break;
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+				case GenericEvent:
+				{
+					XGenericEventCookie *cookie = &event.xcookie;
+					if (XGetEventData(XDisplay, cookie) && cookie->extension == XI_EXTENSIONS_OPCODE && XI_EXTENSIONS_OPCODE
+					&& (cookie->evtype == XI_TouchUpdate || cookie->evtype == XI_TouchBegin || cookie->evtype == XI_TouchEnd))
+					{
+						XIDeviceEvent *de = (XIDeviceEvent *) cookie->data;
+
+						irrevent.EventType = EET_TOUCH_INPUT_EVENT;
+
+						irrevent.TouchInput.Event = cookie->evtype == XI_TouchUpdate ? ETIE_MOVED : (cookie->evtype == XI_TouchBegin ? ETIE_PRESSED_DOWN : ETIE_LEFT_UP);
+
+						irrevent.TouchInput.ID = de->detail;
+						irrevent.TouchInput.X = de->event_x;
+						irrevent.TouchInput.Y = de->event_y;
+
+						postEventFromUser(irrevent);
+					}
+				}
+				break;
+#endif
 
 			default:
 				break;
@@ -1385,7 +1453,7 @@ void CIrrDeviceLinux::maximizeWindow()
 		XSendEvent(XDisplay, DefaultRootWindow(XDisplay), false,
 				SubstructureNotifyMask|SubstructureRedirectMask, &ev);
 	}
-	
+
 	XMapWindow(XDisplay, XWindow);
 #endif
 }
@@ -1411,7 +1479,7 @@ void CIrrDeviceLinux::restoreWindow()
 		XSendEvent(XDisplay, DefaultRootWindow(XDisplay), false,
 				SubstructureNotifyMask|SubstructureRedirectMask, &ev);
 	}
-	
+
 	XMapWindow(XDisplay, XWindow);
 #endif
 }
@@ -1419,8 +1487,10 @@ void CIrrDeviceLinux::restoreWindow()
 core::position2di CIrrDeviceLinux::getWindowPosition()
 {
 	int wx = 0, wy = 0;
+#ifdef _IRR_COMPILE_WITH_X11_
 	Window child;
 	XTranslateCoordinates(XDisplay, XWindow, DefaultRootWindow(XDisplay), 0, 0, &wx, &wy, &child);
+#endif
 	return core::position2di(wx, wy);
 }
 
@@ -1960,7 +2030,43 @@ void CIrrDeviceLinux::initXAtoms()
 	X_ATOM_TEXT = XInternAtom (XDisplay, "TEXT", False);
 	X_ATOM_NETWM_MAXIMIZE_VERT = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_VERT", true);
 	X_ATOM_NETWM_MAXIMIZE_HORZ = XInternAtom(XDisplay, "_NET_WM_STATE_MAXIMIZED_HORZ", true);
-	X_ATOM_NETWM_STATE = XInternAtom(XDisplay, "_NET_WM_STATE", true);	
+	X_ATOM_NETWM_STATE = XInternAtom(XDisplay, "_NET_WM_STATE", true);
+#endif
+}
+
+void CIrrDeviceLinux::initXInput2()
+{
+#if defined(_IRR_LINUX_X11_XINPUT2_)
+	int ev=0;
+	int err=0;
+	if (!XQueryExtension(XDisplay, "XInputExtension", &XI_EXTENSIONS_OPCODE, &ev, &err))
+	{
+		os::Printer::log("X Input extension not available.", ELL_WARNING);
+		return;
+	}
+
+	int major = 2;
+	int minor = 3;
+	int rc = XIQueryVersion(XDisplay, &major, &minor);
+	if ( rc != Success )
+	{
+		os::Printer::log("No XI2 support.", ELL_WARNING);
+		return;
+	}
+
+	// So far we only use XInput2 for touch events.
+	// So we enable those and disable all other events for now.
+	XIEventMask eventMask;
+	unsigned char mask[XIMaskLen(XI_TouchEnd)];
+	memset(mask, 0, sizeof(mask));
+	eventMask.deviceid = XIAllMasterDevices;
+	eventMask.mask_len = sizeof(mask);
+	eventMask.mask = mask;
+	XISetMask(eventMask.mask, XI_TouchBegin);
+	XISetMask(eventMask.mask, XI_TouchUpdate);
+	XISetMask(eventMask.mask, XI_TouchEnd);
+
+	XISelectEvents(XDisplay, XWindow, &eventMask, 1);
 #endif
 }
 
@@ -2109,6 +2215,9 @@ CIrrDeviceLinux::CCursorControl::CCursorControl(CIrrDeviceLinux* dev, bool null)
 	: Device(dev)
 #ifdef _IRR_COMPILE_WITH_X11_
 	, PlatformBehavior(gui::ECPB_NONE), LastQuery(0)
+#ifdef _IRR_LINUX_X11_XINPUT2_
+	, DeviceId(0)
+#endif
 #endif
 	, IsVisible(true), Null(null), UseReferenceRect(false)
 	, ActiveIcon(gui::ECI_NORMAL), ActiveIconStartTime(0)
@@ -2116,6 +2225,10 @@ CIrrDeviceLinux::CCursorControl::CCursorControl(CIrrDeviceLinux* dev, bool null)
 #ifdef _IRR_COMPILE_WITH_X11_
 	if (!Null)
 	{
+#ifdef _IRR_LINUX_X11_XINPUT2_
+		XIGetClientPointer(Device->XDisplay, Device->XWindow, &DeviceId);
+#endif
+
 		XGCValues values;
 		unsigned long valuemask = 0;
 

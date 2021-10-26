@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#ifndef __C_WGL_MANAGER_H_INCLUDED__
-#define __C_WGL_MANAGER_H_INCLUDED__
+#ifndef IRR_C_WGL_MANAGER_H_INCLUDED
+#define IRR_C_WGL_MANAGER_H_INCLUDED
 
 #include "IrrCompileConfig.h"
 
@@ -32,31 +32,31 @@ namespace video
 		~CWGLManager();
 
         // Initialize
-        bool initialize(const SIrrlichtCreationParameters& params, const SExposedVideoData& data);
+        virtual bool initialize(const SIrrlichtCreationParameters& params, const SExposedVideoData& data) IRR_OVERRIDE;
 
         // Terminate
-        void terminate();
+        virtual void terminate() IRR_OVERRIDE;
 
         // Create surface.
-        bool generateSurface();
+        virtual bool generateSurface() IRR_OVERRIDE;
 
         // Destroy surface.
-        void destroySurface();
+        virtual void destroySurface() IRR_OVERRIDE;
 
         // Create context.
-        bool generateContext();
+        virtual bool generateContext() IRR_OVERRIDE;
 
         // Destroy EGL context.
-        void destroyContext();
+        virtual void destroyContext() IRR_OVERRIDE;
 
 		//! Get current context
-		const SExposedVideoData& getContext() const;
+		virtual const SExposedVideoData& getContext() const IRR_OVERRIDE;
 
 		//! Change render context, disable old and activate new defined by videoData
-		bool activateContext(const SExposedVideoData& videoData);
+		virtual bool activateContext(const SExposedVideoData& videoData, bool restorePrimaryOnZero) IRR_OVERRIDE;
 
         // Swap buffers.
-        bool swapBuffers();
+        virtual bool swapBuffers() IRR_OVERRIDE;
 
     private:
         SIrrlichtCreationParameters Params;

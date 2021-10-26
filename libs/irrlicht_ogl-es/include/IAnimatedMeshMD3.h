@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_ANIMATED_MESH_MD3_H_INCLUDED__
-#define __I_ANIMATED_MESH_MD3_H_INCLUDED__
+#ifndef IRR_I_ANIMATED_MESH_MD3_H_INCLUDED
+#define IRR_I_ANIMATED_MESH_MD3_H_INCLUDED
 
 #include "IAnimatedMesh.h"
 #include "IQ3Shader.h"
@@ -287,7 +287,7 @@ namespace scene
 	{
 	public:
 
-		//! tune how many frames you want to render inbetween.
+		//! tune how many frames you want to render in between.
 		virtual void setInterpolationShift(u32 shift, u32 loopMode) =0;
 
 		//! get the tag list of the mesh.
@@ -301,4 +301,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

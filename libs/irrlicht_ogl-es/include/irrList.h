@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_LIST_H_INCLUDED__
-#define __IRR_LIST_H_INCLUDED__
+#ifndef IRR_LIST_H_INCLUDED
+#define IRR_LIST_H_INCLUDED
 
 #include "irrTypes.h"
 #include "irrAllocator.h"
@@ -382,8 +382,8 @@ public:
 	}
 
 	//! Swap the content of this list container with the content of another list
-	/** Afterwards this object will contain the content of the other object and the other
-	object will contain the content of this object. Iterators will afterwards be valid for
+	/** Afterward this object will contain the content of the other object and the other
+	object will contain the content of this object. Iterators will afterward be valid for
 	the swapped object.
 	\param other Swap content with this object */
 	void swap(list<T>& other)
@@ -394,6 +394,8 @@ public:
 		core::swap(allocator, other.allocator); // memory is still released by the same allocator used for allocation
 	}
 
+	typedef T value_type;
+	typedef u32 size_type;
 
 private:
 

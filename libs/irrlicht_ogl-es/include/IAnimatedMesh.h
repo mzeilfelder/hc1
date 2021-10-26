@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __I_ANIMATED_MESH_H_INCLUDED__
-#define __I_ANIMATED_MESH_H_INCLUDED__
+#ifndef IRR_I_ANIMATED_MESH_H_INCLUDED
+#define IRR_I_ANIMATED_MESH_H_INCLUDED
 
 #include "aabbox3d.h"
 #include "IMesh.h"
@@ -56,12 +56,12 @@ namespace scene
 		virtual IMesh* getMesh(s32 frame, s32 detailLevel=255, s32 startFrameLoop=-1, s32 endFrameLoop=-1) = 0;
 
 		//! Returns the type of the animated mesh.
-		/** In most cases it is not neccessary to use this method.
+		/** In most cases it is not necessary to use this method.
 		This is useful for making a safe downcast. For example,
 		if getMeshType() returns EAMT_MD2 it's safe to cast the
 		IAnimatedMesh to IAnimatedMeshMD2.
 		\returns Type of the mesh. */
-		virtual E_ANIMATED_MESH_TYPE getMeshType() const
+		virtual E_ANIMATED_MESH_TYPE getMeshType() const IRR_OVERRIDE
 		{
 			return EAMT_UNKNOWN;
 		}
@@ -71,4 +71,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

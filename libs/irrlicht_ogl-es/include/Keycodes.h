@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_KEY_CODES_H_INCLUDED__
-#define __IRR_KEY_CODES_H_INCLUDED__
+#ifndef IRR_KEY_CODES_H_INCLUDED
+#define IRR_KEY_CODES_H_INCLUDED
 
 namespace irr
 {
@@ -177,12 +177,12 @@ namespace irr
 		KEY_PLAY             = 0xFA,  // Play key
 		KEY_ZOOM             = 0xFB,  // Zoom key
 		KEY_PA1              = 0xFD,  // PA1 key
-		KEY_OEM_CLEAR        = 0xFE,   // Clear key
+		KEY_OEM_CLEAR        = 0xFE,  // Clear key
+		KEY_NONE			 = 0xFF,  // usually no key mapping, but some laptops use it for fn key
 
-		KEY_KEY_CODES_COUNT  = 0xFF // this is not a key, but the amount of keycodes there are.
+		KEY_KEY_CODES_COUNT  = 0x100 // this is not a key, but the amount of keycodes there are.
 	};
 
 } // end namespace irr
 
 #endif
-

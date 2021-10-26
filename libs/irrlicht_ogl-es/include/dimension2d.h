@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_DIMENSION2D_H_INCLUDED__
-#define __IRR_DIMENSION2D_H_INCLUDED__
+#ifndef IRR_DIMENSION2D_H_INCLUDED
+#define IRR_DIMENSION2D_H_INCLUDED
 
 #include "irrTypes.h"
 #include "irrMath.h" // for irr::core::equals()
@@ -191,7 +191,7 @@ namespace core
 
 			//! Get the interpolated dimension
 			/** \param other Other dimension to interpolate with.
-			\param d Value between 0.0f and 1.0f.
+			\param d Value between 0.0f and 1.0f. d=0 returns other, d=1 returns this, values between interpolate.
 			\return Interpolated dimension. */
 			dimension2d<T> getInterpolated(const dimension2d<T>& other, f32 d) const
 			{

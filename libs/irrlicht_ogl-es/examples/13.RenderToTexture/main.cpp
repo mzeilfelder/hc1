@@ -1,15 +1,18 @@
 /** Example 013 Render To Texture
 
 This tutorial shows how to render to a texture using Irrlicht. Render to
-texture is a feature with which it is possible to create nice special effects.
+texture is a feature where everything which would usually be rendered to 
+the screen is instead written to a (special) texture. This can be used to 
+create nice special effects.
 In addition, this tutorial shows how to enable specular highlights.
 
 In the beginning, everything as usual. Include the needed headers, ask the user
-for the rendering driver, create the Irrlicht Device:
+for the rendering driver, create the Irrlicht device:
 */
 
 #include <irrlicht.h>
 #include "driverChoice.h"
+#include "exampleHelper.h"
 
 using namespace irr;
 
@@ -36,6 +39,8 @@ int main()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
 	gui::IGUIEnvironment* env = device->getGUIEnvironment();
+
+	const io::path mediaPath = getExampleMediaPath();
 	
 	/*
 	Now, we load an animated mesh to be displayed. As in most examples,
@@ -48,12 +53,12 @@ int main()
 	// load and display animated fairy mesh
 
 	scene::IAnimatedMeshSceneNode* fairy = smgr->addAnimatedMeshSceneNode(
-		smgr->getMesh("../../media/faerie.md2"));
+		smgr->getMesh(mediaPath + "faerie.md2"));
 
 	if (fairy)
 	{
 		fairy->setMaterialTexture(0,
-				driver->getTexture("../../media/faerie2.bmp")); // set diffuse texture
+				driver->getTexture(mediaPath + "faerie2.bmp")); // set diffuse texture
 		fairy->setMaterialFlag(video::EMF_LIGHTING, true); // enable dynamic lighting
 		fairy->getMaterial(0).Shininess = 20.0f; // set size of specular highlights
 		fairy->setPosition(core::vector3df(-10,0,-100));
@@ -81,27 +86,36 @@ int main()
 	*/
 
 	// create test cube
-	scene::ISceneNode* test = smgr->addCubeSceneNode(60);
+	scene::ISceneNode* cube = smgr->addCubeSceneNode(60);
 
 	// let the cube rotate and set some light settings
 	scene::ISceneNodeAnimator* anim = smgr->createRotationAnimator(
 		core::vector3df(0.3f, 0.3f,0));
 
-	test->setPosition(core::vector3df(-100,0,-100));
-	test->setMaterialFlag(video::EMF_LIGHTING, false); // disable dynamic lighting
-	test->addAnimator(anim);
+	cube->setPosition(core::vector3df(-100,0,-100));
+	cube->setMaterialFlag(video::EMF_LIGHTING, false); // disable dynamic lighting
+	cube->addAnimator(anim);
 	anim->drop();
 
 	// set window caption
 	device->setWindowCaption(L"Irrlicht Engine - Render to Texture and Specular Highlights example");
 	
 	/*
-	To test out the render to texture feature, we need a render target
-	texture. These are not like standard textures, but need to be created
-	first. To create one, we call IVideoDriver::addRenderTargetTexture()
-	and specify the size of the texture. Please don't use sizes bigger than
-	the frame buffer for this, because the render target shares the zbuffer
-	with the frame buffer.
+	To test out the render to texture feature, we need to define our
+	new rendertarget. The rendertarget will need one texture to receive
+	the result you would otherwise see on screen and one texture
+	which is used as depth-buffer. 
+
+	(Note: If you worked with older Irrlicht versions (before 1.9) you might be 
+	used to only create a rendertarget texture and no explicit rendertarget. While
+	that's still possible, it's no longer recommended.)
+	
+	The rendertarget textures are not like standard textures, but need to be created
+	first. To create them, we call IVideoDriver::addRenderTargetTexture()
+	and specify the size of the texture and the type. 
+	For depth-maps you can use types ECF_D16, ECF_D32 or ECF_D24S8. When ECF_D24S8 
+	you can also use a stencil-buffer. 
+
 	Because we want to render the scene not from the user camera into the
 	texture, we add another fixed camera to the scene. But before we do all
 	this, we check if the current running driver is able to render to
@@ -109,14 +123,19 @@ int main()
 	*/
 
 	// create render target
-	video::ITexture* rt = 0;
+	video::IRenderTarget* renderTarget = 0;
 	scene::ICameraSceneNode* fixedCam = 0;
-	
 
 	if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 	{
-		rt = driver->addRenderTargetTexture(core::dimension2d<u32>(256,256), "RTT1");
-		test->setMaterialTexture(0, rt); // set material of cube to render target
+		const core::dimension2d<u32> rtDim(256, 256);	// always use same size for render target texture and it's depth-buffer
+		video::ITexture* renderTargetTex = driver->addRenderTargetTexture(rtDim, "RTT1", video::ECF_A8R8G8B8);
+		video::ITexture* renderTargetDepth = driver->addRenderTargetTexture(rtDim, "DepthStencil", video::ECF_D16); 
+
+		renderTarget = driver->addRenderTarget();
+		renderTarget->setTexture(renderTargetTex, renderTargetDepth);
+
+		cube->setMaterialTexture(0, renderTargetTex); // set material of cube to render target
 
 		// add fixed camera
 		fixedCam = smgr->addCameraSceneNode(0, core::vector3df(10,10,-80),
@@ -126,7 +145,7 @@ int main()
 	{
 		// create problem text
 		gui::IGUISkin* skin = env->getSkin();
-		gui::IGUIFont* font = env->getFont("../../media/fonthaettenschweiler.bmp");
+		gui::IGUIFont* font = env->getFont(mediaPath + "fonthaettenschweiler.bmp");
 		if (font)
 			skin->setFont(font);
 
@@ -159,28 +178,27 @@ int main()
 	while(device->run())
 	if (device->isWindowActive())
 	{
-		driver->beginScene(true, true, 0);
+		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(0));
 
-		if (rt)
+		if (renderTarget)
 		{
 			// draw scene into render target
 			
-			// set render target texture
-			driver->setRenderTarget(rt, true, true, video::SColor(0,0,0,255));
+			// set render target
+			driver->setRenderTargetEx(renderTarget, video::ECBF_COLOR | video::ECBF_DEPTH, video::SColor(0,0,0,255));
 
 			// make cube invisible and set fixed camera as active camera
-			test->setVisible(false);
+			cube->setVisible(false);
 			smgr->setActiveCamera(fixedCam);
 
 			// draw whole scene into render buffer
 			smgr->drawAll();
 
-			// set back old render target
-			// The buffer might have been distorted, so clear it
-			driver->setRenderTarget(0, true, true, 0);
+			// set back old render target (the screen)
+			driver->setRenderTargetEx(0, 0);
 
 			// make the cube visible and set the user controlled camera as active one
-			test->setVisible(true);
+			cube->setVisible(true);
 			smgr->setActiveCamera(fpsCamera);
 		}
 		

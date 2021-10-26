@@ -3,6 +3,9 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CParticleSystemSceneNode.h"
+
+#ifdef _IRR_COMPILE_WITH_PARTICLES_
+
 #include "os.h"
 #include "ISceneManager.h"
 #include "ICameraSceneNode.h"
@@ -72,8 +75,8 @@ IParticleEmitter* CParticleSystemSceneNode::getEmitter()
 //! Sets the particle emitter, which creates the particles.
 void CParticleSystemSceneNode::setEmitter(IParticleEmitter* emitter)
 {
-    if (emitter == Emitter)
-        return;
+	if (emitter == Emitter)
+		return;
 	if (Emitter)
 		Emitter->drop();
 
@@ -780,4 +783,4 @@ void CParticleSystemSceneNode::deserializeAttributes(io::IAttributes* in, io::SA
 } // end namespace scene
 } // end namespace irr
 
-
+#endif // _IRR_COMPILE_WITH_PARTICLES_

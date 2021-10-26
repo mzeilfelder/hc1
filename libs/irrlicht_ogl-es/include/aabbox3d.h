@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __IRR_AABBOX_3D_H_INCLUDED__
-#define __IRR_AABBOX_3D_H_INCLUDED__
+#ifndef IRR_AABBOX_3D_H_INCLUDED
+#define IRR_AABBOX_3D_H_INCLUDED
 
 #include "irrMath.h"
 #include "plane3d.h"
@@ -189,6 +189,16 @@ class aabbox3d
 				{ t=MinEdge.Z; MinEdge.Z = MaxEdge.Z; MaxEdge.Z=t; }
 		}
 
+		// Check if MaxEdge > MinEdge
+		bool isValid() const
+		{
+			if (MinEdge.X > MaxEdge.X) return false;
+			if (MinEdge.Y > MaxEdge.Y) return false;
+			if (MinEdge.Z > MaxEdge.Z) return false;
+
+			return true;
+		}
+
 		//! Calculates a new interpolated bounding box.
 		/** d=0 returns other, d=1 returns this, all other values blend between
 		the two boxes.
@@ -226,7 +236,7 @@ class aabbox3d
 
 		//! Check if this box is completely inside the 'other' box.
 		/** \param other: Other box to check against.
-		\return True if this box is completly inside the other box,
+		\return True if this box is completely inside the other box,
 		otherwise false. */
 		bool isFullInside(const aabbox3d<T>& other) const
 		{

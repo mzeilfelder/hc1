@@ -10,6 +10,7 @@
 #include "IWriteFile.h"
 #include "CColorConverter.h"
 #include "irrString.h"
+#include "os.h"
 
 namespace irr
 {
@@ -81,6 +82,7 @@ bool CImageWriterBMP::writeImage(io::IWriteFile* file, IImage* image, u32 param)
 			= CColorConverter::convert_R5G6B5toR8G8B8;
 		break;
 	default:
+		os::Printer::log("CImageWriterBMP does not support image format", ColorFormatNames[image->getColorFormat()], ELL_WARNING);
 		break;
 	}
 
@@ -103,7 +105,7 @@ bool CImageWriterBMP::writeImage(io::IWriteFile* file, IImage* image, u32 param)
 	u32 row_stride = (pixel_size * imageHeader.Width);
 
 	// length of one row in bytes, rounded up to nearest 4-byte boundary
-	s32 row_size = ((3 * imageHeader.Width) + 3) & ~3;
+	size_t row_size = ((3 * imageHeader.Width) + 3) & ~3;
 
 	// allocate and clear memory for our scan line
 	u8* row_pointer = new u8[row_size];

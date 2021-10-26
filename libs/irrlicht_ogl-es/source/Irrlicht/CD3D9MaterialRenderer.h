@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#ifndef __C_D3D9_MATERIAL_RENDERER_H_INCLUDED__
-#define __C_D3D9_MATERIAL_RENDERER_H_INCLUDED__
+#ifndef IRR_C_D3D9_MATERIAL_RENDERER_H_INCLUDED
+#define IRR_C_D3D9_MATERIAL_RENDERER_H_INCLUDED
 
 #include "IrrCompileConfig.h"
 #ifdef _IRR_WINDOWS_
@@ -89,6 +89,13 @@ public:
 		return false;
 	}
 
+	//! Uint interface for the above.
+	virtual bool setVariable(bool vertexShader, s32 index, const u32* ints, int count)
+	{
+		os::Printer::log("Invalid material to set variable in.");
+		return false;
+	}
+
 protected:
 
 	IDirect3DDevice9* pID3DDevice;
@@ -105,7 +112,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -128,7 +135,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -171,7 +178,7 @@ public:
 		}
 	}
 
-    virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+    virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		Driver->getBridgeCalls()->setBlend(false);
 	}
@@ -181,7 +188,7 @@ public:
 	materials by opaque and transparent.
 	The return value could be optimized, but we'd need to know the
 	MaterialTypeParam for it. */
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -198,7 +205,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -222,7 +229,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -238,14 +245,14 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		Driver->getBridgeCalls()->setBlend(false);
 	}
 
 	//! Returns if the material is transparent. The scene management needs to know this
 	//! for being able to sort the materials by opaque and transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -261,7 +268,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -278,14 +285,14 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		Driver->getBridgeCalls()->setBlend(false);
 	}
 
-	//! Returns if the material is transparent. The scene managment needs to know this
+	//! Returns if the material is transparent. The scene management needs to know this
 	//! for being able to sort the materials by opaque and transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -301,7 +308,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -323,15 +330,15 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		pID3DDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 		Driver->getBridgeCalls()->setBlend(false);
 	}
 
-	//! Returns if the material is transparent. The scene managment needs to know this
+	//! Returns if the material is transparent. The scene management needs to know this
 	//! for being able to sort the materials by opaque and transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -348,7 +355,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -367,14 +374,14 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		pID3DDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 	}
 
-	//! Returns if the material is transparent. The scene managment needs to know this
+	//! Returns if the material is transparent. The scene management needs to know this
 	//! for being able to sort the materials by opaque and transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return false; // this material is not really transparent because it does no blending.
 	}
@@ -390,7 +397,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -434,7 +441,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -459,7 +466,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -476,7 +483,7 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		pID3DDevice->SetTextureStageState( 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
 		pID3DDevice->SetTextureStageState( 0, D3DTSS_TEXCOORDINDEX, 0);
@@ -494,7 +501,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -512,7 +519,7 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		pID3DDevice->SetTextureStageState( 1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
 		pID3DDevice->SetTextureStageState( 1, D3DTSS_TEXCOORDINDEX, 1);
@@ -530,7 +537,7 @@ public:
 		: CD3D9MaterialRenderer(p, d) {}
 
 	virtual void OnSetMaterial(const SMaterial& material, const SMaterial& lastMaterial,
-		bool resetAllRenderstates, IMaterialRendererServices* services) _IRR_OVERRIDE_
+		bool resetAllRenderstates, IMaterialRendererServices* services) IRR_OVERRIDE
 	{
 		services->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
@@ -552,7 +559,7 @@ public:
 		}
 	}
 
-	virtual void OnUnsetMaterial() _IRR_OVERRIDE_
+	virtual void OnUnsetMaterial() IRR_OVERRIDE
 	{
 		pID3DDevice->SetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE);
 		pID3DDevice->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 1);
@@ -560,9 +567,9 @@ public:
 		Driver->getBridgeCalls()->setBlend(false);
 	}
 
-	//! Returns if the material is transparent. The scene managment needs to know this
+	//! Returns if the material is transparent. The scene management needs to know this
 	//! for being able to sort the materials by opaque and transparent.
-	virtual bool isTransparent() const _IRR_OVERRIDE_
+	virtual bool isTransparent() const IRR_OVERRIDE
 	{
 		return true;
 	}
@@ -574,4 +581,3 @@ public:
 #endif
 #endif
 #endif
-

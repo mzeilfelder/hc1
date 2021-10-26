@@ -10,6 +10,7 @@
 #include "IWriteFile.h"
 #include "CColorConverter.h"
 #include "irrString.h"
+#include "os.h"
 
 namespace irr
 {
@@ -85,6 +86,7 @@ bool CImageWriterTGA::writeImage(io::IWriteFile *file, IImage *image,u32 param) 
 		imageHeader.ImageDescriptor |= 0;
 		break;
 	default:
+		os::Printer::log("CImageWriterTGA does not support image format", ColorFormatNames[image->getColorFormat()], ELL_WARNING);
 		break;
 	}
 
@@ -106,7 +108,7 @@ bool CImageWriterTGA::writeImage(io::IWriteFile *file, IImage *image,u32 param) 
 	u32 row_stride = (pixel_size * imageHeader.ImageWidth);
 
 	// length of one output row in bytes
-	s32 row_size = ((imageHeader.PixelDepth / 8) * imageHeader.ImageWidth);
+	size_t row_size = ((imageHeader.PixelDepth / 8) * imageHeader.ImageWidth);
 
 	// allocate a row do translate data into
 	u8* row_pointer = new u8[row_size];

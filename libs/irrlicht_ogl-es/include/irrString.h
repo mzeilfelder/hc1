@@ -2,8 +2,8 @@
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
 
-#ifndef __IRR_STRING_H_INCLUDED__
-#define __IRR_STRING_H_INCLUDED__
+#ifndef IRR_STRING_H_INCLUDED
+#define IRR_STRING_H_INCLUDED
 
 #include "irrTypes.h"
 #include "irrAllocator.h"
@@ -36,6 +36,7 @@ outside the string class for explicit use.
 template <typename T, typename TAlloc = irrAllocator<T> >
 class string;
 static size_t multibyteToWString(string<wchar_t>& destination, const char* source, u32 sourceSize);
+inline s32 isdigit(s32 c);
 
 enum eLocaleID
 {
@@ -311,7 +312,7 @@ public:
 	}
 
 
-	//! Constructor for unicode and ascii strings
+	//! Constructor for Unicode and ASCII strings
 	template <class B>
 	string(const B* const c)
 	: array(0), allocated(0), used(0)
@@ -357,7 +358,7 @@ public:
 	}
 
 
-	//! Assignment operator for strings, ascii and unicode
+	//! Assignment operator for strings, ASCII and Unicode
 	template <class B>
 	string<T,TAlloc>& operator=(const B* const c)
 	{
@@ -414,7 +415,7 @@ public:
 	}
 
 
-	//! Append operator for strings, ascii and unicode
+	//! Append operator for strings, ASCII and Unicode
 	template <class B>
 	string<T,TAlloc> operator+(const B* const c) const
 	{
@@ -428,7 +429,7 @@ public:
 	//! Direct access operator
 	T& operator [](const u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // bad index
+		IRR_DEBUG_BREAK_IF(index>=used) // bad index
 		return array[index];
 	}
 
@@ -436,7 +437,7 @@ public:
 	//! Direct access operator
 	const T& operator [](const u32 index) const
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // bad index
+		IRR_DEBUG_BREAK_IF(index>=used) // bad index
 		return array[index];
 	}
 
@@ -508,6 +509,16 @@ public:
 	bool empty() const
 	{
 		return (size() == 0);
+	}
+
+	void clear(bool releaseMemory=true)
+	{
+		if ( releaseMemory )
+		{
+			reallocate(1);
+		}
+		array[0] = 0;
+		used = 1;
 	}
 
 	//! Returns character string
@@ -675,7 +686,7 @@ public:
 			return *this;
 
 		--used;
-		u32 len = other.size()+1;
+		const u32 len = other.size()+1;
 
 		if (used + len > allocated)
 			reallocate(used + len);
@@ -719,6 +730,32 @@ public:
 		return *this;
 	}
 
+	//! Insert a certain amount of characters into the string before the given index
+	//\param pos Insert the characters before this index
+	//\param s String to insert. Must be at least of size n
+	//\param n Number of characters from string s to use.
+	string<T,TAlloc>& insert(u32 pos, const char* s, u32 n)
+	{
+		if ( pos < used )
+		{
+			reserve(used+n);
+
+			// move stuff behind insert point
+			const u32 end = used+n-1;
+			for (u32 i=0; i<used-pos; ++i)
+			{
+				array[end-i] = array[end-(i+n)];
+			}
+			used += n;
+
+			for (u32 i=0; i<n; ++i)
+			{
+				array[pos+i] = s[i];
+			}
+		}
+
+		return *this;
+	}
 
 	//! Reserves some memory.
 	/** \param count: Amount of characters to reserve. */
@@ -921,15 +958,14 @@ public:
 		string<T> o;
 		o.reserve(length+1);
 
-		s32 i;
 		if ( !make_lower )
 		{
-			for (i=0; i<length; ++i)
+			for (s32 i=0; i<length; ++i)
 				o.array[i] = array[i+begin];
 		}
 		else
 		{
-			for (i=0; i<length; ++i)
+			for (s32 i=0; i<length; ++i)
 				o.array[i] = locale_lower ( array[i+begin] );
 		}
 
@@ -1234,7 +1270,7 @@ public:
 
 	//! Trims the string.
 	/** Removes the specified characters (by default, Latin-1 whitespace)
-	from the begining and the end of the string. */
+	from the beginning and the end of the string. */
 	string<T,TAlloc>& trim(const string<T,TAlloc> & whitespace = " \t\n\r")
 	{
 		// find start and end of the substring without the specified characters
@@ -1247,6 +1283,41 @@ public:
 		return (*this = subString(begin, (end +1) - begin));
 	}
 
+	//! Erase 0's at the end when a string ends with a floating point number
+	/** After generating strings from floats we often end up with strings
+		ending up with lots of zeros which don't add any value. Erase 'em all.
+		Examples: "0.100000" becomes "0.1"
+	              "10.000000" becomes "10"
+				  "foo 3.140000" becomes "foo 3.14"
+				  "no_num.000" stays "no_num.000"
+				  "1." stays "1."
+	*/
+	string<T,TAlloc>& eraseTrailingFloatZeros(char decimalPoint='.')
+	{
+		s32 i=findLastCharNotInList("0", 1);
+		if ( i > 0 && (u32)i < used-2 )	// non 0 must be found and not last char (also used is at least 2 when i > 0)
+		{
+			u32 eraseStart=i+1;
+			u32 dot=0;
+			if( core::isdigit(array[i]) )
+			{
+				while( --i>0 && core::isdigit(array[i]) );
+				if ( array[i] == decimalPoint )
+					dot = i;
+			}
+			else if ( array[i] == decimalPoint )
+			{
+				dot = i;
+				eraseStart = i;
+			}
+			if ( dot > 0 && core::isdigit(array[dot-1]) )
+			{
+				array[eraseStart] = 0;
+				used = eraseStart+1;
+			}
+		}
+		return *this;
+	}
 
 	//! Erases a character from the string.
 	/** May be slow, because all elements
@@ -1254,7 +1325,7 @@ public:
 	\param index: Index of element to be erased. */
 	string<T,TAlloc>& erase(u32 index)
 	{
-		_IRR_DEBUG_BREAK_IF(index>=used) // access violation
+		IRR_DEBUG_BREAK_IF(index>=used) // access violation
 
 		for (u32 i=index+1; i<used; ++i)
 			array[i-1] = array[i];
@@ -1296,17 +1367,18 @@ public:
 		return used > 1 ? array[used-2] : 0;
 	}
 
-	//! split string into parts.
+	//! Split string into parts (tokens).
 	/** This method will split a string at certain delimiter characters
 	into the container passed in as reference. The type of the container
 	has to be given as template parameter. It must provide a push_back and
 	a size method.
-	\param ret The result container
-	\param c C-style string of delimiter characters
-	\param count Number of delimiter characters
+	\param ret The result container. Tokens are added, the container is not cleared.
+	\param delimiter C-style string of delimiter characters
+	\param countDelimiters Number of delimiter characters
 	\param ignoreEmptyTokens Flag to avoid empty substrings in the result
-	container. If two delimiters occur without a character in between, an
-	empty substring would be placed in the result. If this flag is set,
+	container. If two delimiters occur without a character in between or an
+	empty substring would be placed in the result. Or if a delimiter is the last
+	character an empty substring would be added at the end.	If this flag is set,
 	only non-empty strings are stored.
 	\param keepSeparators Flag which allows to add the separator to the
 	result string. If this flag is true, the concatenation of the
@@ -1315,33 +1387,39 @@ public:
 	\return The number of resulting substrings
 	*/
 	template<class container>
-	u32 split(container& ret, const T* const c, u32 count=1, bool ignoreEmptyTokens=true, bool keepSeparators=false) const
+	u32 split(container& ret, const T* const delimiter, u32 countDelimiters=1, bool ignoreEmptyTokens=true, bool keepSeparators=false) const
 	{
-		if (!c)
+		if (!delimiter)
 			return 0;
 
 		const u32 oldSize=ret.size();
-		u32 lastpos = 0;
-		bool lastWasSeparator = false;
+
+		u32 tokenStartIdx = 0;
 		for (u32 i=0; i<used; ++i)
 		{
-			bool foundSeparator = false;
-			for (u32 j=0; j<count; ++j)
+			for (u32 j=0; j<countDelimiters; ++j)
 			{
-				if (array[i] == c[j])
+				if (array[i] == delimiter[j])
 				{
-					if ((!ignoreEmptyTokens || i - lastpos != 0) &&
-							!lastWasSeparator)
-						ret.push_back(string<T,TAlloc>(&array[lastpos], i - lastpos));
-					foundSeparator = true;
-					lastpos = (keepSeparators ? i : i + 1);
+					if (i - tokenStartIdx > 0)
+						ret.push_back(string<T,TAlloc>(&array[tokenStartIdx], i - tokenStartIdx));
+					else if ( !ignoreEmptyTokens )
+						ret.push_back(string<T,TAlloc>());
+					if ( keepSeparators )
+					{
+						ret.push_back(string<T,TAlloc>(&array[i], 1));
+					}
+
+					tokenStartIdx = i+1;
 					break;
 				}
 			}
-			lastWasSeparator = foundSeparator;
 		}
-		if ((used - 1) > lastpos)
-			ret.push_back(string<T,TAlloc>(&array[lastpos], (used - 1) - lastpos));
+		if ((used - 1) > tokenStartIdx)
+			ret.push_back(string<T,TAlloc>(&array[tokenStartIdx], (used - 1) - tokenStartIdx));
+		 else if ( !ignoreEmptyTokens )
+                ret.push_back(string<T,TAlloc>());
+
 		return ret.size()-oldSize;
 	}
 
@@ -1357,7 +1435,7 @@ private:
 		array = allocator.allocate(new_size); //new T[new_size];
 		allocated = new_size;
 
-		u32 amount = used < new_size ? used : new_size;
+		const u32 amount = used < new_size ? used : new_size;
 		for (u32 i=0; i<amount; ++i)
 			array[i] = old_array[i];
 
@@ -1387,7 +1465,7 @@ typedef string<wchar_t> stringw;
 What the function does exactly depends on the LC_CTYPE of the current c locale.
 \param destination Wide-character string receiving the converted source
 \param source multibyte string
-\return The number of wide characters written to destination, not including the eventual terminating null character. */
+\return The number of wide characters written to destination, not including the eventual terminating null character or -1 when conversion failed */
 static inline size_t multibyteToWString(string<wchar_t>& destination, const core::string<c8>& source)
 {
 	return multibyteToWString(destination, source.c_str(), (u32)source.size());
@@ -1398,10 +1476,10 @@ static inline size_t multibyteToWString(string<wchar_t>& destination, const core
 What the function does exactly depends on the LC_CTYPE of the current c locale.
 \param destination Wide-character string receiving the converted source
 \param source multibyte string
-\return The number of wide characters written to destination, not including the eventual terminating null character. */
+\return The number of wide characters written to destination, not including the eventual terminating null character  or -1 when conversion failed. */
 static inline size_t multibyteToWString(string<wchar_t>& destination, const char* source)
 {
-	u32 s = source ? (u32)strlen(source) : 0;
+	const u32 s = source ? (u32)strlen(source) : 0;
 	return multibyteToWString(destination, source, s);
 }
 
@@ -1415,17 +1493,26 @@ static size_t multibyteToWString(string<wchar_t>& destination, const char* sourc
 #pragma warning(push)
 #pragma warning(disable: 4996)	// 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead.
 #endif
-		size_t written = mbstowcs(destination.array, source, (size_t)sourceSize);
+		const size_t written = mbstowcs(destination.array, source, (size_t)sourceSize);
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-		destination.used = (u32)written;
-		destination.array[destination.used] = 0;
+		if ( written != (size_t)-1 )
+		{
+			destination.used = (u32)written+1;
+			destination.array[destination.used-1] = 0;
+		}
+		else
+		{
+			// Likely character which got converted until the invalid character was encountered are in destination now.
+			// And it seems even 0-terminated, but I found no documentation anywhere that this (the 0-termination) is guaranteed :-(
+			destination.clear();
+		}
 		return written;
 	}
 	else
 	{
-		destination.empty();
+		destination.clear();
 		return 0;
 	}
 }

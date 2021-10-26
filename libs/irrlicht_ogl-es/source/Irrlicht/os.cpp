@@ -173,7 +173,17 @@ namespace os
 			break;
 		}
 
-		__android_log_print(LogLevel, "Irrlicht", "%s\n", message);
+		// Android logcat restricts log-output and cuts the rest of the message away. But we want it all.
+		// On my device max-len is 1023 (+ 0 byte). Some websites claim a limit of 4096 so maybe different numbers on different devices.
+		const size_t maxLogLen = 1023;
+		size_t msgLen = strlen(message);
+		size_t start = 0;
+		while ( msgLen-start > maxLogLen )
+		{
+			__android_log_print(LogLevel, "Irrlicht", "%.*s\n", maxLogLen, &message[start]);
+			start += maxLogLen;
+		}
+		__android_log_print(LogLevel, "Irrlicht", "%s\n", &message[start]);
 	}
 
 	void Timer::initTimer(bool usePerformanceTimer)
@@ -186,6 +196,58 @@ namespace os
 		timeval tv;
 		gettimeofday(&tv, 0);
 		return (u32)(tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	}
+} // end namespace os
+
+#elif defined(_IRR_EMSCRIPTEN_PLATFORM_)
+
+// ----------------------------------------------------------------
+// emscripten version
+// ----------------------------------------------------------------
+
+#include <emscripten.h>
+#include <time.h>
+#include <sys/time.h>
+
+namespace irr
+{
+namespace os
+{
+
+	//! prints a debuginfo string
+	void Printer::print(const c8* message, ELOG_LEVEL ll)
+	{
+        int log_level;
+		switch (ll)
+		{
+		case ELL_DEBUG:
+            log_level=0;
+		break;
+		case ELL_INFORMATION:
+           log_level=0;
+		break;
+		case ELL_WARNING:
+            log_level=EM_LOG_WARN;
+			break;
+		case ELL_ERROR:
+            log_level=EM_LOG_ERROR;
+		break;
+		default: // ELL_NONE
+            log_level=0;
+			break;
+		}
+        emscripten_log(log_level, "%s", message);	// Note: not adding \n as emscripten_log seems to do that already.
+	}
+
+	void Timer::initTimer(bool usePerformanceTimer)
+	{
+		initVirtualTimer();
+	}
+
+	u32 Timer::getRealTime()
+	{
+        double time = emscripten_get_now();
+        return (u32)(time);
 	}
 } // end namespace os
 
@@ -223,7 +285,7 @@ namespace os
 	}
 } // end namespace os
 
-#endif // end linux / android / windows
+#endif // end linux / emscripten / android / windows
 
 namespace os
 {
@@ -256,7 +318,7 @@ namespace os
 
 	// our Randomizer is not really os specific, so we
 	// code one for all, which should work on every platform the same,
-	// which is desireable.
+	// which is desirable.
 
 	s32 Randomizer::seed = 0x0f0f0f0f;
 
@@ -265,10 +327,10 @@ namespace os
 	{
 		// (a*seed)%m with Schrage's method
 		seed = a * (seed%q) - r* (seed/q);
-		if (seed<0)
+		if (seed<1)
 			seed += m;
 
-		return seed;
+		return seed-1;	// -1 because we want it to start at 0
 	}
 
 	//! generates a pseudo random number
@@ -285,7 +347,12 @@ namespace os
 	//! resets the randomizer
 	void Randomizer::reset(s32 value)
 	{
-		seed = value;
+		if (value<0)
+			seed = value+m;
+		else if ( value == 0 || value == m)
+			seed = 1;
+		else
+			seed = value;
 	}
 
 
@@ -308,7 +375,8 @@ namespace os
 		timeinfo = localtime(&rawtime);
 
 		// init with all 0 to indicate error
-		ITimer::RealTimeDate date={0};
+		ITimer::RealTimeDate date;
+		memset(&date, 0, sizeof(date));
 		// at least Windows returns NULL on some illegal dates
 		if (timeinfo)
 		{
