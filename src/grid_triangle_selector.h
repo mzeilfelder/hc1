@@ -21,18 +21,21 @@ public:
 
 	//! Gets all triangle in the selector
 	virtual void getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
-		irr::s32& outTriangleCount, const irr::core::matrix4* transform=0) const;
+		irr::s32& outTriangleCount, const irr::core::matrix4* transform=0,
+		bool useNodeTransform=true, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo=0) const;
 
 	//! Gets all triangles within a specific bounding box.
 	virtual void getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
 		irr::s32& outTriangleCount, const irr::core::aabbox3d<irr::f32>& box,
-		const irr::core::matrix4* transform=0) const;
+		const irr::core::matrix4* transform=0,
+		bool useNodeTransform=true, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo=0) const;
 
 	//! Gets the triangles for one associated node which have or may have contact with a 3d line.
 	// NOTE: not optimized
 	virtual void getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
 		irr::s32& outTriangleCount, const irr::core::line3d<irr::f32>& line,
-		const irr::core::matrix4* transform=0) const;
+		const irr::core::matrix4* transform=0,
+		bool useNodeTransform=true, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo=0) const;
 
 	//! Return scenenode for the selector
 	virtual irr::scene::ISceneNode* getSceneNodeForTriangle(irr::u32 triangleIndex) const
