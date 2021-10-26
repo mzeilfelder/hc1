@@ -59,19 +59,23 @@ I'm not sure right now about the system library dependencies. But you need at le
 ----------------
 Build PC - Linux
 ----------------
-Libraries:
 
-In a bash console go into the hcraft1/build folder.
-Call make-libs-linux.sh
+In a bash console enter:
+
+```
+git clone --recurse-submodules --recursive http://github.com/mzeilfelder/media_hc1
+cd hc1/libs
+svn checkout https://svn.code.sf.net/p/irrlicht/code/trunk irrlicht-code
+cd irrlicht-code/source/Irrlicht
+make sharedlib && make install
+cd ../../../
+cd build
+./copy-media-linux.sh
+cd ..
+codeblocks src/hover_system_libs.cbp
+```c
+
 If there are any errors report them and we might be able to figure out what's going on.
-
-Start the Code::Blocks IDE and open libs/irrlicht/source/Irrlicht/Irrlicht-gcc.cbp
-Select as target Linux Release - accurate math - static
-Build it.
-
-H-Craft:
-In the Code::Blocks IDE open src/hover.cbp
-Select the corresponding Linux target and click build.
 
 ------------------
 Build PC - Windows
