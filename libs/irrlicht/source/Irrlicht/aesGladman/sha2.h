@@ -56,8 +56,8 @@
 #endif
 
 /* define an unsigned 64-bit type */
-
 #if defined(_MSC_VER) || defined(__BORLANDC__)
+
 #if (_MSC_VER < 1300) || (__BORLANDC__ < 0x582)
   typedef unsigned __int64   sha2_64t;
   #define s_u64 ui64
@@ -69,20 +69,25 @@
   #define s_u64  ull
 #else
 #error Please define sha2_64t as an unsigned 64 bit type in sha2.h
-#endif
-#else
+#endif /* (_MSC_VER < 1300) || (__BORLANDCC__ < 0x582) */
+
+#else /* other non MS/Borland platform */
+
 #ifdef _IRR_SOLARIS_PLATFORM_
 #include <sys/int_types.h>
-#else
+  typedef uint64_t sha2_64t;
+#else /* other non MS/Borland or Solaris platform */
 #include <stdint.h>
-#endif
-    typedef int64_t sha2_64t;
+  typedef uint64_t sha2_64t;
+#endif /* _IRR_SOLARIS_PLATFORM_ */
+
 #if __WORDSIZE==64
 #define s_u64 ul
 #else
 #define s_u64 ull
 #endif
-#endif
+
+#endif /* defined(_MSC_VER) || defined(__BORLANDC__) */
 
 #define SHA256_DIGEST_SIZE  32
 #define SHA384_DIGEST_SIZE  48

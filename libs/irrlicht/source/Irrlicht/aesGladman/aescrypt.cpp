@@ -125,10 +125,12 @@ aes_rval aes_encrypt(const void *in_blk, void *out_blk, const aes_encrypt_ctx cx
         round(fwd_rnd,  b1, b0, kp + 1 * N_COLS);
         round(fwd_rnd,  b0, b1, kp + 2 * N_COLS);
         kp += 2 * N_COLS;
+        /* Falls through. */
     case 12:
         round(fwd_rnd,  b1, b0, kp + 1 * N_COLS);
         round(fwd_rnd,  b0, b1, kp + 2 * N_COLS);
         kp += 2 * N_COLS;
+        /* Falls through. */
     case 10:
         round(fwd_rnd,  b1, b0, kp + 1 * N_COLS);
         round(fwd_rnd,  b0, b1, kp + 2 * N_COLS);
@@ -249,10 +251,12 @@ aes_rval aes_decrypt(const void *in_blk, void *out_blk, const aes_decrypt_ctx cx
         round(inv_rnd,  b1, b0, kp -  1 * N_COLS);
         round(inv_rnd,  b0, b1, kp -  2 * N_COLS);
         kp -= 2 * N_COLS;
+        /* Falls through. */
     case 12:
         round(inv_rnd,  b1, b0, kp -  1 * N_COLS);
         round(inv_rnd,  b0, b1, kp -  2 * N_COLS);
         kp -= 2 * N_COLS;
+        /* Falls through. */
     case 10:
         round(inv_rnd,  b1, b0, kp -  1 * N_COLS);
         round(inv_rnd,  b0, b1, kp -  2 * N_COLS);

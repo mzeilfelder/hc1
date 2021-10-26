@@ -576,12 +576,15 @@ sha2_int sha2_begin(unsigned long len, sha2_ctx ctx[1])
     switch(len)
     {
         case 256:   l = len >> 3;
+        /* Falls through. */
         case  32:   CTX_256(ctx)->count[0] = CTX_256(ctx)->count[1] = 0;
                     memcpy(CTX_256(ctx)->hash, i256, 32); break;
         case 384:   l = len >> 3;
+        /* Falls through. */
         case  48:   CTX_384(ctx)->count[0] = CTX_384(ctx)->count[1] = 0;
                     memcpy(CTX_384(ctx)->hash, i384, 64); break;
         case 512:   l = len >> 3;
+        /* Falls through. */
         case  64:   CTX_512(ctx)->count[0] = CTX_512(ctx)->count[1] = 0;
                     memcpy(CTX_512(ctx)->hash, i512, 64); break;
         default:    return SHA2_BAD;
