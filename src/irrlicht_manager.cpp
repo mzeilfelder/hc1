@@ -40,7 +40,7 @@ IrrlichtManager::IrrlichtManager()
     mDefaultEditorMaterial.AmbientColor = video::SColor(255, 255, 255, 255);
     mDefaultEditorMaterial.MaterialType = video::EMT_SOLID;
     mDefaultEditorMaterial.Lighting = false;
-    mDefaultEditorMaterial.ZWriteEnable = true;
+    mDefaultEditorMaterial.ZWriteEnable = EZW_ON;
     mDefaultEditorMaterial.Wireframe = true;
     mDefaultEditorMaterial.BackfaceCulling = false;
     mDefaultEditorMaterial.setFlag(video::EMF_BILINEAR_FILTER, false);
