@@ -124,7 +124,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath -Wl,./libs/linux_shared" />
-					<Add library="..\libs\irrlicht\lib\Linux\libIrrlicht.a" />
+					<Add library="/usr/local/lib/libIrrlicht.a" />
 					<Add library="GL" />
 					<Add library="GLU" />
 					<Add library="Xext" />
@@ -135,12 +135,12 @@
 					<Add library="/usr/lib/libvorbis.a" />
 					<Add library="/usr/lib/libogg.a" />
 					<Add library="/usr/lib/libfreetype.a" />
-					<Add library="/usr/lib//lib/libSDL.so" />
+					<Add library="/usr/lib/libSDL.so" />
 					<Add library="/usr/lib/libopenal.so" />
 					<Add library="/usr/lib/libalut.so" />
 					<Add library="Xrandr" />
-					<Add directory="\usr\local\lib" />
-					<Add directory="\usr\X11R6\lib" />
+					<Add directory="/usr/local/lib" />
+					<Add directory="/usr/X11R6/lib" />
 				</Linker>
 			</Target>
 			<Target title="linux32 release">
@@ -210,35 +210,30 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D__GNUWIN32__" />
 					<Add option="-DWIN32" />
-					<Add directory="..\libs\libogg\Win32-gcc\include" />
-					<Add directory="..\libs\libvorbis\Win32-gcc\include" />
-					<Add directory="..\libs\freealut\Win32-gcc\include" />
-					<Add directory="..\libs\openal\Win32-gcc\include" />
-					<Add directory="..\libs\sdl\Win32-gcc\include" />
-					<Add directory="..\libs\libfreetype\Win32-gcc\include" />
-					<Add directory="..\libs\libfreetype\Win32-gcc\include\freetype2" />
-					<Add directory="..\libs\irrlicht\include" />
+					<Add directory="/usr/include/SDL" />
+					<Add directory="/usr/include/freetype2" />
+					<Add directory="/usr/local/include/irrlicht" />
 				</Compiler>
 				<Linker>
 					<Add library="mingw32" />
 					<Add library="gdi32" />
-					<Add library="..\libs\irrlicht\lib\Win32-gcc\libIrrlicht.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbisfile.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbisenc.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbis.a" />
-					<Add library="..\libs\libogg\Win32-gcc\lib\libogg.a" />
-					<Add library="..\libs\libfreetype\Win32-gcc\lib\libfreetype.a" />
-					<Add library="..\libs\sdl\Win32-gcc\lib\libSDL.dll.a" />
-					<Add library="..\libs\freealut\Win32-gcc\lib\libalut.dll.a" />
-					<Add library="..\libs\openal\Win32-gcc\lib\libOpenAL32.dll.a" />
+					<Add library="/usr/local/lib/libIrrlicht.a" />
+					<Add library="/usr/lib/libvorbisfile.a" />
+					<Add library="/usr/lib/libvorbisenc.a" />
+					<Add library="/usr/lib/libvorbis.a" />
+					<Add library="/usr/lib/libogg.a" />
+					<Add library="/usr/lib/libfreetype.a" />
+					<Add library="/usr/lib/libSDL.dll.a" />
+					<Add library="/usr/lib/libalut.dll.a" />
+					<Add library="/usr/lib\libOpenAL32.dll.a" />
 					<Add directory="\usr\local\lib" />
 					<Add directory="\usr\X11R6\lib" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c xcopy ..\libs\irrlicht\bin\Win32-gcc\Irrlicht.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\openal\Win32-gcc\bin\OpenAL32.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\freealut\Win32-gcc\bin\libalut.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\sdl\Win32-gcc\bin\SDL.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/local/lib/Irrlicht.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/OpenAL32.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/libalut.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/SDL.dll .. /D /Y" />
 				</ExtraCommands>
 			</Target>
 			<Target title="mingw32 release">
@@ -263,36 +258,22 @@
 					<Add option="-D__GNUWIN32__" />
 					<Add option="-DWIN32" />
 					<Add option="-DHOVER_RELEASE" />
-					<Add directory="..\libs\libogg\Win32-gcc\include" />
-					<Add directory="..\libs\libvorbis\Win32-gcc\include" />
-					<Add directory="..\libs\freealut\Win32-gcc\include" />
-					<Add directory="..\libs\openal\Win32-gcc\include" />
-					<Add directory="..\libs\sdl\Win32-gcc\include" />
-					<Add directory="..\libs\libfreetype\Win32-gcc\include" />
-					<Add directory="..\libs\libfreetype\Win32-gcc\include\freetype2" />
-					<Add directory="..\libs\irrlicht\include" />
+					<Add directory="/usr/include/SDL" />
+					<Add directory="/usr/include/freetype2" />
+					<Add directory="/usr/local/include/irrlicht" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="mingw32" />
 					<Add library="gdi32" />
-					<Add library="..\libs\irrlicht\lib\Win32-gcc\libIrrlicht.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbisfile.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbisenc.a" />
-					<Add library="..\libs\libvorbis\Win32-gcc\lib\libvorbis.a" />
-					<Add library="..\libs\libogg\Win32-gcc\lib\libogg.a" />
-					<Add library="..\libs\libfreetype\Win32-gcc\lib\libfreetype.a" />
-					<Add library="..\libs\sdl\Win32-gcc\lib\libSDL.dll.a" />
-					<Add library="..\libs\freealut\Win32-gcc\lib\libalut.dll.a" />
-					<Add library="..\libs\openal\Win32-gcc\lib\libOpenAL32.dll.a" />
 					<Add directory="\usr\local\lib" />
 					<Add directory="\usr\X11R6\lib" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="cmd /c xcopy ..\libs\irrlicht\bin\Win32-gcc\Irrlicht.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\openal\Win32-gcc\bin\OpenAL32.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\freealut\Win32-gcc\bin\libalut.dll .. /D /Y" />
-					<Add after="cmd /c xcopy ..\libs\sdl\Win32-gcc\bin\SDL.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/local/lib/Irrlicht.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/OpenAL32.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/libalut.dll .. /D /Y" />
+					<Add after="cmd /c xcopy /usr/lib/SDL.dll .. /D /Y" />
 				</ExtraCommands>
 			</Target>
 			<Target title="linux64es2 debug">
