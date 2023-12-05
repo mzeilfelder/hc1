@@ -112,7 +112,7 @@ void CGUITTGlyph::cache(u32 idx_, const CGUIFreetypeFont * freetypeFont)
 				u32 *texd = new u32[imgw*imgh];
 				memset(texd,0,imgw*imgh*sizeof(u32));
 				u32 *texp = texd;
-				bool cflag = (freetypeFont->Driver->getDriverType() == video::EDT_DIRECT3D8);
+				bool cflag = (freetypeFont->Driver->getDriverType() == video::EDT_DIRECT3D9);
 				for (unsigned int i = 0;i < bits.rows;i++)
 				{
 					u32 *rowp = texp;
@@ -207,10 +207,10 @@ void CGUITTGlyph::cache(u32 idx_, const CGUIFreetypeFont * freetypeFont)
 		u16 *texd16 = new u16[imgw16*imgh16];
 		memset(texd16,0,imgw16*imgh16*sizeof(u16));
 		u16 *texp16 = texd16;
-		for (int y = 0;y < bits.rows;y++)
+		for (u32 y = 0;y < bits.rows;y++)
 		{
 			u16 *rowp = texp16;
-			for (int x = 0;x < bits.width;x++)
+			for (u32 x = 0;x < bits.width;x++)
 			{
 				if (pt[y * bits.pitch + (x / 8)] & (0x80 >> (x % 8)))
 				{
@@ -361,8 +361,8 @@ CGUIFreetypeFont::CGUIFreetypeFont(video::IVideoDriver* driver)
 //! destructor
 CGUIFreetypeFont::~CGUIFreetypeFont()
 {
-    if ( TrueTypeFace )
-        TrueTypeFace->drop();
+	if ( TrueTypeFace )
+        	TrueTypeFace->drop();
 	if (Driver)
 		Driver->drop();
     clearGlyphs();
@@ -374,11 +374,14 @@ bool CGUIFreetypeFont::attach(CGUITTFace *Face,u32 size)
 		return false;
 
 	Face->grab();
-    if ( TrueTypeFace )
-        TrueTypeFace->drop();
+
+    	if ( TrueTypeFace )
+        	TrueTypeFace->drop();
+
 	TrueTypeFace = Face;
+
 	if ( !TrueTypeFace )
-        return false;
+        	return false;
 
     clearGlyphs();
 	Glyphs.reallocate(TrueTypeFace->face->num_glyphs);

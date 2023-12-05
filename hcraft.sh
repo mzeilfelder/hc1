@@ -42,10 +42,10 @@ if [ -x "${HCRAFT_APP_PATH}/hcraft_bin" ]
 then
 	cd "${HCRAFT_APP_PATH}/"
 	exec "./hcraft_bin" $*
-elif [ -x "${HCRAFT_APP_PATH}/hovercraft64" ]
+elif [ -x "${HCRAFT_APP_PATH}/hovercraft" ]
 then
 	cd "${HCRAFT_APP_PATH}/"
-	exec "./hovercraft64" $*
+	exec "./hovercraft" $*
 fi
 
 echo "Sorry, could not run H-Craft Championship."

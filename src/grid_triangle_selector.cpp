@@ -23,7 +23,8 @@ irr::s32 GridTriangleSelector::getTriangleCount() const
 }
 
 void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
-	irr::s32& outTriangleCount, const irr::core::matrix4* transform) const
+	irr::s32& outTriangleCount, const irr::core::matrix4* transform,
+	bool useNodeTransform, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo) const
 {
 	u32 cnt = mTriangles.size();
 	if (cnt > (u32)arraySize)
@@ -57,7 +58,8 @@ void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::
 }
 
 void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
-	irr::s32& outTriangleCount, const irr::core::aabbox3d<irr::f32>& box, const irr::core::matrix4* transform) const
+	irr::s32& outTriangleCount, const irr::core::aabbox3d<irr::f32>& box, const irr::core::matrix4* transform,
+	bool useNodeTransform, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo) const
 {
 	outTriangleCount = 0;
 
@@ -156,7 +158,8 @@ void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::
 }
 
 void GridTriangleSelector::getTriangles(irr::core::triangle3df* triangles, irr::s32 arraySize,
-	irr::s32& outTriangleCount, const irr::core::line3d<irr::f32>& line,const irr::core::matrix4* transform) const
+	irr::s32& outTriangleCount, const irr::core::line3d<irr::f32>& line,const irr::core::matrix4* transform,
+	bool useNodeTransform, irr::core::array<irr::scene::SCollisionTriangleRange>* outTriangleInfo) const
 {
 	// TODO: no optimization for that so far
 
