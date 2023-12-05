@@ -9,27 +9,31 @@ if [ ! -x "$BROWSER" ]; then
 	
 	BROWSER=`which firefox`
 	if [ ! -x "$BROWSER" ]; then
-		
-		BROWSER=`which opera`
+
+		BROWSER=`which firefox-bin`
 		if [ ! -x "$BROWSER" ]; then
-	
-			BROWSER=`which mozilla`
+		
+			BROWSER=`which opera`
 			if [ ! -x "$BROWSER" ]; then
 	
-				BROWSER=`which konqueror`
+				BROWSER=`which mozilla`
 				if [ ! -x "$BROWSER" ]; then
 	
-					BROWSER=`which galeon`
+					BROWSER=`which konqueror`
 					if [ ! -x "$BROWSER" ]; then
-
-						BROWSER=`which iceweasel`
+	
+						BROWSER=`which galeon`
 						if [ ! -x "$BROWSER" ]; then
 
-							BROWSER=`which netscape`
+							BROWSER=`which iceweasel`
 							if [ ! -x "$BROWSER" ]; then
-								echo Please start your favorite webbrowser and open:
-								echo $@
-								exit 1
+
+								BROWSER=`which netscape`
+								if [ ! -x "$BROWSER" ]; then
+									echo Please start your favorite webbrowser and open:
+									echo $@
+									exit 1
+								fi
 							fi
 						fi
 					fi

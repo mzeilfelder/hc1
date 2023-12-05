@@ -153,11 +153,10 @@ Config::~Config()
 void Config::Init(const char *argv0_)
 {
 #ifndef __ANDROID__
-    char cwd[MAXPATHLEN];
 #if defined(_MSC_VER)
-    _getcwd(cwd, MAXPATHLEN);
+    char cwd[MAXPATHLEN] = _getcwd(cwd, MAXPATHLEN);
 #else
-	getcwd(cwd, MAXPATHLEN);
+    char* cwd = get_current_dir_name();
 #endif
     if ( argv0_ )
     {
